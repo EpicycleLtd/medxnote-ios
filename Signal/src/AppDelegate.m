@@ -68,8 +68,48 @@ static NSString* const kCallSegue = @"2.0_6.0_Call_Segue";
     return [thisVersionString compare:thatVersionString options:NSNumericSearch] == NSOrderedAscending;
 }
 
+#ifdef SNAPSHOT
+
+- (void)moveToContainer {
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+    NSString *docFiles   = [bundlePath stringByAppendingString:@"/SampleDocuments"];
+    NSLog(@"%@", docFiles);
+    
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *fileURL = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    NSString *path = [fileURL path];
+    
+
+    
+    NSError *error;
+    NSArray* resContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:docFiles error:&error];
+    
+    for (NSString* obj in resContents){
+        if (![[NSFileManager defaultManager]
+              copyItemAtPath:[docFiles stringByAppendingPathComponent:obj]
+              toPath:[path stringByAppendingPathComponent:obj]
+              error:&error]) NSLog(@"%@", error);
+    }
+    
+    if (error) {
+        NSLog(@"Failed to find template database: %@", error);
+        exit(1);
+    }
+}
+
+#endif
+
+
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-   
+    
+#ifdef SNAPSHOT
+    if (!Environment.preferences.lastRanVersion) {
+        [self moveToContainer];
+    }
+#endif
+    
     [self setupAppearance];
     
     if (getenv("runningTests_dontStartApp")) {

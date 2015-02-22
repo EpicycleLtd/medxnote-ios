@@ -1,8 +1,8 @@
-platform :ios, '7.0'
+platform :ios, '8.0'
 source 'https://github.com/CocoaPods/Specs.git'
 inhibit_all_warnings!
 
-link_with ["Signal", "SignalTests"]
+link_with ["Signal", "SignalTests", "Signal-Snapshots"]
 
 pod 'SocketRocket',               :git => 'https://github.com/FredericJacobs/SocketRocket.git', :commit => '73d8a19'
 pod 'OpenSSL',		              '~> 1.0.200'
