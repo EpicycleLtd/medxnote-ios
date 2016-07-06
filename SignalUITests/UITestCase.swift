@@ -14,6 +14,7 @@ class UITestCase: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        acceptAnyPermissionDialog()
         self.continueAfterFailure = false
     }
 
@@ -21,5 +22,20 @@ class UITestCase: XCTestCase {
         //Is this necessary?
         XCUIApplication().launchArguments = []
         super.tearDown()
+    }
+
+    func acceptAnyPermissionDialog() {
+        addUIInterruptionMonitor(withDescription: "Permissions Handler") { (alert) -> Bool in
+            if (alert.staticTexts["“Signal” Would Like to Send You Notifications"].exists) {
+                alert.buttons["Allow"].tap()
+                NSLog("Authorized Notifications permission.")
+                return true
+            } else if (alert.staticTexts["“Signal” Would Like to Access Your Contacts"].exists) {
+                alert.buttons["OK"].tap()
+                NSLog("Authorized Notifications permission.")
+                return true
+            }
+            return false
+        }
     }
 }
