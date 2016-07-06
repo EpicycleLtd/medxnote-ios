@@ -35,7 +35,7 @@ class RegistrationUITests: UITestCase {
 
     func testCountryCodeSelectionScreenSearch() {
         app.buttons["Country Code"].tap()
-        let searchField = app.tables.childrenMatchingType(.SearchField).element
+        let searchField = app.tables.children(matching: .searchField).element
         searchField.tap()
         searchField.typeText("Fran")
         
@@ -52,7 +52,7 @@ class RegistrationUITests: UITestCase {
 
     func testCountryCodeSelectionScreenSearchSelect() {
         app.buttons["Country Code"].tap()
-        let searchField = app.tables.childrenMatchingType(.SearchField).element
+        let searchField = app.tables.children(matching: .searchField).element
         searchField.tap()
         searchField.typeText("Fran")
         app.tables.staticTexts["France"].tap()

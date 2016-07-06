@@ -39,8 +39,8 @@ class MessagingUITests: UITestCase {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.tables.staticTexts["Test"].tap()
 
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).typeText("1")
+        app.textViews.element(boundBy: app.textViews.count - 1).tap()
+        app.textViews.element(boundBy: app.textViews.count - 1).typeText("1")
         app.toolbars.buttons["Send"].tap()
 
         XCTAssert(app.textViews["1"].exists)
@@ -54,7 +54,7 @@ class MessagingUITests: UITestCase {
         app.toolbars.buttons["btnAttachments  blue"].tap()
         app.buttons["Choose from Library..."].tap()
         app.buttons["Camera Roll"].tap()
-        app.cells.elementBoundByIndex(0).tap()
+        app.cells.element(boundBy: 0).tap()
 
         XCTAssert(app.images.count > oldImagesCount)
     }
@@ -66,8 +66,8 @@ class MessagingUITests: UITestCase {
         app.toolbars.buttons["btnAttachments  blue"].tap()
         app.buttons["Choose from Library..."].tap()
         app.buttons["Camera Roll"].tap()
-        app.cells.elementBoundByIndex(0).tap()
-        app.collectionViews.cells.otherElements.childrenMatchingType(.Other).elementBoundByIndex(0).childrenMatchingType(.Image).element.tap()
+        app.cells.element(boundBy: 0).tap()
+        app.collectionViews.cells.otherElements.children(matching: .other).element(boundBy: 0).children(matching: .image).element.tap()
         app.buttons["savephoto"].tap()
         sleep(1)
 
@@ -82,7 +82,7 @@ class MessagingUITests: UITestCase {
         app.toolbars.buttons["btnAttachments  blue"].tap()
         app.buttons["Choose from Library..."].tap()
         app.buttons["Videos"].tap()
-        app.cells.elementBoundByIndex(0).tap()
+        app.cells.element(boundBy: 0).tap()
         app.buttons["Choose"].tap()
         sleep(2)
 
@@ -94,16 +94,16 @@ class MessagingUITests: UITestCase {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.tables.staticTexts["Test"].tap()
 
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).typeText("1")
+        app.textViews.element(boundBy: app.textViews.count - 1).tap()
+        app.textViews.element(boundBy: app.textViews.count - 1).typeText("1")
         app.toolbars.buttons["Send"].tap()
 
-        let dateFormatter = NSDateFormatter.init()
-        dateFormatter.dateStyle = .NoStyle
-        dateFormatter.timeStyle = .ShortStyle
-        let timestamp = dateFormatter.stringFromDate(NSDate.init())
+        let dateFormatter = DateFormatter.init()
+        dateFormatter.dateStyle = .noStyle
+        dateFormatter.timeStyle = .shortStyle
+        let timestamp = dateFormatter.string(from: Date())
 
-        app.buttons.elementBoundByIndex(0).tap()
+        app.buttons.element(boundBy: 0).tap()
 
         XCTAssert(app.tables.staticTexts[timestamp].exists)
     }
@@ -134,7 +134,7 @@ class MessagingUITests: UITestCase {
     func testComposeMessageFingerprintNavigation() {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.tables.staticTexts["Test"].tap()
-        app.navigationBars["Test"].staticTexts["Test"].pressForDuration(1.0)
+        app.navigationBars["Test"].staticTexts["Test"].press(forDuration: 1.0)
 
         XCTAssert(app.staticTexts["Your Fingerprint"].exists)
     }
@@ -143,7 +143,7 @@ class MessagingUITests: UITestCase {
     func testComposeMessageFingerprintExitNavigation() {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.tables.staticTexts["Test"].tap()
-        app.navigationBars["Test"].staticTexts["Test"].pressForDuration(1.0)
+        app.navigationBars["Test"].staticTexts["Test"].press(forDuration: 1.0)
         app.buttons["×"].tap()
 
         XCTAssert(!app.staticTexts["Your Fingerprint"].exists)
@@ -153,8 +153,8 @@ class MessagingUITests: UITestCase {
     func testComposeMessageFingerprintSessionAlert() {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.tables.staticTexts["Test"].tap()
-        app.navigationBars["Test"].staticTexts["Test"].pressForDuration(1.0)
-        app.staticTexts["Your Fingerprint"].pressForDuration(1.5)
+        app.navigationBars["Test"].staticTexts["Test"].press(forDuration: 1.0)
+        app.staticTexts["Your Fingerprint"].press(forDuration: 1.5)
 
         XCTAssert(app.buttons["Reset this session."].exists)
     }
@@ -163,7 +163,7 @@ class MessagingUITests: UITestCase {
     func testComposeMessageFingerprintDisplayNavigation() {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.tables.staticTexts["Test"].tap()
-        app.navigationBars["Test"].staticTexts["Test"].pressForDuration(1.0)
+        app.navigationBars["Test"].staticTexts["Test"].press(forDuration: 1.0)
         app.staticTexts["Your Fingerprint"].tap()
 
         XCTAssert(app.buttons["quit"].exists)
@@ -173,7 +173,7 @@ class MessagingUITests: UITestCase {
     func testComposeMessageFingerprintDisplayExitNavigation() {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.tables.staticTexts["Test"].tap()
-        app.navigationBars["Test"].staticTexts["Test"].pressForDuration(1.0)
+        app.navigationBars["Test"].staticTexts["Test"].press(forDuration: 1.0)
         app.staticTexts["Your Fingerprint"].tap()
         app.buttons["quit"].tap()
 
@@ -183,7 +183,7 @@ class MessagingUITests: UITestCase {
     // requires verified app AND valid contact with name "Test"
     func testConversationExitNavigation() {
         app.staticTexts["Test"].tap()
-        app.buttons.elementBoundByIndex(0).tap()
+        app.buttons.element(boundBy: 0).tap()
 
         XCTAssert(app.buttons["Inbox"].exists)
     }
@@ -233,7 +233,7 @@ class MessagingUITests: UITestCase {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.navigationBars["New Message"].buttons["btnGroup  white"].tap()
         app.buttons["add conversation"].tap()
-        app.buttons.elementBoundByIndex(0).tap()
+        app.buttons.element(boundBy: 0).tap()
         app.staticTexts["New Group"].swipeLeft()
         app.tables.buttons["Delete"].tap()
 
@@ -305,7 +305,9 @@ class MessagingUITests: UITestCase {
         app.tables.searchFields["Search by name or number"].tap()
         app.typeText("Tes")
 
-        app.tables.staticTexts["Test"].coordinateWithNormalizedOffset(CGVectorMake(0.0, 0.0)).tap()
+
+// FIXME swift syntax upgrade
+//        app.tables.staticTexts["Test"].coordinate(withNormalizedOffset: CGVectorMake(0.0, 0.0)).tap()
 
         XCTAssert(app.navigationBars["Test"].exists)
     }
@@ -315,10 +317,10 @@ class MessagingUITests: UITestCase {
         app.buttons["Inbox"].tap()
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.staticTexts["Test"].tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).typeText("1")
+        app.textViews.element(boundBy: app.textViews.count - 1).tap()
+        app.textViews.element(boundBy: app.textViews.count - 1).typeText("1")
         app.toolbars.buttons["Send"].tap()
-        app.buttons.elementBoundByIndex(0).tap()
+        app.buttons.element(boundBy: 0).tap()
         app.staticTexts["Test"].swipeLeft()
         app.tables.buttons["Archive"].tap()
 
@@ -330,10 +332,10 @@ class MessagingUITests: UITestCase {
         app.buttons["Inbox"].tap()
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.staticTexts["Test"].tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).typeText("1")
+        app.textViews.element(boundBy: app.textViews.count - 1).tap()
+        app.textViews.element(boundBy: app.textViews.count - 1).typeText("1")
         app.toolbars.buttons["Send"].tap()
-        app.buttons.elementBoundByIndex(0).tap()
+        app.buttons.element(boundBy: 0).tap()
         app.staticTexts["Test"].swipeLeft()
         app.tables.buttons["Delete"].tap()
 
@@ -345,10 +347,10 @@ class MessagingUITests: UITestCase {
         app.buttons["Inbox"].tap()
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.staticTexts["Test"].tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).typeText("1")
+        app.textViews.element(boundBy: app.textViews.count - 1).tap()
+        app.textViews.element(boundBy: app.textViews.count - 1).typeText("1")
         app.toolbars.buttons["Send"].tap()
-        app.buttons.elementBoundByIndex(0).tap()
+        app.buttons.element(boundBy: 0).tap()
         app.staticTexts["Test"].swipeLeft()
         app.tables.buttons["Archive"].tap()
         app.buttons["Archive"].tap()
@@ -363,10 +365,10 @@ class MessagingUITests: UITestCase {
         app.buttons["Inbox"].tap()
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.staticTexts["Test"].tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).typeText("1")
+        app.textViews.element(boundBy: app.textViews.count - 1).tap()
+        app.textViews.element(boundBy: app.textViews.count - 1).typeText("1")
         app.toolbars.buttons["Send"].tap()
-        app.buttons.elementBoundByIndex(0).tap()
+        app.buttons.element(boundBy: 0).tap()
         app.staticTexts["Test"].swipeLeft()
         app.tables.buttons["Archive"].tap()
         app.buttons["Archive"].tap()
@@ -381,10 +383,10 @@ class MessagingUITests: UITestCase {
         app.buttons["Inbox"].tap()
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.staticTexts["Test"].tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).tap()
-        app.textViews.elementBoundByIndex(app.textViews.count - 1).typeText("1")
+        app.textViews.element(boundBy: app.textViews.count - 1).tap()
+        app.textViews.element(boundBy: app.textViews.count - 1).typeText("1")
         app.toolbars.buttons["Send"].tap()
-        app.buttons.elementBoundByIndex(0).tap()
+        app.buttons.element(boundBy: 0).tap()
         app.buttons["settings"].tap()
         app.tables.staticTexts["Privacy"].tap()
         app.tables.staticTexts["Clear History Logs"].tap()
@@ -399,7 +401,8 @@ class MessagingUITests: UITestCase {
     func testSettingsAdvancedEnableDebugLog() {
         app.buttons["settings"].tap()
         app.tables.staticTexts["Advanced"].tap()
-        app.switches.elementBoundByIndex(0).coordinateWithNormalizedOffset(CGVectorMake(0, 0)).pressForDuration(0, thenDragToCoordinate: app.switches.elementBoundByIndex(0).coordinateWithNormalizedOffset(CGVectorMake(1, 0)))
+        // FIXME swift syntax upgrade
+//        app.switches.element(boundBy: 0).coordinateWithNormalizedOffset(CGVectorMake(0, 0)).press(forDuration: 0, thenDragTo: app.switches.element(boundBy: 0).coordinateWithNormalizedOffset(CGVectorMake(1, 0)))
 
         XCTAssert(app.tables.staticTexts["Submit Debug Log"].exists)
     }
@@ -408,7 +411,7 @@ class MessagingUITests: UITestCase {
     func testSettingsAdvancedDisableDebugLog() {
         app.buttons["settings"].tap()
         app.tables.staticTexts["Advanced"].tap()
-        app.switches.elementBoundByIndex(0).coordinateWithNormalizedOffset(CGVectorMake(0, 0)).pressForDuration(0, thenDragToCoordinate: app.switches.elementBoundByIndex(0).coordinateWithNormalizedOffset(CGVectorMake(-1, 0)))
+//        app.switches.element(boundBy: 0).coordinateWithNormalizedOffset(CGVectorMake(0, 0)).pressForDuration(0, thenDragToCoordinate: app.switches.elementBoundByIndex(0).coordinate(withNormalizedOffset: CGVectorMake(-1, 0)))
 
         XCTAssert(!app.tables.staticTexts["Submit Debug Log"].exists)
     }
@@ -422,8 +425,8 @@ class MessagingUITests: UITestCase {
 
         XCTAssert(app.staticTexts["Sending debug log ..."].exists)
 
-        expectationForPredicate(NSPredicate(format: "exists == true"), evaluatedWithObject: app.alerts["Submit Debug Log"], handler: nil)
-        waitForExpectationsWithTimeout(5, handler: nil)
+        expectation(for: Predicate(format: "exists == true"), evaluatedWith: app.alerts["Submit Debug Log"], handler: nil)
+        waitForExpectations(withTimeout: 5, handler: nil)
 
         XCTAssert(app.alerts["Submit Debug Log"].exists)
     }
