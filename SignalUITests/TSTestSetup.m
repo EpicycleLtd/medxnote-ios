@@ -15,7 +15,25 @@
 
 @implementation TSTestSetup
 
++ (BOOL)isSimulator {
+#if TARGET_IPHONE_SIMULATOR
+    return YES;
+#else
+    return NO;
+#endif
+}
+
 + (void)setupWithLaunchArguments:(NSArray<NSString *> * _Nonnull)launchArguments {
+
+    if (![self isSimulator]) {
+        NSLog(@"Cowardly refusing to do any test setup since this is not a Simulator.");
+        exit(1);
+    }
+
+    if ([launchArguments containsObject:TSRunTestSetup]) {
+        NSLog(@"Deleting threads and messages.");
+        [[TSStorageManager sharedManager] wipeSignalStorage];
+    }
 
     if ([launchArguments containsObject:TSStartingStateForTestRegistered]) {
         NSLog(@"Lauching with test setup options: registered");
@@ -33,8 +51,10 @@
     // Corresponds to "Jonny Appleseed" contact in simulator address book.
     NSString *phoneNumber = @"+18885555512";
     NSLog(@"Faking registration with number: %@", phoneNumber);
+
     [TSStorageManager storePhoneNumber:phoneNumber];
     [[TSStorageManager sharedManager].dbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction * _Nonnull transaction) {
+
         if (![SignalRecipient recipientWithTextSecureIdentifier:phoneNumber withTransaction:transaction]) {
             SignalRecipient *recipient = [[SignalRecipient alloc] initWithTextSecureIdentifier:phoneNumber
                                                                                          relay:@"fake-raley"

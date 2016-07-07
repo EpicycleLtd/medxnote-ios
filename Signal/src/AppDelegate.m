@@ -44,10 +44,12 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 }
 
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+#ifdef DEBUG
     NSArray<NSString *> * _Nonnull launchArguments = [NSProcessInfo processInfo].arguments;
     if ([launchArguments containsObject:TSRunTestSetup]) {
         [TSTestSetup setupWithLaunchArguments:launchArguments];
     }
+#endif
     return YES;
 }
 

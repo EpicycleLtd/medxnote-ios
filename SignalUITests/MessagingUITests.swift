@@ -72,8 +72,8 @@ class MessagingUITests: UITestCase {
         XCTAssert(app.buttons["Save to Camera Roll"].exists)
     }
 
-    // requires verified app AND valid contact with name "Test"
-    func testComposeMessageSendVideo() {
+    // DISABLED because there is currently no video on simulator.
+    func DISABLED_testComposeMessageSendVideo() {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
         app.tables.staticTexts["Test"].tap()
         let oldImagesCount = app.images.count
