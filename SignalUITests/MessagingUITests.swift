@@ -20,43 +20,41 @@ class MessagingUITests: UITestCase {
         super.tearDown()
     }
 
-    func testComposeNewMessageNavigation() {
+    func startComposingMessage() {
         app.navigationBars["Conversations"].buttons["Compose"].tap()
-
         XCTAssert(app.navigationBars["New Message"].exists)
+        app.tables.staticTexts["John Appleseed"].tap()
+
+        // We're on the "send a message" screen.
+        XCTAssert(app.navigationBars["John Appleseed"].exists)
     }
 
-    // requires verified app AND valid contact with name "Test"
-    func testComposeMessageSelectNavigation() {
-        app.navigationBars["Conversations"].buttons["Compose"].tap()
-        app.tables.staticTexts["Test"].tap()
+    func testSendTextMessageToSelf() {
+        startComposingMessage()
 
-        XCTAssert(app.navigationBars["Test"].exists)
-    }
+        let originalCount = app.collectionViews.cells.count
 
-    // requires verified app AND valid contact with name "Test"
-    func testComposeMessageSend() {
-        app.navigationBars["Conversations"].buttons["Compose"].tap()
-        app.tables.staticTexts["Test"].tap()
-
-        app.textViews.element(boundBy: app.textViews.count - 1).tap()
-        app.textViews.element(boundBy: app.textViews.count - 1).typeText("1")
+        let messageText = "Hi!"
+        let textView = app.otherElements.containing(.navigationBar, identifier:"John Appleseed").children(matching: .other).element.toolbars.children(matching: .other).element.children(matching: .textView).element
+        textView.tap()
+        textView.typeText(messageText)
         app.toolbars.buttons["Send"].tap()
 
-        XCTAssert(app.textViews["1"].exists)
+        // Currently can't get static texts from message bubbles
+        XCTAssertEqual(originalCount + 2, app.collectionViews.cells.count)
     }
 
-    // requires verified app AND valid contact with name "Test"
     func testComposeMessageSendImage() {
-        app.navigationBars["Conversations"].buttons["Compose"].tap()
-        app.tables.staticTexts["Test"].tap()
+        startComposingMessage()
+
         let oldImagesCount = app.images.count
         app.toolbars.buttons["btnAttachments  blue"].tap()
         app.buttons["Choose from Library..."].tap()
+        //FIXME I think this represents a real bug on iOS10.
         app.buttons["Camera Roll"].tap()
         app.cells.element(boundBy: 0).tap()
 
-        XCTAssert(app.images.count > oldImagesCount)
+        XCTAssertEqual(oldImagesCount + 2, app.images.count)
     }
 
     // requires verified app AND valid contact with name "Test"
