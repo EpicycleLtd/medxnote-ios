@@ -30,10 +30,10 @@
         exit(1);
     }
 
-    if ([launchArguments containsObject:TSRunTestSetup]) {
-        NSLog(@"Deleting threads and messages.");
-        [[TSStorageManager sharedManager] wipeSignalStorage];
-    }
+//    if ([launchArguments containsObject:TSRunTestSetup]) {
+//        NSLog(@"Deleting threads and messages.");
+//        [[TSStorageManager sharedManager] deleteThreadsAndMessages];
+//    }
 
     if ([launchArguments containsObject:TSStartingStateForTestRegistered]) {
         NSLog(@"Lauching with test setup options: registered");
