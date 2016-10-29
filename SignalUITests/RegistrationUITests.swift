@@ -56,8 +56,8 @@ class RegistrationUITests: UITestCase {
         app.buttons["Verify This Device"].tap()
 
         let alert = app.alerts["Registration Error"]
-        expectation(for: Predicate(format: "exists == 1"), evaluatedWith: alert, handler: nil)
-        waitForExpectations(withTimeout: 5, handler: nil)
+        expectation(for: NSPredicate(format: "exists == 1"), evaluatedWith: alert, handler: nil)
+        waitForExpectations(timeout: 5, handler: nil)
     }
 
     func testVerifySupportedPhoneNumberChangeNumberNavigation() {

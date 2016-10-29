@@ -41,7 +41,7 @@ class MessagingUITests: UITestCase {
         app.toolbars.buttons["Send"].tap()
 
         // Currently can't get static texts from message bubbles
-        XCTAssertEqual(originalCount + 2, app.collectionViews.cells.count)
+        XCTAssertEqual(originalCount + (2 as UInt), app.collectionViews.cells.count)
     }
 
     func testComposeMessageSendImage() {
@@ -54,7 +54,7 @@ class MessagingUITests: UITestCase {
         app.buttons["Camera Roll"].tap()
         app.cells.element(boundBy: 0).tap()
 
-        XCTAssertEqual(oldImagesCount + 2, app.images.count)
+        XCTAssertEqual(oldImagesCount + (2 as UInt), app.images.count)
     }
 
     // requires verified app AND valid contact with name "Test"
@@ -97,8 +97,8 @@ class MessagingUITests: UITestCase {
         app.toolbars.buttons["Send"].tap()
 
         let dateFormatter = DateFormatter.init()
-        dateFormatter.dateStyle = .noStyle
-        dateFormatter.timeStyle = .shortStyle
+        dateFormatter.dateStyle = DateFormatter.Style.none
+        dateFormatter.timeStyle = DateFormatter.Style.short
         let timestamp = dateFormatter.string(from: Date())
 
         app.buttons.element(boundBy: 0).tap()
@@ -423,8 +423,8 @@ class MessagingUITests: UITestCase {
 
         XCTAssert(app.staticTexts["Sending debug log ..."].exists)
 
-        expectation(for: Predicate(format: "exists == true"), evaluatedWith: app.alerts["Submit Debug Log"], handler: nil)
-        waitForExpectations(withTimeout: 5, handler: nil)
+        expectation(for: NSPredicate(format: "exists == true"), evaluatedWith: app.alerts["Submit Debug Log"], handler: nil)
+        waitForExpectations(timeout: 5, handler: nil)
 
         XCTAssert(app.alerts["Submit Debug Log"].exists)
     }
