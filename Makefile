@@ -25,10 +25,17 @@ build: dependencies
 		$(XCODE_BUILD) build | xcpretty
 
 test: optional_early_start_simulator
+ifdef TRAVIS
+	cd $(WORKING_DIR) && \
+		travis_retry $(XCODE_BUILD) \
+			-destination '${BUILD_DESTINATION}' \
+			test | xcpretty
+else
 	cd $(WORKING_DIR) && \
 		$(XCODE_BUILD) \
 			-destination '${BUILD_DESTINATION}' \
 			test | xcpretty
+end
 
 clean:
 	cd $(WORKING_DIR) && \
