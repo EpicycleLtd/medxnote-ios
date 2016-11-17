@@ -1,9 +1,10 @@
 platform :ios, '8.0'
 source 'https://github.com/CocoaPods/Specs.git'
+use_frameworks!
 
 target 'Signal' do
     pod 'SocketRocket',               :git => 'https://github.com/facebook/SocketRocket.git'
-    pod 'SignalServiceKit',           git: 'https://github.com/WhisperSystems/SignalServiceKit.git', branch: 'mkirk/default-to-blocking-sn'
+    pod 'SignalServiceKit',           git: 'https://github.com/WhisperSystems/SignalServiceKit.git'
     #pod 'SignalServiceKit',           path: '../SignalServiceKit'
     pod 'OpenSSL'
     pod 'PastelogKit',                '~> 1.3'
