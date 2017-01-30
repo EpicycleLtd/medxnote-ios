@@ -206,7 +206,7 @@ class CallViewController: UIViewController, CallObserver, CallServiceObserver, R
 
 //        textMessageButton = createButton(imageName:"message-active-wide",
 //                                                action:#selector(didPressTextMessage))
-        speakerPhoneButton = createButton(imageName:"speaker-inactive-wide",
+        speakerPhoneButton = createButton(imageName:"video-speaker-unselected",
                                           action:#selector(didPressSpeakerphone))
         hangUpButton = createButton(imageName:"hangup-active-wide",
                                     action:#selector(didPressHangup))
@@ -219,11 +219,11 @@ class CallViewController: UIViewController, CallObserver, CallServiceObserver, R
         videoModeVideoButton = createButton(imageName:"video-video-unselected",
                                             action:#selector(didPressVideo))
 
-        setButtonSelectedImage(button: audioModeMuteButton, imageName: "mute-selected-wide")
+        setButtonSelectedImage(button: audioModeMuteButton, imageName: "video-mute-selected")
         setButtonSelectedImage(button: videoModeMuteButton, imageName: "video-mute-selected")
-        setButtonSelectedImage(button: audioModeVideoButton, imageName: "video-active-wide")
+        setButtonSelectedImage(button: audioModeVideoButton, imageName: "video-video-selected")
         setButtonSelectedImage(button: videoModeVideoButton, imageName: "video-video-selected")
-        setButtonSelectedImage(button: speakerPhoneButton, imageName: "speaker-active-wide")
+        setButtonSelectedImage(button: speakerPhoneButton, imageName: "video-speaker-selected")
 
         ongoingCallView = createContainerForCallControls(controlGroups : [
             [audioModeMuteButton, speakerPhoneButton, audioModeVideoButton ],
