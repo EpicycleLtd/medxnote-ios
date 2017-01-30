@@ -420,6 +420,16 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     public func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
         Logger.debug("\(TAG) didGenerate IceCandidate:\(candidate.sdp)")
         if let delegate = delegate {
+            
+            // turn1.whispersystems.org is currently 54.237.246.98.
+            let sdp = candidate.sdp
+            Logger.debug("\(TAG) considering generated candidate, sdp: '\(sdp)'")
+//            let turnServerIpAddressRange = sdp.range(of: "54.237.246.98", range: sdp.startIndex..<sdp.endIndex)
+//            guard turnServerIpAddressRange != nil && !turnServerIpAddressRange!.isEmpty else {
+//                Logger.debug("\(TAG) ignoring generated candidate: \(sdp)")
+//                return
+//            }
+
             delegate.peerConnectionClient(self, addedLocalIceCandidate: candidate)
         }
     }

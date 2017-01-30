@@ -447,6 +447,14 @@ protocol CallServiceObserver: class {
             handleFailedCall(error: .assertionError(description: "ignoring remote ice update for thread: \(thread) since the current call hasn't initialized it's peerConnectionClient"))
             return
         }
+        
+        // turn1.whispersystems.org is currently 54.237.246.98.
+        Logger.debug("\(TAG) considering remote candidate, sdp: '\(sdp)'")
+//        let turnServerIpAddressRange = sdp.range(of: "54.237.246.98", range: sdp.startIndex..<sdp.endIndex)
+//        guard turnServerIpAddressRange != nil && !turnServerIpAddressRange!.isEmpty else {
+//            Logger.debug("\(TAG) ignoring remote candidate: \(sdp)")
+//            return
+//        }
 
         peerConnectionClient.addIceCandidate(RTCIceCandidate(sdp: sdp, sdpMLineIndex: lineIndex, sdpMid: mid))
     }
@@ -472,6 +480,15 @@ protocol CallServiceObserver: class {
             handleFailedCall(error: .assertionError(description: "ignoring local ice candidate, because there was no current TSContactThread."))
             return
         }
+ 
+        // turn1.whispersystems.org is currently 54.237.246.98.
+        let sdp = iceCandidate.sdp
+        Logger.debug("\(TAG) considering local candidate, sdp: '\(sdp)'")
+//        let turnServerIpAddressRange = sdp.range(of: "54.237.246.98", range: sdp.startIndex..<sdp.endIndex)
+//        guard turnServerIpAddressRange != nil && !turnServerIpAddressRange!.isEmpty else {
+//            Logger.debug("\(TAG) ignoring local candidate: \(sdp)")
+//            return
+//        }
 
         let iceUpdateMessage = OWSCallIceUpdateMessage(callId: call.signalingId, sdp: iceCandidate.sdp, sdpMLineIndex: iceCandidate.sdpMLineIndex, sdpMid: iceCandidate.sdpMid)
 
