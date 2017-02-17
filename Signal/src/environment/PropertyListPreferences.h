@@ -64,6 +64,9 @@ extern NSString *const PropertyListPreferencesKeyEnableDebugLog;
 - (nullable NSString *)lastRanVersion;
 - (NSString *)setAndGetCurrentVersion;
 
+- (BOOL)hasDeclinedNoContactsView;
+- (void)setHasDeclinedNoContactsView:(BOOL)value;
+
 #pragma mark - Calling
 
 #pragma mark WebRTC

@@ -24,6 +24,7 @@ NSString *const PropertyListPreferencesKeyLastRecordedPushToken = @"LastRecorded
 NSString *const PropertyListPreferencesKeyLastRecordedVoipToken = @"LastRecordedVoipToken";
 NSString *const PropertyListPreferencesKeyWebRTCEnabled = @"WebRTCEnabled";
 NSString *const PropertyListPreferencesKeyCallKitEnabled = @"CallKitEnabled";
+NSString *const PropertyListPreferencesKeyHasDeclinedNoContactsView = @"hasDeclinedNoContactsView";
 
 @implementation PropertyListPreferences
 
@@ -166,6 +167,18 @@ NSString *const PropertyListPreferencesKeyCallKitEnabled = @"CallKitEnabled";
                                             forKey:PropertyListPreferencesKeyLastRunSignalVersion];
     [NSUserDefaults.standardUserDefaults synchronize];
     return currentVersion;
+}
+
+- (BOOL)hasDeclinedNoContactsView
+{
+    NSNumber *preference = [self tryGetValueForKey:PropertyListPreferencesKeyHasDeclinedNoContactsView];
+    // Default to NO.
+    return preference ? [preference boolValue] : NO;
+}
+
+- (void)setHasDeclinedNoContactsView:(BOOL)value
+{
+    [self setValueForKey:PropertyListPreferencesKeyHasDeclinedNoContactsView toValue:@(value)];
 }
 
 #pragma mark - Calling

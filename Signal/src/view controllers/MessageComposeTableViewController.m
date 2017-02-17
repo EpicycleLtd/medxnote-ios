@@ -139,9 +139,7 @@ NSString *const MessageComposeTableViewControllerCellContact = @"ContactTableVie
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
-    if ([self.contacts count] == 0) {
-        [self showEmptyBackgroundView:YES];
-    }
+    [self showEmptyBackgroundViewIfNecessary];
 }
 
 - (UILabel *)createLabelWithFirstLine:(NSString *)firstLine andSecondLine:(NSString *)secondLine {
@@ -228,6 +226,8 @@ NSString *const MessageComposeTableViewControllerCellContact = @"ContactTableVie
 - (void)hideBackgroundView {
     self.isBackgroundViewHidden = YES;
     
+    [[Environment preferences] setHasDeclinedNoContactsView:YES];
+    
     [self showEmptyBackgroundView:NO];
 }
 
@@ -248,6 +248,15 @@ NSString *const MessageComposeTableViewControllerCellContact = @"ContactTableVie
         [self initializeRefreshControl];
         self.searchController.searchBar.hidden = NO;
         self.tableView.backgroundView          = nil;
+    }
+}
+
+- (void)showEmptyBackgroundViewIfNecessary {
+    if ([self.contacts count] == 0 &&
+        ![[Environment preferences] hasDeclinedNoContactsView]) {
+        [self showEmptyBackgroundView:YES];
+    } else {
+        [self showEmptyBackgroundView:NO];
     }
 }
 
@@ -605,11 +614,8 @@ NSString *const MessageComposeTableViewControllerCellContact = @"ContactTableVie
     [self.refreshControl endRefreshing];
 
     [self showLoadingBackgroundView:NO];
-    if ([self.contacts count] == 0) {
-        [self showEmptyBackgroundView:YES];
-    } else {
-        [self showEmptyBackgroundView:NO];
-    }
+    
+    [self showEmptyBackgroundViewIfNecessary];
 }
 
 - (void)refreshContacts {
