@@ -2206,7 +2206,7 @@ typedef enum : NSUInteger {
               [self.collectionView reloadData];
           }
           if (scrollToBottom) {
-              [self scrollToBottomAnimated:YES];
+              [self scrollToBottomAnimated:NO];
           }
         }];
 }
