@@ -2161,6 +2161,20 @@ typedef enum : NSUInteger {
                                                                              withMappings:self.messageMappings];
 
     __block BOOL scrollToBottom = NO;
+    BOOL wasAtBottom = (self.collectionView.contentOffset.y +
+                        self.collectionView.bounds.size.height >=
+                        self.collectionView.contentSize.height);
+    DDLogError(@"wasAtBottom: %f + %f = %f >= %f (%f) -> %d [%f]",
+               self.collectionView.contentOffset.y,
+               self.collectionView.bounds.size.height,
+               self.collectionView.contentOffset.y +
+               self.collectionView.bounds.size.height,
+               self.collectionView.contentSize.height,
+               self.collectionView.contentOffset.y +
+               self.collectionView.bounds.size.height -
+               self.collectionView.contentSize.height,
+               wasAtBottom,
+               self.inputToolbar.bounds.size.height);
 
     if ([sectionChanges count] == 0 & [messageRowChanges count] == 0) {
         return;
@@ -2206,7 +2220,7 @@ typedef enum : NSUInteger {
               [self.collectionView reloadData];
           }
           if (scrollToBottom) {
-              [self scrollToBottomAnimated:NO];
+              [self scrollToBottomAnimated:YES];
           }
         }];
 }
