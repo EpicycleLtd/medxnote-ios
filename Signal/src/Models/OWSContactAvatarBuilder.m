@@ -1,5 +1,6 @@
-//  Created by Michael Kirk on 9/22/16.
-//  Copyright © 2016 Open Whisper Systems. All rights reserved.
+//
+//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//
 
 #import "OWSContactAvatarBuilder.h"
 #import "OWSContactsManager.h"
@@ -49,6 +50,12 @@ NS_ASSUME_NONNULL_BEGIN
     return [self.contactsManager imageForPhoneIdentifier:self.signalId];
 }
 
+- (NSRange)makeRangeFrom:(NSUInteger)first to:(NSUInteger)last {
+    OWSAssert(last >= first);
+    
+    return NSMakeRange(first, last + 1 - first);
+}
+
 - (UIImage *)buildDefaultImage
 {
     UIImage *cachedAvatar = [self.contactsManager.avatarCache objectForKey:self.signalId];
@@ -62,7 +69,31 @@ NS_ASSUME_NONNULL_BEGIN
     if (rangeOfLetters.location != NSNotFound) {
         // Contact name contains letters, so it's probably not just a phone number.
         // Make an image from the contact's initials
-        NSCharacterSet *excludeAlphanumeric = [NSCharacterSet characterSetWithCharactersInString:@"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"].invertedSet;
+        
+        // We onl
+        NSMutableCharacterSet *excludeAlphanumeric = [[NSCharacterSet alphanumericCharacterSet].invertedSet mutableCopy];
+        // Remove Emoji. alphanumericCharacterSet unfortunately contains emoji.
+        //
+        // To be complete, we should filter (almost) all of the emoji listed in
+        // the unicode standard's latest emoji list:
+        //
+        // http://www.unicode.org/Public/emoji/
+        //
+        // Dingbats: 2700–27BF
+        [excludeAlphanumeric addCharactersInRange:[self makeRangeFrom:0x2700 to:0x27BF]];
+        // Ornamental Dingbats: 1F650–1F67F
+        [excludeAlphanumeric addCharactersInRange:[self makeRangeFrom:0x1F650 to:0x1F67F]];
+        // Emoticons: 1F600–1F64F
+        [excludeAlphanumeric addCharactersInRange:[self makeRangeFrom:0x1F600 to:0x1F64F]];
+        // Miscellaneous Symbols: 2600–26FF
+        [excludeAlphanumeric addCharactersInRange:[self makeRangeFrom:0x2600 to:0x26FF]];
+        // Miscellaneous Symbols and Pictographs: 1F300–1F5FF
+        [excludeAlphanumeric addCharactersInRange:[self makeRangeFrom:0x1F300 to:0x1F5FF]];
+        // Supplemental Symbols and Pictographs: 1F900–1F9FF
+        [excludeAlphanumeric addCharactersInRange:[self makeRangeFrom:0x1F900 to:0x1F9FF]];
+        // Transport and Map Symbols: 1F680–1F6FF
+        [excludeAlphanumeric addCharactersInRange:[self makeRangeFrom:0x1F680 to:0x1F6FF]];
+
         NSArray *words =
             [self.contactName componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         for (NSString *word in words) {
