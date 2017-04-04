@@ -87,27 +87,22 @@
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     DDLogInfo(@"received: %s", __PRETTY_FUNCTION__);
 
-    [self.messageFetcherJob runAsync];
+    [self.messageFetcherJob runAsyncWithCompletion:nil];
 }
 
 - (void)applicationDidBecomeActive {
-    [self.messageFetcherJob runAsync];
+    [self.messageFetcherJob runAsyncWithCompletion:nil];
 }
 
-/**
- *  This code should in principle never be called. The only cases where it would be called are with the old-style
- * "content-available:1" pushes if there is no "voip" token registered
- *
- */
-
+// handle content-available (silent) fallback pushes.
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
-          fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+          fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
     DDLogInfo(@"received: %s", __PRETTY_FUNCTION__);
-
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-      completionHandler(UIBackgroundFetchResultNewData);
-    });
+    [self.messageFetcherJob runAsyncWithCompletion:^{
+        completionHandler(UIBackgroundFetchResultNewData);
+    }];
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {

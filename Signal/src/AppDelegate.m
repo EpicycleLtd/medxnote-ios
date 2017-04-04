@@ -503,9 +503,21 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
     [[PushManager sharedManager] application:application didReceiveRemoteNotification:userInfo];
 }
 
+/**
+ * Called upon receiving a content-available (silent) push.
+ * The server sends these when a voip push hasn't yet resulted in a device fetching its messages.
+ */
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
-          fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+          fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    // It's important that we call the completionHandler as soon as we're done.
+    // Since content-available pushes aren't intended to be called very often, iOS monitors the amount of time our app
+    // spends running in the background, and potentially throttles us.
+    //
+    // By reporting when we're finished we maximize the likelihood that the OS will allot us more background time
+    // in the future.
+
     [[PushManager sharedManager] application:application
                 didReceiveRemoteNotification:userInfo
                       fetchCompletionHandler:completionHandler];
