@@ -45,7 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
         }];
 }
 
-
 + (void)sendMessageWithAttachment:(SignalAttachment *)attachment
                          inThread:(TSThread *)thread
                     messageSender:(OWSMessageSender *)messageSender

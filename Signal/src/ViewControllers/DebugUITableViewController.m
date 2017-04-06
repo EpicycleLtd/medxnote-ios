@@ -48,6 +48,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                           [DebugUITableViewController sendTextMessage:100
                                                                                                thread:thread];
                                                       }],
+                                      [OWSTableItem itemWithTitle:@"Re-send message 100x (1/sec.)"
+                                                      actionBlock:^{
+                                                          [DebugUITableViewController sendTextMessage:100
+                                                                                               thread:thread];
+                                                      }],
+                                      [OWSTableItem itemWithTitle:@"Re-send delivery receipt 100x (1/sec.)"
+                                                      actionBlock:^{
+                                                          [DebugUITableViewController resendDeliveryReceipt:100
+                                                                                                     thread:thread];
+                                                      }],
                                       [OWSTableItem itemWithTitle:@"Send text/x-signal-plain"
                                                       actionBlock:^{
                                                           [DebugUITableViewController sendOversizeTextMessage:thread];
@@ -91,6 +101,62 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) 1.f * NSEC_PER_SEC),
                    dispatch_get_main_queue(), ^{
                        [self sendTextMessage:counter - 1 thread:thread];
+                   });
+}
+
+// Send the exact same text message N times.
++ (void)resendTextMessage:(int)counter
+                   thread:(TSThread *)thread {
+    TSOutgoingMessage *message = [[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+                                                                     inThread:thread
+                                                                  messageBody:[@(counter) description]];
+    [self resendTextMessage:counter message:message];
+}
+
++ (void)resendTextMessage:(int)counter
+                  message:(TSOutgoingMessage *)message {
+    OWSMessageSender *messageSender = [Environment getCurrent].messageSender;
+    if (counter < 1) {
+        return;
+    }
+    [messageSender sendMessage:message
+                       success:^{
+                           DDLogInfo(@"%@ Successfully sent message.", self.tag);
+                       }
+                       failure:^(NSError *error) {
+                           DDLogWarn(@"%@ Failed to deliver message with error: %@", self.tag, error);
+                       }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) 1.f * NSEC_PER_SEC),
+                   dispatch_get_main_queue(), ^{
+                       [self resendTextMessage:counter - 1 message:message];
+                   });
+}
+
+// Send the exact same text message N times.
++ (void)resendDeliveryReceipt:(int)counter
+                       thread:(TSThread *)thread {
+    
+    OWSAcknowledgeMessageDeliveryRequest *request = [[OWSAcknowledgeMessageDeliveryRequest alloc] initWithSource:thread.contactIdentifier
+                                                                                                       timestamp:[NSDate ows_millisecondTimeStamp]];
+    [self resendDeliveryReceipt:counter request:request];
+}
+
++ (void)resendDeliveryReceipt:(int)counter
+                      request:(OWSAcknowledgeMessageDeliveryRequest *)request {
+    if (counter < 1) {
+        return;
+    }
+    TSNetworkManager *networkManager = [Environment getCurrent].networkManager;
+    [networkManager makeRequest:request
+                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
+                            DDLogWarn(@"%@ resendDeliveryReceipt succeeeded", self.tag);
+                        }
+                        failure:^(NSURLSessionDataTask * _Nonnull task, NSError * _Nonnull error) {
+                            DDLogWarn(@"%@ resendDeliveryReceipt failed: %@", self.tag, error);
+                        }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) 1.f * NSEC_PER_SEC),
+                   dispatch_get_main_queue(), ^{
+                       [self resendDeliveryReceipt:counter - 1 request:request];
                    });
 }
 
