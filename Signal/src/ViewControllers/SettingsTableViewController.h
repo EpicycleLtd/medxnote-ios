@@ -8,6 +8,7 @@
 
 @property (strong, nonatomic) IBOutlet UILabel *registeredName;
 @property (strong, nonatomic) IBOutlet UILabel *registeredNumber;
+@property (strong, nonatomic) IBOutlet UITableViewCell *registeredCell;
 @property (strong, nonatomic) IBOutlet UILabel *networkStatusLabel;
 @property (strong, nonatomic) IBOutlet UILabel *networkStatusHeader;
 @property (strong, nonatomic) IBOutlet UILabel *privacyLabel;

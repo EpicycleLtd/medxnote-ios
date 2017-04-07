@@ -769,6 +769,9 @@
 /* No comment provided by engineer. */
 "REGISTERED_NUMBER_TEXT" = "Registered Number";
 
+/* Short name for edit menu item to copy identifier of local user. */
+"REGISTERED_USER_COPY_ACTION" = "Copy";
+
 /* Alert title */
 "REGISTRATION_BODY" = "Failed to re-register for push notifications.";
 

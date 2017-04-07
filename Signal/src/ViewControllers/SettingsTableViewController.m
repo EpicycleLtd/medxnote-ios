@@ -46,11 +46,39 @@ typedef enum {
     kUnregisterSection       = 3,
 } kSection;
 
+
+// In order to use UIMenuController, the view from which it is
+// presented must have certain custom behaviors.
+@interface RegisteredUserCell : UITableViewCell
+
+@end
+
+#pragma mark -
+
+@implementation RegisteredUserCell
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+// We only use custom actions in UIMenuController.
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+    return NO;
+}
+
+@end
+
+#pragma mark -
+
 @interface SettingsTableViewController () <UIAlertViewDelegate>
 
 @property (nonatomic, readonly) OWSContactsManager *contactsManager;
 
 @end
+
+#pragma mark -
 
 @implementation SettingsTableViewController
 
@@ -105,6 +133,10 @@ typedef enum {
 
     [self.destroyAccountButton setTitle:NSLocalizedString(@"SETTINGS_DELETE_ACCOUNT_BUTTON", @"")
                                forState:UIControlStateNormal];
+
+    [self.registeredCell addGestureRecognizer:[[UILongPressGestureRecognizer alloc]
+                                                  initWithTarget:self
+                                                          action:@selector(registeredCellWasLongPressed:)]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -291,6 +323,39 @@ typedef enum {
 - (void)socketIsConnecting {
     self.networkStatusLabel.text      = NSLocalizedString(@"NETWORK_STATUS_CONNECTING", @"");
     self.networkStatusLabel.textColor = [UIColor ows_yellowColor];
+}
+
+#pragma mark - Registered Cell
+
+- (void)registeredCellWasLongPressed:(UIGestureRecognizer *)sender
+{
+    // We "eagerly" respond when the long press begins, not when it ends.
+    if (sender.state == UIGestureRecognizerStateBegan) {
+
+        [self.registeredCell becomeFirstResponder];
+
+        if ([UIMenuController sharedMenuController].isMenuVisible) {
+            [[UIMenuController sharedMenuController] setMenuVisible:NO animated:NO];
+        }
+
+        NSArray *menuItems = @[
+            [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"REGISTERED_USER_COPY_ACTION",
+                                                  @"Short name for edit menu item to copy identifier of local user.")
+                                       action:@selector(copyRegisterUserIdentifier:)],
+        ];
+        [UIMenuController sharedMenuController].menuItems = menuItems;
+        CGPoint location = [sender locationInView:self.registeredCell];
+        CGRect targetRect = CGRectMake(location.x, location.y, 1, 1);
+        [[UIMenuController sharedMenuController] setTargetRect:targetRect inView:self.registeredCell];
+        [[UIMenuController sharedMenuController] setMenuVisible:YES animated:YES];
+    }
+}
+
+- (void)copyRegisterUserIdentifier:(SEL)selector
+{
+    NSString *localContactId = [TSAccountManager localNumber];
+    OWSAssert(localContactId.length > 0);
+    UIPasteboard.generalPasteboard.string = localContactId;
 }
 
 #pragma mark - Logging
