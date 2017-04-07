@@ -46,7 +46,6 @@ typedef enum {
     kUnregisterSection       = 3,
 } kSection;
 
-
 // In order to use UIMenuController, the view from which it is
 // presented must have certain custom behaviors.
 @interface RegisteredUserCell : UITableViewCell

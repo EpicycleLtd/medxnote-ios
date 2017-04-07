@@ -34,8 +34,34 @@ static NSString *const OWSConversationSettingsTableViewControllerSegueUpdateGrou
 static NSString *const OWSConversationSettingsTableViewControllerSegueShowGroupMembers =
     @"OWSConversationSettingsTableViewControllerSegueShowGroupMembers";
 
+// In order to use UIMenuController, the view from which it is
+// presented must have certain custom behaviors.
+@interface MenuCapableView : UIView
+
+@end
+
+#pragma mark -
+
+@implementation MenuCapableView
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+// We only use custom actions in UIMenuController.
+- (BOOL)canPerformAction:(SEL)action withSender:(nullable id)sender
+{
+    return NO;
+}
+
+@end
+
+#pragma mark -
+
 @interface OWSConversationSettingsTableViewController ()
 
+@property (nonatomic) IBOutlet UIView *headerView;
 @property (nonatomic) IBOutlet UITableViewCell *verifyPrivacyCell;
 @property (nonatomic) IBOutlet UITableViewCell *blocklistStateCell;
 @property (nonatomic) IBOutlet UITableViewCell *toggleDisappearingMessagesCell;
@@ -183,6 +209,10 @@ static NSString *const OWSConversationSettingsTableViewControllerSegueShowGroupM
     for (UIImageView *cellIcon in self.cellIcons) {
         [cellIcon tintColorDidChange];
     }
+
+    [self.headerView
+        addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                                           action:@selector(headerWasLongPressed:)]];
 
     [self updateTableContents];
 }

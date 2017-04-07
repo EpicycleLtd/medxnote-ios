@@ -374,7 +374,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
-                        <view key="tableHeaderView" contentMode="scaleToFill" id="ISI-k9-YYb" userLabel="Header">
+                        <view key="tableHeaderView" contentMode="scaleToFill" id="ISI-k9-YYb" userLabel="Header" customClass="MenuCapableView">
                             <rect key="frame" x="0.0" y="0.0" width="375" height="100"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
@@ -649,6 +649,7 @@
                         <outlet property="disappearingMessagesDurationLabel" destination="c6Q-rV-1LO" id="dEt-U7-kFm"/>
                         <outlet property="disappearingMessagesDurationSlider" destination="4Hn-9p-qsR" id="nMT-B6-hzM"/>
                         <outlet property="disappearingMessagesSwitch" destination="0dO-mx-W3I" id="bBm-Lk-kgv"/>
+                        <outlet property="headerView" destination="ISI-k9-YYb" id="A7s-Od-mXq"/>
                         <outlet property="nameLabel" destination="qCt-Cp-bFX" id="7yI-kh-cN6"/>
                         <outlet property="signalIdLabel" destination="tmV-r0-09O" id="jFP-hM-j3f"/>
                         <outlet property="toggleDisappearingMessagesCell" destination="U6h-Xo-HEv" id="a3T-jn-u7Z"/>
