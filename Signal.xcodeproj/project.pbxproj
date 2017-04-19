@@ -60,6 +60,10 @@
 		34B3F89F1E8DF5490035BE1A /* OWSTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34B3F89E1E8DF5490035BE1A /* OWSTableViewController.m */; };
 		34B3F8A21E8EA6040035BE1A /* ViewControllerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 34B3F8A11E8EA6040035BE1A /* ViewControllerUtils.m */; };
 		34D5CC961EA6AFAD005515DB /* OWSContactsSyncing.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */; };
+		34D5CC9F1EA79CB9005515DB /* random-gif.gif in Resources */ = {isa = PBXBuildFile; fileRef = 34D5CC9C1EA79CB9005515DB /* random-gif.gif */; };
+		34D5CCA01EA79CB9005515DB /* random-mp3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 34D5CC9D1EA79CB9005515DB /* random-mp3.mp3 */; };
+		34D5CCA11EA79CB9005515DB /* random-mp4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 34D5CC9E1EA79CB9005515DB /* random-mp4.mp4 */; };
+		34D5CCA31EA79D5D005515DB /* random-jpg.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 34D5CCA21EA79D5D005515DB /* random-jpg.jpg */; };
 		34DFCB851E8E04B500053165 /* AddToBlockListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34DFCB841E8E04B500053165 /* AddToBlockListViewController.m */; };
 		34FD93701E3BD43A00109093 /* OWSAnyTouchGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 34FD936F1E3BD43A00109093 /* OWSAnyTouchGestureRecognizer.m */; };
 		450573FE1E78A06D00615BB4 /* OWS103EnableVideoCalling.m in Sources */ = {isa = PBXBuildFile; fileRef = 450573FD1E78A06D00615BB4 /* OWS103EnableVideoCalling.m */; };
@@ -433,6 +437,10 @@
 		34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSContactsSyncing.m; sourceTree = "<group>"; };
 		34D5CC981EA6EB79005515DB /* OWSMessageCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessageCollectionViewCell.h; sourceTree = "<group>"; };
 		34D5CC9B1EA6ED17005515DB /* OWSMessageMediaAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessageMediaAdapter.h; sourceTree = "<group>"; };
+		34D5CC9C1EA79CB9005515DB /* random-gif.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "random-gif.gif"; path = "Signal/random-gif.gif"; sourceTree = "<group>"; };
+		34D5CC9D1EA79CB9005515DB /* random-mp3.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = "random-mp3.mp3"; path = "Signal/random-mp3.mp3"; sourceTree = "<group>"; };
+		34D5CC9E1EA79CB9005515DB /* random-mp4.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "random-mp4.mp4"; path = "Signal/random-mp4.mp4"; sourceTree = "<group>"; };
+		34D5CCA21EA79D5D005515DB /* random-jpg.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "random-jpg.jpg"; path = "Signal/random-jpg.jpg"; sourceTree = "<group>"; };
 		34DFCB831E8E04B400053165 /* AddToBlockListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddToBlockListViewController.h; sourceTree = "<group>"; };
 		34DFCB841E8E04B500053165 /* AddToBlockListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddToBlockListViewController.m; sourceTree = "<group>"; };
 		34FD936E1E3BD43A00109093 /* OWSAnyTouchGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OWSAnyTouchGestureRecognizer.h; path = views/OWSAnyTouchGestureRecognizer.h; sourceTree = "<group>"; };
@@ -1448,6 +1456,10 @@
 		D221A07E169C9E5E00537ABF = {
 			isa = PBXGroup;
 			children = (
+				34D5CC9C1EA79CB9005515DB /* random-gif.gif */,
+				34D5CCA21EA79D5D005515DB /* random-jpg.jpg */,
+				34D5CC9D1EA79CB9005515DB /* random-mp3.mp3 */,
+				34D5CC9E1EA79CB9005515DB /* random-mp4.mp4 */,
 				D221A093169C9E5E00537ABF /* Signal */,
 				45F170B01E2F0A35003FC1F2 /* Libraries */,
 				D221A08C169C9E5E00537ABF /* Frameworks */,
@@ -1735,8 +1747,10 @@
 				45C681C41D305C9E0050903A /* OWSCallCollectionViewCell.xib in Resources */,
 				34330A5C1E787A9800DF2FB9 /* dripicons-v2.ttf in Resources */,
 				B633C5C41A1D190B0059AC12 /* mute_on@2x.png in Resources */,
+				34D5CCA11EA79CB9005515DB /* random-mp4.mp4 in Resources */,
 				B633C5CE1A1D190B0059AC12 /* quit@2x.png in Resources */,
 				AD83FF441A73426500B5C81A /* audio_pause_button.png in Resources */,
+				34D5CC9F1EA79CB9005515DB /* random-gif.gif in Resources */,
 				B6F509971AA53F760068F56A /* Localizable.strings in Resources */,
 				AD41D7B51A6F6F0600241130 /* play_button.png in Resources */,
 				45CD81A61DBFF8FC004C9430 /* Registration.storyboard in Resources */,
@@ -1754,6 +1768,7 @@
 				45CB2FA81CB7146C00E1B343 /* Launch Screen.storyboard in Resources */,
 				34B3F8781E8DF1700035BE1A /* ContactsPicker.xib in Resources */,
 				B633C5C31A1D190B0059AC12 /* mute_off@2x.png in Resources */,
+				34D5CCA01EA79CB9005515DB /* random-mp3.mp3 in Resources */,
 				AD83FF411A73426500B5C81A /* audio_play_button_blue@2x.png in Resources */,
 				FC5CDF3A1A3393DD00B47253 /* warning_white@2x.png in Resources */,
 				E1370BE018A0686600826894 /* busy.mp3 in Resources */,
@@ -1761,6 +1776,7 @@
 				E1370BE218A0686C00826894 /* failure.mp3 in Resources */,
 				E1370BE318A0686C00826894 /* handshake.mp3 in Resources */,
 				B625CD561ABB589C00E8B23C /* NewMessage.aifc in Resources */,
+				34D5CCA31EA79D5D005515DB /* random-jpg.jpg in Resources */,
 				B633C58D1A1D190B0059AC12 /* contact_default_feed.png in Resources */,
 				B10C9B621A7049EC00ECA2BF /* play_icon@2x.png in Resources */,
 				B633C5861A1D190B0059AC12 /* call@2x.png in Resources */,

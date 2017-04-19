@@ -70,6 +70,15 @@ NS_ASSUME_NONNULL_BEGIN
                                                               sendRandomAttachment:thread
                                                                                uti:(NSString *)kUTTypePDF];
                                                       }],
+                                      [OWSTableItem itemWithTitle:@"Send 10 media (1/sec.)"
+                                                      actionBlock:^{
+                                                          [DebugUITableViewController sendMediaAttachments:10 thread:thread];
+                                                      }],
+                                      [OWSTableItem itemWithTitle:@"Send 100 media (1/sec.)"
+                                                      actionBlock:^{
+                                                          [DebugUITableViewController sendMediaAttachments:100
+                                                                                                    thread:thread];
+                                                      }],
                                   ]]];
 
     [contents
@@ -130,6 +139,40 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) 1.f * NSEC_PER_SEC),
                    dispatch_get_main_queue(), ^{
                        [self sendTextMessage:counter - 1 thread:thread];
+                   });
+}
+
++ (void)sendMediaAttachments:(int)counter
+                      thread:(TSThread *)thread {
+    OWSMessageSender *messageSender = [Environment getCurrent].messageSender;
+    if (counter < 1) {
+        return;
+    }
+    NSDictionary<NSString *, NSString *> *bundledFilesMap = @{
+                                                             @"random-jpg.jpg": (NSString *)kUTTypeJPEG,
+                                                             @"random-gif.gif": (NSString *)kUTTypeGIF,
+                                                             @"random-mp3.mp3": (NSString *)kUTTypeMP3,
+                                                             @"random-mp4.mp4": (NSString *)kUTTypeMPEG4,
+                                                             };
+    NSArray<NSString *> *bundledFilenames = [bundledFilesMap allKeys];
+    NSString *filename = bundledFilenames[arc4random() % bundledFilenames.count];
+    NSString *utiType = bundledFilesMap[filename];
+    NSData *data = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:[filename stringByDeletingPathExtension]
+                                                                         withExtension:[filename pathExtension]]];
+    OWSAssert(data);
+    SignalAttachment *attachment = [SignalAttachment attachmentWithData:data dataUTI:utiType filename:filename];
+    OWSAssert(attachment);
+    if ([attachment hasError]) {
+        DDLogError(@"attachment[%@]: %@", [attachment filename], [attachment errorName]);
+        [DDLog flushLog];
+    }
+    OWSAssert(![attachment hasError]);
+    [ThreadUtil sendMessageWithAttachment:attachment
+                                 inThread:thread
+                            messageSender:messageSender];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) 1.f * NSEC_PER_SEC),
+                   dispatch_get_main_queue(), ^{
+                       [self sendMediaAttachments:counter - 1 thread:thread];
                    });
 }
 
