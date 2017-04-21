@@ -577,7 +577,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
         }
         let remoteVideoTrack = stream.videoTracks[0]
         Logger.debug("\(self.TAG) didAdd stream:\(stream) video tracks: \(stream.videoTracks.count) audio tracks: \(stream.audioTracks.count)")
-        
+
         // See the comments on the remoteVideoTrack property.
         //
         // We only set the remoteVideoTrack property if peerConnection is non-nil.
@@ -596,7 +596,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
             if let delegate = self.delegate {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    
+
                     // See the comments on the remoteVideoTrack property.
                     //
                     // We only access the remoteVideoTrack property if peerConnection is non-nil.

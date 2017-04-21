@@ -2009,6 +2009,7 @@ typedef enum : NSUInteger {
         actionWithTitle:NSLocalizedString(@"MESSAGES_VIEW_FAILED_DOWNLOAD_RETRY_ACTION", @"Action sheet button text")
                   style:UIAlertActionStyleDefault
                 handler:^(UIAlertAction *_Nonnull action) {
+                    DDLogInfo(@"%@ Retrying download.", self.tag);
                     OWSAttachmentsProcessor *processor =
                         [[OWSAttachmentsProcessor alloc] initWithAttachmentPointer:attachmentPointer
                                                                     networkManager:self.networkManager];
@@ -2048,12 +2049,13 @@ typedef enum : NSUInteger {
     UIAlertAction *resendMessageAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"SEND_AGAIN_BUTTON", @"")
                                                                   style:UIAlertActionStyleDefault
                                                                 handler:^(UIAlertAction * _Nonnull action) {
+                                                                    DDLogInfo(@"%@ Retrying download.", self.tag);
                                                                     [self.messageSender sendMessage:message
                                                                         success:^{
                                                                             DDLogInfo(@"%@ Successfully resent failed message.", self.tag);
                                                                         }
                                                                         failure:^(NSError *_Nonnull error) {
-                                                                            DDLogWarn(@"%@ Failed to send message with error: %@", self.tag, error);
+                                                                            DDLogWarn(@"%@ Failed to resend message with error: %@", self.tag, error);
                                                                         }];
                                                                 }];
 
