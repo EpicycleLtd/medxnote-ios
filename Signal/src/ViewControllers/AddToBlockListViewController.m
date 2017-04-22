@@ -375,7 +375,7 @@ NSString * const kAddToBlockListViewControllerCellIdentifier = @"kAddToBlockList
 - (BOOL)isContactBlocked:(Contact *)contact
 {
     if (contact.parsedPhoneNumbers.count < 1) {
-        // Hide contacts without any valid phone numbers.
+        // Do not consider contacts without any valid phone numbers to be blocked.
         return NO;
     }
 

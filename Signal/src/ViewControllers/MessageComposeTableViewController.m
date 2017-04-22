@@ -7,6 +7,7 @@
 #import "ContactTableViewCell.h"
 #import "ContactsUpdater.h"
 #import "Environment.h"
+#import "NewGroupViewController.h"
 #import "OWSContactsSearcher.h"
 #import "Signal-Swift.h"
 #import "UIColor+OWS.h"
@@ -162,6 +163,18 @@ NSString *const MessageComposeTableViewControllerCellContact = @"ContactTableVie
     [super viewWillAppear:animated];
 
     [self showEmptyBackgroundViewIfNecessary];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NewGroupViewController *newGroupViewController =
+            [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"NewGroupViewController"];
+        //        [newGroupViewController configWithThread:(TSGroupThread *)self.thread];
+        [self.navigationController pushViewController:newGroupViewController animated:YES];
+    });
 }
 
 - (UILabel *)createLabelWithFirstLine:(NSString *)firstLine andSecondLine:(NSString *)secondLine {
@@ -739,7 +752,7 @@ NSString *const MessageComposeTableViewControllerCellContact = @"ContactTableVie
 - (BOOL)isContactBlocked:(Contact *)contact
 {
     if (contact.parsedPhoneNumbers.count < 1) {
-        // Hide contacts without any valid phone numbers.
+        // Do not consider contacts without any valid phone numbers to be blocked.
         return NO;
     }
 

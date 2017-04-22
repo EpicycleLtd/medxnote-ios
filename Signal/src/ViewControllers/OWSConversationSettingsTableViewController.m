@@ -151,6 +151,19 @@ NS_ASSUME_NONNULL_BEGIN
     [self updateTableContents];
 }
 
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NewGroupViewController *newGroupViewController =
+            [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"NewGroupViewController"];
+        [newGroupViewController configWithThread:(TSGroupThread *)self.thread];
+        [self.navigationController pushViewController:newGroupViewController animated:YES];
+    });
+}
+
 - (void)updateTableContents
 {
     OWSTableContents *contents = [OWSTableContents new];
@@ -548,16 +561,13 @@ NS_ASSUME_NONNULL_BEGIN
         addGestureRecognizer:[[OWSAnyTouchGestureRecognizer alloc] initWithTarget:self
                                                                            action:@selector(conversationNameTouched:)]];
     firstSectionHeader.userInteractionEnabled = YES;
-    for (UIView *subview in firstSectionHeader.subviews) {
-        subview.userInteractionEnabled = NO;
-    }
 
     return firstSectionHeader;
 }
 
 - (void)conversationNameTouched:(UIGestureRecognizer *)sender
 {
-    if (sender.state == UIGestureRecognizerStateBegan || sender.state == UIGestureRecognizerStateRecognized) {
+    if (sender.state == UIGestureRecognizerStateRecognized) {
         if (self.isGroupThread) {
             NewGroupViewController *newGroupViewController =
                 [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"NewGroupViewController"];
