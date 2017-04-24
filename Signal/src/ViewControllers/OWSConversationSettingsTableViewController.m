@@ -6,7 +6,6 @@
 #import "BlockListUIUtils.h"
 #import "Environment.h"
 #import "FingerprintViewController.h"
-#import "NewGroupViewController.h"
 #import "OWSAnyTouchGestureRecognizer.h"
 #import "OWSAvatarBuilder.h"
 #import "OWSBlockingManager.h"
@@ -17,6 +16,7 @@
 #import "UIFont+OWS.h"
 #import "UIUtil.h"
 #import "UIView+OWS.h"
+#import "UpdateGroupViewController.h"
 #import <25519/Curve25519.h>
 #import <SignalServiceKit/NSDate+millisecondTimeStamp.h>
 #import <SignalServiceKit/OWSDisappearingConfigurationUpdateInfoMessage.h>
@@ -157,10 +157,9 @@ NS_ASSUME_NONNULL_BEGIN
     [super viewDidAppear:animated];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        NewGroupViewController *newGroupViewController =
-            [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"NewGroupViewController"];
-        [newGroupViewController configWithThread:(TSGroupThread *)self.thread];
-        [self.navigationController pushViewController:newGroupViewController animated:YES];
+        UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
+        [updateGroupViewController configWithThread:(TSGroupThread *)self.thread];
+        [self.navigationController pushViewController:updateGroupViewController animated:YES];
     });
 }
 
@@ -344,10 +343,9 @@ NS_ASSUME_NONNULL_BEGIN
                     if (!strongSelf) {
                         return;
                     }
-                    NewGroupViewController *newGroupViewController =
-                        [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"NewGroupViewController"];
-                    [newGroupViewController configWithThread:(TSGroupThread *)strongSelf.thread];
-                    [strongSelf.navigationController pushViewController:newGroupViewController animated:YES];
+                    UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
+                    [updateGroupViewController configWithThread:(TSGroupThread *)strongSelf.thread];
+                    [strongSelf.navigationController pushViewController:updateGroupViewController animated:YES];
                 }],
             [OWSTableItem itemWithCustomCellBlock:^{
                 UITableViewCell *cell = [UITableViewCell new];
@@ -569,15 +567,15 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (sender.state == UIGestureRecognizerStateRecognized) {
         if (self.isGroupThread) {
-            NewGroupViewController *newGroupViewController =
-                [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"NewGroupViewController"];
-            [newGroupViewController configWithThread:(TSGroupThread *)self.thread];
+            UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
+            [updateGroupViewController configWithThread:(TSGroupThread *)self.thread];
+            [self.navigationController pushViewController:updateGroupViewController animated:YES];
 
             CGPoint location = [sender locationInView:self.avatarView];
             if (CGRectContainsPoint(self.avatarView.bounds, location)) {
-                newGroupViewController.shouldEditAvatarOnAppear = YES;
+                updateGroupViewController.shouldEditAvatarOnAppear = YES;
             } else {
-                newGroupViewController.shouldEditGroupNameOnAppear = YES;
+                updateGroupViewController.shouldEditGroupNameOnAppear = YES;
             }
 
             [self.navigationController pushViewController:newGroupViewController animated:YES];

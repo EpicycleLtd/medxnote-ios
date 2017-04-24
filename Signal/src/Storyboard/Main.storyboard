@@ -972,7 +972,7 @@
                             <inset key="imageInsets" minX="-10" minY="0.0" maxX="10" maxY="0.0"/>
                             <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
-                                <segue destination="bDi-2Q-XOC" kind="push" id="D0d-4f-lcI"/>
+                                <action selector="showNewGroupView:" destination="Qga-41-bw2" id="tIm-Ok-rht"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -1008,21 +1008,6 @@
                 </view>
             </objects>
             <point key="canvasLocation" x="-2357" y="-235"/>
-        </scene>
-        <!--New Group View Controller-->
-        <scene sceneID="mdV-ti-fPA">
-            <objects>
-                <viewController storyboardIdentifier="NewGroupViewController" id="bDi-2Q-XOC" customClass="NewGroupViewController" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="UEo-nm-WR4"/>
-                    <connections>
-                        <segue destination="JOx-5h-y9g" kind="unwind" identifier="UnwindToMessagesViewSegue" unwindAction="unwindGroupUpdated:" id="IGD-29-LA4"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="GsM-dR-L7j" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <navigationItem title="Title" id="GX0-lz-Nrv"/>
-                <exit id="JOx-5h-y9g" userLabel="Exit" sceneMemberID="exit"/>
-            </objects>
-            <point key="canvasLocation" x="-1816" y="-236"/>
         </scene>
         <!--Device QR Scanner-->
         <scene sceneID="f3S-St-vF2">

@@ -2,13 +2,23 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import "TSGroupModel.h"
 #import "TSGroupThread.h"
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NewGroupViewController : UIViewController
+@class UpdateGroupViewController;
+
+@protocol UpdateGroupViewControllerDelegate <NSObject>
+
+- (void)UpdateGroupViewController:TSGroupModel *groupModel
+
+@end
+
+#pragma mark -
+
+@interface UpdateGroupViewController : UIViewController
 //<
 //                                        // UITableViewDelegate,
 //                                        //                                                      UITabBarDelegate,
@@ -29,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 // and only if the group was created or updated.
 //
 // TODO:
-@property (nonatomic) TSGroupModel *groupModel;
+//@property (nonatomic) TSGroupModel *groupModel;
 
 @property (nonatomic) BOOL shouldEditGroupNameOnAppear;
 @property (nonatomic) BOOL shouldEditAvatarOnAppear;

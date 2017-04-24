@@ -2,7 +2,7 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "NewGroupViewController.h"
+#import "UpdateGroupViewController.h"
 #import "BlockListUIUtils.h"
 #import "ContactTableViewCell.h"
 #import "ContactsViewHelper.h"
@@ -54,7 +54,9 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 
 #pragma mark -
 
-@interface NewGroupViewController () <UIImagePickerControllerDelegate, UITextFieldDelegate, ContactsViewHelperDelegate>
+@interface UpdateGroupViewController () <UIImagePickerControllerDelegate,
+    UITextFieldDelegate,
+    ContactsViewHelperDelegate>
 
 @property (nonatomic, readonly) TSGroupThread *thread;
 @property (nonatomic, readonly) OWSMessageSender *messageSender;
@@ -73,7 +75,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 
 #pragma mark -
 
-@implementation NewGroupViewController
+@implementation UpdateGroupViewController
 
 - (instancetype)init
 {
@@ -212,7 +214,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
     }
     groupNameTextField.textColor = [UIColor blackColor];
     groupNameTextField.font = [UIFont ows_dynamicTypeTitle2Font];
-    groupNameTextField.placeholder = NSLocalizedString(@"NEW_GROUP_NAMEGROUP_REQUEST_DEFAULT", @"Placeholder text for group name field");
+    groupNameTextField.placeholder = NSLocalizedString(@"NEW_GROUP_NAMEGROUP_REQUEST_DEFAULT", @"");
     groupNameTextField.delegate = self;
     [threadInfoView addSubview:groupNameTextField];
     [groupNameTextField autoVCenterInSuperview];
@@ -244,7 +246,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
         = (self.thread ? NSLocalizedString(@"CONVERSATION_SETTINGS", @"title for conversation settings screen")
                        : NSLocalizedString(@"CONVERSATION_SETTINGS", @"title for conversation settings screen"));
 
-    __weak NewGroupViewController *weakSelf = self;
+    __weak UpdateGroupViewController *weakSelf = self;
     ContactsViewHelper *helper = self.helper;
 
     // Group Members
@@ -256,7 +258,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 
         for (NSString *recipientId in [self.memberRecipientIds sortedArrayUsingSelector:@selector(compare:)]) {
             [membersSection addItem:[OWSTableItem itemWithCustomCellBlock:^{
-                NewGroupViewController *strongSelf = weakSelf;
+                UpdateGroupViewController *strongSelf = weakSelf;
                 if (!strongSelf) {
                     return (ContactTableViewCell *)nil;
                 }
@@ -312,7 +314,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
                 addItem:
                     [OWSTableItem
                         itemWithCustomCellBlock:^{
-                            NewGroupViewController *strongSelf = weakSelf;
+                            UpdateGroupViewController *strongSelf = weakSelf;
                             if (!strongSelf) {
                                 return (ContactTableViewCell *)nil;
                             }
@@ -631,36 +633,41 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 
 - (IBAction)showChangeGroupAvatarUI:(nullable id)sender
 {
-    UIAlertController *actionSheetController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"NEW_GROUP_ADD_PHOTO_ACTION", @"Action Sheet title prompting the user for a group avatar")
-                                                                                   message:nil
-                                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertController *actionSheetController =
+        [UIAlertController alertControllerWithTitle:NSLocalizedString(@"NEW_GROUP_ADD_PHOTO_ACTION",
+                                                        @"Action Sheet title prompting the user for a group avatar")
+                                            message:nil
+                                     preferredStyle:UIAlertControllerStyleActionSheet];
     UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"TXT_CANCEL_TITLE", @"")
                                                             style:UIAlertActionStyleCancel
                                                           handler:nil];
     [actionSheetController addAction:dismissAction];
 
-    UIAlertAction *takePictureAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"MEDIA_FROM_CAMERA_BUTTON", @"media picker option to take photo or video")
-                                                                style:UIAlertActionStyleDefault
-                                                              handler:^(UIAlertAction * _Nonnull action) {
-                                                                  [self takePicture];
-                                                              }];
+    UIAlertAction *takePictureAction = [UIAlertAction
+        actionWithTitle:NSLocalizedString(@"MEDIA_FROM_CAMERA_BUTTON", @"media picker option to take photo or video")
+                  style:UIAlertActionStyleDefault
+                handler:^(UIAlertAction *_Nonnull action) {
+                    [self takePicture];
+                }];
     [actionSheetController addAction:takePictureAction];
 
-    UIAlertAction *choosePictureAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"MEDIA_FROM_LIBRARY_BUTTON", @"media picker option to choose from library")
-                                                                  style:UIAlertActionStyleDefault
-                                                                handler:^(UIAlertAction * _Nonnull action) {
-                                                                    [self chooseFromLibrary];
-                                                                }];
+    UIAlertAction *choosePictureAction = [UIAlertAction
+        actionWithTitle:NSLocalizedString(@"MEDIA_FROM_LIBRARY_BUTTON", @"media picker option to choose from library")
+                  style:UIAlertActionStyleDefault
+                handler:^(UIAlertAction *_Nonnull action) {
+                    [self chooseFromLibrary];
+                }];
     [actionSheetController addAction:choosePictureAction];
 
     [self presentViewController:actionSheetController animated:true completion:nil];
 }
 
-- (void)takePicture {
+- (void)takePicture
+{
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-    picker.delegate                 = self;
-    picker.allowsEditing            = NO;
-    picker.sourceType               = UIImagePickerControllerSourceTypeCamera;
+    picker.delegate = self;
+    picker.allowsEditing = NO;
+    picker.sourceType = UIImagePickerControllerSourceTypeCamera;
 
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeImage, nil];
@@ -668,10 +675,11 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
     }
 }
 
-- (void)chooseFromLibrary {
+- (void)chooseFromLibrary
+{
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-    picker.delegate                 = self;
-    picker.sourceType               = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+    picker.delegate = self;
+    picker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
 
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
         picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeImage, nil];
@@ -683,14 +691,16 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
  *  Dismissing UIImagePickerController
  */
 
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 /*
  *  Fetch data from UIImagePickerController
  */
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
     OWSAssert([NSThread isMainThread]);
 
     UIImage *newImage = [info objectForKey:UIImagePickerControllerOriginalImage];
@@ -821,7 +831,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 //        // Deselect.
 //        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 //
-//        __weak NewGroupViewController *weakSelf = self;
+//        __weak UpdateGroupViewController *weakSelf = self;
 //        [BlockListUIUtils showUnblockContactActionSheet:contact
 //                                     fromViewController:self
 //                                        blockingManager:_blockingManager
@@ -943,7 +953,8 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 
 #pragma mark - Text Field Delegate
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
     [self.groupNameTextField resignFirstResponder];
     return NO;
 }

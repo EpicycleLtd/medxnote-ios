@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		340CB2241EAC155C0001CAA1 /* ContactsViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 340CB2231EAC155C0001CAA1 /* ContactsViewHelper.m */; };
+		340CB2271EAC25820001CAA1 /* UpdateGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 340CB2261EAC25820001CAA1 /* UpdateGroupViewController.m */; };
 		341BB7491DB727EE001E2975 /* JSQMediaItem+OWS.m in Sources */ = {isa = PBXBuildFile; fileRef = 341BB7481DB727EE001E2975 /* JSQMediaItem+OWS.m */; };
 		34330A5A1E7875FB00DF2FB9 /* fontawesome-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 34330A591E7875FB00DF2FB9 /* fontawesome-webfont.ttf */; };
 		34330A5C1E787A9800DF2FB9 /* dripicons-v2.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 34330A5B1E787A9800DF2FB9 /* dripicons-v2.ttf */; };
@@ -344,6 +346,10 @@
 
 /* Begin PBXFileReference section */
 		1B5E7D6C9007F5E5761D79DD /* libPods-SignalTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SignalTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		340CB2221EAC155C0001CAA1 /* ContactsViewHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsViewHelper.h; sourceTree = "<group>"; };
+		340CB2231EAC155C0001CAA1 /* ContactsViewHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsViewHelper.m; sourceTree = "<group>"; };
+		340CB2251EAC25820001CAA1 /* UpdateGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateGroupViewController.h; sourceTree = "<group>"; };
+		340CB2261EAC25820001CAA1 /* UpdateGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UpdateGroupViewController.m; sourceTree = "<group>"; };
 		341BB7471DB727EE001E2975 /* JSQMediaItem+OWS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "JSQMediaItem+OWS.h"; sourceTree = "<group>"; };
 		341BB7481DB727EE001E2975 /* JSQMediaItem+OWS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "JSQMediaItem+OWS.m"; sourceTree = "<group>"; };
 		34330A591E7875FB00DF2FB9 /* fontawesome-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontawesome-webfont.ttf"; sourceTree = "<group>"; };
@@ -850,6 +856,8 @@
 				34B3F83D1E8DF1700035BE1A /* CodeVerificationViewController.m */,
 				34B3F83E1E8DF1700035BE1A /* ContactsPicker.swift */,
 				34B3F83F1E8DF1700035BE1A /* ContactsPicker.xib */,
+				340CB2221EAC155C0001CAA1 /* ContactsViewHelper.h */,
+				340CB2231EAC155C0001CAA1 /* ContactsViewHelper.m */,
 				34B3F8401E8DF1700035BE1A /* CountryCodeViewController.h */,
 				34B3F8411E8DF1700035BE1A /* CountryCodeViewController.m */,
 				34B3F8421E8DF1700035BE1A /* DebugUITableViewController.h */,
@@ -903,6 +911,8 @@
 				34B3F86E1E8DF1700035BE1A /* SignalsNavigationController.m */,
 				34B3F86F1E8DF1700035BE1A /* SignalsViewController.h */,
 				34B3F8701E8DF1700035BE1A /* SignalsViewController.m */,
+				340CB2251EAC25820001CAA1 /* UpdateGroupViewController.h */,
+				340CB2261EAC25820001CAA1 /* UpdateGroupViewController.m */,
 				34B3F8A01E8EA6040035BE1A /* ViewControllerUtils.h */,
 				34B3F8A11E8EA6040035BE1A /* ViewControllerUtils.m */,
 			);
@@ -1969,6 +1979,7 @@
 				451A13B11E13DED2000A50FD /* CallNotificationsAdapter.swift in Sources */,
 				3456710A1E8A9F5D006EE662 /* TSGenericAttachmentAdapter.m in Sources */,
 				450DF2091E0DD2C6003D14BE /* UserNotificationsAdaptee.swift in Sources */,
+				340CB2241EAC155C0001CAA1 /* ContactsViewHelper.m in Sources */,
 				45CD81F21DC03A22004C9430 /* OWSLogger.m in Sources */,
 				B60C16651988999D00E97A6C /* VersionMigrations.m in Sources */,
 				B97940271832BD2400BD66CB /* UIUtil.m in Sources */,
@@ -2070,6 +2081,7 @@
 				458DE9D61DEE3FD00071BB03 /* PeerConnectionClient.swift in Sources */,
 				451DE9FD1DC1A28200810E42 /* SyncPushTokensJob.swift in Sources */,
 				45666F761D9BFE00008FE134 /* OWS100RemoveTSRecipientsMigration.m in Sources */,
+				340CB2271EAC25820001CAA1 /* UpdateGroupViewController.m in Sources */,
 				34B3F89F1E8DF5490035BE1A /* OWSTableViewController.m in Sources */,
 				FCC81A981A44558300DFEC7D /* UIDevice+TSHardwareVersion.m in Sources */,
 				76EB054018170B33006006FC /* AppDelegate.m in Sources */,

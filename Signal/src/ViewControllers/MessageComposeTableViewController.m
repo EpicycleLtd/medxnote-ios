@@ -170,8 +170,8 @@ NSString *const MessageComposeTableViewControllerCellContact = @"ContactTableVie
     [super viewDidAppear:animated];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        NewGroupViewController *newGroupViewController =
-            [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"NewGroupViewController"];
+        NewGroupViewController *newGroupViewController = [NewGroupViewController new];
+        //            [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"NewGroupViewController"];
         //        [newGroupViewController configWithThread:(TSGroupThread *)self.thread];
         [self.navigationController pushViewController:newGroupViewController animated:YES];
     });
@@ -794,6 +794,12 @@ NSString *const MessageComposeTableViewControllerCellContact = @"ContactTableVie
 
 - (CGFloat)marginSize {
     return 20;
+}
+
+- (IBAction)showNewGroupView:(id)sender
+{
+    NewGroupViewController *newGroupViewController = [NewGroupViewController new];
+    [self.navigationController pushViewController:newGroupViewController animated:YES];
 }
 
 #pragma mark - UIScrollViewDelegate
