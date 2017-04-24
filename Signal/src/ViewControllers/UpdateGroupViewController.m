@@ -4,6 +4,7 @@
 
 #import "UpdateGroupViewController.h"
 #import "BlockListUIUtils.h"
+#import "ContactAccount.h"
 #import "ContactTableViewCell.h"
 #import "ContactsViewHelper.h"
 #import "Environment.h"
@@ -41,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) TSGroupThread *thread;
 @property (nonatomic, readonly) OWSMessageSender *messageSender;
-@property (nonatomic, readonly) OWSContactsManager *contactsManager;
 @property (nonatomic, readonly) ContactsViewHelper *contactsViewHelper;
 @property (nonatomic, readonly) GroupViewHelper *groupViewHelper;
 
@@ -88,7 +88,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)commonInit
 {
     _messageSender = [Environment getCurrent].messageSender;
-    _contactsManager = [Environment getCurrent].contactsManager;
     _contactsViewHelper = [ContactsViewHelper new];
     _contactsViewHelper.delegate = self;
     _groupViewHelper = [GroupViewHelper new];
@@ -202,10 +201,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSTableContents *contents = [OWSTableContents new];
 
-    // TODO: Copy
-    contents.title
-        = (self.thread ? NSLocalizedString(@"CONVERSATION_SETTINGS", @"title for conversation settings screen")
-                       : NSLocalizedString(@"CONVERSATION_SETTINGS", @"title for conversation settings screen"));
+    //    // TODO: Copy
+    //    contents.title
+    //        = (self.thread ? NSLocalizedString(@"CONVERSATION_SETTINGS", @"title for conversation settings screen")
+    //                       : NSLocalizedString(@"CONVERSATION_SETTINGS", @"title for conversation settings screen"));
 
     __weak UpdateGroupViewController *weakSelf = self;
     ContactsViewHelper *helper = self.contactsViewHelper;
@@ -249,9 +248,9 @@ NS_ASSUME_NONNULL_BEGIN
 
                 if (contactAccount) {
                     // TODO: Use the account label.
-                    [cell configureWithContact:contactAccount.contact contactsManager:strongSelf.contactsManager];
+                    [cell configureWithContact:contactAccount.contact contactsManager:helper.contactsManager];
                 } else {
-                    [cell configureWithRecipientId:recipientId contactsManager:strongSelf.contactsManager];
+                    [cell configureWithRecipientId:recipientId contactsManager:helper.contactsManager];
                 }
 
                 return cell;
@@ -272,33 +271,29 @@ NS_ASSUME_NONNULL_BEGIN
     NSArray<ContactAccount *> *allRecipientContactAccounts = self.contactsViewHelper.allRecipientContactAccounts;
     if (allRecipientContactAccounts.count > 0) {
         for (ContactAccount *contactAccount in allRecipientContactAccounts) {
-            [contactAccountSection
-                addItem:
-                    [OWSTableItem
-                        itemWithCustomCellBlock:^{
-                            UpdateGroupViewController *strongSelf = weakSelf;
-                            if (!strongSelf) {
-                                return (ContactTableViewCell *)nil;
-                            }
+            [contactAccountSection addItem:[OWSTableItem itemWithCustomCellBlock:^{
+                UpdateGroupViewController *strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return (ContactTableViewCell *)nil;
+                }
 
-                            ContactTableViewCell *cell = [ContactTableViewCell new];
-                            BOOL isBlocked = [helper isContactBlocked:contactAccount.contact];
-                            if (isBlocked) {
-                                cell.accessoryMessage = NSLocalizedString(
-                                    @"CONTACT_CELL_IS_BLOCKED", @"An indicator that a contact has been blocked.");
-                            } else {
-                                OWSAssert(cell.accessoryMessage == nil);
-                            }
-                            // TODO: Use the account label.
-                            [cell configureWithContact:contactAccount.contact
-                                       contactsManager:strongSelf.contactsManager];
+                ContactTableViewCell *cell = [ContactTableViewCell new];
+                BOOL isBlocked = [helper isRecipientIdBlocked:contactAccount.recipientId];
+                if (isBlocked) {
+                    cell.accessoryMessage = NSLocalizedString(
+                        @"CONTACT_CELL_IS_BLOCKED", @"An indicator that a contact has been blocked.");
+                } else {
+                    OWSAssert(cell.accessoryMessage == nil);
+                }
+                // TODO: Use the account label.
+                [cell configureWithContact:contactAccount.contact contactsManager:helper.contactsManager];
 
-                            return cell;
-                        }
-                                customRowHeight:[ContactTableViewCell rowHeight]
-                                    actionBlock:^{
-                                        //                                                                     <#code#>
-                                    }]];
+                return cell;
+            }
+                                                                 customRowHeight:[ContactTableViewCell rowHeight]
+                                                                     actionBlock:^{
+                                                                         // TODO:
+                                                                     }]];
         }
     } else {
         [contactAccountSection addItem:[OWSTableItem itemWithCustomCellBlock:^{

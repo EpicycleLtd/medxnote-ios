@@ -3,6 +3,7 @@
 //
 
 #import "ContactsViewHelper.h"
+#import "ContactAccount.h"
 #import "ContactTableViewCell.h"
 #import "Environment.h"
 #import <SignalServiceKit/Contact.h>
@@ -11,22 +12,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation ContactAccount
-
-@end
-
-#pragma mark -
-
 @interface ContactsViewHelper ()
-
-@property (nonatomic, readonly) OWSContactsManager *contactsManager;
 
 @property (nonatomic, nullable) NSArray<Contact *> *allRecipientContacts;
 @property (nonatomic, nullable) NSArray<ContactAccount *> *allRecipientContactAccounts;
 // A map of recipient id-to-contact account.
 @property (nonatomic, nullable) NSDictionary<NSString *, ContactAccount *> *contactAccountMap;
 
-@property (nonatomic, readonly) OWSBlockingManager *blockingManager;
 @property (nonatomic, nullable) NSArray<NSString *> *blockedPhoneNumbers;
 
 @end
@@ -115,6 +107,9 @@ NS_ASSUME_NONNULL_BEGIN
         if (contact.textSecureIdentifiers.count == 1) {
             ContactAccount *contactAccount = [ContactAccount new];
             contactAccount.contact = contact;
+            //            contactAccount.displayName = contact.fullName;
+            //            contactAccount.attributedDisplayName = [self.contactsManager
+            //            formattedFullNameForContact:contact];
             NSString *recipientId = contact.textSecureIdentifiers[0];
             contactAccount.recipientId = recipientId;
             [allRecipientContactAccounts addObject:contactAccount];

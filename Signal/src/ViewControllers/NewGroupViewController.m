@@ -4,6 +4,7 @@
 
 #import "NewGroupViewController.h"
 #import "BlockListUIUtils.h"
+#import "ContactAccount.h"
 #import "ContactTableViewCell.h"
 #import "ContactsViewHelper.h"
 #import "Environment.h"

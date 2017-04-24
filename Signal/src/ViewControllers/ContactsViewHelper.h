@@ -6,27 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ContactsViewHelper;
 @class Contact;
-
-// We want to be able to present contacts with multiple signal
-// accounts in the UI.  This class represents a given (contact,
-// signal account) tuple.
-@interface ContactAccount : NSObject
-
-@property (nonatomic) Contact *contact;
-
-// An E164 value identifying the signal account.
-@property (nonatomic) NSString *recipientId;
-
-// TODO: This might be redundant.
-@property (nonatomic) BOOL isMultipleAccountContact;
-
-// For contacts with more than one signal account,
-// this is a label for the account.
-@property (nonatomic) NSString *multipleAccountLabel;
-
-@end
-
-#pragma mark -
+@class ContactAccount;
 
 @protocol ContactsViewHelperDelegate <NSObject>
 
@@ -36,9 +16,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
+@class OWSContactsManager;
+@class OWSBlockingManager;
+
 @interface ContactsViewHelper : NSObject
 
 @property (nonatomic, weak) id<ContactsViewHelperDelegate> delegate;
+
+@property (nonatomic, readonly) OWSContactsManager *contactsManager;
+@property (nonatomic, readonly) OWSBlockingManager *blockingManager;
 
 // A list of all of the current user's contacts which have
 // at least one signal account.
