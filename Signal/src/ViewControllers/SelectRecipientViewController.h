@@ -4,6 +4,28 @@
 
 #import <UIKit/UIKit.h>
 
+@class ContactAccount;
+
+@protocol SelectRecipientViewControllerDelegate <NSObject>
+
+- (NSString *)phoneNumberSectionTitle;
+- (NSString *)phoneNumberButtonText;
+- (NSString *)contactsSectionTitle;
+
+- (void)phoneNumberWasSelected:(NSString *)phoneNumber;
+
+- (void)contactAccountWasSelected:(ContactAccount *)contactAccount;
+
+@end
+
+#pragma mark -
+
+@class ContactsViewHelper;
+
 @interface SelectRecipientViewController : UIViewController
+
+@property (nonatomic, weak) id<SelectRecipientViewControllerDelegate> delegate;
+
+@property (nonatomic, readonly) ContactsViewHelper *contactsViewHelper;
 
 @end

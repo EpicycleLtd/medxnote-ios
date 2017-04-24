@@ -3,7 +3,6 @@
 //
 
 #import "SelectRecipientViewController.h"
-#import "BlockListUIUtils.h"
 #import "ContactAccount.h"
 #import "ContactTableViewCell.h"
 #import "ContactsViewHelper.h"
@@ -32,14 +31,12 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
     OWSTableViewControllerDelegate,
     UITextFieldDelegate>
 
-@property (nonatomic, readonly) ContactsViewHelper *contactsViewHelper;
-
 @property (nonatomic) UIButton *countryNameButton;
 @property (nonatomic) UIButton *countryCodeButton;
 
 @property (nonatomic) UITextField *phoneNumberTextField;
 
-@property (nonatomic) UIButton *blockButton;
+@property (nonatomic) UIButton *phoneNumberButton;
 
 @property (nonatomic, readonly) OWSTableViewController *tableViewController;
 
@@ -60,13 +57,9 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
     _contactsViewHelper = [ContactsViewHelper new];
     _contactsViewHelper.delegate = self;
 
-    self.title = NSLocalizedString(@"SETTINGS_ADD_TO_BLOCK_LIST_TITLE", @"Title for the 'add to block list' view.");
-
     [self createViews];
 
     [self populateDefaultCountryNameAndCode];
-
-    //    [self addNotificationListeners];
 }
 
 - (void)viewDidLoad
@@ -75,34 +68,16 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
     [self.navigationController.navigationBar setTranslucent:NO];
 }
 
-//- (void)addNotificationListeners
-//{
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                             selector:@selector(blockedPhoneNumbersDidChange:)
-//                                                 name:kNSNotificationName_BlockedPhoneNumbersDidChange
-//                                               object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                             selector:@selector(signalRecipientsDidChange:)
-//                                                 name:OWSContactsManagerSignalRecipientsDidChangeNotification
-//                                               object:nil];
-//}
-//
-//- (void)dealloc
-//{
-//    [[NSNotificationCenter defaultCenter] removeObserver:self];
-//}
-
 - (void)createViews
 {
+    OWSAssert(self.delegate);
 
-    // Block Phone Number Title Row
-    UIView *blockPhoneNumberTitleRow =
-        [self createTitleRowWithText:NSLocalizedString(@"SETTINGS_ADD_TO_BLOCK_LIST_BLOCK_PHONE_NUMBER_TITLE",
-                                         @"Title for the 'block phone number' section of the 'add to block list' view.")
-                         previousRow:nil];
+    // Phone Number Section Title Row
+    UIView *phoneNumberSectionTitleRow =
+        [self createTitleRowWithText:[self.delegate phoneNumberSectionTitle] previousRow:nil];
 
     // Country Row
-    UIView *countryRow = [self createRowWithHeight:60 previousRow:blockPhoneNumberTitleRow];
+    UIView *countryRow = [self createRowWithHeight:60 previousRow:phoneNumberSectionTitleRow];
 
     _countryNameButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _countryNameButton.titleLabel.font = [UIFont ows_mediumFontWithSize:16.f];
@@ -166,47 +141,45 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
     UIView *borderRow2 = [self createRowWithHeight:1 previousRow:phoneNumberRow];
     borderRow2.backgroundColor = borderColor;
 
-    // Block Button Row
-    UIView *blockButtonRow = [self createRowWithHeight:60 previousRow:borderRow2];
+    // Phone Number Button Row
+    UIView *phoneNumberButtonRow = [self createRowWithHeight:60 previousRow:borderRow2];
 
     // TODO: Eventually we should make a view factory that will allow us to
     //       create views with consistent appearance across the app and move
     //       towards a "design language."
-    _blockButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _blockButton.titleLabel.font = [UIFont ows_mediumFontWithSize:16.f];
-    [_blockButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [_blockButton setBackgroundColor:[UIColor ows_signalBrandBlueColor]];
-    _blockButton.clipsToBounds = YES;
-    _blockButton.layer.cornerRadius = 3.f;
-    [_blockButton setTitle:NSLocalizedString(
-                               @"BLOCK_LIST_VIEW_BLOCK_BUTTON", @"A label for the block button in the block list view")
-                  forState:UIControlStateNormal];
-    [_blockButton addTarget:self action:@selector(blockButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [blockButtonRow addSubview:_blockButton];
-    [_blockButton autoCenterInSuperview];
-    [_blockButton autoSetDimension:ALDimensionWidth toSize:160];
-    [_blockButton autoSetDimension:ALDimensionHeight toSize:40];
+    _phoneNumberButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _phoneNumberButton.titleLabel.font = [UIFont ows_mediumFontWithSize:16.f];
+    [_phoneNumberButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_phoneNumberButton setBackgroundColor:[UIColor ows_signalBrandBlueColor]];
+    _phoneNumberButton.clipsToBounds = YES;
+    _phoneNumberButton.layer.cornerRadius = 3.f;
+    [_phoneNumberButton setTitle:[self.delegate phoneNumberButtonText] forState:UIControlStateNormal];
+    [_phoneNumberButton addTarget:self
+                           action:@selector(phoneNumberButtonPressed:)
+                 forControlEvents:UIControlEventTouchUpInside];
+    [phoneNumberButtonRow addSubview:_phoneNumberButton];
+    [_phoneNumberButton autoCenterInSuperview];
+    [_phoneNumberButton autoSetDimension:ALDimensionWidth toSize:160];
+    [_phoneNumberButton autoSetDimension:ALDimensionHeight toSize:40];
 
     // Separator Row
-    UIView *separatorRow = [self createRowWithHeight:10 previousRow:blockButtonRow];
+    UIView *separatorRow = [self createRowWithHeight:10 previousRow:phoneNumberButtonRow];
 
-    // Block Contact Title Row
-    UIView *blockContactTitleRow =
-        [self createTitleRowWithText:NSLocalizedString(@"SETTINGS_ADD_TO_BLOCK_LIST_BLOCK_CONTACT_TITLE",
-                                         @"Title for the 'block contact' section of the 'add to block list' view.")
-                         previousRow:separatorRow];
+    // Contact Section Title Row
+    UIView *contactSectionTitleRow =
+        [self createTitleRowWithText:[self.delegate contactsSectionTitle] previousRow:separatorRow];
 
     _tableViewController = [OWSTableViewController new];
     _tableViewController.delegate = self;
     _tableViewController.contents = [OWSTableContents new];
     [self.view addSubview:self.tableViewController.view];
     [_tableViewController.view autoPinWidthToSuperview];
-    [_tableViewController.view autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:blockContactTitleRow withOffset:10];
+    [_tableViewController.view autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:contactSectionTitleRow withOffset:10];
     [_tableViewController.view autoPinToBottomLayoutGuideOfViewController:self withInset:0];
 
     [self updateTableContents];
 
-    [self updateBlockButtonEnabling];
+    [self updatephoneNumberButtonEnabling];
 }
 
 - (UIView *)createTitleRowWithText:(NSString *)text previousRow:(nullable UIView *)previousRow
@@ -269,7 +242,7 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
 {
     _callingCode = callingCode;
 
-    [self updateBlockButtonEnabling];
+    [self updatephoneNumberButtonEnabling];
 }
 
 #pragma mark - Actions
@@ -285,13 +258,15 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
     [self presentViewController:navigationController animated:YES completion:[UIUtil modalCompletionBlock]];
 }
 
-- (void)blockButtonPressed:(id)sender
+- (void)phoneNumberButtonPressed:(id)sender
 {
-    [self tryToBlockPhoneNumber];
+    [self tryToSelectPhoneNumber];
 }
 
-- (void)tryToBlockPhoneNumber
+- (void)tryToSelectPhoneNumber
 {
+    OWSAssert(self.delegate);
+
     if (![self hasValidPhoneNumber]) {
         OWSAssert(0);
         return;
@@ -301,23 +276,12 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
     PhoneNumber *parsedPhoneNumber = [PhoneNumber tryParsePhoneNumberFromUserSpecifiedText:possiblePhoneNumber];
     OWSAssert(parsedPhoneNumber);
 
-    __weak SelectRecipientViewController *weakSelf = self;
-    [BlockListUIUtils showBlockPhoneNumberActionSheet:[parsedPhoneNumber toE164]
-                                   fromViewController:self
-                                      blockingManager:self.contactsViewHelper.blockingManager
-                                      contactsManager:self.contactsViewHelper.contactsManager
-                                      completionBlock:^(BOOL isBlocked) {
-                                          if (isBlocked) {
-                                              // Clear phone number text field if block succeeds.
-                                              weakSelf.phoneNumberTextField.text = nil;
-                                              [weakSelf.navigationController popViewControllerAnimated:YES];
-                                          }
-                                      }];
+    [self.delegate phoneNumberWasSelected:[parsedPhoneNumber toE164]];
 }
 
 - (void)textFieldDidChange:(id)sender
 {
-    [self updateBlockButtonEnabling];
+    [self updatephoneNumberButtonEnabling];
 }
 
 // TODO: We could also do this in registration view.
@@ -334,11 +298,11 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
     return parsedPhoneNumber && parsedPhoneNumber.toE164.length > 1;
 }
 
-- (void)updateBlockButtonEnabling
+- (void)updatephoneNumberButtonEnabling
 {
     BOOL isEnabled = [self hasValidPhoneNumber];
-    _blockButton.enabled = isEnabled;
-    [_blockButton setBackgroundColor:(isEnabled ? [UIColor ows_signalBrandBlueColor] : [UIColor lightGrayColor])];
+    _phoneNumberButton.enabled = isEnabled;
+    [_phoneNumberButton setBackgroundColor:(isEnabled ? [UIColor ows_signalBrandBlueColor] : [UIColor lightGrayColor])];
 }
 
 #pragma mark - CountryCodeViewControllerDelegate
@@ -367,7 +331,7 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
                             replacementString:insertionText
                                   countryCode:_callingCode];
 
-    [self updateBlockButtonEnabling];
+    [self updatephoneNumberButtonEnabling];
 
     return NO; // inform our caller that we took care of performing the change
 }
@@ -375,7 +339,7 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];
-    [self tryToBlockPhoneNumber];
+    [self tryToSelectPhoneNumber];
     return NO;
 }
 
@@ -411,84 +375,30 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
         OWSTableSection *contactAccountSection = [OWSTableSection new];
         contactAccountSection.headerTitle = NSLocalizedString(
             @"BLOCK_LIST_VIEW_CONTACTS_SECTION_TITLE", @"A title for the contacts section of the block list view.");
-        contactAccountSection.headerTitle = NSLocalizedString(
-            @"EDIT_GROUP_CONTACTS_SECTION_TITLE", @"a title for the contacts section of the 'new/update group' view.");
         NSArray<ContactAccount *> *allRecipientContactAccounts = helper.allRecipientContactAccounts;
-        if (allRecipientContactAccounts.count > 0) {
-            for (ContactAccount *contactAccount in allRecipientContactAccounts) {
-                [contactAccountSection
-                    addItem:
-                        [OWSTableItem itemWithCustomCellBlock:^{
-                            SelectRecipientViewController *strongSelf = weakSelf;
-                            if (!strongSelf) {
-                                return (ContactTableViewCell *)nil;
-                            }
-
-                            ContactTableViewCell *cell = [ContactTableViewCell new];
-                            BOOL isBlocked = [helper isRecipientIdBlocked:contactAccount.recipientId];
-                            if (isBlocked) {
-                                cell.accessoryMessage = NSLocalizedString(
-                                    @"CONTACT_CELL_IS_BLOCKED", @"An indicator that a contact has been blocked.");
-                            } else {
-                                OWSAssert(cell.accessoryMessage == nil);
-                            }
-                            // TODO: Use the account label.
-                            [cell configureWithContact:contactAccount.contact contactsManager:helper.contactsManager];
-                            return cell;
-                        }
-                            customRowHeight:[ContactTableViewCell rowHeight]
-                            actionBlock:^{
-                                __weak SelectRecipientViewController *weakSelf = self;
-                                if ([helper isRecipientIdBlocked:contactAccount.recipientId]) {
-                                    // TODO: Use the account label.
-                                    NSString *displayName =
-                                        [helper.contactsManager displayNameForContact:contactAccount.contact];
-                                    UIAlertController *controller = [UIAlertController
-                                        alertControllerWithTitle:NSLocalizedString(
-                                                                     @"BLOCK_LIST_VIEW_ALREADY_BLOCKED_ALERT_TITLE",
-                                                                     @"A title of the alert if user tries to block a "
-                                                                     @"user who is already blocked.")
-                                                         message:[NSString
-                                                                     stringWithFormat:
-                                                                         NSLocalizedString(@"BLOCK_LIST_VIEW_ALREADY_"
-                                                                                           @"BLOCKED_ALERT_MESSAGE_"
-                                                                                           @"FORMAT",
-                                                                             @"A format for the message of the alert "
-                                                                             @"if user tries to "
-                                                                             @"block a user who is already blocked.  "
-                                                                             @"Embeds {{the "
-                                                                             @"blocked user's name or phone number}}."),
-                                                                     displayName]
-                                                  preferredStyle:UIAlertControllerStyleAlert];
-                                    [controller addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
-                                                                                   style:UIAlertActionStyleDefault
-                                                                                 handler:nil]];
-                                    [self presentViewController:controller animated:YES completion:nil];
-                                    return;
-                                }
-                                [BlockListUIUtils showBlockContactAccountActionSheet:contactAccount
-                                                                  fromViewController:self
-                                                                     blockingManager:helper.blockingManager
-                                                                     contactsManager:helper.contactsManager
-                                                                     completionBlock:^(BOOL isBlocked) {
-                                                                         if (isBlocked) {
-                                                                             [weakSelf.navigationController
-                                                                                 popViewControllerAnimated:YES];
-                                                                         }
-                                                                     }];
-                            }]];
-            }
-        } else {
+        for (ContactAccount *contactAccount in allRecipientContactAccounts) {
             [contactAccountSection addItem:[OWSTableItem itemWithCustomCellBlock:^{
-                UITableViewCell *cell = [UITableViewCell new];
-                cell.textLabel.text = NSLocalizedString(
-                    @"SETTINGS_BLOCK_LIST_NO_CONTACTS", @"A label that indicates the user has no Signal contacts.");
-                cell.textLabel.font = [UIFont ows_regularFontWithSize:15.f];
-                cell.textLabel.textColor = [UIColor colorWithWhite:0.5f alpha:1.f];
-                cell.textLabel.textAlignment = NSTextAlignmentCenter;
+                SelectRecipientViewController *strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return (ContactTableViewCell *)nil;
+                }
+
+                ContactTableViewCell *cell = [ContactTableViewCell new];
+                BOOL isBlocked = [helper isRecipientIdBlocked:contactAccount.recipientId];
+                if (isBlocked) {
+                    cell.accessoryMessage = NSLocalizedString(
+                        @"CONTACT_CELL_IS_BLOCKED", @"An indicator that a contact has been blocked.");
+                } else {
+                    OWSAssert(cell.accessoryMessage == nil);
+                }
+                // TODO: Use the account label.
+                [cell configureWithContact:contactAccount.contact contactsManager:helper.contactsManager];
                 return cell;
             }
-                                                                     actionBlock:nil]];
+                                               customRowHeight:[ContactTableViewCell rowHeight]
+                                               actionBlock:^{
+                                                   [weakSelf.delegate contactAccountWasSelected:contactAccount];
+                                               }]];
         }
         [contents addSection:contactAccountSection];
     }
@@ -496,9 +406,9 @@ NSString *const kSelectRecipientViewControllerCellIdentifier = @"kSelectRecipien
     self.tableViewController.contents = contents;
 }
 
-#pragma mark - UIScrollViewDelegate
+#pragma mark - OWSTableViewControllerDelegate
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+- (void)tableViewDidScroll
 {
     [self.phoneNumberTextField resignFirstResponder];
 }
