@@ -64,6 +64,7 @@
 		34B3F8A21E8EA6040035BE1A /* ViewControllerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 34B3F8A11E8EA6040035BE1A /* ViewControllerUtils.m */; };
 		34D5CC961EA6AFAD005515DB /* OWSContactsSyncing.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */; };
 		34D5CCA61EA934A4005515DB /* NSTimer+OWS.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CCA51EA934A4005515DB /* NSTimer+OWS.m */; };
+		34D5CCA91EAE3D30005515DB /* GroupViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CCA81EAE3D30005515DB /* GroupViewHelper.m */; };
 		34DFCB851E8E04B500053165 /* AddToBlockListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34DFCB841E8E04B500053165 /* AddToBlockListViewController.m */; };
 		34FD93701E3BD43A00109093 /* OWSAnyTouchGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 34FD936F1E3BD43A00109093 /* OWSAnyTouchGestureRecognizer.m */; };
 		450573FE1E78A06D00615BB4 /* OWS103EnableVideoCalling.m in Sources */ = {isa = PBXBuildFile; fileRef = 450573FD1E78A06D00615BB4 /* OWS103EnableVideoCalling.m */; };
@@ -447,6 +448,9 @@
 		34D5CC9B1EA6ED17005515DB /* OWSMessageMediaAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessageMediaAdapter.h; sourceTree = "<group>"; };
 		34D5CCA41EA934A4005515DB /* NSTimer+OWS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTimer+OWS.h"; sourceTree = "<group>"; };
 		34D5CCA51EA934A4005515DB /* NSTimer+OWS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTimer+OWS.m"; sourceTree = "<group>"; };
+		34D5CCA71EAE3D30005515DB /* GroupViewHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupViewHelper.h; sourceTree = "<group>"; };
+		34D5CCA81EAE3D30005515DB /* GroupViewHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupViewHelper.m; sourceTree = "<group>"; };
+		34D5CCAB1EAE7136005515DB /* OWSConversationSettingsViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSConversationSettingsViewDelegate.h; sourceTree = "<group>"; };
 		34DFCB831E8E04B400053165 /* AddToBlockListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddToBlockListViewController.h; sourceTree = "<group>"; };
 		34DFCB841E8E04B500053165 /* AddToBlockListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddToBlockListViewController.m; sourceTree = "<group>"; };
 		34FD936E1E3BD43A00109093 /* OWSAnyTouchGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OWSAnyTouchGestureRecognizer.h; path = views/OWSAnyTouchGestureRecognizer.h; sourceTree = "<group>"; };
@@ -867,6 +871,8 @@
 				34B3F8461E8DF1700035BE1A /* FingerprintViewController.m */,
 				34B3F8471E8DF1700035BE1A /* FullImageViewController.h */,
 				34B3F8481E8DF1700035BE1A /* FullImageViewController.m */,
+				34D5CCA71EAE3D30005515DB /* GroupViewHelper.h */,
+				34D5CCA81EAE3D30005515DB /* GroupViewHelper.m */,
 				34B3F8491E8DF1700035BE1A /* InboxTableViewCell.h */,
 				34B3F84A1E8DF1700035BE1A /* InboxTableViewCell.m */,
 				34B3F84B1E8DF1700035BE1A /* InboxTableViewCell.xib */,
@@ -889,6 +895,7 @@
 				34533F171EA8D2070006114F /* OWSAudioAttachmentPlayer.m */,
 				34B3F85B1E8DF1700035BE1A /* OWSConversationSettingsTableViewController.h */,
 				34B3F85C1E8DF1700035BE1A /* OWSConversationSettingsTableViewController.m */,
+				34D5CCAB1EAE7136005515DB /* OWSConversationSettingsViewDelegate.h */,
 				34B3F85D1E8DF1700035BE1A /* OWSLinkDeviceViewController.h */,
 				34B3F85E1E8DF1700035BE1A /* OWSLinkDeviceViewController.m */,
 				34B3F85F1E8DF1700035BE1A /* OWSLinkedDevicesTableViewController.h */,
@@ -1833,7 +1840,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		3465F381B1856CC06933B3A8 /* [CP] Copy Pods Resources */ = {
@@ -1926,7 +1933,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		B4E9B04E862FB64FC9A8F79B /* [CP] Embed Pods Frameworks */ = {
@@ -2044,6 +2051,7 @@
 				34B3F8881E8DF1700035BE1A /* OversizeTextMessageViewController.swift in Sources */,
 				34330AA31E79686200DF2FB9 /* OWSProgressView.m in Sources */,
 				34B3F8A21E8EA6040035BE1A /* ViewControllerUtils.m in Sources */,
+				34D5CCA91EAE3D30005515DB /* GroupViewHelper.m in Sources */,
 				453D28BA1D332DB100D523F0 /* OWSMessagesBubblesSizeCalculator.m in Sources */,
 				45F170AC1E2F0351003FC1F2 /* CallAudioSession.swift in Sources */,
 				34B3F8801E8DF1700035BE1A /* InviteFlow.swift in Sources */,

@@ -149,18 +149,27 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     [self updateTableContents];
-}
 
+    dispatch_async(dispatch_get_main_queue(), ^{
+        OWSAssert(self.delegate);
+        UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
+        updateGroupViewController.delegate = self.delegate;
+        [updateGroupViewController configWithThread:(TSGroupThread *)self.thread];
+        [self.navigationController pushViewController:updateGroupViewController animated:YES];
+    });
+}
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
-        [updateGroupViewController configWithThread:(TSGroupThread *)self.thread];
-        [self.navigationController pushViewController:updateGroupViewController animated:YES];
-    });
+    //    dispatch_async(dispatch_get_main_queue(), ^{
+    //        OWSAssert(self.delegate);
+    //        UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
+    //        updateGroupViewController.delegate = self.delegate;
+    //        [updateGroupViewController configWithThread:(TSGroupThread *)self.thread];
+    //        [self.navigationController pushViewController:updateGroupViewController animated:YES];
+    //    });
 }
 
 - (void)updateTableContents
@@ -343,7 +352,9 @@ NS_ASSUME_NONNULL_BEGIN
                     if (!strongSelf) {
                         return;
                     }
+                    OWSAssert(strongSelf.delegate);
                     UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
+                    updateGroupViewController.delegate = strongSelf.delegate;
                     [updateGroupViewController configWithThread:(TSGroupThread *)strongSelf.thread];
                     [strongSelf.navigationController pushViewController:updateGroupViewController animated:YES];
                 }],
@@ -567,9 +578,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (sender.state == UIGestureRecognizerStateRecognized) {
         if (self.isGroupThread) {
+            OWSAssert(self.delegate);
             UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
+            updateGroupViewController.delegate = self.delegate;
             [updateGroupViewController configWithThread:(TSGroupThread *)self.thread];
-            [self.navigationController pushViewController:updateGroupViewController animated:YES];
 
             CGPoint location = [sender locationInView:self.avatarView];
             if (CGRectContainsPoint(self.avatarView.bounds, location)) {
@@ -578,7 +590,7 @@ NS_ASSUME_NONNULL_BEGIN
                 updateGroupViewController.shouldEditGroupNameOnAppear = YES;
             }
 
-            [self.navigationController pushViewController:newGroupViewController animated:YES];
+            [self.navigationController pushViewController:updateGroupViewController animated:YES];
         } else {
             // TODO: Edit 1:1 contact.
         }

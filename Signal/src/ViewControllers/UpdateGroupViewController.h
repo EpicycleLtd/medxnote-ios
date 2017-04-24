@@ -2,23 +2,17 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
+#import "OWSConversationSettingsViewDelegate.h"
 #import "TSGroupModel.h"
 #import "TSGroupThread.h"
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class UpdateGroupViewController;
-
-@protocol UpdateGroupViewControllerDelegate <NSObject>
-
-- (void)UpdateGroupViewController:TSGroupModel *groupModel
-
-@end
-
-#pragma mark -
-
 @interface UpdateGroupViewController : UIViewController
+
+@property (nonatomic, weak) id<OWSConversationSettingsViewDelegate> delegate;
+
 //<
 //                                        // UITableViewDelegate,
 //                                        //                                                      UITabBarDelegate,

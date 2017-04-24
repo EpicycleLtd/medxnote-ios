@@ -15,8 +15,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue";
-
 @interface ShowGroupMembersViewController ()
 
 @property GroupContactsResult *groupContacts;

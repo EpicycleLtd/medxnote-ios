@@ -30,8 +30,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue";
-
 // typedef NS_ENUM(NSInteger, GroupMemberType) { GroupMemberTypeExisting, GroupMemberTypeProposed };
 //
 //@interface GroupMember : NSObject

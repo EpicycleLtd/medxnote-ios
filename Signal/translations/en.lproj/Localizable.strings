@@ -19,6 +19,12 @@
 /* No comment provided by engineer. */
 "ADDRESSBOOK_RESTRICTED_ALERT_BUTTON" = "Close";
 
+/* The label for the 'don't save' button in action sheets. */
+"ALERT_DONT_SAVE" = "Don't Save";
+
+/* The label for the 'save' button in action sheets. */
+"ALERT_SAVE" = "Save";
+
 /* registration button text */
 "ALREADY_HAVE_ACCOUNT_BUTTON" = "Already have a Signal account?";
 
@@ -313,8 +319,14 @@
 /* a title for the contacts section of the 'new/update group' view. */
 "EDIT_GROUP_CONTACTS_SECTION_TITLE" = "Contacts";
 
-/* An indicator that a user is a current member of the group. */
+/* An indicator that a
+                    //                    user is a current member of the group.
+   An indicator that a
+//                    //                    user is a current member of the group. */
 "EDIT_GROUP_CURRENT_MEMBER_LABEL" = "Member";
+
+/* The default title for the 'update group' view. */
+"EDIT_GROUP_DEFAULT_TITLE" = "Update Group";
 
 /* a title for the members section of the 'new/update group' view. */
 "EDIT_GROUP_MEMBERS_SECTION_TITLE" = "Members";
@@ -327,6 +339,12 @@
 
 /* A title of the alert if user tries to add a user to a group who is already in the group. */
 "EDIT_GROUP_VIEW_ALREADY_IN_GROUP_ALERT_TITLE" = "Already a Group Member";
+
+/* The alert message if user tries to exit update group view without saving changes. */
+"EDIT_GROUP_VIEW_UNSAVED_CHANGES_MESSAGE" = "You've changed this group. Would you like to save these changes?";
+
+/* The alert title if user tries to exit update group view without saving changes. */
+"EDIT_GROUP_VIEW_UNSAVED_CHANGES_TITLE" = "Unsaved Changes";
 
 /* Short name for edit menu item to copy contents of media message. */
 "EDIT_ITEM_COPY_ACTION" = "Copy";

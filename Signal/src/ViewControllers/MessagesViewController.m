@@ -18,6 +18,7 @@
 #import "OWSCallCollectionViewCell.h"
 #import "OWSContactsManager.h"
 #import "OWSConversationSettingsTableViewController.h"
+#import "OWSConversationSettingsViewDelegate.h"
 #import "OWSDisappearingMessagesJob.h"
 #import "OWSDisplayedMessageCollectionViewCell.h"
 #import "OWSExpirableMessageView.h"
@@ -188,6 +189,7 @@ typedef enum : NSUInteger {
 
 @interface MessagesViewController () <JSQMessagesComposerTextViewPasteDelegate,
     OWSTextViewPasteDelegate,
+    OWSConversationSettingsViewDelegate,
     UIDocumentMenuDelegate,
     UIDocumentPickerDelegate> {
     UIImage *tappedImage;
@@ -420,6 +422,12 @@ typedef enum : NSUInteger {
                                 contactsManager:self.contactsManager
                                 blockingManager:self.blockingManager];
     }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //        [self performSegueWithIdentifier:@"composeNew" sender:self];
+        //        TSThread *thread = [self threadForIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+        //        [self presentThread:thread keyboardOnViewAppearing:NO callOnViewAppearing:NO];
+        [self showConversationSettings];
+    });
 }
 
 - (void)viewDidLayoutSubviews
@@ -743,12 +751,12 @@ typedef enum : NSUInteger {
     }
     [self updateNavigationBarSubtitleLabel];
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //        [self performSegueWithIdentifier:@"composeNew" sender:self];
-        //        TSThread *thread = [self threadForIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
-        //        [self presentThread:thread keyboardOnViewAppearing:NO callOnViewAppearing:NO];
-        [self showConversationSettings];
-    });
+    //    dispatch_async(dispatch_get_main_queue(), ^{
+    //        //        [self performSegueWithIdentifier:@"composeNew" sender:self];
+    //        //        TSThread *thread = [self threadForIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+    //        //        [self presentThread:thread keyboardOnViewAppearing:NO callOnViewAppearing:NO];
+    //        [self showConversationSettings];
+    //    });
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -1667,6 +1675,7 @@ typedef enum : NSUInteger {
 
     OWSConversationSettingsTableViewController *settingsVC =
         [[UIStoryboard main] instantiateViewControllerWithIdentifier:@"OWSConversationSettingsTableViewController"];
+    settingsVC.delegate = self;
     [settingsVC configureWithThread:self.thread];
     [self.navigationController pushViewController:settingsVC animated:YES];
 }
@@ -2862,18 +2871,6 @@ typedef enum : NSUInteger {
     self.thread = groupThread;
 }
 
-- (IBAction)unwindGroupUpdated:(UIStoryboardSegue *)segue {
-    NewGroupViewController *ngc  = [segue sourceViewController];
-    TSGroupModel *newGroupModel  = [ngc groupModel];
-    NSMutableSet *groupMemberIds = [NSMutableSet setWithArray:newGroupModel.groupMemberIds];
-    [groupMemberIds addObject:[TSAccountManager localNumber]];
-    newGroupModel.groupMemberIds = [NSMutableArray arrayWithArray:[groupMemberIds allObjects]];
-    [self updateGroupModelTo:newGroupModel];
-    [self.collectionView.collectionViewLayout
-        invalidateLayoutWithContext:[JSQMessagesCollectionViewFlowLayoutInvalidationContext context]];
-    [self.collectionView reloadData];
-}
-
 - (void)popKeyBoard {
     [self.inputToolbar.contentView.textView becomeFirstResponder];
 }
@@ -3036,6 +3033,26 @@ typedef enum : NSUInteger {
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     self.userHasScrolled = YES;
+}
+
+#pragma mark - OWSConversationSettingsViewDelegate
+
+- (void)groupWasUpdated:(TSGroupModel *)groupModel
+{
+    OWSAssert(groupModel);
+
+    NSMutableSet *groupMemberIds = [NSMutableSet setWithArray:groupModel.groupMemberIds];
+    [groupMemberIds addObject:[TSAccountManager localNumber]];
+    groupModel.groupMemberIds = [NSMutableArray arrayWithArray:[groupMemberIds allObjects]];
+    [self updateGroupModelTo:groupModel];
+    [self.collectionView.collectionViewLayout
+        invalidateLayoutWithContext:[JSQMessagesCollectionViewFlowLayoutInvalidationContext context]];
+    [self.collectionView reloadData];
+}
+
+- (void)popAllConversationSettingsViews
+{
+    [self.navigationController popToViewController:self animated:YES];
 }
 
 #pragma mark - Class methods

@@ -8,6 +8,7 @@
 #import "ContactsViewHelper.h"
 #import "Environment.h"
 #import "FunctionalUtil.h"
+#import "GroupViewHelper.h"
 #import "OWSAnyTouchGestureRecognizer.h"
 #import "OWSContactsManager.h"
 #import "OWSTableViewController.h"
@@ -18,6 +19,7 @@
 #import "UIImage+normalizeImage.h"
 #import "UIUtil.h"
 #import "UIView+OWS.h"
+#import "UIViewController+OWS.h"
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <SignalServiceKit/MimeTypeUtil.h>
 #import <SignalServiceKit/NSDate+millisecondTimeStamp.h>
@@ -26,50 +28,32 @@
 #import <SignalServiceKit/TSAccountManager.h>
 
 // TODO
-#import "OWSAvatarBuilder.h"
+//#import "OWSAvatarBuilder.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue";
-
-// typedef NS_ENUM(NSInteger, GroupMemberType) { GroupMemberTypeExisting, GroupMemberTypeProposed };
-//
-//@interface GroupMember : NSObject
-//
-//@property (nonatomic, readonly) GroupMemberType groupMemberType;
-//
-//// An E164 value identifying the signal account.
-//@property (nonatomic, readonly) NSString *recipientId;
-//
-////// This property is optional and will not be set for non-contacts.
-////@property (nonatomic, readonly) Contact *contact;
-//
-//@end
-//
-//#pragma mark -
-//
-//@implementation GroupMember
-//
-//@end
-
-#pragma mark -
-
 @interface UpdateGroupViewController () <UIImagePickerControllerDelegate,
     UITextFieldDelegate,
-    ContactsViewHelperDelegate>
+    ContactsViewHelperDelegate,
+    GroupViewHelperDelegate,
+    OWSTableViewControllerDelegate,
+    UINavigationControllerDelegate>
 
 @property (nonatomic, readonly) TSGroupThread *thread;
 @property (nonatomic, readonly) OWSMessageSender *messageSender;
 @property (nonatomic, readonly) OWSContactsManager *contactsManager;
-@property (nonatomic, readonly) ContactsViewHelper *helper;
+@property (nonatomic, readonly) ContactsViewHelper *contactsViewHelper;
+@property (nonatomic, readonly) GroupViewHelper *groupViewHelper;
 
 @property (nonatomic, readonly) OWSTableViewController *tableViewController;
 @property (nonatomic, readonly) UIImageView *avatarView;
 @property (nonatomic, readonly) UITextField *groupNameTextField;
 
-@property (nonatomic, nullable) UIImage *groupImage;
+@property (nonatomic, nullable) UIImage *groupAvatar;
 @property (nonatomic, nullable) NSSet<NSString *> *previousMemberRecipientIds;
-@property (nonatomic, nullable) NSMutableArray<NSString *> *memberRecipientIds;
+@property (nonatomic, nullable) NSMutableSet<NSString *> *memberRecipientIds;
+
+@property (nonatomic) BOOL hasUnsavedChanges;
 
 @end
 
@@ -104,53 +88,26 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 - (void)commonInit
 {
     _messageSender = [Environment getCurrent].messageSender;
-    _helper = [ContactsViewHelper new];
     _contactsManager = [Environment getCurrent].contactsManager;
-    //
-    //    _blockingManager = [OWSBlockingManager sharedManager];
-    //    self.blockedPhoneNumbers = [_blockingManager blockedPhoneNumbers];
+    _contactsViewHelper = [ContactsViewHelper new];
+    _contactsViewHelper.delegate = self;
+    _groupViewHelper = [GroupViewHelper new];
+    _groupViewHelper.delegate = self;
 
-    self.memberRecipientIds = [NSMutableArray new];
-
-    //    [self observeNotifications];
+    self.memberRecipientIds = [NSMutableSet new];
 }
-
-//- (void)observeNotifications
-//{
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                             selector:@selector(signalRecipientsDidChange:)
-//                                                 name:OWSContactsManagerSignalRecipientsDidChangeNotification
-//                                               object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                             selector:@selector(blockedPhoneNumbersDidChange:)
-//                                                 name:kNSNotificationName_BlockedPhoneNumbersDidChange
-//                                               object:nil];
-//}
-
-//- (void)dealloc
-//{
-//    [[NSNotificationCenter defaultCenter] removeObserver:self];
-//}
-//
-//- (void)signalRecipientsDidChange:(NSNotification *)notification {
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        [self updateContacts];
-//    });
-//}
-//
-//- (void)blockedPhoneNumbersDidChange:(id)notification
-//{
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        self.blockedPhoneNumbers = [_blockingManager blockedPhoneNumbers];
-//
-//        [self updateContacts];
-//    });
-//}
 
 #pragma mark - View Lifecycle
 
 - (void)loadView
 {
+    self.title = NSLocalizedString(@"EDIT_GROUP_DEFAULT_TITLE", @"The default title for the 'update group' view.");
+    //    self.title = (self.thread.groupModel.groupName.length > 0
+    //                  ? NSLocalizedString(@"EDIT_GROUP_DEFAULT_TITLE", @"The default title for the 'update group'
+    //                  view.") : self.thread.groupModel.groupName);
+    self.navigationItem.leftBarButtonItem =
+        [self createOWSBackButtonWithTarget:self selector:@selector(backButtonPressed:)];
+
     UIView *view = [UIView new];
     view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.view = view;
@@ -167,6 +124,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
     [firstSection autoPinEdgeToSuperviewEdge:ALEdgeTop];
 
     _tableViewController = [OWSTableViewController new];
+    _tableViewController.delegate = self;
     _tableViewController.contents = [OWSTableContents new];
     [self.view addSubview:self.tableViewController.view];
     [_tableViewController.view autoPinWidthToSuperview];
@@ -201,21 +159,24 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
     [avatarView autoPinEdgeToSuperviewEdge:ALEdgeLeft];
     [avatarView autoSetDimension:ALDimensionWidth toSize:kAvatarSize];
     [avatarView autoSetDimension:ALDimensionHeight toSize:kAvatarSize];
-    [self updateAvatarView];
-
     if (self.thread.groupModel) {
-        self.groupImage = self.thread.groupModel.groupImage;
+        _groupAvatar = self.thread.groupModel.groupImage;
     }
+    [self updateAvatarView];
 
     UITextField *groupNameTextField = [UITextField new];
     _groupNameTextField = groupNameTextField;
     if (self.thread) {
         _groupNameTextField.text = self.thread.groupModel.groupName;
+        self.groupNameTextField.text = self.thread.groupModel.groupName;
     }
     groupNameTextField.textColor = [UIColor blackColor];
     groupNameTextField.font = [UIFont ows_dynamicTypeTitle2Font];
     groupNameTextField.placeholder = NSLocalizedString(@"NEW_GROUP_NAMEGROUP_REQUEST_DEFAULT", @"");
     groupNameTextField.delegate = self;
+    [groupNameTextField addTarget:self
+                           action:@selector(groupNameDidChange:)
+                 forControlEvents:UIControlEventEditingChanged];
     [threadInfoView addSubview:groupNameTextField];
     [groupNameTextField autoVCenterInSuperview];
     [groupNameTextField autoPinEdge:ALEdgeLeft toEdge:ALEdgeRight ofView:avatarView withOffset:16.f];
@@ -247,7 +208,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
                        : NSLocalizedString(@"CONVERSATION_SETTINGS", @"title for conversation settings screen"));
 
     __weak UpdateGroupViewController *weakSelf = self;
-    ContactsViewHelper *helper = self.helper;
+    ContactsViewHelper *helper = self.contactsViewHelper;
 
     // Group Members
 
@@ -256,7 +217,8 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
         membersSection.headerTitle = NSLocalizedString(
             @"EDIT_GROUP_MEMBERS_SECTION_TITLE", @"a title for the members section of the 'new/update group' view.");
 
-        for (NSString *recipientId in [self.memberRecipientIds sortedArrayUsingSelector:@selector(compare:)]) {
+        for (NSString *recipientId in
+            [self.memberRecipientIds.allObjects sortedArrayUsingSelector:@selector(compare:)]) {
             [membersSection addItem:[OWSTableItem itemWithCustomCellBlock:^{
                 UpdateGroupViewController *strongSelf = weakSelf;
                 if (!strongSelf) {
@@ -307,7 +269,7 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
     OWSTableSection *contactAccountSection = [OWSTableSection new];
     contactAccountSection.headerTitle = NSLocalizedString(
         @"EDIT_GROUP_CONTACTS_SECTION_TITLE", @"a title for the contacts section of the 'new/update group' view.");
-    NSArray<ContactAccount *> *allRecipientContactAccounts = self.helper.allRecipientContactAccounts;
+    NSArray<ContactAccount *> *allRecipientContactAccounts = self.contactsViewHelper.allRecipientContactAccounts;
     if (allRecipientContactAccounts.count > 0) {
         for (ContactAccount *contactAccount in allRecipientContactAccounts) {
             [contactAccountSection
@@ -358,100 +320,6 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 
 #pragma mark - Methods
 
-//- (void)updateContacts {
-//    AssertIsOnMainThread();
-//
-//    // Snapshot selection state.
-//    NSMutableSet *selectedContacts = [NSMutableSet set];
-//    for (NSIndexPath *indexPath in [self.tableView indexPathsForSelectedRows]) {
-//        Contact *contact = self.contacts[(NSUInteger)indexPath.row];
-//        [selectedContacts addObject:contact];
-//    }
-//
-//    self.contacts = [self filteredContacts];
-//
-//    [self.tableView reloadData];
-//
-//    // Restore selection state.
-//    for (Contact *contact in selectedContacts) {
-//        if ([self.contacts containsObject:contact]) {
-//            NSInteger row = (NSInteger)[self.contacts indexOfObject:contact];
-//            [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]
-//                                        animated:NO
-//                                  scrollPosition:UITableViewScrollPositionNone];
-//        }
-//    }
-//}
-//
-//- (BOOL)isContactHidden:(Contact *)contact
-//{
-//    if (contact.parsedPhoneNumbers.count < 1) {
-//        // Hide contacts without any valid phone numbers.
-//        return YES;
-//    }
-//
-//    if ([self isCurrentUserContact:contact]) {
-//        // We never want to add ourselves to a group.
-//        return YES;
-//    }
-//
-//    return NO;
-//}
-//
-//- (BOOL)isContactBlocked:(Contact *)contact
-//{
-//    if (contact.parsedPhoneNumbers.count < 1) {
-//        // Hide contacts without any valid phone numbers.
-//        return NO;
-//    }
-//
-//    for (PhoneNumber *phoneNumber in contact.parsedPhoneNumbers) {
-//        if ([_blockedPhoneNumbers containsObject:phoneNumber.toE164]) {
-//            return YES;
-//        }
-//    }
-//
-//    return NO;
-//}
-//
-//- (BOOL)isCurrentUserContact:(Contact *)contact
-//{
-//    for (PhoneNumber *phoneNumber in contact.parsedPhoneNumbers) {
-//        if ([[phoneNumber toE164] isEqualToString:[TSAccountManager localNumber]]) {
-//            return YES;
-//        }
-//    }
-//
-//    return NO;
-//}
-//
-//- (NSArray<Contact *> *_Nonnull)filteredContacts
-//{
-//    NSMutableArray<Contact *> *result = [NSMutableArray new];
-//    for (Contact *contact in self.contactsManager.signalContacts) {
-//        if (![self isContactHidden:contact]) {
-//            [result addObject:contact];
-//        }
-//    }
-//    return [result copy];
-//}
-//
-//- (BOOL)isContactInGroup:(Contact *)contact
-//{
-//    for (PhoneNumber *phoneNumber in contact.parsedPhoneNumbers) {
-//        if (self.thread != nil && self.thread.groupModel.groupMemberIds) {
-//            // TODO: What if a contact has two phone numbers that
-//            // correspond to signal account and one has been added
-//            // to the group but not the other?
-//            if ([self.thread.groupModel.groupMemberIds containsObject:[phoneNumber toE164]]) {
-//                return YES;
-//            }
-//        }
-//    }
-//
-//    return NO;
-//}
-
 - (void)configWithThread:(TSGroupThread *)thread
 {
     _thread = thread;
@@ -462,41 +330,44 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
     }
 }
 
-//- (void)viewDidLoad {
-//    [super viewDidLoad];
-//    [self.navigationController.navigationBar setTranslucent:NO];
-//
-//    self.contacts = [self filteredContacts];
-//
-//    self.tableView.tableHeaderView.frame = CGRectMake(0, 0, 400, 44);
-//    self.tableView.tableHeaderView       = self.tableView.tableHeaderView;
-//
-//    [self initializeDelegates];
-//    [self initializeTableView];
-//    [self initializeKeyboardHandlers];
-//
-//    if (self.thread == nil) {
-//        self.navigationItem.rightBarButtonItem =
-//            [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"add-conversation"]
-//                                                       imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]
-//                                             style:UIBarButtonItemStylePlain
-//                                            target:self
-//                                            action:@selector(createGroup)];
-//        self.navigationItem.rightBarButtonItem.imageInsets = UIEdgeInsetsMake(0, -10, 0, 10);
-//        self.navigationItem.title                          = NSLocalizedString(@"NEW_GROUP_DEFAULT_TITLE", @"");
-//        self.navigationItem.rightBarButtonItem.accessibilityLabel = NSLocalizedString(@"FINISH_GROUP_CREATION_LABEL",
-//        @"Accessibilty label for finishing new group");
-//    } else {
-//        self.navigationItem.rightBarButtonItem =
-//            [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"UPDATE_BUTTON_TITLE", @"")
-//                                             style:UIBarButtonItemStylePlain
-//                                            target:self
-//                                            action:@selector(updateGroup)];
-//        self.navigationItem.title    = self.thread.groupModel.groupName;
-//        self.nameGroupTextField.text = self.thread.groupModel.groupName;
-//    }
-//    _addPeopleLabel.text            = NSLocalizedString(@"NEW_GROUP_REQUEST_ADDPEOPLE", @"");
-//}
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
+    [self.navigationController.navigationBar setTranslucent:NO];
+
+    //    self.contacts = [self filteredContacts];
+    //
+    //    self.tableView.tableHeaderView.frame = CGRectMake(0, 0, 400, 44);
+    //    self.tableView.tableHeaderView       = self.tableView.tableHeaderView;
+    //
+    //    [self initializeDelegates];
+    //    [self initializeTableView];
+    //    [self initializeKeyboardHandlers];
+    //
+    //    if (self.thread == nil) {
+    //        self.navigationItem.rightBarButtonItem =
+    //            [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"add-conversation"]
+    //                                                       imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]
+    //                                             style:UIBarButtonItemStylePlain
+    //                                            target:self
+    //                                            action:@selector(createGroup)];
+    //        self.navigationItem.rightBarButtonItem.imageInsets = UIEdgeInsetsMake(0, -10, 0, 10);
+    //        self.navigationItem.title                          = NSLocalizedString(@"NEW_GROUP_DEFAULT_TITLE", @"");
+    //        self.navigationItem.rightBarButtonItem.accessibilityLabel =
+    //        NSLocalizedString(@"FINISH_GROUP_CREATION_LABEL",
+    //        @"Accessibilty label for finishing new group");
+    //    } else {
+    //    self.navigationItem.rightBarButtonItem =
+    //    [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"UPDATE_BUTTON_TITLE", @"")
+    //                                     style:UIBarButtonItemStylePlain
+    //                                    target:self
+    //                                    action:@selector(updateGroup)];
+    //    self.navigationItem.title = self.thread.groupModel.groupName;
+    //    self.groupNameTextField.text = self.thread.groupModel.groupName;
+    //    }
+    //    _addPeopleLabel.text            = NSLocalizedString(@"NEW_GROUP_REQUEST_ADDPEOPLE", @"");
+}
 
 - (void)viewDidAppear:(BOOL)animated
 {
@@ -595,25 +466,18 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 //                     }];
 //}
 //
-//
-//- (void)updateGroup
-//{
-//    NSMutableArray *mut = [[NSMutableArray alloc] init];
-//    for (NSIndexPath *idx in _tableView.indexPathsForSelectedRows) {
-//        [mut addObjectsFromArray:[[self.contacts objectAtIndex:(NSUInteger)idx.row] textSecureIdentifiers]];
-//    }
-//    [mut addObjectsFromArray:self.thread.groupModel.groupMemberIds];
-//
-//    _groupModel = [[TSGroupModel alloc] initWithTitle:_nameGroupTextField.text
-//                                            memberIds:[[[NSSet setWithArray:mut] allObjects] mutableCopy]
-//                                                image:self.thread.groupModel.groupImage
-//                                              groupId:self.thread.groupModel.groupId];
-//
-//    [self.nameGroupTextField resignFirstResponder];
-//
-//    [self performSegueWithIdentifier:kUnwindToMessagesViewSegue sender:self];
-//}
-//
+
+- (void)updateGroup
+{
+    OWSAssert(self.delegate);
+
+    TSGroupModel *groupModel = [[TSGroupModel alloc] initWithTitle:self.groupNameTextField.text
+                                                         memberIds:[self.memberRecipientIds.allObjects mutableCopy]
+                                                             image:self.groupAvatar
+                                                           groupId:self.thread.groupModel.groupId];
+    [self.delegate groupWasUpdated:groupModel];
+}
+
 //
 //- (TSGroupModel *)makeGroup
 //{
@@ -631,102 +495,25 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 
 #pragma mark - Group Avatar
 
-- (IBAction)showChangeGroupAvatarUI:(nullable id)sender
+- (void)showChangeGroupAvatarUI:(nullable id)sender
 {
-    UIAlertController *actionSheetController =
-        [UIAlertController alertControllerWithTitle:NSLocalizedString(@"NEW_GROUP_ADD_PHOTO_ACTION",
-                                                        @"Action Sheet title prompting the user for a group avatar")
-                                            message:nil
-                                     preferredStyle:UIAlertControllerStyleActionSheet];
-    UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"TXT_CANCEL_TITLE", @"")
-                                                            style:UIAlertActionStyleCancel
-                                                          handler:nil];
-    [actionSheetController addAction:dismissAction];
-
-    UIAlertAction *takePictureAction = [UIAlertAction
-        actionWithTitle:NSLocalizedString(@"MEDIA_FROM_CAMERA_BUTTON", @"media picker option to take photo or video")
-                  style:UIAlertActionStyleDefault
-                handler:^(UIAlertAction *_Nonnull action) {
-                    [self takePicture];
-                }];
-    [actionSheetController addAction:takePictureAction];
-
-    UIAlertAction *choosePictureAction = [UIAlertAction
-        actionWithTitle:NSLocalizedString(@"MEDIA_FROM_LIBRARY_BUTTON", @"media picker option to choose from library")
-                  style:UIAlertActionStyleDefault
-                handler:^(UIAlertAction *_Nonnull action) {
-                    [self chooseFromLibrary];
-                }];
-    [actionSheetController addAction:choosePictureAction];
-
-    [self presentViewController:actionSheetController animated:true completion:nil];
+    [self.groupViewHelper showChangeGroupAvatarUI];
 }
 
-- (void)takePicture
-{
-    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-    picker.delegate = self;
-    picker.allowsEditing = NO;
-    picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-        picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeImage, nil];
-        [self presentViewController:picker animated:YES completion:[UIUtil modalCompletionBlock]];
-    }
-}
-
-- (void)chooseFromLibrary
-{
-    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-    picker.delegate = self;
-    picker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
-        picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeImage, nil];
-        [self presentViewController:picker animated:YES completion:[UIUtil modalCompletionBlock]];
-    }
-}
-
-/*
- *  Dismissing UIImagePickerController
- */
-
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
-{
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
-
-/*
- *  Fetch data from UIImagePickerController
- */
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+- (void)setGroupAvatar:(nullable UIImage *)groupAvatar
 {
     OWSAssert([NSThread isMainThread]);
 
-    UIImage *newImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+    _groupAvatar = groupAvatar;
 
-    if (newImage) {
-        // TODO: This is busted.
-        UIImage *small = [newImage resizedImageToFitInSize:CGSizeMake(100.00, 100.00) scaleIfSmaller:NO];
-        self.thread.groupModel.groupImage = small;
-        self.groupImage = small;
-    }
-
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)setGroupImage:(nullable UIImage *)groupImage
-{
-    OWSAssert([NSThread isMainThread]);
-
-    _groupImage = groupImage;
+    self.hasUnsavedChanges = YES;
 
     [self updateAvatarView];
 }
 
 - (void)updateAvatarView
 {
-    UIImage *image = (self.groupImage ?: [UIImage imageNamed:@"empty-group-avatar"]);
+    UIImage *image = (self.groupAvatar ?: [UIImage imageNamed:@"empty-group-avatar"]);
     OWSAssert(image);
 
     self.avatarView.image = image;
@@ -861,95 +648,49 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
 //    [self updateContentsOfCell:cell indexPath:indexPath];
 //}
 
-#pragma mark - Contacts
-//
-//- (void)updateContacts
-//{
-//    OWSAssert([NSThread isMainThread]);
-//
-//    self.allContacts = [self filteredContacts];
-//    //    [self updateSearchResultsForSearchController:self.searchController];
-//    //    [self.tableView reloadData];
-//}
-//
-//- (void)setAllContacts:(nullable NSArray *)allContacts
-//{
-//    _allContacts = allContacts;
-//
-//    NSMutableArray<ContactAccount *> *allContactAccounts = [NSMutableArray new];
-//    NSMutableDictionary<NSString *, ContactAccount *> *contactAccountMap = [NSMutableDictionary new];
-//    for (Contact *contact in allContacts) {
-//        if (contact.textSecureIdentifiers.count == 1) {
-//            ContactAccount *contactAccount = [ContactAccount new];
-//            contactAccount.contact = contact;
-//            NSString *recipientId = contact.textSecureIdentifiers[0];
-//            contactAccount.recipientId = recipientId;
-//            [allContactAccounts addObject:contactAccount];
-//            contactAccountMap[recipientId] = contactAccount;
-//        } else if (contact.textSecureIdentifiers.count > 1) {
-//            //            int accountCounter = 0;
-//            for (NSString *recipientId in
-//                [contact.textSecureIdentifiers sortedArrayUsingSelector:@selector(compare:)]) {
-//                ContactAccount *contactAccount = [ContactAccount new];
-//                contactAccount.contact = contact;
-//                contactAccount.recipientId = recipientId;
-//                contactAccount.isMultipleAccountContact = YES;
-//                // TODO:
-//                contactAccount.accountName = recipientId;
-//                [allContactAccounts addObject:contactAccount];
-//                contactAccountMap[recipientId] = contactAccount;
-//            }
-//        }
-//    }
-//    self.allContactAccounts = [allContactAccounts copy];
-//    self.contactAccountMap = [contactAccountMap copy];
-//    //    NSArray *allContactAccounts
-//
-//    [self updateTableContents];
-//    // TODO: Update search results, update group members.
-//}
-//
-//- (BOOL)isContactHidden:(Contact *)contact
-//{
-//    if (contact.parsedPhoneNumbers.count < 1) {
-//        // Hide contacts without any valid phone numbers.
-//        return YES;
-//    }
-//
-//    return NO;
-//}
-//
-//- (BOOL)isContactBlocked:(Contact *)contact
-//{
-//    if (contact.parsedPhoneNumbers.count < 1) {
-//        // Do not consider contacts without any valid phone numbers to be blocked.
-//        return NO;
-//    }
-//
-//    for (PhoneNumber *phoneNumber in contact.parsedPhoneNumbers) {
-//        if ([_blockedPhoneNumbers containsObject:phoneNumber.toE164]) {
-//            return YES;
-//        }
-//    }
-//
-//    return NO;
-//}
-//
-//- (BOOL)isRecipientIdBlocked:(NSString *)recipientId
-//{
-//    return [_blockedPhoneNumbers containsObject:recipientId];
-//}
-//
-//- (NSArray<Contact *> *_Nonnull)filteredContacts
-//{
-//    NSMutableArray<Contact *> *result = [NSMutableArray new];
-//    for (Contact *contact in self.contactsManager.signalContacts) {
-//        if (![self isContactHidden:contact]) {
-//            [result addObject:contact];
-//        }
-//    }
-//    return [result copy];
-//}
+#pragma mark - Event Handling
+
+- (void)backButtonPressed:(id)sender
+{
+    [self.groupNameTextField resignFirstResponder];
+
+    if (!self.hasUnsavedChanges) {
+        // If user made no changes, return to conversation settings view.
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
+    }
+
+    UIAlertController *controller = [UIAlertController
+        alertControllerWithTitle:NSLocalizedString(@"EDIT_GROUP_VIEW_UNSAVED_CHANGES_TITLE",
+                                     @"The alert title if user tries to exit update group view without saving changes.")
+                         message:
+                             NSLocalizedString(@"EDIT_GROUP_VIEW_UNSAVED_CHANGES_MESSAGE",
+                                 @"The alert message if user tries to exit update group view without saving changes.")
+                  preferredStyle:UIAlertControllerStyleAlert];
+    [controller addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"ALERT_SAVE",
+                                                             @"The label for the 'save' button in action sheets.")
+                                                   style:UIAlertActionStyleDefault
+                                                 handler:^(UIAlertAction *action) {
+                                                     OWSAssert(self.delegate);
+
+                                                     [self updateGroup];
+
+                                                     [self.delegate popAllConversationSettingsViews];
+                                                 }]];
+    [controller addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"ALERT_DONT_SAVE",
+                                                             @"The label for the 'don't save' button in action sheets.")
+                                                   style:UIAlertActionStyleDestructive
+                                                 handler:^(UIAlertAction *action) {
+                                                     [self.navigationController popViewControllerAnimated:YES];
+                                                 }]];
+    [self presentViewController:controller animated:YES completion:nil];
+}
+
+
+- (void)groupNameDidChange:(id)sender
+{
+    self.hasUnsavedChanges = YES;
+}
 
 #pragma mark - Text Field Delegate
 
@@ -959,17 +700,33 @@ static NSString *const kUnwindToMessagesViewSegue = @"UnwindToMessagesViewSegue"
     return NO;
 }
 
-//#pragma mark - UIScrollViewDelegate
-//
-//- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-//    [self.nameGroupTextField resignFirstResponder];
-//}
+#pragma mark - OWSTableViewControllerDelegate
+
+- (void)tableViewDidScroll
+{
+    [self.groupNameTextField resignFirstResponder];
+}
 
 #pragma mark - ContactsViewHelperDelegate
 
 - (void)contactsViewHelperDidUpdateContacts
 {
     [self updateTableContents];
+}
+
+#pragma mark - GroupViewHelperDelegate
+
+- (void)groupAvatarDidChange:(UIImage *)image
+{
+    OWSAssert(image);
+
+    self.thread.groupModel.groupImage = image;
+    self.groupAvatar = image;
+}
+
+- (UIViewController *)fromViewController
+{
+    return self;
 }
 
 @end
