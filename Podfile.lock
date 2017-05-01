@@ -126,7 +126,7 @@ EXTERNAL SOURCES:
     :branch: mkirk/position-edit-menu
     :git: https://github.com/WhisperSystems/JSQMessagesViewController.git
   SignalServiceKit:
-    :path: "../SignalServiceKit"
+    :path: ../SignalServiceKit
   SocketRocket:
     :git: https://github.com/facebook/SocketRocket.git
 
@@ -166,4 +166,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: dcf50b2467bd856f7d5645efcd7688e7dba7c237
 
-COCOAPODS: 1.1.1
+COCOAPODS: 1.2.1
