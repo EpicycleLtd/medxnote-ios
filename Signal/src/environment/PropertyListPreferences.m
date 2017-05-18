@@ -16,7 +16,6 @@ NSString *const PropertyListPreferencesKeyScreenSecurity = @"Screen Security Key
 NSString *const PropertyListPreferencesKeyEnableDebugLog = @"Debugging Log Enabled Key";
 NSString *const PropertyListPreferencesKeyNotificationPreviewType = @"Notification Preview Type Key";
 NSString *const PropertyListPreferencesKeyHasSentAMessage = @"User has sent a message";
-NSString *const PropertyListPreferencesKeyHasArchivedAMessage = @"User archived a message";
 NSString *const PropertyListPreferencesKeyLastRunSignalVersion = @"SignalUpdateVersionKey";
 NSString *const PropertyListPreferencesKeyPlaySoundInForeground = @"NotificationSoundInForeground";
 NSString *const PropertyListPreferencesKeyHasRegisteredVoipPush = @"VOIPPushEnabled";
@@ -104,16 +103,6 @@ NSString *const PropertyListPreferencesKeyIOSUpgradeNagVersion = @"iOSUpgradeNag
     }
 }
 
-- (BOOL)getHasArchivedAMessage
-{
-    NSNumber *preference = [self tryGetValueForKey:PropertyListPreferencesKeyHasArchivedAMessage];
-    if (preference) {
-        return [preference boolValue];
-    } else {
-        return NO;
-    }
-}
-
 - (BOOL)hasRegisteredVOIPPush
 {
     NSNumber *preference = [self tryGetValueForKey:PropertyListPreferencesKeyHasRegisteredVoipPush];
@@ -158,11 +147,6 @@ NSString *const PropertyListPreferencesKeyIOSUpgradeNagVersion = @"iOSUpgradeNag
 - (void)setHasSentAMessage:(BOOL)enabled
 {
     [self setValueForKey:PropertyListPreferencesKeyHasSentAMessage toValue:@(enabled)];
-}
-
-- (void)setHasArchivedAMessage:(BOOL)enabled
-{
-    [self setValueForKey:PropertyListPreferencesKeyHasArchivedAMessage toValue:@(enabled)];
 }
 
 + (nullable NSString *)lastRanVersion

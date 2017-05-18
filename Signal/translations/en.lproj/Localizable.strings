@@ -380,34 +380,16 @@
 "EMAIL_INVITE_SUBJECT" = "Let's switch to Signal";
 
 /* No comment provided by engineer. */
-"EMPTY_ARCHIVE_FIRST_TEXT" = "Tap on the compose button.";
+"EMPTY_INBOX_TEXT" = "Tap on the compose button.";
 
 /* No comment provided by engineer. */
-"EMPTY_ARCHIVE_FIRST_TITLE" = "Start your first Signal conversation!";
-
-/* No comment provided by engineer. */
-"EMPTY_ARCHIVE_TEXT" = "You can archive inactive conversations for later from your Inbox.";
-
-/* No comment provided by engineer. */
-"EMPTY_ARCHIVE_TITLE" = "Clean Up Your Conversations.";
+"EMPTY_INBOX_TITLE" = "Start your first Signal conversation!";
 
 /* Full width label displayed when attempting to compose message */
 "EMPTY_CONTACTS_LABEL_LINE1" = "None of your contacts have Signal.";
 
 /* Full width label displayed when attempting to compose message */
 "EMPTY_CONTACTS_LABEL_LINE2" = "Why don't you invite someone?";
-
-/* No comment provided by engineer. */
-"EMPTY_INBOX_FIRST_TEXT" = "Tip: add a conversation as a reminder!";
-
-/* No comment provided by engineer. */
-"EMPTY_INBOX_FIRST_TITLE" = "Done. Done. Done.";
-
-/* No comment provided by engineer. */
-"EMPTY_INBOX_TEXT" = "None. Zero. Zilch. Nada.";
-
-/* No comment provided by engineer. */
-"EMPTY_INBOX_TITLE" = "Squeaky Freaking Clean.";
 
 /* Call setup status label */
 "END_CALL_RESPONDER_IS_BUSY" = "Busy.";

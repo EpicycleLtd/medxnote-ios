@@ -37,9 +37,6 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
 @property (nonatomic) YapDatabaseConnection *editingDbConnection;
 @property (nonatomic) YapDatabaseConnection *uiDatabaseConnection;
 @property (nonatomic) YapDatabaseViewMappings *threadMappings;
-@property (nonatomic) CellState viewingThreadsIn;
-@property (nonatomic) long inboxCount;
-@property (nonatomic) UISegmentedControl *segmentedControl;
 @property (nonatomic) id previewingContext;
 @property (nonatomic) NSSet<NSString *> *blockedPhoneNumberSet;
 
@@ -153,22 +150,12 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
                                              selector:@selector(yapDatabaseModified:)
                                                  name:TSUIDatabaseConnectionDidUpdateNotification
                                                object:nil];
-    [self selectedInbox:self];
 
-    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[
-        NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil),
-        NSLocalizedString(@"ARCHIVE_NAV_BAR_TITLE", nil)
-    ]];
+    [self updateMapping];
 
-    [self.segmentedControl addTarget:self
-                              action:@selector(swappedSegmentedControl)
-                    forControlEvents:UIControlEventValueChanged];
     UINavigationItem *navigationItem = self.navigationItem;
-    navigationItem.titleView = self.segmentedControl;
-    [self.segmentedControl setSelectedSegmentIndex:0];
     navigationItem.leftBarButtonItem.accessibilityLabel = NSLocalizedString(
         @"SETTINGS_BUTTON_ACCESSIBILITY", @"Accessibility hint for the settings button");
-
 
     self.missingContactsPermissionView.text = NSLocalizedString(@"INBOX_VIEW_MISSING_CONTACTS_PERMISSION",
         @"Multiline label explaining how to show names instead of phone numbers in your inbox");
@@ -297,21 +284,13 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
     }];
 }
 
-- (void)swappedSegmentedControl {
-    if (self.segmentedControl.selectedSegmentIndex == 0) {
-        [self selectedInbox:nil];
-    } else {
-        [self selectedArchive:nil];
-    }
-}
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self checkIfEmptyView];
     if ([TSThread numberOfKeysInCollection] > 0) {
         [self.contactsManager requestSystemContactsOnce];
     }
-    [self updateInboxCountLabel];
+    [self updateAppBadgeCount];
     [[self tableView] reloadData];
 }
 
@@ -433,27 +412,7 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
                                            [self tableViewCellTappedDelete:swipedIndexPath];
                                          }];
 
-    UITableViewRowAction *archiveAction;
-    if (self.viewingThreadsIn == kInboxState) {
-        archiveAction = [UITableViewRowAction
-            rowActionWithStyle:UITableViewRowActionStyleNormal
-                         title:NSLocalizedString(@"ARCHIVE_ACTION", @"Pressing this button moves a thread from the inbox to the archive")
-                       handler:^(UITableViewRowAction *_Nonnull action, NSIndexPath *_Nonnull tappedIndexPath) {
-                         [self archiveIndexPath:tappedIndexPath];
-                         [Environment.preferences setHasArchivedAMessage:YES];
-                       }];
-
-    } else {
-        archiveAction = [UITableViewRowAction
-            rowActionWithStyle:UITableViewRowActionStyleNormal
-                         title:NSLocalizedString(@"UNARCHIVE_ACTION", @"Pressing this button moves an archived thread from the archive back to the inbox")
-                       handler:^(UITableViewRowAction *_Nonnull action, NSIndexPath *_Nonnull tappedIndexPath) {
-                         [self archiveIndexPath:tappedIndexPath];
-                       }];
-    }
-
-
-    return @[ deleteAction, archiveAction ];
+    return @[ deleteAction ];
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -508,35 +467,14 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
       [thread removeWithTransaction:transaction];
     }];
 
-    _inboxCount -= (self.viewingThreadsIn == kArchiveState) ? 1 : 0;
     [self checkIfEmptyView];
 }
 
-- (void)archiveIndexPath:(NSIndexPath *)indexPath {
-    TSThread *thread = [self threadForIndexPath:indexPath];
-
-    BOOL viewingThreadsIn = self.viewingThreadsIn;
-    [self.editingDbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
-      viewingThreadsIn == kInboxState ? [thread archiveThreadWithTransaction:transaction]
-                                      : [thread unarchiveThreadWithTransaction:transaction];
-
-    }];
-    [self checkIfEmptyView];
-}
-
-- (NSNumber *)updateInboxCountLabel {
+- (NSNumber *)updateAppBadgeCount
+{
     NSUInteger numberOfItems = [self.messagesManager unreadMessagesCount];
     NSNumber *badgeNumber    = [NSNumber numberWithUnsignedInteger:numberOfItems];
-    NSString *unreadString   = NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil);
 
-    if (![badgeNumber isEqualToNumber:@0]) {
-        NSString *badgeValue = [badgeNumber stringValue];
-        unreadString         = [unreadString stringByAppendingFormat:@" (%@)", badgeValue];
-    }
-
-    [_segmentedControl setTitle:unreadString forSegmentAtIndex:0];
-    [_segmentedControl.superview setNeedsLayout];
-    [_segmentedControl reloadInputViews];
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber:badgeNumber.integerValue];
 
     return badgeNumber;
@@ -650,22 +588,13 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
     }
 }
 
-#pragma mark - IBAction
+#pragma mark - Thread Mapping
 
-- (IBAction)selectedInbox:(id)sender {
-    self.viewingThreadsIn = kInboxState;
-    [self changeToGrouping:TSInboxGroup];
-}
-
-- (IBAction)selectedArchive:(id)sender {
-    self.viewingThreadsIn = kArchiveState;
-    [self changeToGrouping:TSArchiveGroup];
-}
-
-- (void)changeToGrouping:(NSString *)grouping {
+- (void)updateMapping
+{
     self.threadMappings =
-        [[YapDatabaseViewMappings alloc] initWithGroups:@[ grouping ] view:TSThreadDatabaseViewExtensionName];
-    [self.threadMappings setIsReversed:YES forGroup:grouping];
+        [[YapDatabaseViewMappings alloc] initWithGroups:@[ TSInboxGroup ] view:TSThreadDatabaseViewExtensionName];
+    [self.threadMappings setIsReversed:YES forGroup:TSInboxGroup];
 
     [self.uiDatabaseConnection asyncReadWithBlock:^(YapDatabaseReadTransaction *transaction) {
       [self.threadMappings updateWithTransaction:transaction];
@@ -711,7 +640,7 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
 
     // We want this regardless of if we're currently viewing the archive.
     // So we run it before the early return
-    [self updateInboxCountLabel];
+    [self updateAppBadgeCount];
 
     if ([sectionChanges count] == 0 && [rowChanges count] == 0) {
         return;
@@ -742,13 +671,11 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
             case YapDatabaseViewChangeDelete: {
                 [self.tableView deleteRowsAtIndexPaths:@[ rowChange.indexPath ]
                                       withRowAnimation:UITableViewRowAnimationAutomatic];
-                _inboxCount += (self.viewingThreadsIn == kArchiveState) ? 1 : 0;
                 break;
             }
             case YapDatabaseViewChangeInsert: {
                 [self.tableView insertRowsAtIndexPaths:@[ rowChange.newIndexPath ]
                                       withRowAnimation:UITableViewRowAnimationAutomatic];
-                _inboxCount -= (self.viewingThreadsIn == kArchiveState) ? 1 : 0;
                 break;
             }
             case YapDatabaseViewChangeMove: {
@@ -780,11 +707,8 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
 - (void)checkIfEmptyView {
     [_tableView setHidden:NO];
     [_emptyBoxLabel setHidden:NO];
-    if (self.viewingThreadsIn == kInboxState && [self.threadMappings numberOfItemsInGroup:TSInboxGroup] == 0) {
-        [self setEmptyBoxText];
-        [_tableView setHidden:YES];
-    } else if (self.viewingThreadsIn == kArchiveState &&
-               [self.threadMappings numberOfItemsInGroup:TSArchiveGroup] == 0) {
+    NSUInteger count = [self.threadMappings numberOfItemsInGroup:TSInboxGroup];
+    if (count) {
         [self setEmptyBoxText];
         [_tableView setHidden:YES];
     } else {
@@ -798,28 +722,9 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
     _emptyBoxLabel.textAlignment = NSTextAlignmentCenter;
     _emptyBoxLabel.numberOfLines = 4;
 
-    NSString *firstLine  = @"";
-    NSString *secondLine = @"";
+    NSString *firstLine = NSLocalizedString(@"EMPTY_INBOX_TITLE", @"");
+    NSString *secondLine = NSLocalizedString(@"EMPTY_INBOX_TEXT", @"");
 
-    if (self.viewingThreadsIn == kInboxState) {
-        if ([Environment.preferences getHasSentAMessage]) {
-            firstLine  = NSLocalizedString(@"EMPTY_INBOX_FIRST_TITLE", @"");
-            secondLine = NSLocalizedString(@"EMPTY_INBOX_FIRST_TEXT", @"");
-        } else {
-            // FIXME This looks wrong. Shouldn't we be showing inbox_title/text here?
-            firstLine  = NSLocalizedString(@"EMPTY_ARCHIVE_FIRST_TITLE", @"");
-            secondLine = NSLocalizedString(@"EMPTY_ARCHIVE_FIRST_TEXT", @"");
-        }
-    } else {
-        if ([Environment.preferences getHasArchivedAMessage]) {
-            // FIXME This looks wrong. Shouldn't we be showing first_archive_title/text here?
-            firstLine  = NSLocalizedString(@"EMPTY_INBOX_TITLE", @"");
-            secondLine = NSLocalizedString(@"EMPTY_INBOX_TEXT", @"");
-        } else {
-            firstLine  = NSLocalizedString(@"EMPTY_ARCHIVE_TITLE", @"");
-            secondLine = NSLocalizedString(@"EMPTY_ARCHIVE_TEXT", @"");
-        }
-    }
     NSMutableAttributedString *fullLabelString =
         [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@", firstLine, secondLine]];
 

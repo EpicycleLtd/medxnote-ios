@@ -33,9 +33,6 @@ extern NSString *const PropertyListPreferencesKeyEnableDebugLog;
 - (BOOL)getHasSentAMessage;
 - (void)setHasSentAMessage:(BOOL)enabled;
 
-- (BOOL)getHasArchivedAMessage;
-- (void)setHasArchivedAMessage:(BOOL)enabled;
-
 + (BOOL)loggingIsEnabled;
 + (void)setLoggingEnabled:(BOOL)flag;
 
