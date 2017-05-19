@@ -42,6 +42,7 @@
 #import "TSIncomingMessage.h"
 #import "TSInfoMessage.h"
 #import "TSInvalidIdentityKeyErrorMessage.h"
+#import "TSUnreadIndicatorInteraction.h"
 #import "ThreadUtil.h"
 #import "UIFont+OWS.h"
 #import "UIUtil.h"
@@ -618,6 +619,9 @@ typedef enum : NSUInteger {
 @property (nonatomic) NSDate *lastMessageSentDate;
 
 @property (nonatomic, readonly) ContactsViewHelper *contactsViewHelper;
+@property (nonatomic, nullable) ThreadOffersAndIndicators *offersAndIndicators;
+@property (nonatomic) BOOL hasClearedUnreadMessagesIndicator;
+
 
 @end
 
@@ -715,8 +719,6 @@ typedef enum : NSUInteger {
     isGroupConversation = [self.thread isKindOfClass:[TSGroupThread class]];
     _composeOnOpen = keyboardOnViewAppearing;
     _callOnOpen = callOnViewAppearing;
-
-    [ThreadUtil createUnreadMessagesIndicatorIfNecessary:thread storageManager:self.storageManager];
 
     [self markAllMessagesAsRead];
 
@@ -1560,7 +1562,10 @@ typedef enum : NSUInteger {
         } else {
             [ThreadUtil sendMessageWithText:text inThread:self.thread messageSender:self.messageSender];
         }
+        
         self.lastMessageSentDate = [NSDate new];
+        [self clearUnreadMessagesIndicator];
+        
         if (updateKeyboardState)
         {
             [self toggleDefaultKeyboard];
@@ -2667,14 +2672,24 @@ typedef enum : NSUInteger {
 - (void)ensureThreadOffersAndIndicators
 {
     OWSAssert([NSThread isMainThread]);
+    
+    self.offersAndIndicators = [ThreadUtil ensureThreadOffersAndIndicators:self.thread
+                                                            storageManager:self.storageManager
+                                                           contactsManager:self.contactsManager
+                                                           blockingManager:self.blockingManager
+                                               hideUnreadMessagesIndicator:self.hasClearedUnreadMessagesIndicator
+                                             fixedUnreadIndicatorTimestamp:(self.offersAndIndicators.unreadIndicator
+                                                                            ? @(self.offersAndIndicators.unreadIndicator.timestamp)
+                                                                            : nil)];
+}
 
-    if ([self.thread isKindOfClass:[TSContactThread class]]) {
-        TSContactThread *contactThread = (TSContactThread *)self.thread;
-        [ThreadUtil ensureThreadOffersAndIndicators:contactThread
-                                     storageManager:self.storageManager
-                                    contactsManager:self.contactsManager
-                                    blockingManager:self.blockingManager];
-    }
+- (void)clearUnreadMessagesIndicator
+{
+    OWSAssert([NSThread isMainThread]);
+    
+    self.hasClearedUnreadMessagesIndicator = YES;
+    
+    [self ensureThreadOffersAndIndicators];
 }
 
 #pragma mark - Attachment Picking: Documents
@@ -2980,6 +2995,7 @@ typedef enum : NSUInteger {
         [attachment mimeType]);
     [ThreadUtil sendMessageWithAttachment:attachment inThread:self.thread messageSender:self.messageSender];
     self.lastMessageSentDate = [NSDate new];
+    [self clearUnreadMessagesIndicator];
 }
 
 - (NSURL *)videoTempFolder {
