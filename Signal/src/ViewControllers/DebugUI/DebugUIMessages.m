@@ -47,6 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
                                        actionBlock:^{
                                            [DebugUIMessages sendTextMessage:1000 thread:thread];
                                        }],
+                       [OWSTableItem itemWithTitle:@"Fake delivery receipts barrage (100/1 sec.)"
+                                       actionBlock:^{
+                                           [DebugUIMessages receiveFakeDeliveryReceipt:100];
+                                       }],
                        [OWSTableItem itemWithTitle:@"Send text/x-signal-plain"
                                        actionBlock:^{
                                            [DebugUIMessages sendOversizeTextMessage:thread];
@@ -120,6 +124,45 @@ NS_ASSUME_NONNULL_BEGIN
                    ]];
 }
 
++ (OWSSignalServiceProtosEnvelope *)buildFakeDeliveryReceipt
+{
+    [TSInteraction numberOfKeysInCollection];
+    static NSArray<NSString *> *keys;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[TSInteraction dbConnection] readWithBlock:^(YapDatabaseReadTransaction *_Nonnull transaction) {
+            keys = [transaction allKeysInCollection:[TSInteraction collection]];
+        }];
+    });
+
+    NSString *randomKey = keys[arc4random_uniform(keys.count)];
+    UInt64 randomTimestamp = [TSInteraction fetchObjectWithUniqueID:randomKey].timestamp;
+
+    OWSSignalServiceProtosEnvelopeBuilder *builder = [OWSSignalServiceProtosEnvelopeBuilder new];
+    [builder setTimestamp:randomTimestamp];
+    [builder setType:OWSSignalServiceProtosEnvelopeTypeReceipt];
+    [builder setSource:@"fake-source"];
+    [builder setSourceDevice:1];
+
+    return [builder build];
+}
+
++ (void)receiveFakeDeliveryReceipt:(NSUInteger)counter
+{
+    if (counter < 1) {
+        return;
+    }
+
+    [[TSMessagesManager sharedManager] handleReceivedEnvelope:[self buildFakeDeliveryReceipt]
+                                                   completion:^{
+                                                   }];
+
+    unsigned long randomDelay = NSEC_PER_SEC / (arc4random_uniform(100) + 1);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)randomDelay), dispatch_get_main_queue(), ^{
+        [self receiveFakeDeliveryReceipt:counter - 1];
+    });
+}
+
 + (void)sendTextMessage:(int)counter thread:(TSThread *)thread
 {
     OWSMessageSender *messageSender = [Environment getCurrent].messageSender;
@@ -133,7 +176,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                         @"turpis pharetra libero, vitae sodales tortor ante vel sem."]
                    inThread:thread
               messageSender:messageSender];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)1.f * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+
+    unsigned long randomDelay = NSEC_PER_SEC / (arc4random_uniform(10) + 1);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)randomDelay), dispatch_get_main_queue(), ^{
         [self sendTextMessage:counter - 1 thread:thread];
     });
 }

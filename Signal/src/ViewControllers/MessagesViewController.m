@@ -2545,6 +2545,7 @@ typedef enum : NSUInteger {
 
     [self.scrollLaterTimer invalidate];
     self.scrollLaterTimer = nil;
+    OWSAssert(offset > 0);
     [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:offset inSection:0]
                                 atScrollPosition:UICollectionViewScrollPositionTop
                                         animated:NO];
