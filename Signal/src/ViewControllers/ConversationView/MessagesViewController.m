@@ -2225,10 +2225,11 @@ typedef enum : NSUInteger {
 
 - (void)updateMessageMappingRangeOptions
 {
+    NSUInteger rangeLength = kYapDatabasePageSize * (self.page + 1);
+    // Increase the message adapter cache size to span the entire range.
+    self.messageAdapterCache.countLimit = rangeLength;
     YapDatabaseViewRangeOptions *rangeOptions =
-        [YapDatabaseViewRangeOptions flexibleRangeWithLength:kYapDatabasePageSize * (self.page + 1)
-                                                      offset:0
-                                                        from:YapDatabaseViewEnd];
+        [YapDatabaseViewRangeOptions flexibleRangeWithLength:rangeLength offset:0 from:YapDatabaseViewEnd];
 
     rangeOptions.maxLength = kYapDatabaseRangeMaxLength;
     rangeOptions.minLength = kYapDatabaseRangeMinLength;
