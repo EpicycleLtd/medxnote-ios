@@ -219,6 +219,7 @@ typedef enum : NSUInteger {
 @property (nonatomic) BOOL hasAppeared;
 
 @property (nonatomic) UIView *scrollDownButton;
+@property (nonatomic) NSMutableDictionary<NSNumber *, TSInteraction *> *interactionMap;
 
 @end
 
@@ -332,6 +333,8 @@ typedef enum : NSUInteger {
     [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
         [self.messageMappings updateWithTransaction:transaction];
     }];
+    [self clearInteractionMap];
+
     self.page = 0;
 
     if (self.dynamicInteractions.unreadIndicatorPosition != nil) {
@@ -539,7 +542,17 @@ typedef enum : NSUInteger {
 
     [self ensureBlockStateIndicator];
 
+    // We need to `beginLongLivedReadTransaction` before we update our
+    // mapping in order to jump to the most recent commit.
+    [self.uiDatabaseConnection beginLongLivedReadTransaction];
+    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        [self.messageMappings updateWithTransaction:transaction];
+    }];
+    [self clearInteractionMap];
+
     [self resetContentAndLayout];
+
+    [self toggleObservers:YES];
 
     [super viewWillAppear:animated];
 
@@ -553,8 +566,6 @@ typedef enum : NSUInteger {
     // We need to recheck on every appearance, since the user may have left the group in the settings VC,
     // or on another device.
     [self hideInputIfNeeded];
-
-    [self toggleObservers:YES];
 
     // restart any animations that were stopped e.g. while inspecting the contact info screens.
     [self startExpirationTimerAnimations];
@@ -2167,6 +2178,7 @@ typedef enum : NSUInteger {
     [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
         [self.messageMappings updateWithTransaction:transaction];
     }];
+    [self clearInteractionMap];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(yapDatabaseModified:)
@@ -2222,6 +2234,7 @@ typedef enum : NSUInteger {
     rangeOptions.minLength = kYapDatabaseRangeMinLength;
 
     [self.messageMappings setRangeOptions:rangeOptions forGroup:self.thread.uniqueId];
+    [self clearInteractionMap];
 }
 
 #pragma mark Bubble User Actions
@@ -3049,6 +3062,7 @@ typedef enum : NSUInteger {
         [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
             [self.messageMappings updateWithTransaction:transaction];
         }];
+        // We don't need to clearInteractionMap because the mapping hasn't changed.
         return;
     }
 
@@ -3065,6 +3079,7 @@ typedef enum : NSUInteger {
                                                                                rowChanges:&messageRowChanges
                                                                          forNotifications:notifications
                                                                              withMappings:self.messageMappings];
+    [self clearInteractionMap];
 
     if ([sectionChanges count] == 0 & [messageRowChanges count] == 0) {
         return;
@@ -3152,8 +3167,39 @@ typedef enum : NSUInteger {
     return numberOfMessages;
 }
 
+- (void)clearInteractionMap
+{
+    OWSAssert([NSThread isMainThread]);
+
+    self.interactionMap = [NSMutableDictionary new];
+}
+
 - (TSInteraction *)interactionAtIndexPath:(NSIndexPath *)indexPath
 {
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(indexPath);
+    OWSAssert(indexPath.section == 0);
+    OWSAssert(self.messageMappings);
+
+    TSInteraction *interaction = self.interactionMap[@(indexPath.row)];
+    if (!interaction) {
+        interaction = [self loadInteractionAtIndexPath:indexPath];
+        OWSAssert(interaction);
+        self.interactionMap[@(indexPath.row)] = interaction;
+    }
+#ifdef DEBUG
+    else {
+        TSInteraction *loadedInteraction = [self loadInteractionAtIndexPath:indexPath];
+        OWSAssert([interaction.uniqueId isEqualToString:loadedInteraction.uniqueId]);
+    }
+#endif
+
+    return interaction;
+}
+
+- (TSInteraction *)loadInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+    OWSAssert([NSThread isMainThread]);
     OWSAssert(indexPath);
     OWSAssert(indexPath.section == 0);
     OWSAssert(self.messageMappings);
