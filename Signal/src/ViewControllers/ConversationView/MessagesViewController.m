@@ -216,6 +216,7 @@ typedef enum : NSUInteger {
 
 @property (nonatomic, readonly) BOOL isGroupConversation;
 @property (nonatomic) BOOL isUserScrolling;
+@property (nonatomic) BOOL hasAppeared;
 
 @property (nonatomic) UIView *scrollDownButton;
 
@@ -583,16 +584,20 @@ typedef enum : NSUInteger {
 
     [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureSubviews];
 
-    [self.view layoutSubviews];
-    [self scrollToDefaultPosition];
+    if (!self.hasAppeared) {
+        self.hasAppeared = YES;
 
-    [self.scrollLaterTimer invalidate];
-    // We want to scroll to the bottom _after_ the layout has been updated.
-    self.scrollLaterTimer = [NSTimer weakScheduledTimerWithTimeInterval:0.001f
-                                                                 target:self
-                                                               selector:@selector(scrollToDefaultPosition)
-                                                               userInfo:nil
-                                                                repeats:NO];
+        [self.view layoutSubviews];
+        [self scrollToDefaultPosition];
+
+        [self.scrollLaterTimer invalidate];
+        // We want to scroll to the bottom _after_ the layout has been updated.
+        self.scrollLaterTimer = [NSTimer weakScheduledTimerWithTimeInterval:0.001f
+                                                                     target:self
+                                                                   selector:@selector(scrollToDefaultPosition)
+                                                                   userInfo:nil
+                                                                    repeats:NO];
+    }
 }
 
 - (NSIndexPath *_Nullable)indexPathOfUnreadMessagesIndicator
