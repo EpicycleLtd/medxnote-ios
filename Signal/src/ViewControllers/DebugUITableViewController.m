@@ -53,6 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                           [DebugUITableViewController sendTextMessage:1000
                                                                                                thread:thread];
                                                       }],
+                                      [OWSTableItem itemWithTitle:@"Send fake 1,000 messages (1/sec.)"
+                                                      actionBlock:^{
+                                                          [DebugUITableViewController sendFakeTextMessage:1000
+                                                                                                   thread:thread];
+                                                      }],
                                       [OWSTableItem itemWithTitle:@"Send text/x-signal-plain"
                                                       actionBlock:^{
                                                           [DebugUITableViewController sendOversizeTextMessage:thread];
@@ -131,6 +136,58 @@ NS_ASSUME_NONNULL_BEGIN
                    dispatch_get_main_queue(), ^{
                        [self sendTextMessage:counter - 1 thread:thread];
                    });
+}
+
++ (NSString *)randomText
+{
+    NSArray<NSString *> *randomTexts = @[
+        @"Lorem ipsum dolor sit amet, consectetur adipiscing elit. ",
+        (@"Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+         @"Suspendisse rutrum, nulla vitae pretium hendrerit, tellus "
+         @"turpis pharetra libero, vitae sodales tortor ante vel sem."),
+        @"In a time of universal deceit - telling the truth is a revolutionary act.",
+        @"If you want a vision of the future, imagine a boot stamping on a human face - forever.",
+        @"Who controls the past controls the future. Who controls the present controls the past.",
+        @"All animals are equal, but some animals are more equal than others.",
+        @"War is peace. Freedom is slavery. Ignorance is strength.",
+        (@"All the war-propaganda, all the screaming and lies and hatred, comes invariably from people who are not "
+         @"fighting."),
+        (@"Political language. . . is designed to make lies sound truthful and murder respectable, and to give an "
+         @"appearance of solidity to pure wind."),
+        (@"The nationalist not only does not disapprove of atrocities committed by his own side, but he has a "
+         @"remarkable capacity for not even hearing about them."),
+        (@"Every generation imagines itself to be more intelligent than the one that went before it, and wiser than "
+         @"the "
+         @"one that comes after it."),
+        @"War against a foreign country only happens when the moneyed classes think they are going to profit from it.",
+    ];
+    NSString *randomText = randomTexts[(NSUInteger)arc4random_uniform((uint32_t)randomTexts.count)];
+    return randomText;
+}
+
++ (void)sendFakeTextMessage:(int)counter thread:(TSThread *)thread
+{
+    NSMutableArray<TSMessage *> *messages = [NSMutableArray new];
+    for (int i = 0; i < counter; i++) {
+        NSString *randomText = [self randomText];
+        BOOL isIncoming = arc4random_uniform(2) == 0;
+        if (isIncoming) {
+            [messages addObject:[[TSIncomingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+                                                                    inThread:thread
+                                                                    authorId:@"+19174054215"
+                                                              sourceDeviceId:0
+                                                                 messageBody:randomText]];
+        } else {
+            [messages addObject:[[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+                                                                    inThread:thread
+                                                                 messageBody:randomText]];
+        }
+    }
+    [TSStorageManager.sharedManager.dbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
+        for (TSMessage *message in messages) {
+            [message saveWithTransaction:transaction];
+        }
+    }];
 }
 
 + (void)sendOversizeTextMessage:(TSThread *)thread {
