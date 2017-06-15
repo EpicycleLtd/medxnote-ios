@@ -625,6 +625,9 @@
 /* No comment provided by engineer. */
 "INCOMING_INCOMPLETE_CALL" = "Incomplete incoming call from";
 
+/* Message in conversation history that indicates a declined incoming call. */
+"INFO_MESSAGE_CALL_DECLINED" = "Call declined";
+
 /* info message text shown in conversation view */
 "INFO_MESSAGE_MISSED_CALL_DUE_TO_CHANGED_IDENITY" = "Missed call because their safety number has changed.";
 

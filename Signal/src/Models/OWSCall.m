@@ -13,13 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OWSCall ()
 
-// -- Redeclaring properties from OWSMessageData protocol to synthesize variables
-@property (nonatomic) TSMessageAdapterType messageType;
-@property (nonatomic) BOOL isExpiringMessage;
-@property (nonatomic) BOOL shouldStartExpireTimer;
-@property (nonatomic) double expiresAtSeconds;
-@property (nonatomic) uint32_t expiresInSeconds;
-@property (nonatomic) TSInteraction *interaction;
+@property (nonatomic) TSCall *call;
+
+@property (nonatomic, readonly) NSString *senderId;
+@property (nonatomic, readonly) NSString *senderDisplayName;
+
+@property (nonatomic, readonly) NSString *text;
 
 @end
 
@@ -27,137 +26,101 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Initialzation
 
-- (instancetype)initWithCallRecord:(TSCall *)callRecord
+- (instancetype)initWithCallRecord:(TSCall *)call
 {
-    TSThread *thread = callRecord.thread;
-    TSContactThread *contactThread;
-    if ([thread isKindOfClass:[TSContactThread class]]) {
-        contactThread = (TSContactThread *)thread;
-    } else {
-        DDLogError(@"%@ Unexpected thread type: %@", self.tag, thread);
-    }
-
-    CallStatus status = 0;
-    switch (callRecord.callType) {
-        case RPRecentCallTypeOutgoing:
-            status = kCallOutgoing;
-            break;
-        case RPRecentCallTypeOutgoingIncomplete:
-            status = kCallOutgoingIncomplete;
-            break;
-        case RPRecentCallTypeMissed:
-            status = kCallMissed;
-            break;
-        case RPRecentCallTypeIncoming:
-            status = kCallIncoming;
-            break;
-        case RPRecentCallTypeIncomingIncomplete:
-            status = kCallIncomingIncomplete;
-            break;
-        case RPRecentCallTypeMissedBecauseOfChangedIdentity:
-            status = kCallMissedBecauseOfChangedIdentity;
-            break;
-        default:
-            status = kCallIncoming;
-            break;
-    }
-
-    NSString *name = contactThread.name;
-    NSString *detailString;
-    switch (status) {
-        case kCallMissed:
-            detailString = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_MISSED_CALL_WITH_NAME", nil), name];
-            break;
-        case kCallIncoming:
-            detailString = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_RECEIVED_CALL", nil), name];
-            break;
-        case kCallIncomingIncomplete:
-            detailString = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_THEY_TRIED_TO_CALL_YOU", nil), name];
-            break;
-        case kCallOutgoing:
-            detailString = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_YOU_CALLED", nil), name];
-            break;
-        case kCallOutgoingIncomplete:
-            detailString = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_YOU_TRIED_TO_CALL", nil), name];
-            break;
-        case kCallMissedBecauseOfChangedIdentity:
-            detailString = [NSString
-                stringWithFormat:NSLocalizedString(@"MSGVIEW_MISSED_CALL_BECAUSE_OF_CHANGED_IDENTITY", nil), name];
-        default:
-            detailString = @"";
-            break;
-    }
-
-    return [self initWithInteraction:callRecord
-                            callerId:contactThread.contactIdentifier
-                   callerDisplayName:name
-                                date:callRecord.dateForSorting
-                              status:status
-                       displayString:detailString];
-}
-
-- (instancetype)initWithInteraction:(TSInteraction *)interaction
-                           callerId:(NSString *)senderId
-                  callerDisplayName:(NSString *)senderDisplayName
-                               date:(nullable NSDate *)date
-                             status:(CallStatus)status
-                      displayString:(NSString *)detailString
-{
-    NSParameterAssert(senderId != nil);
-    NSParameterAssert(senderDisplayName != nil);
+    OWSAssert(call);
 
     self = [super init];
     if (!self) {
         return self;
     }
 
-    _interaction = interaction;
-    _senderId = [senderId copy];
-    _senderDisplayName = [senderDisplayName copy];
-    _date = [date copy];
-    _status = status;
-    _isExpiringMessage = NO; // TODO - call notifications should expire too.
-    _shouldStartExpireTimer = NO; // TODO - call notifications should expire too.
-    _messageType = TSCallAdapter;
+    _call = call;
 
-    // TODO interpret detailString from status. make sure it works for calls and
-    // our re-use of calls as group update display
-    _detailString = [detailString stringByAppendingFormat:@" "];
+    OWSAssert([call.thread isKindOfClass:[TSContactThread class]]);
+    TSContactThread *contactThread = (TSContactThread *)call.thread;
+
+    _senderId = contactThread.contactIdentifier;
+    OWSAssert(_senderId.length > 0);
+    NSString *name = contactThread.name;
+    _senderDisplayName = name;
+    OWSAssert(_senderDisplayName.length > 0);
+
+    switch (call.callType) {
+        case RPRecentCallTypeMissed:
+            _text = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_MISSED_CALL_WITH_NAME", nil), name];
+            break;
+        case RPRecentCallTypeIncoming:
+            _text = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_RECEIVED_CALL", nil), name];
+            break;
+        case RPRecentCallTypeIncomingIncomplete:
+            _text = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_THEY_TRIED_TO_CALL_YOU", nil), name];
+            break;
+        case RPRecentCallTypeOutgoing:
+            _text = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_YOU_CALLED", nil), name];
+            break;
+        case RPRecentCallTypeOutgoingIncomplete:
+            _text = [NSString stringWithFormat:NSLocalizedString(@"MSGVIEW_YOU_TRIED_TO_CALL", nil), name];
+            break;
+        case RPRecentCallTypeMissedBecauseOfChangedIdentity:
+            _text = [NSString
+                stringWithFormat:NSLocalizedString(@"MSGVIEW_MISSED_CALL_BECAUSE_OF_CHANGED_IDENTITY", nil), name];
+            break;
+        case RPRecentCallTypeDeclined:
+            _text = [NSString
+                stringWithFormat:NSLocalizedString(@"MSGVIEW_MISSED_CALL_BECAUSE_OF_CHANGED_IDENTITY", nil), name];
+            break;
+    }
 
     return self;
 }
 
-- (NSString *)dateText
+- (BOOL)isExpiringMessage
 {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    dateFormatter.timeStyle = NSDateFormatterShortStyle;
-    dateFormatter.dateStyle = NSDateFormatterMediumStyle;
-    dateFormatter.doesRelativeDateFormatting = YES;
-    return [dateFormatter stringFromDate:_date];
+    return NO;
+}
+
+- (BOOL)shouldStartExpireTimer
+{
+    return NO;
+}
+
+- (double)expiresAtSeconds
+{
+    return 0;
+}
+
+- (uint32_t)expiresInSeconds
+{
+    return 0;
+}
+
+- (TSMessageAdapterType)messageType
+{
+    return TSCallAdapter;
+}
+
+- (NSDate *)date
+{
+    return self.call.dateForSorting;
 }
 
 #pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object
 {
-    if (self == object) {
-        return YES;
-    }
-
     if (![object isKindOfClass:[self class]]) {
         return NO;
     }
 
-    OWSCall *aCall = (OWSCall *)object;
+    OWSCall *otherCall = (OWSCall *)object;
 
-    return [self.senderId isEqualToString:aCall.senderId] &&
-        [self.senderDisplayName isEqualToString:aCall.senderDisplayName]
-        && ([self.date compare:aCall.date] == NSOrderedSame) && self.status == aCall.status;
+    return [self.call.uniqueId isEqualToString:otherCall.call.uniqueId];
 }
 
 - (NSUInteger)hash
 {
-    return self.senderId.hash ^ self.date.hash;
+    return self.call.uniqueId.hash;
 }
 
 - (NSString *)description
@@ -167,6 +130,11 @@ NS_ASSUME_NONNULL_BEGIN
                      self.senderId,
                      self.senderDisplayName,
                      self.date];
+}
+
+- (TSInteraction *)interaction
+{
+    return self.call;
 }
 
 #pragma mark - OWSMessageEditing
@@ -199,12 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)messageHash
 {
-    return self.interaction.hash;
-}
-
-- (NSString *)text
-{
-    return _detailString;
+    return self.call.uniqueId.hash;
 }
 
 #pragma mark - Logging
