@@ -120,6 +120,8 @@ protocol CallObserver: class {
 
     var error: CallError?
 
+    let creationDate = NSDate()
+
     // MARK: Initializers and Factory Methods
 
     init(direction: CallDirection, localId: UUID, signalingId: UInt64, state: CallState, remotePhoneNumber: String) {
@@ -194,6 +196,11 @@ protocol CallObserver: class {
     // This method should only be called when the call state is "connected".
     func connectionDuration() -> TimeInterval {
         return -connectedDate!.timeIntervalSinceNow
+    }
+
+    // Returns the second since the call was created, not connected.
+    func creationDuration() -> TimeInterval {
+        return -creationDate.timeIntervalSinceNow
     }
 }
 

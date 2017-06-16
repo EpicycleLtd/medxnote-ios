@@ -737,7 +737,7 @@ NSString *const SignalsViewControllerSegueShowIncomingCall = @"ShowIncomingCallS
         OWSCallViewController *callViewController = (OWSCallViewController *)segue.destinationViewController;
 
         if (![sender isKindOfClass:[SignalCall class]]) {
-            DDLogError(@"%@ expecting call segueu to be sent by a SignalCall, but found: %@", self.tag, sender);
+            DDLogError(@"%@ expecting call segue to be sent by a SignalCall, but found: %@", self.tag, sender);
             return;
         }
         SignalCall *call = (SignalCall *)sender;

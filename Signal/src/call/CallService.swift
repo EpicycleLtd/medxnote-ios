@@ -500,14 +500,60 @@ protocol CallServiceObserver: class {
 
             return
         }
-        
-        guard self.call == nil else {
+
+        if self.call != nil {
             // TODO on iOS10+ we can use CallKit to swap calls rather than just returning busy immediately.
             Logger.info("\(TAG) receivedCallOffer for thread: \(thread) but we're already in call: \(call!)")
-            
-            handleLocalBusyCall(newCall, thread: thread)
-            
-            return
+
+            guard let currentCall = self.call else {
+                Logger.error("\(TAG) Unexpectedly missing call")
+                assertionFailure("Unexpectedly missing call")
+
+                handleLocalBusyCall(newCall, thread: thread)
+
+                return
+            }
+
+            var shouldReplaceCurrentCall = false
+            if currentCall.remotePhoneNumber == newCall.remotePhoneNumber {
+                // If we receive a new call from someone we're already trying to call
+                // or think we're connected with, replace the old call with the new call.
+                let kRecentCallAgeSeconds = 3.0
+                // If the old call is sufficiently old, just replace it.
+                if currentCall.creationDuration() > kRecentCallAgeSeconds {
+                    Logger.error("\(TAG) Replacing old call: \(currentCall.creationDuration()).")
+                    shouldReplaceCurrentCall = true
+                } else {0
+                    guard let localNumber = TSStorageManager.localNumber() else {
+                        Logger.error("\(TAG) Unexpectedly missing localNumber")
+                        assertionFailure("Unexpectedly missing localNumber")
+
+                        handleLocalBusyCall(newCall, thread: thread)
+
+                        return
+                    }
+
+                    // For recent calls, it may be a race condition in which both parties
+                    // initiated calls with each other at the same time.  In this case, 
+                    // only defer if we have the "lower" phone number.  This will provide
+                    // a predictable way for both parties to agree on which user should
+                    // defer to the other.
+                    let shouldDefer = localNumber < currentCall.remotePhoneNumber
+                    if shouldDefer {
+                        Logger.error("\(TAG) Replacing new call based on phone number: \(localNumber) < \(currentCall.remotePhoneNumber).")
+                    }
+                    shouldReplaceCurrentCall = shouldDefer
+                }
+            }
+
+            if shouldReplaceCurrentCall {
+                Logger.error("\(TAG) Replacing call with new call from same user.")
+                terminateCall()
+            } else {
+                handleLocalBusyCall(newCall, thread: thread)
+
+                return
+            }
         }
 
         Logger.info("\(TAG) starting new call: \(newCall)")
