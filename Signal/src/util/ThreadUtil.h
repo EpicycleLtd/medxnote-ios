@@ -22,6 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
                          inThread:(TSThread *)thread
                     messageSender:(OWSMessageSender *)messageSender;
 
++ (void)sendMessageWithAttachment:(SignalAttachment *)attachment
+                         inThread:(TSThread *)thread
+                    messageSender:(OWSMessageSender *)messageSender
+                     ignoreErrors:(BOOL)ignoreErrors;
+
 + (void)createBlockOfferIfNecessary:(TSContactThread *)contactThread
                      storageManager:(TSStorageManager *)storageManager
                     contactsManager:(OWSContactsManager *)contactsManager

@@ -3344,7 +3344,15 @@ typedef enum : NSUInteger {
 
 - (void)markAllMessagesAsRead
 {
-    [self.thread markAllAsRead];
+    [TSStorageManager.sharedManager.dbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
+        [self.thread markAllAsReadWithTransaction:transaction];
+        //        [self markAsReadWithoutNotificationWithTransaction:transaction];
+    }];
+
+    // Notification must happen outside of the transaction, else we'll likely crash when the notification receiver
+    // tries to do anything with the DB.
+//    [[NSNotificationCenter defaultCenter] postNotificationName:TSIncomingMessageWasReadOnThisDeviceNotification
+//                                                        object:self];
 
     // In theory this should be unnecessary as read-status starts expiration
     // but in practice I've seen messages not have their timer started.
