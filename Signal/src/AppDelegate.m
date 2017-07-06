@@ -31,6 +31,7 @@
 #import <SignalServiceKit/OWSMessageSender.h>
 #import <SignalServiceKit/TSAccountManager.h>
 #import <SignalServiceKit/TSPreKeyManager.h>
+#import "NSTimer+OWS.h"
 
 @import WebRTC;
 @import Intents;
@@ -41,6 +42,74 @@ NSString *const AppDelegateStoryboardRegistration = @"Registration";
 static NSString *const kInitialViewControllerIdentifier = @"UserInitialViewController";
 static NSString *const kURLSchemeSGNLKey                = @"sgnl";
 static NSString *const kURLHostVerifyPrefix             = @"verify";
+
+@interface PhonyHomeViewController : UIViewController
+
+@property (nonatomic, weak) UIWindow *window;
+@property (nonatomic) NSTimer *timer;
+@property (nonatomic) UILabel *label;
+
+@end
+
+#pragma mark -
+
+@implementation PhonyHomeViewController
+
+- (void)loadView {
+    [super loadView];
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    UILabel *label = [UILabel new];
+    self.label = label;
+    label.text = @"Tap for home view.";
+    label.textColor = [UIColor blackColor];
+    label.font = [UIFont systemFontOfSize:14.f];
+    [self.view addSubview:label];
+    [label autoCenterInSuperview];
+ 
+    [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                            action:@selector(tapped:)]];
+    
+    self.timer = [NSTimer weakScheduledTimerWithTimeInterval:1.f
+                                                  target:self
+                                                selector:@selector(updateInboxCountLabel)
+                                                userInfo:nil
+                                                 repeats:YES];
+//    self.wind
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self updateInboxCountLabel];
+}
+
+- (void)tapped:(UIGestureRecognizer *)sender
+{
+    if (sender.state == UIGestureRecognizerStateRecognized) {
+        UIStoryboard *storyboard;
+        storyboard = [UIStoryboard storyboardWithName:AppDelegateStoryboardMain bundle:[NSBundle mainBundle]];
+        self.window.rootViewController = [storyboard instantiateInitialViewController];
+    }
+}
+
+- (void)updateInboxCountLabel {
+    TSMessagesManager *messagesManager = [TSMessagesManager sharedManager];
+
+    NSUInteger numberOfItems = [messagesManager unreadMessagesCount];
+    NSNumber *badgeNumber    = [NSNumber numberWithUnsignedInteger:numberOfItems];
+    
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:badgeNumber.integerValue];
+    
+    self.label.text = badgeNumber.description;
+    [self.label setNeedsLayout];
+    [self.view setNeedsLayout];
+}
+
+@end
+
+#pragma mark -
 
 @interface AppDelegate ()
 
@@ -118,16 +187,19 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
         [Environment.getCurrent.contactsManager doAfterEnvironmentInitSetup];
     }
 
-
-    UIStoryboard *storyboard;
-    if ([TSAccountManager isRegistered]) {
-        storyboard = [UIStoryboard storyboardWithName:AppDelegateStoryboardMain bundle:[NSBundle mainBundle]];
-    } else {
-        storyboard = [UIStoryboard storyboardWithName:AppDelegateStoryboardRegistration bundle:[NSBundle mainBundle]];
-    }
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
-    self.window.rootViewController = [storyboard instantiateInitialViewController];
+//    UIStoryboard *storyboard;
+    if ([TSAccountManager isRegistered]) {
+//        storyboard = [UIStoryboard storyboardWithName:AppDelegateStoryboardMain bundle:[NSBundle mainBundle]];
+        self.window.rootViewController = [PhonyHomeViewController new];
+    } else {
+        UIStoryboard *storyboard;
+        storyboard = [UIStoryboard storyboardWithName:AppDelegateStoryboardRegistration bundle:[NSBundle mainBundle]];
+        self.window.rootViewController = [storyboard instantiateInitialViewController];
+    }
+
+//    self.window.rootViewController = [storyboard instantiateInitialViewController];
     [self.window makeKeyAndVisible];
 
     // performUpdateCheck must be invoked after Environment has been initialized because

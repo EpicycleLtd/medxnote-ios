@@ -152,6 +152,9 @@
     if (thread.isMuted) {
         return;
     }
+    if (YES) {
+        return;
+    }
 
     NSString *messageDescription = message.description;
 
