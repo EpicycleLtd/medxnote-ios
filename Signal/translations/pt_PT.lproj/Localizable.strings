@@ -248,10 +248,10 @@
 "CONFIRM_ACCOUNT_DESTRUCTION_TITLE" = "Tem a certeza que deseja apagar a sua conta?";
 
 /* Alert body */
-"CONFIRM_LEAVE_GROUP_DESCRIPTION" = "Não irá poder receber ou enviar mensagens neste grupo.";
+"CONFIRM_LEAVE_GROUP_DESCRIPTION" = "Não poderá receber ou enviar mensagens neste grupo.";
 
 /* Alert title */
-"CONFIRM_LEAVE_GROUP_TITLE" = "Deseja realmente sair do grupo?";
+"CONFIRM_LEAVE_GROUP_TITLE" = "Deseja sair do grupo?";
 
 /* Button text */
 "CONFIRM_LINK_NEW_DEVICE_ACTION" = "Associar Novo Dispositivo";
@@ -290,7 +290,7 @@
 "CONVERSATION_SETTINGS_CONTACT_INFO_TITLE" = "Informação do Contacto";
 
 /* Navbar title when viewing settings for a group thread */
-"CONVERSATION_SETTINGS_GROUP_INFO_TITLE" = "Informação do Grupo";
+"CONVERSATION_SETTINGS_GROUP_INFO_TITLE" = "Grupo";
 
 /* Title of the 'mute this thread' action sheet. */
 "CONVERSATION_SETTINGS_MUTE_ACTION_SHEET_TITLE" = "Silenciar";
@@ -823,7 +823,7 @@
 "MULTIDEVICE_PAIRING_MAX_RECOVERY" = "Atingiu o número máximo de dispositivos permitidos por conta. Por favor remova um dispositivo e tente emparelhar mais tarde. ";
 
 /* An explanation of the consequences of muting a thread. */
-"MUTE_BEHAVIOR_EXPLANATION" = "Não irá receber notificações de conversas silenciadas.";
+"MUTE_BEHAVIOR_EXPLANATION" = "Não receberá notificações de conversas silenciadas.";
 
 /* No comment provided by engineer. */
 "NETWORK_ERROR_RECOVERY" = "Verifique que está online e tente novamente por favor.";
@@ -1244,7 +1244,7 @@
 "SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE" = "Passar chamadas pelo Signal";
 
 /* User settings section footer, a detailed explanation */
-"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE_DETAIL" = "Todas as suas chamadas passarão pelo servidor Signal para evitar a revelação do seu endereço IP ao seu contacto. A activação desta opção irá reduzir a qualidade da chamada.";
+"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE_DETAIL" = "Todas as suas chamadas passarão pelo servidor Signal para evitar revelar o seu endereço IP ao seu contacto. Quando activada a chamada terá pior qualidade.";
 
 /* No comment provided by engineer. */
 "SETTINGS_CLEAR_HISTORY" = "Apagar Histórico de Chamadas";
@@ -1295,7 +1295,7 @@
 "SETTINGS_SCREEN_SECURITY" = "Activar Segurança de Ecrã";
 
 /* No comment provided by engineer. */
-"SETTINGS_SCREEN_SECURITY_DETAIL" = "Previnir previsualizações do Signal de aparecer no app switcher.";
+"SETTINGS_SCREEN_SECURITY_DETAIL" = "Prevenir pré-visualizações do Signal no app switcher.";
 
 /* Settings table section footer. */
 "SETTINGS_SECTION_CALL_KIT_DESCRIPTION" = "A integração de chamadas iOS mostra as chamadas Signal no seu lock screen e no seu histórico de chamadas. Se o iCloud estiver activado, o histórico de chamadas será partilhado com a Apple.";
