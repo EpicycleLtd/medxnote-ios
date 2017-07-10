@@ -6,6 +6,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#ifdef DEBUG
+#define SHOW_DEBUG_UI
+#else
+#ifdef SIGNAL_INTERNAL
+#define SHOW_DEBUG_UI
+#else
+#endif
+#endif
+
+
 @class TSThread;
 
 @interface DebugUITableViewController : OWSTableViewController

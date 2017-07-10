@@ -1103,7 +1103,7 @@ typedef enum : NSUInteger {
         [self.navigationBarTitleView
             addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self
                                                                          action:@selector(navigationTitleTapped:)]];
-#ifdef DEBUG
+#ifdef SHOW_DEBUG_UI
         [self.navigationBarTitleView addGestureRecognizer:[[UILongPressGestureRecognizer alloc]
                                                               initWithTarget:self
                                                                       action:@selector(navigationTitleLongPressed:)]];
@@ -3927,7 +3927,7 @@ typedef enum : NSUInteger {
     }
 }
 
-#ifdef DEBUG
+#ifdef SHOW_DEBUG_UI
 - (void)navigationTitleLongPressed:(UIGestureRecognizer *)gestureRecognizer
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {

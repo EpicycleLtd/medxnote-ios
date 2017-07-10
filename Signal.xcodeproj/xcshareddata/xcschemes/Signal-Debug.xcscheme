@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BAF5052C29D98877DA59C91BAE557FE2"
+               BlueprintIdentifier = "F043681EE53DEB2D52E2D1806C9AE40C"
                BuildableName = "libSignalServiceKit.a"
                BlueprintName = "SignalServiceKit"
                ReferencedContainer = "container:Pods/Pods.xcodeproj">
