@@ -8,9 +8,9 @@
 #import "TSMessagesManager.h"
 #import "TSStorageManager.h"
 #import "TSYapDatabaseObject.h"
+#import <YapDatabase/YapDatabaseAutoView.h>
 #import <YapDatabase/YapDatabaseConnection.h>
 #import <YapDatabase/YapDatabaseTransaction.h>
-#import <YapDatabase/YapDatabaseView.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -118,7 +118,7 @@ NSString *const OWSMessageProcessingJobFinderExtensionGroup = @"OWSMessageProces
     }];
 }
 
-+ (YapDatabaseView *)databaseExension
++ (YapDatabaseAutoView *)databaseExension
 {
     YapDatabaseViewSorting *sorting =
         [YapDatabaseViewSorting withObjectBlock:^NSComparisonResult(YapDatabaseReadTransaction *transaction,
@@ -163,13 +163,13 @@ NSString *const OWSMessageProcessingJobFinderExtensionGroup = @"OWSMessageProces
     options.allowedCollections =
         [[YapWhitelistBlacklist alloc] initWithWhitelist:[NSSet setWithObject:[OWSMessageProcessingJob collection]]];
 
-    return [[YapDatabaseView alloc] initWithGrouping:grouping sorting:sorting versionTag:@"1" options:options];
+    return [[YapDatabaseAutoView alloc] initWithGrouping:grouping sorting:sorting versionTag:@"1" options:options];
 }
 
 
 + (void)syncRegisterDatabaseExtension:(YapDatabase *)database
 {
-    YapDatabaseView *existingView = [database registeredExtension:OWSMessageProcessingJobFinderExtensionName];
+    YapDatabaseAutoView *existingView = [database registeredExtension:OWSMessageProcessingJobFinderExtensionName];
     if (existingView) {
         OWSFail(@"%@ was already initailized.", OWSMessageProcessingJobFinderExtensionName);
         // already initialized

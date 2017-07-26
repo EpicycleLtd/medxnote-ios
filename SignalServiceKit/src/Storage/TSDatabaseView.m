@@ -10,7 +10,7 @@
 #import "TSOutgoingMessage.h"
 #import "TSStorageManager.h"
 #import "TSThread.h"
-#import <YapDatabase/YapDatabaseView.h>
+#import <YapDatabase/YapDatabaseAutoView.h>
 
 NSString *const kNSNotificationName_DatabaseViewRegistrationComplete =
     @"kNSNotificationName_DatabaseViewRegistrationComplete";
@@ -80,7 +80,7 @@ NSString *const TSSecondaryDevicesDatabaseViewExtensionName = @"TSSecondaryDevic
     OWSAssert(viewName.length > 0);
     OWSAssert((viewGrouping));
 
-    YapDatabaseView *existingView = [[TSStorageManager sharedManager].database registeredExtension:viewName];
+    YapDatabaseAutoView *existingView = [[TSStorageManager sharedManager].database registeredExtension:viewName];
     if (existingView) {
         return;
     }
@@ -92,8 +92,10 @@ NSString *const TSSecondaryDevicesDatabaseViewExtensionName = @"TSSecondaryDevic
     options.allowedCollections =
         [[YapWhitelistBlacklist alloc] initWithWhitelist:[NSSet setWithObject:[TSInteraction collection]]];
 
-    YapDatabaseView *view =
-        [[YapDatabaseView alloc] initWithGrouping:viewGrouping sorting:viewSorting versionTag:version options:options];
+    YapDatabaseAutoView *view = [[YapDatabaseAutoView alloc] initWithGrouping:viewGrouping
+                                                                      sorting:viewSorting
+                                                                   versionTag:version
+                                                                      options:options];
 
     if (async) {
         [[TSStorageManager sharedManager].database
@@ -208,7 +210,7 @@ NSString *const TSSecondaryDevicesDatabaseViewExtensionName = @"TSSecondaryDevic
 
 + (void)registerThreadDatabaseView
 {
-    YapDatabaseView *threadView =
+    YapDatabaseAutoView *threadView =
         [[TSStorageManager sharedManager].database registeredExtension:TSThreadDatabaseViewExtensionName];
     if (threadView) {
         return;
@@ -237,8 +239,8 @@ NSString *const TSSecondaryDevicesDatabaseViewExtensionName = @"TSSecondaryDevic
     options.allowedCollections =
         [[YapWhitelistBlacklist alloc] initWithWhitelist:[NSSet setWithObject:[TSThread collection]]];
 
-    YapDatabaseView *databaseView =
-        [[YapDatabaseView alloc] initWithGrouping:viewGrouping sorting:viewSorting versionTag:@"1" options:options];
+    YapDatabaseAutoView *databaseView =
+        [[YapDatabaseAutoView alloc] initWithGrouping:viewGrouping sorting:viewSorting versionTag:@"1" options:options];
 
     [[TSStorageManager sharedManager].database registerExtension:databaseView
                                                         withName:TSThreadDatabaseViewExtensionName];
@@ -351,8 +353,8 @@ NSString *const TSSecondaryDevicesDatabaseViewExtensionName = @"TSSecondaryDevic
     NSSet *deviceCollection = [NSSet setWithObject:[OWSDevice collection]];
     options.allowedCollections = [[YapWhitelistBlacklist alloc] initWithWhitelist:deviceCollection];
 
-    YapDatabaseView *view =
-        [[YapDatabaseView alloc] initWithGrouping:viewGrouping sorting:viewSorting versionTag:@"3" options:options];
+    YapDatabaseAutoView *view =
+        [[YapDatabaseAutoView alloc] initWithGrouping:viewGrouping sorting:viewSorting versionTag:@"3" options:options];
 
     [[TSStorageManager sharedManager].database
         asyncRegisterExtension:view
