@@ -135,6 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(ivLength + plainTextData.length + tagLength, encryptedData.length);
     
     NSData *decryptedData = [Cryptography decryptAESGCMWithData:encryptedData key:key];
+    XCTAssert(decryptedData != nil);
     XCTAssertEqual(39, decryptedData.length);
     XCTAssertEqualObjects(plainTextData, decryptedData);
     XCTAssertEqualObjects(@"Super🔥secret🔥test🔥data🏁🏁", [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding]);
