@@ -188,9 +188,10 @@ NSUInteger const OWSSendMessageOperationMaxRetries = 4;
             OWSProdCFail([OWSAnalyticsEvents messageSenderErrorSendOperationDidNotComplete]);
             return;
         }
+        DDLogInfo(
+            @"%@ Successfully sent message: %@ timestamp: %llu", strongSelf.tag, message.class, message.timestamp);
 
         [message updateWithMessageState:TSOutgoingMessageStateSentToService];
-
         aSuccessHandler();
 
         [strongSelf markAsComplete];
