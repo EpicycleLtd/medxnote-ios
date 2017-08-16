@@ -3,7 +3,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 target 'Signal' do
     pod 'ATAppUpdater'
-    pod 'AxolotlKit',                 git: 'https://github.com/WhisperSystems/SignalProtocolKit.git'
+    pod 'AxolotlKit',                 git: 'https://github.com/WhisperSystems/SignalProtocolKit.git', branch: 'mkirk/more-old-receiver-chains'
     #pod 'AxolotlKit',                 path: '../SignalProtocolKit'
     pod 'JSQMessagesViewController',  git: 'https://github.com/WhisperSystems/JSQMessagesViewController.git', branch: 'signal-master'
     #pod 'JSQMessagesViewController',   path: '../JSQMessagesViewController'

@@ -111,7 +111,7 @@ PODS:
 
 DEPENDENCIES:
   - ATAppUpdater
-  - AxolotlKit (from `https://github.com/WhisperSystems/SignalProtocolKit.git`)
+  - AxolotlKit (from `https://github.com/WhisperSystems/SignalProtocolKit.git`, branch `mkirk/more-old-receiver-chains`)
   - JSQMessagesViewController (from `https://github.com/WhisperSystems/JSQMessagesViewController.git`, branch `signal-master`)
   - PureLayout
   - Reachability
@@ -120,6 +120,7 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   AxolotlKit:
+    :branch: mkirk/more-old-receiver-chains
     :git: https://github.com/WhisperSystems/SignalProtocolKit.git
   JSQMessagesViewController:
     :branch: signal-master
@@ -131,7 +132,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AxolotlKit:
-    :commit: 6e9d5e8c3dc87e397b4b7485172507b0990a22dd
+    :commit: 794aa66d0a816cc31820e60bdbe70e1d5a398983
     :git: https://github.com/WhisperSystems/SignalProtocolKit.git
   JSQMessagesViewController:
     :commit: 8c10f920bb566fe1051f92abd360a2e3d5530e00
@@ -162,6 +163,6 @@ SPEC CHECKSUMS:
   UnionFind: c33be5adb12983981d6e827ea94fc7f9e370f52d
   YapDatabase: cd911121580ff16675f65ad742a9eb0ab4d9e266
 
-PODFILE CHECKSUM: 13b48854ce4b92e887ffb55d72029fe49b45a789
+PODFILE CHECKSUM: f5575a0929192babcc4fc316c40a573a27b34ff4
 
 COCOAPODS: 1.2.1
