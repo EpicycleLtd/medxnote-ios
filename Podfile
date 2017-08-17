@@ -2,6 +2,7 @@ platform :ios, '8.0'
 source 'https://github.com/CocoaPods/Specs.git'
 
 target 'Signal' do
+    pod 'YapDatabase/SQLCipher', path: '../YapDatabase'
     pod 'ATAppUpdater'
     pod 'AxolotlKit',                 git: 'https://github.com/WhisperSystems/SignalProtocolKit.git'
     #pod 'AxolotlKit',                 path: '../SignalProtocolKit'
