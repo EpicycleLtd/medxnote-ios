@@ -7,8 +7,9 @@
 #import "iOSVersions.h"
 #import "OWSAnalytics.h"
 #import "OWSDispatch.h"
-#import <CocoaLumberjack/CocoaLumberjack.h>
 #import <Foundation/Foundation.h>
+
+@import CocoaLumberjack;
 
 #ifdef DEBUG
 static const NSUInteger ddLogLevel = DDLogLevelAll;
