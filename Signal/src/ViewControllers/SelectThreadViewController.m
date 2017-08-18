@@ -19,6 +19,7 @@
 #import <SignalServiceKit/TSAccountManager.h>
 #import <SignalServiceKit/TSContactThread.h>
 #import <SignalServiceKit/TSThread.h>
+#import <SignalServiceKit/TSStorageManager.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

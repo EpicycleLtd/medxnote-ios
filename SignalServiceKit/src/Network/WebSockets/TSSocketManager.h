@@ -3,7 +3,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SRWebSocket.h"
+#import <SocketRocket/SRWebSocket.h>
 
 static void *SocketManagerStateObservationContext = &SocketManagerStateObservationContext;
 

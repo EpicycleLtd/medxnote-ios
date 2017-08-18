@@ -4,8 +4,8 @@
 
 #import "OWSMessageData.h"
 #import "OWSMessageEditing.h"
-#import "TSInfoMessage.h"
-#import "ContactsManagerProtocol.h"
+#import <SignalServiceKit/TSInfoMessage.h>
+#import <SignalServiceKit/ContactsManagerProtocol.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -5,6 +5,7 @@
 import Foundation
 import WebRTC
 import PromiseKit
+import SignalServiceKit
 
 class OversizeTextMessageViewController: OWSViewController {
 

@@ -3,6 +3,8 @@
 //
 
 import UIKit
+import JSQMessagesViewController
+import SignalServiceKit
 
 /**
  * Represents a download-in-progress

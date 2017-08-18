@@ -1,9 +1,14 @@
 platform :ios, '8.0'
 source 'https://github.com/CocoaPods/Specs.git'
 
+use_frameworks!
+
 target 'Signal' do
     pod 'ATAppUpdater'
-    pod 'AxolotlKit',                 git: 'https://github.com/WhisperSystems/SignalProtocolKit.git'
+    #pod 'AxolotlKit',                 git: 'https://github.com/WhisperSystems/SignalProtocolKit.git'
+    pod 'AxolotlKit', path: '../SignalProtocolKit'
+    pod 'Curve25519Kit', path: '../Curve25519Kit'
+    pod 'HKDFKit', git: 'https://github.com/WhisperSystems/HKDFKit.git'
     #pod 'AxolotlKit',                 path: '../SignalProtocolKit'
     pod 'JSQMessagesViewController',  git: 'https://github.com/WhisperSystems/JSQMessagesViewController.git', branch: 'signal-master'
     #pod 'JSQMessagesViewController',   path: '../JSQMessagesViewController'

@@ -37,7 +37,7 @@
 #import <JSQMessagesViewController/JSQMediaItem.h>
 #import <JSQMessagesViewController/JSQMessagesMediaViewBubbleImageMasker.h>
 #import <JSQMessagesViewController/UIColor+JSQMessages.h>
-#import <JSQSystemSoundPlayer.h>
+#import <JSQSystemSoundPlayer/JSQSystemSoundPlayer.h>
 #import <PureLayout/PureLayout.h>
 #import <SignalServiceKit/AppVersion.h>
 #import <SignalServiceKit/Asserts.h>

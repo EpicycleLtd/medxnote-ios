@@ -3,7 +3,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NBPhoneNumberUtil.h"
+#import <libPhoneNumber_iOS/NBPhoneNumberUtil.h>
 #import "PhoneNumber.h"
 
 @interface PhoneNumberUtil : NSObject

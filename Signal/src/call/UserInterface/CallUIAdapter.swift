@@ -6,6 +6,7 @@ import Foundation
 import PromiseKit
 import CallKit
 import WebRTC
+import SignalServiceKit
 
 protocol CallUIAdaptee {
     var notificationsAdapter: CallNotificationsAdapter { get }

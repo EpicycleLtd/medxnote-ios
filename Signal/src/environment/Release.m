@@ -8,6 +8,7 @@
 #import <SignalServiceKit/ContactsUpdater.h>
 #import <SignalServiceKit/OWSMessageSender.h>
 #import <SignalServiceKit/TSNetworkManager.h>
+#import <SignalServiceKit/TSStorageManager.h>
 
 @implementation Release
 

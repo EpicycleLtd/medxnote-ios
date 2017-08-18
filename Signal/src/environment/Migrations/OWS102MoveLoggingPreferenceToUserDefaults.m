@@ -6,6 +6,7 @@
 #import "DebugLogger.h"
 #import "Environment.h"
 #import "PropertyListPreferences.h"
+#import <YapDatabase/YapDatabaseTransaction.h>
 
 // Increment a similar constant for every future DBMigration
 static NSString *const OWS102MoveLoggingPreferenceToUserDefaultsMigrationId = @"102";
