@@ -3,14 +3,14 @@
 //
 
 #import <XCTest/XCTest.h>
-#import <25519/Curve25519.h>
+#import <Curve25519Kit/Curve25519.h>
 
 #import "OWSUnitTestEnvironment.h"
-#import "SecurityUtils.h"
-#import "OWSIdentityManager.h"
-#import "OWSRecipientIdentity.h"
-#import "TSStorageManager.h"
-#import "TextSecureKitEnv.h"
+#import <SignalServiceKit/SecurityUtils.h>
+#import <SignalServiceKit/OWSIdentityManager.h>
+#import <SignalServiceKit/OWSRecipientIdentity.h>
+#import <SignalServiceKit/TSStorageManager.h>
+#import <SignalServiceKit/TextSecureKitEnv.h>
 
 @interface TSStorageIdentityKeyStoreTests : XCTestCase
 

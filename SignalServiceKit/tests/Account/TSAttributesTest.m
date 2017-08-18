@@ -4,8 +4,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "TSAttributes.h"
-#import "TSAccountManager.h"
+#import <SignalServiceKit/TSAttributes.h>
+#import <SignalServiceKit/TSAccountManager.h>
 
 @interface TSAttributesTest : XCTestCase
 

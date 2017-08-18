@@ -4,21 +4,21 @@
 
 #import <XCTest/XCTest.h>
 
-#import "ContactsManagerProtocol.h"
-#import "ContactsUpdater.h"
-#import "Cryptography.h"
+#import <SignalServiceKit/ContactsManagerProtocol.h>
+#import <SignalServiceKit/ContactsUpdater.h>
+#import <SignalServiceKit/Cryptography.h>
 #import "OWSFakeCallMessageHandler.h"
 #import "OWSFakeContactsManager.h"
 #import "OWSFakeContactsUpdater.h"
 #import "OWSFakeMessageSender.h"
 #import "OWSFakeNetworkManager.h"
-#import "OWSMessageSender.h"
-#import "OWSSignalServiceProtos.pb.h"
-#import "TSGroupThread.h"
-#import "TSMessagesManager.h"
-#import "TSNetworkManager.h"
-#import "OWSIdentityManager.h"
-#import "TSStorageManager.h"
+#import <SignalServiceKit/OWSMessageSender.h>
+#import <SignalServiceKit/OWSSignalServiceProtos.pb.h>
+#import <SignalServiceKit/TSGroupThread.h>
+#import <SignalServiceKit/TSMessagesManager.h>
+#import <SignalServiceKit/TSNetworkManager.h>
+#import <SignalServiceKit/OWSIdentityManager.h>
+#import <SignalServiceKit/TSStorageManager.h>
 #import "OWSUnitTestEnvironment.h"
 
 NS_ASSUME_NONNULL_BEGIN

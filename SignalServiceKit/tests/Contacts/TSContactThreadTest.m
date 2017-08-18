@@ -2,8 +2,8 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "TSContactThread.h"
-#import "OWSIdentityManager.h"
+#import <SignalServiceKit/TSContactThread.h>
+#import <SignalServiceKit/OWSIdentityManager.h>
 #import "OWSUnitTestEnvironment.h"
 #import <XCTest/XCTest.h>
 

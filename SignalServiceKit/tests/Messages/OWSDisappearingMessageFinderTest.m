@@ -2,11 +2,11 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "NSDate+millisecondTimeStamp.h"
-#import "OWSDisappearingMessagesFinder.h"
-#import "TSContactThread.h"
-#import "TSMessage.h"
-#import "TSStorageManager.h"
+#import <SignalServiceKit/NSDate+millisecondTimeStamp.h>
+#import <SignalServiceKit/OWSDisappearingMessagesFinder.h>
+#import <SignalServiceKit/TSContactThread.h>
+#import <SignalServiceKit/TSMessage.h>
+#import <SignalServiceKit/TSStorageManager.h>
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN

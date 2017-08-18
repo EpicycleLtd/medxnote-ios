@@ -1,10 +1,12 @@
-//  Copyright © 2016 Open Whisper Systems. All rights reserved.
+//
+//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//
 
-#import "OWSDeviceProvisioner.h"
-#import "OWSDeviceProvisioningCodeService.h"
-#import "OWSDeviceProvisioningService.h"
+#import <SignalServiceKit/OWSDeviceProvisioner.h>
+#import <SignalServiceKit/OWSDeviceProvisioningCodeService.h>
+#import <SignalServiceKit/OWSDeviceProvisioningService.h>
 #import "OWSFakeNetworkManager.h"
-#import "TSNetworkManager.h"
+#import <SignalServiceKit/TSNetworkManager.h>
 
 #import <XCTest/XCTest.h>
 

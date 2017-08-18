@@ -1,7 +1,8 @@
-//  Created by Russ Shanahan on 11/25/16.
-//  Copyright © 2016 Open Whisper Systems. All rights reserved.
+//
+//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//
 
-#import "Contact.h"
+#import <SignalServiceKit/Contact.h>
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN

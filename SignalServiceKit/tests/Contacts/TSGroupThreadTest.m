@@ -1,7 +1,8 @@
-//  Created by Michael Kirk on 11/7/16.
-//  Copyright © 2016 Open Whisper Systems. All rights reserved.
+//
+//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//
 
-#import "TSGroupThread.h"
+#import <SignalServiceKit/TSGroupThread.h>
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN

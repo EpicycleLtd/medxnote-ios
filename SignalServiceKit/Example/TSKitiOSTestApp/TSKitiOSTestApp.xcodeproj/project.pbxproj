@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		308D7DFA789594CEA62740D9 /* libPods-TSKitiOSTestAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C0DC1A83C39CBC09FB2405A3 /* libPods-TSKitiOSTestAppTests.a */; };
 		34D99C891F2250FF00D284D6 /* OWSAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D99C881F2250FF00D284D6 /* OWSAnalyticsTests.m */; };
 		45046FE01D95A6130015EFF2 /* TSMessagesManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45046FDF1D95A6130015EFF2 /* TSMessagesManagerTest.m */; };
 		450E3C9A1D96DD2600BF4EB6 /* OWSDisappearingMessagesJobTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 450E3C991D96DD2600BF4EB6 /* OWSDisappearingMessagesJobTest.m */; };
@@ -40,9 +39,10 @@
 		45D7243F1D67899F00E0CA54 /* OWSDeviceProvisionerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45D7243E1D67899F00E0CA54 /* OWSDeviceProvisionerTest.m */; };
 		45DC30C71F3B69B7008C4378 /* OWSFakeProfileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 45DC30C61F3B69B7008C4378 /* OWSFakeProfileManager.m */; };
 		45E741B61E5D14E800735842 /* OWSIncomingMessageFinderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 45E741B51E5D14E800735842 /* OWSIncomingMessageFinderTest.m */; };
-		51520592F83F2440F2DE4D67 /* libPods-TSKitiOSTestApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B8362AB8E280E0F64352F08A /* libPods-TSKitiOSTestApp.a */; };
+		5EC1938F9D22742D807A0C86 /* Pods_TSKitiOSTestAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9D7DF2E41FE31E0DE3F17DF /* Pods_TSKitiOSTestAppTests.framework */; };
 		6323E1F7730289398452E5C5 /* OWSFingerprintTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6323E02A33682A8838FE3F27 /* OWSFingerprintTest.m */; };
 		6323E339D5B8F4CB77EB3ED4 /* SignalRecipientTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6323E3E540CF763D71DACB59 /* SignalRecipientTest.m */; };
+		99C87DC61AF7932EEE40B53E /* Pods_TSKitiOSTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FDEADCD6FC37563F3B43D28 /* Pods_TSKitiOSTestApp.framework */; };
 		B6273DD61C13A2E500738558 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B6273DD51C13A2E500738558 /* main.m */; };
 		B6273DD91C13A2E500738558 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B6273DD81C13A2E500738558 /* AppDelegate.m */; };
 		B6273DDC1C13A2E500738558 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B6273DDB1C13A2E500738558 /* ViewController.m */; };
@@ -110,6 +110,7 @@
 		45E741B51E5D14E800735842 /* OWSIncomingMessageFinderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OWSIncomingMessageFinderTest.m; path = ../../../tests/Messages/OWSIncomingMessageFinderTest.m; sourceTree = "<group>"; };
 		6323E02A33682A8838FE3F27 /* OWSFingerprintTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OWSFingerprintTest.m; path = ../../../tests/Security/OWSFingerprintTest.m; sourceTree = "<group>"; };
 		6323E3E540CF763D71DACB59 /* SignalRecipientTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SignalRecipientTest.m; path = ../../tests/Contacts/SignalRecipientTest.m; sourceTree = "<group>"; };
+		9FDEADCD6FC37563F3B43D28 /* Pods_TSKitiOSTestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TSKitiOSTestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6273DD11C13A2E500738558 /* TSKitiOSTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TSKitiOSTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6273DD51C13A2E500738558 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B6273DD71C13A2E500738558 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -122,11 +123,10 @@
 		B6273DE51C13A2E500738558 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B6273DEA1C13A2E500738558 /* TSKitiOSTestAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TSKitiOSTestAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6273DF01C13A2E500738558 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B8362AB8E280E0F64352F08A /* libPods-TSKitiOSTestApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TSKitiOSTestApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C0DC1A83C39CBC09FB2405A3 /* libPods-TSKitiOSTestAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TSKitiOSTestAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2AECE721DE8C3360068CE15 /* ContactSortingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ContactSortingTest.m; path = ../../../tests/Contacts/ContactSortingTest.m; sourceTree = "<group>"; };
 		D3737F7A041D7147015C02C2 /* Pods-TSKitiOSTestAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TSKitiOSTestAppTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-TSKitiOSTestAppTests/Pods-TSKitiOSTestAppTests.release.xcconfig"; sourceTree = "<group>"; };
 		E95668311E0964F9002418B1 /* PhoneNumberUtilTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PhoneNumberUtilTest.m; path = ../../../tests/Contacts/PhoneNumberUtilTest.m; sourceTree = "<group>"; };
+		F9D7DF2E41FE31E0DE3F17DF /* Pods_TSKitiOSTestAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TSKitiOSTestAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,7 +134,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51520592F83F2440F2DE4D67 /* libPods-TSKitiOSTestApp.a in Frameworks */,
+				99C87DC61AF7932EEE40B53E /* Pods_TSKitiOSTestApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,7 +142,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				308D7DFA789594CEA62740D9 /* libPods-TSKitiOSTestAppTests.a in Frameworks */,
+				5EC1938F9D22742D807A0C86 /* Pods_TSKitiOSTestAppTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,8 +281,8 @@
 		AD6EE8912464E5C2A7FF5BA1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B8362AB8E280E0F64352F08A /* libPods-TSKitiOSTestApp.a */,
-				C0DC1A83C39CBC09FB2405A3 /* libPods-TSKitiOSTestAppTests.a */,
+				9FDEADCD6FC37563F3B43D28 /* Pods_TSKitiOSTestApp.framework */,
+				F9D7DF2E41FE31E0DE3F17DF /* Pods_TSKitiOSTestAppTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

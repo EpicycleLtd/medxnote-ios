@@ -6,8 +6,8 @@
 
 #import <AxolotlKit/SignedPrekeyRecord.h>
 
-#import "TSPreKeyManager.h"
-#import "TSStorageManager+SignedPreKeyStore.h"
+#import <SignalServiceKit/TSPreKeyManager.h>
+#import <SignalServiceKit/TSStorageManager+SignedPreKeyStore.h>
 
 @interface  TSPreKeyManager (Testing)
 

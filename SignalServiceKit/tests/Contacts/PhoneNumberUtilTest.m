@@ -2,7 +2,7 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "PhoneNumberUtil.h"
+#import <SignalServiceKit/PhoneNumberUtil.h>
 #import <XCTest/XCTest.h>
 
 @interface PhoneNumberUtilTest : XCTestCase

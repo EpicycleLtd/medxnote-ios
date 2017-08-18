@@ -3,7 +3,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "PhoneNumber.h"
+#import <SignalServiceKit/PhoneNumber.h>
 
 @interface PhoneNumberTest : XCTestCase
 

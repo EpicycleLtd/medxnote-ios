@@ -3,8 +3,8 @@
 //
 
 #import "OWSFakeProfileManager.h"
-#import "Cryptography.h"
-#import "TSThread.h"
+#import <SignalServiceKit/Cryptography.h>
+#import <SignalServiceKit/TSThread.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

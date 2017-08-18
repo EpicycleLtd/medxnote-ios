@@ -2,22 +2,22 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "Cryptography.h"
-#import "OWSDisappearingMessagesConfiguration.h"
-#import "OWSError.h"
+#import <SignalServiceKit/Cryptography.h>
+#import <SignalServiceKit/OWSDisappearingMessagesConfiguration.h>
+#import <SignalServiceKit/OWSError.h>
 #import "OWSFakeContactsManager.h"
 #import "OWSFakeContactsUpdater.h"
 #import "OWSFakeNetworkManager.h"
-#import "OWSMessageSender.h"
-#import "OWSUploadingService.h"
-#import "TSAccountManager.h"
-#import "TSContactThread.h"
-#import "TSGroupModel.h"
-#import "TSGroupThread.h"
-#import "TSMessagesManager.h"
-#import "TSNetworkManager.h"
-#import "TSOutgoingMessage.h"
-#import "TSStorageManager.h"
+#import <SignalServiceKit/OWSMessageSender.h>
+#import <SignalServiceKit/OWSUploadingService.h>
+#import <SignalServiceKit/TSAccountManager.h>
+#import <SignalServiceKit/TSContactThread.h>
+#import <SignalServiceKit/TSGroupModel.h>
+#import <SignalServiceKit/TSGroupThread.h>
+#import <SignalServiceKit/TSMessagesManager.h>
+#import <SignalServiceKit/TSNetworkManager.h>
+#import <SignalServiceKit/TSOutgoingMessage.h>
+#import <SignalServiceKit/TSStorageManager.h>
 #import <AxolotlKit/AxolotlExceptions.h>
 #import <AxolotlKit/SessionBuilder.h>
 #import <XCTest/XCTest.h>

@@ -3,7 +3,7 @@
 //
 
 #import "OWSFakeContactsUpdater.h"
-#import "SignalRecipient.h"
+#import <SignalServiceKit/SignalRecipient.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

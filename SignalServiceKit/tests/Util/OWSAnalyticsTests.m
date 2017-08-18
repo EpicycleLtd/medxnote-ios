@@ -2,8 +2,8 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "NSData+Base64.h"
-#import "OWSAnalytics.h"
+#import <SignalServiceKit/NSData+Base64.h>
+#import <SignalServiceKit/OWSAnalytics.h>
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN

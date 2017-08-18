@@ -2,10 +2,10 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "OWSDevice.h"
-#import "OWSIncomingMessageFinder.h"
-#import "TSContactThread.h"
-#import "TSIncomingMessage.h"
+#import <SignalServiceKit/OWSDevice.h>
+#import <SignalServiceKit/OWSIncomingMessageFinder.h>
+#import <SignalServiceKit/TSContactThread.h>
+#import <SignalServiceKit/TSIncomingMessage.h>
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN

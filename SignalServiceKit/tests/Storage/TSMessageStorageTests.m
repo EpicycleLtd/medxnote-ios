@@ -4,16 +4,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Cryptography.h"
-#import "TSThread.h"
-#import "TSContactThread.h"
-#import "TSGroupThread.h"
-
-#import "TSStorageManager.h"
-
-#import "TSIncomingMessage.h"
-#import "TSMessage.h"
-#import "TSOutgoingMessage.h"
+#import <SignalServiceKit/Cryptography.h>
+#import <SignalServiceKit/TSThread.h>
+#import <SignalServiceKit/TSContactThread.h>
+#import <SignalServiceKit/TSGroupThread.h>
+#import <SignalServiceKit/TSStorageManager.h>
+#import <SignalServiceKit/TSIncomingMessage.h>
+#import <SignalServiceKit/TSMessage.h>
+#import <SignalServiceKit/TSOutgoingMessage.h>
 
 
 @interface TSMessageStorageTests : XCTestCase

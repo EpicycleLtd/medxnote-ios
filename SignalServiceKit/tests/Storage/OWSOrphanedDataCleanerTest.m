@@ -2,12 +2,12 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "OWSDevice.h"
-#import "OWSOrphanedDataCleaner.h"
-#import "TSAttachmentStream.h"
-#import "TSContactThread.h"
-#import "TSIncomingMessage.h"
-#import "TSStorageManager.h"
+#import <SignalServiceKit/OWSDevice.h>
+#import <SignalServiceKit/OWSOrphanedDataCleaner.h>
+#import <SignalServiceKit/TSAttachmentStream.h>
+#import <SignalServiceKit/TSContactThread.h>
+#import <SignalServiceKit/TSIncomingMessage.h>
+#import <SignalServiceKit/TSStorageManager.h>
 #import <XCTest/XCTest.h>
 
 @interface OWSOrphanedDataCleanerTest : XCTestCase

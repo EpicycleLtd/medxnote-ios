@@ -2,10 +2,10 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "NSDate+millisecondTimeStamp.h"
-#import "TSAttachmentStream.h"
-#import "TSContactThread.h"
-#import "TSMessage.h"
+#import <SignalServiceKit/NSDate+millisecondTimeStamp.h>
+#import <SignalServiceKit/TSAttachmentStream.h>
+#import <SignalServiceKit/TSContactThread.h>
+#import <SignalServiceKit/TSMessage.h>
 
 #import <XCTest/XCTest.h>
 

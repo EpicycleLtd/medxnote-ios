@@ -2,7 +2,7 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "TextSecureKitEnv.h"
+#import <SignalServiceKit/TextSecureKitEnv.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

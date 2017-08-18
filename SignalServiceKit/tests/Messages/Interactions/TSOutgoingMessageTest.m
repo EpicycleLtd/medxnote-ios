@@ -2,8 +2,8 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "TSContactThread.h"
-#import "TSOutgoingMessage.h"
+#import <SignalServiceKit/TSContactThread.h>
+#import <SignalServiceKit/TSOutgoingMessage.h>
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
