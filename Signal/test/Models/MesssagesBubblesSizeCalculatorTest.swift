@@ -3,6 +3,8 @@
 //
 
 import XCTest
+import JSQMessagesViewController
+import SignalServiceKit
 
 class FakeiPhone6JSQMessagesCollectionViewFlowLayout: JSQMessagesCollectionViewFlowLayout {
     // This value was nabbed by inspecting the super class layout.itemSize while debugging the `messageBubbleSizeForMessageData`. 

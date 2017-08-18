@@ -6,10 +6,10 @@ use_frameworks!
 target 'Signal' do
     pod 'ATAppUpdater'
     #pod 'AxolotlKit',                 git: 'https://github.com/WhisperSystems/SignalProtocolKit.git'
-    pod 'AxolotlKit', path: '../SignalProtocolKit'
-    pod 'Curve25519Kit', path: '../Curve25519Kit'
+    pod 'AxolotlKit',                 git: 'https://github.com/WhisperSystems/SignalProtocolKit.git', branch: 'mkirk/framework-friendly'
+    #pod 'AxolotlKit', path: '../SignalProtocolKit'
+    pod 'Curve25519Kit', git: 'https://github.com/WhisperSystems/Curve25519Kit.git', branch: 'mkirk/framework-friendly'
     pod 'HKDFKit', git: 'https://github.com/WhisperSystems/HKDFKit.git'
-    #pod 'AxolotlKit',                 path: '../SignalProtocolKit'
     pod 'JSQMessagesViewController',  git: 'https://github.com/WhisperSystems/JSQMessagesViewController.git', branch: 'signal-master'
     #pod 'JSQMessagesViewController',   path: '../JSQMessagesViewController'
     pod 'PureLayout'

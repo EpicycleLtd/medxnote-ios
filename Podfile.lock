@@ -111,8 +111,8 @@ PODS:
 
 DEPENDENCIES:
   - ATAppUpdater
-  - AxolotlKit (from `../SignalProtocolKit`)
-  - Curve25519Kit (from `../Curve25519Kit`)
+  - AxolotlKit (from `https://github.com/WhisperSystems/SignalProtocolKit.git`, branch `mkirk/framework-friendly`)
+  - Curve25519Kit (from `https://github.com/WhisperSystems/Curve25519Kit.git`, branch `mkirk/framework-friendly`)
   - HKDFKit (from `https://github.com/WhisperSystems/HKDFKit.git`)
   - JSQMessagesViewController (from `https://github.com/WhisperSystems/JSQMessagesViewController.git`, branch `signal-master`)
   - PureLayout
@@ -122,9 +122,11 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   AxolotlKit:
-    :path: ../SignalProtocolKit
+    :branch: mkirk/framework-friendly
+    :git: https://github.com/WhisperSystems/SignalProtocolKit.git
   Curve25519Kit:
-    :path: ../Curve25519Kit
+    :branch: mkirk/framework-friendly
+    :git: https://github.com/WhisperSystems/Curve25519Kit.git
   HKDFKit:
     :git: https://github.com/WhisperSystems/HKDFKit.git
   JSQMessagesViewController:
@@ -136,6 +138,12 @@ EXTERNAL SOURCES:
     :git: https://github.com/facebook/SocketRocket.git
 
 CHECKOUT OPTIONS:
+  AxolotlKit:
+    :commit: 6dd55895b523e887c633bd31b9eedbfb515b8a5d
+    :git: https://github.com/WhisperSystems/SignalProtocolKit.git
+  Curve25519Kit:
+    :commit: 03a19c80aafc10a3464f0c086b1eb38239c507ac
+    :git: https://github.com/WhisperSystems/Curve25519Kit.git
   HKDFKit:
     :commit: 6f9f183da3370c902344dd1f444ec0e0387a833f
     :git: https://github.com/WhisperSystems/HKDFKit.git
@@ -168,6 +176,6 @@ SPEC CHECKSUMS:
   UnionFind: c33be5adb12983981d6e827ea94fc7f9e370f52d
   YapDatabase: cd911121580ff16675f65ad742a9eb0ab4d9e266
 
-PODFILE CHECKSUM: e446ae3f75c89976735de8b9f07ab09bb9078465
+PODFILE CHECKSUM: 0fef64a3d53ca3f875b485435abfd08cf07f44b1
 
 COCOAPODS: 1.2.1

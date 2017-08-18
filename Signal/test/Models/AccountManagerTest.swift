@@ -4,6 +4,7 @@
 
 import XCTest
 import PromiseKit
+import SignalServiceKit
 
 struct VerificationFailedError: Error { }
 struct FailedToGetRPRegistrationTokenError: Error { }
@@ -44,8 +45,12 @@ class AccountManagerTest: XCTestCase {
 
     let tsAccountManager = FailingTSAccountManager(networkManager: TSNetworkManager.shared(), storageManager: TSStorageManager.shared())
 
+    var preferences: PropertyListPreferences {
+        return PropertyListPreferences()
+    }
+
     func testRegisterWhenEmptyCode() {
-        let accountManager = AccountManager(textSecureAccountManager: tsAccountManager)
+        let accountManager = AccountManager(textSecureAccountManager: tsAccountManager, preferences: self.preferences)
 
         let expectation = self.expectation(description: "should fail")
 
@@ -66,7 +71,7 @@ class AccountManagerTest: XCTestCase {
     }
 
     func testRegisterWhenVerificationFails() {
-        let accountManager = AccountManager(textSecureAccountManager: tsAccountManager)
+        let accountManager = AccountManager(textSecureAccountManager: tsAccountManager, preferences: self.preferences)
 
         let expectation = self.expectation(description: "should fail")
 
@@ -86,9 +91,11 @@ class AccountManagerTest: XCTestCase {
     }
 
     func testSuccessfulRegistration() {
+        Environment.setCurrent(Release.releaseEnvironment())
+
         let tsAccountManager = TokenObtainingTSAccountManager(networkManager: TSNetworkManager.shared(), storageManager: TSStorageManager.shared())
 
-        let accountManager = AccountManager(textSecureAccountManager: tsAccountManager)
+        let accountManager = AccountManager(textSecureAccountManager: tsAccountManager, preferences: self.preferences)
 
         let expectation = self.expectation(description: "should succeed")
 
@@ -104,7 +111,7 @@ class AccountManagerTest: XCTestCase {
     }
 
     func testUpdatePushTokens() {
-        let accountManager = AccountManager(textSecureAccountManager: tsAccountManager)
+        let accountManager = AccountManager(textSecureAccountManager: tsAccountManager, preferences: self.preferences)
 
         let expectation = self.expectation(description: "should fail")
 
