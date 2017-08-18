@@ -15,7 +15,7 @@ PODS:
   - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
   - ATAppUpdater (2.0)
-  - AxolotlKit (0.8.1):
+  - AxolotlKit (0.9.0):
     - CocoaLumberjack
     - Curve25519Kit (~> 2.1.0)
     - HKDFKit (~> 0.0.3)
@@ -149,7 +149,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
   ATAppUpdater: a9f7027060959d47e58733d3b48f6b9a28cb8de1
-  AxolotlKit: f6ac00b32ff3496a41135d44fc65ea55e73f229c
+  AxolotlKit: 7cfd2e71329b8dc398734e95b936450a2081fd60
   CocoaLumberjack: aa9dcab71bdf9eaf2a63bbd9ddc87863efe45457
   Curve25519Kit: 76d0859ecb34704f7732847812363f83b23a6a59
   HKDFKit: a7e8b8661f2a137e5d50a9e2197c22d538ae52d9

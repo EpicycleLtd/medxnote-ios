@@ -1,5 +1,4 @@
 PODS:
-  - 25519 (2.0.2)
   - AFNetworking (3.1.0):
     - AFNetworking/NSURLSession (= 3.1.0)
     - AFNetworking/Reachability (= 3.1.0)
@@ -15,9 +14,9 @@ PODS:
   - AFNetworking/Serialization (3.1.0)
   - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
-  - AxolotlKit (0.8.1):
-    - 25519 (~> 2.0.1)
+  - AxolotlKit (0.9.0):
     - CocoaLumberjack
+    - Curve25519Kit (~> 2.1.0)
     - HKDFKit (~> 0.0.3)
     - ProtocolBuffers (~> 1.9.8)
   - CocoaLumberjack (2.4.0):
@@ -28,6 +27,7 @@ PODS:
     - CocoaLumberjack/Core
   - CocoaLumberjack/Extensions (2.4.0):
     - CocoaLumberjack/Default
+  - Curve25519Kit (2.1.0)
   - HKDFKit (0.0.3)
   - libPhoneNumber-iOS (0.9.10)
   - Mantle (2.1.0):
@@ -37,10 +37,10 @@ PODS:
   - Reachability (3.2)
   - SAMKeychain (1.5.2)
   - SignalServiceKit (0.9.0):
-    - '25519'
     - AFNetworking
     - AxolotlKit
     - CocoaLumberjack
+    - Curve25519Kit (~> 2.1.0)
     - libPhoneNumber-iOS
     - Mantle
     - Reachability
@@ -105,13 +105,21 @@ PODS:
     - YapDatabase/SQLCipher/Core
 
 DEPENDENCIES:
-  - AxolotlKit (from `https://github.com/WhisperSystems/SignalProtocolKit.git`)
+  - AxolotlKit (from `https://github.com/WhisperSystems/SignalProtocolKit.git`, branch `mkirk/framework-friendly`)
+  - Curve25519Kit (from `https://github.com/WhisperSystems/25519.git`, branch `mkirk/framework-friendly`)
+  - HKDFKit (from `https://github.com/WhisperSystems/HKDFKit.git`)
   - SignalServiceKit (from `../../../SignalServiceKit.podspec`)
   - SocketRocket (from `https://github.com/facebook/SocketRocket.git`)
 
 EXTERNAL SOURCES:
   AxolotlKit:
+    :branch: mkirk/framework-friendly
     :git: https://github.com/WhisperSystems/SignalProtocolKit.git
+  Curve25519Kit:
+    :branch: mkirk/framework-friendly
+    :git: https://github.com/WhisperSystems/25519.git
+  HKDFKit:
+    :git: https://github.com/WhisperSystems/HKDFKit.git
   SignalServiceKit:
     :path: ../../../SignalServiceKit.podspec
   SocketRocket:
@@ -119,30 +127,36 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AxolotlKit:
-    :commit: 28afe5c1dbcfdea73d147e464c53d191d1e3ea50
+    :commit: 002c9a8d84bf57095604875a0edadfade2c1d865
     :git: https://github.com/WhisperSystems/SignalProtocolKit.git
+  Curve25519Kit:
+    :commit: 03a19c80aafc10a3464f0c086b1eb38239c507ac
+    :git: https://github.com/WhisperSystems/25519.git
+  HKDFKit:
+    :commit: 6f9f183da3370c902344dd1f444ec0e0387a833f
+    :git: https://github.com/WhisperSystems/HKDFKit.git
   SocketRocket:
     :commit: 877ac7438be3ad0b45ef5ca3969574e4b97112bf
     :git: https://github.com/facebook/SocketRocket.git
 
 SPEC CHECKSUMS:
-  '25519': dc4bad7e2dbcbf1efa121068a705a44cd98c80fc
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
-  AxolotlKit: a9530d6835baae0f204b1f6b9dd79b7901176f0d
+  AxolotlKit: 7cfd2e71329b8dc398734e95b936450a2081fd60
   CocoaLumberjack: aa9dcab71bdf9eaf2a63bbd9ddc87863efe45457
-  HKDFKit: c058305d6f64b84f28c50bd7aa89574625bcb62a
+  Curve25519Kit: 76d0859ecb34704f7732847812363f83b23a6a59
+  HKDFKit: a7e8b8661f2a137e5d50a9e2197c22d538ae52d9
   libPhoneNumber-iOS: f721ae4d5854bce60934f9fb9b0b28e8e68913cb
   Mantle: 2fa750afa478cd625a94230fbf1c13462f29395b
   ProtocolBuffers: d509225eb2ea43d9582a59e94348fcf86e2abd65
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SAMKeychain: 1865333198217411f35327e8da61b43de79b635b
-  SignalServiceKit: db63e60f9a9f851e9ae48214bee230be92bb7e57
+  SignalServiceKit: 058f491ac9ef4372481929fb70d4e7d081dd72d0
   SocketRocket: dbb1554b8fc288ef8ef370d6285aeca7361be31e
   SQLCipher: 43d12c0eb9c57fb438749618fc3ce0065509a559
   TwistedOakCollapsingFutures: f359b90f203e9ab13dfb92c9ff41842a7fe1cd0c
   UnionFind: c33be5adb12983981d6e827ea94fc7f9e370f52d
   YapDatabase: cd911121580ff16675f65ad742a9eb0ab4d9e266
 
-PODFILE CHECKSUM: 5bfff8cb73ff80b5e5c383fda4dca6aeff2fa8d3
+PODFILE CHECKSUM: 4abfe8fd57fa3817d16be9d26a27f0b43cafd640
 
 COCOAPODS: 1.2.1

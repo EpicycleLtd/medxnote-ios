@@ -1,9 +1,14 @@
 platform :ios, '8.0'
 source 'https://github.com/CocoaPods/Specs.git'
 
+use_frameworks!
+
 target 'TSKitiOSTestApp' do
   pod 'SocketRocket', git: 'https://github.com/facebook/SocketRocket.git'
-  pod 'AxolotlKit',  git: 'https://github.com/WhisperSystems/SignalProtocolKit.git'
+  pod 'SignalServiceKit', :path => '../../../SignalServiceKit.podspec'
+  pod 'Curve25519Kit', git: 'https://github.com/WhisperSystems/25519.git', branch: 'mkirk/framework-friendly'
+  pod 'HKDFKit', git: 'https://github.com/WhisperSystems/HKDFKit.git'
+  pod 'AxolotlKit',  git: 'https://github.com/WhisperSystems/SignalProtocolKit.git', branch: 'mkirk/framework-friendly'
   pod 'SignalServiceKit', :path => '../../../SignalServiceKit.podspec'
 
   target 'TSKitiOSTestAppTests' do

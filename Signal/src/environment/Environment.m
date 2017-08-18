@@ -4,7 +4,6 @@
 
 #import "Environment.h"
 #import "DebugLogger.h"
-#import "FunctionalUtil.h"
 #import "MessagesViewController.h"
 #import "Signal-Swift.h"
 #import "SignalKeyingStorage.h"
