@@ -121,6 +121,7 @@ NSString *NSStringFromOWSSignalServiceProtosVerifiedState(OWSSignalServiceProtos
 typedef NS_ENUM(SInt32, OWSSignalServiceProtosDataMessageFlags) {
   OWSSignalServiceProtosDataMessageFlagsEndSession = 1,
   OWSSignalServiceProtosDataMessageFlagsExpirationTimerUpdate = 2,
+  OWSSignalServiceProtosDataMessageFlagsProfileKey = 4,
 };
 
 BOOL OWSSignalServiceProtosDataMessageFlagsIsValidValue(OWSSignalServiceProtosDataMessageFlags value);

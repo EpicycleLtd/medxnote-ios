@@ -3690,6 +3690,7 @@ BOOL OWSSignalServiceProtosDataMessageFlagsIsValidValue(OWSSignalServiceProtosDa
   switch (value) {
     case OWSSignalServiceProtosDataMessageFlagsEndSession:
     case OWSSignalServiceProtosDataMessageFlagsExpirationTimerUpdate:
+    case OWSSignalServiceProtosDataMessageFlagsProfileKey:
       return YES;
     default:
       return NO;
@@ -3701,6 +3702,8 @@ NSString *NSStringFromOWSSignalServiceProtosDataMessageFlags(OWSSignalServicePro
       return @"OWSSignalServiceProtosDataMessageFlagsEndSession";
     case OWSSignalServiceProtosDataMessageFlagsExpirationTimerUpdate:
       return @"OWSSignalServiceProtosDataMessageFlagsExpirationTimerUpdate";
+    case OWSSignalServiceProtosDataMessageFlagsProfileKey:
+      return @"OWSSignalServiceProtosDataMessageFlagsProfileKey";
     default:
       return nil;
   }
