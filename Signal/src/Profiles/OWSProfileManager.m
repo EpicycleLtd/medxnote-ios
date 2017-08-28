@@ -102,7 +102,6 @@ const NSUInteger kOWSProfileManager_MaxAvatarDiameter = 640;
 
 @interface OWSProfileManager ()
 
-@property (nonatomic, readonly) OWSMessageSender *messageSender;
 @property (nonatomic, readonly) YapDatabaseConnection *dbConnection;
 @property (nonatomic, readonly) TSNetworkManager *networkManager;
 
@@ -146,14 +145,12 @@ const NSUInteger kOWSProfileManager_MaxAvatarDiameter = 640;
 - (instancetype)initDefault
 {
     TSStorageManager *storageManager = [TSStorageManager sharedManager];
-    OWSMessageSender *messageSender = [Environment getCurrent].messageSender;
     TSNetworkManager *networkManager = [Environment getCurrent].networkManager;
 
-    return [self initWithStorageManager:storageManager messageSender:messageSender networkManager:networkManager];
+    return [self initWithStorageManager:storageManager networkManager:networkManager];
 }
 
 - (instancetype)initWithStorageManager:(TSStorageManager *)storageManager
-                         messageSender:(OWSMessageSender *)messageSender
                         networkManager:(TSNetworkManager *)networkManager
 {
     self = [super init];
@@ -164,10 +161,7 @@ const NSUInteger kOWSProfileManager_MaxAvatarDiameter = 640;
 
     OWSAssert([NSThread isMainThread]);
     OWSAssert(storageManager);
-    OWSAssert(messageSender);
-    OWSAssert(messageSender);
 
-    _messageSender = messageSender;
     _dbConnection = storageManager.newDatabaseConnection;
     _networkManager = networkManager;
 
