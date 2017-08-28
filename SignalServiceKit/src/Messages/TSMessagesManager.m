@@ -836,15 +836,17 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSString *recipientId = incomingEnvelope.source;
     if (!dataMessage.hasProfileKey) {
-        OWSFail(@"%@ recevied profile key message without profile key from recipient: %@", self.tag, recipientId);
+        OWSFail(@"%@ recevied profile key message without profile key from: %@",
+            self.tag,
+            envelopeAddress(incomingEnvelope));
         return;
     }
     NSData *profileKey = dataMessage.profileKey;
     if (profileKey.length != kAES256_KeyByteLength) {
-        OWSFail(@"%@ recevied profile key of unexpected length:%lu from recipient: %@",
+        OWSFail(@"%@ recevied profile key of unexpected length:%lu from:%@",
             self.tag,
             (unsigned long)profileKey.length,
-            recipientId);
+            envelopeAddress(incomingEnvelope));
         return;
     }
 
@@ -993,12 +995,18 @@ NS_ASSUME_NONNULL_BEGIN
                   break;
               }
               case OWSSignalServiceProtosGroupContextTypeDeliver: {
-                  DDLogDebug(@"%@ incoming message from: %@ for group: %@ with timestampe: %lu",
-                      self.tag,
-                      envelopeAddress(envelope),
-                      groupId,
-                      (unsigned long)timestamp);
-                  if (body.length > 0) {
+                  if (body.length == 0) {
+                      DDLogWarn(@"%@ ignoring empty incoming message from: %@ for group: %@ with timestampe: %lu",
+                          self.tag,
+                          envelopeAddress(envelope),
+                          groupId,
+                          (unsigned long)timestamp);
+                  } else {
+                      DDLogDebug(@"%@ incoming message from: %@ for group: %@ with timestampe: %lu",
+                          self.tag,
+                          envelopeAddress(envelope),
+                          groupId,
+                          (unsigned long)timestamp);
                       incomingMessage = [[TSIncomingMessage alloc] initWithTimestamp:timestamp
                                                                             inThread:gThread
                                                                             authorId:envelope.source
@@ -1018,11 +1026,16 @@ NS_ASSUME_NONNULL_BEGIN
 
           thread = gThread;
       } else {
-          DDLogDebug(@"%@ incoming message from: %@ with timestampe: %lu",
-              self.tag,
-              envelopeAddress(envelope),
-              (unsigned long)timestamp);
-          if (body.length > 0) {
+          if (body.length == 0) {
+              DDLogWarn(@"%@ ignoring empty incoming message from: %@ with timestampe: %lu",
+                  self.tag,
+                  envelopeAddress(envelope),
+                  (unsigned long)timestamp);
+          } else {
+              DDLogDebug(@"%@ incoming message from: %@ with timestampe: %lu",
+                  self.tag,
+                  envelopeAddress(envelope),
+                  (unsigned long)timestamp);
               TSContactThread *cThread = [TSContactThread getOrCreateThreadWithContactId:envelope.source
                                                                              transaction:transaction
                                                                                    relay:envelope.relay];
