@@ -69,6 +69,7 @@
 #import <SignalServiceKit/OWSMessageReceiver.h>
 #import <SignalServiceKit/OWSMessageSender.h>
 #import <SignalServiceKit/OWSOutgoingCallMessage.h>
+#import <SignalServiceKit/OWSProfileKeyMessage.h>
 #import <SignalServiceKit/OWSRecipientIdentity.h>
 #import <SignalServiceKit/OWSSignalService.h>
 #import <SignalServiceKit/OWSTurnServerInfoRequest.h>
