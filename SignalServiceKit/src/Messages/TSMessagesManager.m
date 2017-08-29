@@ -711,10 +711,11 @@ NS_ASSUME_NONNULL_BEGIN
             // If we observe a linked device sending our profile key to another
             // user, we can infer that that user belongs in our profile whitelist.
             id<ProfileManagerProtocol> profileManager = [TextSecureKitEnv sharedEnv].profileManager;
-            [profileManager addUserToProfileWhitelist:destination];
-
-            // TODO: Can we also infer when groups are added to the whitelist
-            //       from sent messages to groups?
+            if ([dataMessage hasGroup]) {
+                [self addGroupIdToProfileWhitelist:dataMessage.group];
+            } else {
+                [profileManager addUserToProfileWhitelist:destination];
+            }
         }
 
         if ([self isDataMessageGroupAvatarUpdate:syncMessage.sent.message]) {
