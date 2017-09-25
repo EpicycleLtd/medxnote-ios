@@ -6,11 +6,14 @@ import Foundation
 
 class MessageMetadataViewController: OWSViewController {
 
-    let TAG = "[MessageMetadataViewController]"
+    class let TAG = "[MessageMetadataViewController]"
+    let TAG = MessageMetadataViewControlle.TAG
 
     // MARK: Properties
 
-    let message: TSMessage
+    let databaseConnection : YapDatabaseConnection
+    
+    var message: TSMessage
 
     var mediaMessageView: MediaMessageView?
 
@@ -26,12 +29,14 @@ class MessageMetadataViewController: OWSViewController {
     @available(*, unavailable, message:"use message: constructor instead.")
     required init?(coder aDecoder: NSCoder) {
         self.message = TSMessage()
+        self.databaseConnection = TSStorageManager.shared().newDatabaseConnection()!
         super.init(coder: aDecoder)
         owsFail("\(self.TAG) invalid constructor")
     }
 
     required init(message: TSMessage) {
         self.message = message
+        self.databaseConnection = TSStorageManager.shared().newDatabaseConnection()!
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -39,11 +44,19 @@ class MessageMetadataViewController: OWSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.databaseConnection.beginLongLivedReadTransaction()
+        updateDBConnectionAndMessageToLatest()
 
         self.navigationItem.title = NSLocalizedString("MESSAGE_METADATA_VIEW_TITLE",
                                                       comment: "Title for the 'message metadata' view.")
 
         createViews()
+        
+        NotificationCenter.default.addObserver(self,
+            selector:#selector(yapDatabaseModified),
+            name:NSNotification.Name.YapDatabaseModified,
+            object:nil);
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -389,5 +402,143 @@ class MessageMetadataViewController: OWSViewController {
         }
         let data = dataSource.data()
         UIPasteboard.general.setData(data, forPasteboardType:utiType)
+    }
+    
+    // MARK: - Actions
+    
+    // This method should be called after self.databaseConnection.beginLongLivedReadTransaction().
+    private func updateDBConnectionAndMessageToLatest() {
+
+        AssertIsOnMainThread()
+        
+        self.databaseConnection.readWrite() { transaction in
+            guard let newMessage = TSInteraction.fetch(uniqueId:message.uniqueId, transaction:transaction) else {
+                Logger.error("\(TAG) Couldn't reload message.")
+                return
+            }
+            self.message = newMessage
+        }
+    }
+
+    internal func yapDatabaseModified(notification:NSNotification) {
+//        Logger.info("\(TAG) in \(#function)")
+        AssertIsOnMainThread()
+        
+        self.databaseConnection.beginLongLivedReadTransaction()
+//        updateDBConnectionAndMessageToLatest()
+
+        // We need to `beginLongLivedReadTransaction` before we update our
+        // models in order to jump to the most recent commit.
+        NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
+        
+        [self updateBackButtonUnreadCount];
+        [self updateNavigationBarSubtitleLabel];
+        
+        if (self.isGroupConversation) {
+            [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+                TSGroupThread *gThread = (TSGroupThread *)self.thread;
+                
+                if (gThread.groupModel) {
+                self.thread = [TSGroupThread threadWithGroupModel:gThread.groupModel transaction:transaction];
+                }
+                }];
+            [self setNavigationTitle];
+        }
+        
+        if (![[self.uiDatabaseConnection ext:TSMessageDatabaseViewExtensionName] hasChangesForGroup:self.thread.uniqueId
+            inNotifications:notifications]) {
+            [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+                [self.messageMappings updateWithTransaction:transaction];
+                }];
+            return;
+        }
+        
+        NSArray *messageRowChanges = nil;
+        NSArray *sectionChanges = nil;
+        [[self.uiDatabaseConnection ext:TSMessageDatabaseViewExtensionName] getSectionChanges:&sectionChanges
+            rowChanges:&messageRowChanges
+            forNotifications:notifications
+            withMappings:self.messageMappings];
+        
+        if ([sectionChanges count] == 0 && [messageRowChanges count] == 0) {
+            // YapDatabase will ignore insertions within the message mapping's
+            // range that are not within the current mapping's contents.  We
+            // may need to extend the mapping's contents to reflect the current
+            // range.
+            [self updateMessageMappingRangeOptions:MessagesRangeSizeMode_Normal];
+            [self resetContentAndLayout];
+            return;
+        }
+        
+        BOOL wasAtBottom = [self isScrolledToBottom];
+        // We want sending messages to feel snappy.  So, if the only
+        // update is a new outgoing message AND we're already scrolled to
+        // the bottom of the conversation, skip the scroll animation.
+        __block BOOL shouldAnimateScrollToBottom = !wasAtBottom;
+        // We want to scroll to the bottom if the user:
+        //
+        // a) already was at the bottom of the conversation.
+        // b) is inserting new interactions.
+        __block BOOL scrollToBottom = wasAtBottom;
+        
+        [self.collectionView performBatchUpdates:^{
+            for (YapDatabaseViewRowChange *rowChange in messageRowChanges) {
+            switch (rowChange.type) {
+            case YapDatabaseViewChangeDelete: {
+            [self.collectionView deleteItemsAtIndexPaths:@[ rowChange.indexPath ]];
+            
+            YapCollectionKey *collectionKey = rowChange.collectionKey;
+            OWSAssert(collectionKey.key.length > 0);
+            if (collectionKey.key) {
+            [self.messageAdapterCache removeObjectForKey:collectionKey.key];
+            }
+            
+            break;
+            }
+            case YapDatabaseViewChangeInsert: {
+            [self.collectionView insertItemsAtIndexPaths:@[ rowChange.newIndexPath ]];
+            
+            TSInteraction *interaction = [self interactionAtIndexPath:rowChange.newIndexPath];
+            if ([interaction isKindOfClass:[TSOutgoingMessage class]]) {
+            TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)interaction;
+            if (!outgoingMessage.isFromLinkedDevice) {
+            scrollToBottom = YES;
+            shouldAnimateScrollToBottom = NO;
+            }
+            }
+            break;
+            }
+            case YapDatabaseViewChangeMove: {
+            [self.collectionView deleteItemsAtIndexPaths:@[ rowChange.indexPath ]];
+            [self.collectionView insertItemsAtIndexPaths:@[ rowChange.newIndexPath ]];
+            break;
+            }
+            case YapDatabaseViewChangeUpdate: {
+            YapCollectionKey *collectionKey = rowChange.collectionKey;
+            OWSAssert(collectionKey.key.length > 0);
+            if (collectionKey.key) {
+            [self.messageAdapterCache removeObjectForKey:collectionKey.key];
+            }
+            [self.collectionView reloadItemsAtIndexPaths:@[ rowChange.indexPath ]];
+            break;
+            }
+            }
+            }
+            }
+            completion:^(BOOL success) {
+            OWSAssert([NSThread isMainThread]);
+            
+            if (!success) {
+            [self resetContentAndLayout];
+            }
+            
+            [self updateLastVisibleTimestamp];
+            
+            if (scrollToBottom) {
+            [self scrollToBottomAnimated:shouldAnimateScrollToBottom];
+            }
+            }];
+    }
+    
     }
 }
