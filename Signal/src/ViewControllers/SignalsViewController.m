@@ -11,7 +11,6 @@
 #import "NSDate+millisecondTimeStamp.h"
 #import "OWSContactsManager.h"
 #import "OWSNavigationController.h"
-#import "OWSProfileManager.h"
 #import "ProfileViewController.h"
 #import "PropertyListPreferences.h"
 #import "PushManager.h"
