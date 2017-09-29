@@ -27,7 +27,6 @@ class PanDirectionGestureRecognizer: UIPanGestureRecognizer {
             let vel = velocity(in: view)
             switch direction {
             case .horizontal where fabs(vel.y) > fabs(vel.x):
-                Logger.debug(">>>>canceled<<<<<")
                 state = .cancelled
             case .vertical where fabs(vel.x) > fabs(vel.y):
                 state = .cancelled

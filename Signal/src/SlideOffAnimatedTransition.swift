@@ -39,7 +39,7 @@ class SlideOffAnimatedTransition: NSObject, UIViewControllerAnimatedTransitionin
 
             fromView.layer.opacity = 1.0
             fromView.layer.shadowOpacity = 0
-    
+
             transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
         })
     }

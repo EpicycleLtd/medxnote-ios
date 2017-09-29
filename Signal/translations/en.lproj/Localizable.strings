@@ -821,7 +821,7 @@
 "MESSAGE_METADATA_VIEW_SOURCE_FILENAME" = "Filename";
 
 /* Title for the 'message metadata' view. */
-"MESSAGE_METADATA_VIEW_TITLE" = "Message";
+"MESSAGE_METADATA_VIEW_TITLE" = "Message Details";
 
 /* message footer for delivered messages
    message status for message delivered to their recipient. */

@@ -4624,12 +4624,13 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan: {
-            DDLogVerbose(@"%@ BEGAN >>> percent: %f", self.tag, percent);
             TSInteraction *interaction = messageData.interaction;
             if ([interaction isKindOfClass:[TSIncomingMessage class]] ||
                 [interaction isKindOfClass:[TSOutgoingMessage class]]) {
-                
-                self.navigationController.delegate = self;
+
+                // Canary check in case we later have another reason to set navigationController.delegate - we don't
+                // want to inadvertently clobber it here.
+                OWSAssert(self.navigationController.delegate == nil) self.navigationController.delegate = self;
                 TSMessage *message = (TSMessage *)interaction;
                 MessageMetadataViewController *view = [[MessageMetadataViewController alloc] initWithMessage:message];
                 [self.navigationController pushViewController:view animated:YES];
@@ -4639,7 +4640,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
             break;
         }
         case UIGestureRecognizerStateChanged: {
-            DDLogVerbose(@"%@ changed >>> percent: %f", self.tag, percent);
             UIPercentDrivenInteractiveTransition *transition = self.showMessageDetailsTransition;
             if (!transition) {
                 DDLogVerbose(@"%@ transition not set up yet", self.tag);
@@ -4650,7 +4650,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         }
         case UIGestureRecognizerStateEnded: {
             const CGFloat velocity = [gestureRecognizer velocityInView:self.view].x;
-            DDLogVerbose(@"%@ ENDED >>> velocity: %f", self.tag, velocity);
             
             UIPercentDrivenInteractiveTransition *transition = self.showMessageDetailsTransition;
             if (!transition) {
@@ -4659,7 +4658,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
             }
 
             // Complete the transition if moved sufficiently far or fast
-            // Note this is trickier for incoming, since you have lest space.
+            // Note this is trickier for incoming, since you are already on the left, and have less space.
             if (percent > 0.3 || velocity < -800) {
                 [transition finishInteractiveTransition];
             } else {
@@ -4669,7 +4668,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         }
         case UIGestureRecognizerStateCancelled:
         case UIGestureRecognizerStateFailed: {
-            DDLogVerbose(@"%@ Canceled/Failed >>> percent: %f", self.tag, percent);
             UIPercentDrivenInteractiveTransition *transition = self.showMessageDetailsTransition;
             if (!transition) {
                 DDLogVerbose(@"%@ transition not set up yet", self.tag);
@@ -4695,7 +4693,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 - (nullable id <UIViewControllerInteractiveTransitioning>)navigationController:(UINavigationController *)navigationController
                                    interactionControllerForAnimationController:(id <UIViewControllerAnimatedTransitioning>)animationController
 {
-    // WHY??
+    // We needed to be the navigation controller delegate to specify the interactive "slide left for message details"
+    // animation But we may not want to be the navigation controller delegate permanently.
     self.navigationController.delegate = nil;
 
     DDLogInfo(@"%@ >>>> in %s", self.tag, __PRETTY_FUNCTION__);
