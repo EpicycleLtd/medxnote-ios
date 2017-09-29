@@ -4,6 +4,7 @@
 
 #import "OWSIncomingMessageCollectionViewCell.h"
 #import "OWSExpirationTimerView.h"
+#import "Signal-Swift.h"
 #import "UIColor+OWS.h"
 #import <JSQMessagesViewController/JSQMediaItem.h>
 
@@ -13,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) IBOutlet OWSExpirationTimerView *expirationTimerView;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *expirationTimerViewWidthConstraint;
-@property (strong, nonatomic) UIPanGestureRecognizer *panGestureRecognizer;
+@property (strong, nonatomic) PanDirectionGestureRecognizer *panGestureRecognizer;
 
 @end
 
@@ -23,7 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     [super awakeFromNib];
     self.expirationTimerViewWidthConstraint.constant = 0.0;
-    self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPan:)];
+    self.panGestureRecognizer = [[PanDirectionGestureRecognizer alloc] initWithDirection:PanDirectionHorizontal
+                                                                                  target:self
+                                                                                  action:@selector(didPan:)];
     [self addGestureRecognizer:self.panGestureRecognizer];
 }
 
@@ -70,8 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
     [self.expirationTimerView stopTimer];
 }
-
-#pragma mark - panning for info view
 
 - (void)didPan:(UIPanGestureRecognizer *)panRecognizer
 {

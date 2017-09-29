@@ -240,6 +240,10 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     UITextViewDelegate,
     JSQLayoutDelegate>
 
+// Show message info animation
+@property (nullable, nonatomic) UIPercentDrivenInteractiveTransition *showMessageDetailsTransition;
+@property (nullable, nonatomic) UIPanGestureRecognizer *currentShowMessageDetailsPanGesture;
+
 @property (nonatomic) TSThread *thread;
 @property (nonatomic) TSMessageAdapter *lastDeliveredMessage;
 @property (nonatomic) YapDatabaseConnection *editingDatabaseConnection;
@@ -4613,28 +4617,102 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)didPanWithGestureRecognizer:(UIPanGestureRecognizer *)gestureRecognizer message:(id<OWSMessageData>)messageData
 {
-    if (gestureRecognizer.state != UIGestureRecognizerStateBegan) {
-        return;
+    self.currentShowMessageDetailsPanGesture = gestureRecognizer;
+ 
+    const CGFloat leftTranslation = -1 * [gestureRecognizer translationInView:self.view].x;
+    const CGFloat percent = MAX(leftTranslation, 0) / self.view.frame.size.width;
+    
+    switch (gestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan: {
+            DDLogVerbose(@"%@ BEGAN >>> percent: %f", self.tag, percent);
+            TSInteraction *interaction = messageData.interaction;
+            if ([interaction isKindOfClass:[TSIncomingMessage class]] ||
+                [interaction isKindOfClass:[TSOutgoingMessage class]]) {
+                
+                self.navigationController.delegate = self;
+                TSMessage *message = (TSMessage *)interaction;
+                MessageMetadataViewController *view = [[MessageMetadataViewController alloc] initWithMessage:message];
+                [self.navigationController pushViewController:view animated:YES];
+            } else {
+                OWSFail(@"%@ Can't show message metadata for message of type: %@", self.tag, [interaction class]);
+            }
+            break;
+        }
+        case UIGestureRecognizerStateChanged: {
+            DDLogVerbose(@"%@ changed >>> percent: %f", self.tag, percent);
+            UIPercentDrivenInteractiveTransition *transition = self.showMessageDetailsTransition;
+            if (!transition) {
+                DDLogVerbose(@"%@ transition not set up yet", self.tag);
+                return;
+            }
+            [transition updateInteractiveTransition:percent];
+            break;
+        }
+        case UIGestureRecognizerStateEnded: {
+            const CGFloat velocity = [gestureRecognizer velocityInView:self.view].x;
+            DDLogVerbose(@"%@ ENDED >>> velocity: %f", self.tag, velocity);
+            
+            UIPercentDrivenInteractiveTransition *transition = self.showMessageDetailsTransition;
+            if (!transition) {
+                DDLogVerbose(@"%@ transition not set up yet", self.tag);
+                return;
+            }
+
+            // Complete the transition if moved sufficiently far or fast
+            // Note this is trickier for incoming, since you have lest space.
+            if (percent > 0.3 || velocity < -800) {
+                [transition finishInteractiveTransition];
+            } else {
+                [transition cancelInteractiveTransition];
+            }
+            break;
+        }
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed: {
+            DDLogVerbose(@"%@ Canceled/Failed >>> percent: %f", self.tag, percent);
+            UIPercentDrivenInteractiveTransition *transition = self.showMessageDetailsTransition;
+            if (!transition) {
+                DDLogVerbose(@"%@ transition not set up yet", self.tag);
+                return;
+            }
+            
+            [transition cancelInteractiveTransition];
+            break;
+        }
+        default:
+            break;
     }
+}
 
-    // only want pan left.
-    // TODO: interactice, cancelable animation
-    if ([gestureRecognizer translationInView:self.view].x > 0) {
-        return;
+- (nullable id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                            animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                         fromViewController:(UIViewController *)fromVC
+                                                           toViewController:(UIViewController *)toVC
+{
+    return [SlideOffAnimatedTransition new];
+}
+
+- (nullable id <UIViewControllerInteractiveTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   interactionControllerForAnimationController:(id <UIViewControllerAnimatedTransitioning>)animationController
+{
+    // WHY??
+    self.navigationController.delegate = nil;
+
+    DDLogInfo(@"%@ >>>> in %s", self.tag, __PRETTY_FUNCTION__);
+    UIPanGestureRecognizer *recognizer = self.currentShowMessageDetailsPanGesture;
+    if (recognizer == nil) {
+        OWSFail(@"currentShowMessageDetailsPanGesture was unexpectedly nil");
+        return nil;
     }
-
-    DDLogDebug(@"%@ panned with offset: %f", self.tag, [gestureRecognizer translationInView:self.view].x);
-    //    return;
-
-    TSInteraction *interaction = messageData.interaction;
-    if ([interaction isKindOfClass:[TSIncomingMessage class]] ||
-        [interaction isKindOfClass:[TSOutgoingMessage class]]) {
-        TSMessage *message = (TSMessage *)interaction;
-        MessageMetadataViewController *view = [[MessageMetadataViewController alloc] initWithMessage:message];
-        [self.navigationController pushViewController:view animated:YES];
+    
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        self.showMessageDetailsTransition = [UIPercentDrivenInteractiveTransition new];
+        self.showMessageDetailsTransition.completionCurve = UIViewAnimationCurveEaseOut;
     } else {
-        OWSFail(@"%@ Can't show message metadata for message of type: %@", self.tag, [interaction class]);
+        self.showMessageDetailsTransition = nil;
     }
+    
+    return self.showMessageDetailsTransition;
 }
 
 #pragma mark - Class methods
