@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
     : JSQMessagesCollectionViewCellIncoming <OWSExpirableMessageView, OWSMessageCollectionViewCell>
 
 @property (nonatomic, nullable) id<OWSMessageMediaAdapter> mediaAdapter;
+@property (nonatomic, copy, nullable) void (^panActionBlock)(UIPanGestureRecognizer *recognizer);
 
 @end
 

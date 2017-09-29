@@ -1929,6 +1929,10 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         cell.mediaAdapter = (id<OWSMessageMediaAdapter>)[message media];
     }
 
+    cell.panActionBlock = ^(UIPanGestureRecognizer *recognizer) {
+        [self didPanWithGestureRecognizer:recognizer message:message];
+    };
+
     [cell ows_didLoad];
     return cell;
 }
@@ -1948,6 +1952,10 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     if ([message isMediaMessage] && [[message media] conformsToProtocol:@protocol(OWSMessageMediaAdapter)]) {
         cell.mediaAdapter = (id<OWSMessageMediaAdapter>)[message media];
     }
+
+    cell.panActionBlock = ^(UIPanGestureRecognizer *recognizer) {
+        [self didPanWithGestureRecognizer:recognizer message:message];
+    };
 
     [cell ows_didLoad];
 
@@ -4598,6 +4606,34 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     // "scrolled to bottom" across these changes.
     if (self.wasScrolledToBottomBeforeLayoutChange) {
         [self scrollToBottomImmediately];
+    }
+}
+
+#pragma mark - swipe to show message details
+
+- (void)didPanWithGestureRecognizer:(UIPanGestureRecognizer *)gestureRecognizer message:(id<OWSMessageData>)messageData
+{
+    if (gestureRecognizer.state != UIGestureRecognizerStateBegan) {
+        return;
+    }
+
+    // only want pan left.
+    // TODO: interactice, cancelable animation
+    if ([gestureRecognizer translationInView:self.view].x > 0) {
+        return;
+    }
+
+    DDLogDebug(@"%@ panned with offset: %f", self.tag, [gestureRecognizer translationInView:self.view].x);
+    //    return;
+
+    TSInteraction *interaction = messageData.interaction;
+    if ([interaction isKindOfClass:[TSIncomingMessage class]] ||
+        [interaction isKindOfClass:[TSOutgoingMessage class]]) {
+        TSMessage *message = (TSMessage *)interaction;
+        MessageMetadataViewController *view = [[MessageMetadataViewController alloc] initWithMessage:message];
+        [self.navigationController pushViewController:view animated:YES];
+    } else {
+        OWSFail(@"%@ Can't show message metadata for message of type: %@", self.tag, [interaction class]);
     }
 }
 
