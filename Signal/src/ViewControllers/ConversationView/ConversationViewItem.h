@@ -9,8 +9,13 @@
 
 @interface ConversationViewItem : NSObject <ConversationViewLayoutItem>
 
-@property (nonatomic) TSInteraction *interaction;
+@property (nonatomic, readonly) TSInteraction *interaction;
+
 @property (nonatomic) BOOL shouldShowDate;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithTSInteraction:(TSInteraction *)interaction;
+
 
 - (ConversationViewCell *)dequeueCellForCollectionView:(UICollectionView *)collectionView
                                              indexPath:(NSIndexPath *)indexPath;

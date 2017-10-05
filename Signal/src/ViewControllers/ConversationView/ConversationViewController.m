@@ -122,17 +122,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     MessagesRangeSizeMode_Normal
 };
 
-// TODO: We should use a custom subclass for each interaction type.
-@interface ConversationViewItemSimple : ConversationViewItem
-
-@end
-
-#pragma mark -
-
-@implementation ConversationViewItemSimple
-
-@end
-
 #pragma mark -
 
 @interface ConversationViewController () <AVAudioPlayerDelegate,
@@ -215,7 +204,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic, readonly) OutboundCallInitiator *outboundCallInitiator;
 @property (nonatomic, readonly) OWSBlockingManager *blockingManager;
 
-//@property (nonatomic) NSCache *messageAdapterCache;
 @property (nonatomic) BOOL userHasScrolled;
 @property (nonatomic) NSDate *lastMessageSentDate;
 
@@ -536,8 +524,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self createContents];
     
     [self.navigationController.navigationBar setTranslucent:NO];
-    
-//    self.messageAdapterCache = [[NSCache alloc] init];
     
     [JSQMessagesCollectionViewCell registerMenuAction:@selector(delete:)];
     SEL saveSelector = NSSelectorFromString(@"save:");
@@ -4303,7 +4289,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
     [self reloadViewItems];
 
-//    self.messageAdapterCache = [[NSCache alloc] init];
     [self resetContentAndLayout];
     [self updateLoadEarlierVisible];
     [self ensureDynamicInteractions];
@@ -4355,9 +4340,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
             
             ConversationViewItem *_Nullable viewItem = self.viewItemMap[interaction.uniqueId];
             if (!viewItem) {
-                viewItem = [ConversationViewItemSimple new];
+                viewItem = [[ConversationViewItem alloc] initWithTSInteraction:interaction];
             }
-            viewItem.interaction = interaction;
             [viewItems addObject:viewItem];
             OWSAssert(!viewItemMap[interaction.uniqueId]);
             viewItemMap[interaction.uniqueId] = viewItem;
@@ -4721,24 +4705,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 //        OWSAssert(interaction);
 //    }];
 //    return interaction;
-//}
-
-//- (id<OWSMessageData>)messageAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    OWSAssert(self.messageAdapterCache);
-//    
-//    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
-//    
-//    id<OWSMessageData> messageAdapter = [self.messageAdapterCache objectForKey:interaction.uniqueId];
-//    
-//    if (!messageAdapter) {
-//        messageAdapter = [TSMessageAdapter messageViewDataWithInteraction:interaction
-//                                                                 inThread:self.thread
-//                                                          contactsManager:self.contactsManager];
-//        [self.messageAdapterCache setObject:messageAdapter forKey:interaction.uniqueId];
-//    }
-//    
-//    return messageAdapter;
 //}
 
 #pragma mark - Logging

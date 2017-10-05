@@ -20,6 +20,29 @@
 
 @implementation ConversationViewItem
 
+- (instancetype)initWithTSInteraction:(TSInteraction *)interaction
+{
+    self = [super init];
+    
+    if (!self) {
+        return self;
+    }
+    
+    _interaction = interaction;
+    
+    return self;
+}
+
+- (void)setShouldShowDate:(BOOL)shouldShowDate {
+    if (_shouldShowDate == shouldShowDate) {
+        return;
+    }
+    
+    _shouldShowDate = shouldShowDate;
+    
+    [self clearCachedLayoutState];
+}
+
 - (void)clearCachedLayoutState
 {
     self.cachedCellSize = nil;
