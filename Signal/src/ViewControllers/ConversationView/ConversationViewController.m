@@ -8,6 +8,8 @@
 #import "BlockListUIUtils.h"
 #import "BlockListViewController.h"
 #import "ContactsViewHelper.h"
+#import "ConversationViewLayout.h"
+#import "ConversationHeaderView.h"
 #import "DateUtil.h"
 #import "DebugUITableViewController.h"
 #import "Environment.h"
@@ -27,8 +29,8 @@
 #import "OWSIncomingMessageCollectionViewCell.h"
 #import "OWSMessageCollectionViewCell.h"
 #import "OWSMessagesBubblesSizeCalculator.h"
-#import "OWSMessagesComposerTextView.h"
-#import "OWSMessagesInputToolbar.h"
+#import "ConversationInputTextView.h"
+#import "ConversationInputToolbar.h"
 #import "OWSMessagesToolbarContentView.h"
 #import "OWSOutgoingMessageCollectionViewCell.h"
 #import "OWSSystemMessageCell.h"
@@ -105,8 +107,6 @@ static const int JSQ_TOOLBAR_ICON_HEIGHT = 22;
 static const int JSQ_TOOLBAR_ICON_WIDTH = 22;
 static const int JSQ_IMAGE_INSET = 5;
 
-static NSTimeInterval const kTSMessageSentDateShowTimeInterval = 5 * kMinuteInterval;
-
 NSString *const ConversationViewControllerDidAppearNotification = @"ConversationViewControllerDidAppear";
 
 typedef enum : NSUInteger {
@@ -121,101 +121,78 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     MessagesRangeSizeMode_Normal
 };
 
-@interface ConversationHeader : UIView
+//@protocol ConversationViewItem <NSObject>
+//
+//- (TSInteraction *)interaction;
+//
+//@end
+//
+//#pragma mark -
 
-@property (nonatomic) UILabel *titleLabel;
-@property (nonatomic) UILabel *subtitleLabel;
+@interface ConversationViewItem : NSObject <ConversationViewLayoutItem>
+
+@property (nonatomic) TSInteraction *interaction;
+@property (nonatomic) BOOL shouldShowDate;
 
 @end
 
 #pragma mark -
 
-@implementation ConversationHeader
+@implementation ConversationViewItem
 
-- (instancetype)initWithFrame:(CGRect)frame
+- (CGSize)layoutSizeForMaxMessageWidth:(int)maxMessageWidth
 {
-    self = [super initWithFrame:frame];
-
-    if (self) {
-        self.layoutMargins = UIEdgeInsetsMake(0, 0, 0, 0);
-    }
-
-    return self;
+    // TODO:
+    return CGSizeMake(maxMessageWidth, maxMessageWidth);
 }
 
-- (void)setBounds:(CGRect)bounds
+- (ConversationViewLayoutAlignment)layoutAlignment
 {
-    [super setBounds:bounds];
-
-    [self layoutSubviews];
-}
-
-- (void)setFrame:(CGRect)frame
-{
-    [super setFrame:frame];
-
-    [self layoutSubviews];
-}
-
-- (void)setCenter:(CGPoint)center
-{
-    [super setCenter:center];
-
-    [self layoutSubviews];
-}
-
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-
-    // We need to manually resize and position the title views;
-    // iOS AutoLayout doesn't work inside navigation bar items.
-    const int kTitleVSpacing = 0.f;
-    const int kTitleHMargin = 0.f;
-    CGFloat titleHeight = ceil([self.titleLabel sizeThatFits:CGSizeZero].height);
-    CGFloat subtitleHeight = ceil([self.subtitleLabel sizeThatFits:CGSizeZero].height);
-    CGFloat contentHeight = titleHeight + kTitleVSpacing + subtitleHeight;
-    CGFloat contentWidth = round(self.width - 2 * kTitleHMargin);
-
-    CGFloat y = MAX(0, round((self.height - contentHeight) * 0.5f));
-    self.titleLabel.frame = CGRectMake(kTitleHMargin, y, contentWidth, titleHeight);
-    self.subtitleLabel.frame
-        = CGRectMake(kTitleHMargin, ceil(y + titleHeight + kTitleVSpacing), contentWidth, subtitleHeight);
+    // TODO:
+    return ConversationViewLayoutAlignment_Left;
 }
 
 @end
 
 #pragma mark -
 
-@protocol OWSMessagesCollectionViewFlowLayoutDelegate <NSObject>
-
-// Returns YES for all but the unread indicator
-- (BOOL)shouldShowCellDecorationsAtIndexPath:(NSIndexPath *)indexPath;
+// TODO: We should use a custom subclass for each interaction type.
+@interface ConversationViewItemSimple : ConversationViewItem
 
 @end
 
 #pragma mark -
 
-@interface OWSMessagesCollectionViewFlowLayout : JSQMessagesCollectionViewFlowLayout
-
-@property (nonatomic, weak) id<OWSMessagesCollectionViewFlowLayoutDelegate> delegate;
+@implementation ConversationViewItemSimple
 
 @end
 
 #pragma mark -
 
-@implementation OWSMessagesCollectionViewFlowLayout
+// TODO: We should use a custom subclass for each interaction type.
+@interface ConversationViewCell : UICollectionViewCell
 
-- (CGSize)sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+@property (nonatomic) ConversationViewItem * viewItem;
+
+// If this is non-null, we should show the message date header.
+@property (nonatomic, nullable) NSAttributedString * messageDateHeaderText;
+
+@end
+
+#pragma mark -
+
+@implementation ConversationViewCell
+
++ (NSString *)cellReuseIdentifier {
+    return NSStringFromClass([self class]);
+}
+
+- (void)prepareForReuse
 {
-    // The unread indicator should be sized according to its desired size.
-    if ([self.delegate shouldShowCellDecorationsAtIndexPath:indexPath]) {
-        return [super sizeForItemAtIndexPath:indexPath];
-    } else {
-        CGSize messageBubbleSize = [self messageBubbleSizeForItemAtIndexPath:indexPath];
-        CGFloat finalHeight = messageBubbleSize.height;
-        return CGSizeMake(CGRectGetWidth(self.collectionView.frame), ceilf((float)finalHeight));
-    }
+    [super prepareForReuse];
+    
+    self.viewItem = nil;
+    self.messageDateHeaderText = nil;
 }
 
 @end
@@ -228,17 +205,20 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     CNContactViewControllerDelegate,
     JSQMessagesComposerTextViewPasteDelegate,
     OWSConversationSettingsViewDelegate,
-    OWSMessagesCollectionViewFlowLayoutDelegate,
+    ConversationViewLayoutDelegate,
     OWSSystemMessageCellDelegate,
     OWSContactOffersCellDelegate,
-    OWSTextViewPasteDelegate,
-    OWSVoiceMemoGestureDelegate,
+    ConversationInputTextViewDelegate,
+UICollectionViewDelegate,
+UICollectionViewDataSource,
+//    OWSVoiceMemoGestureDelegate,
     UIDocumentMenuDelegate,
     UIDocumentPickerDelegate,
     UIImagePickerControllerDelegate,
     UINavigationControllerDelegate,
     UITextViewDelegate,
     JSQLayoutDelegate,
+    ConversationInputToolbarDelegate,
     GifPickerViewControllerDelegate>
 
 @property (nonatomic) TSThread *thread;
@@ -260,6 +240,12 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic) YapDatabaseConnection *uiDatabaseConnection;
 @property (nonatomic) YapDatabaseViewMappings *messageMappings;
 
+@property (nonatomic, readonly) ConversationInputToolbar *inputToolbar;
+@property (nonatomic, readonly) UICollectionView *collectionView;
+
+@property (nonatomic) NSArray<ConversationViewItem * > *viewItems;
+@property (nonatomic) NSMutableDictionary<NSString *, ConversationViewItem * > *viewItemMap;
+
 @property (nonatomic) JSQMessagesBubbleImage *outgoingBubbleImageData;
 @property (nonatomic) JSQMessagesBubbleImage *incomingBubbleImageData;
 @property (nonatomic) JSQMessagesBubbleImage *currentlyOutgoingBubbleImageData;
@@ -271,10 +257,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic) NSUUID *voiceMessageUUID;
 
 @property (nonatomic) NSTimer *readTimer;
-@property (nonatomic) ConversationHeader *navigationBarTitleView;
+@property (nonatomic) ConversationHeaderView *navigationBarTitleView;
 @property (nonatomic) UILabel *navigationBarTitleLabel;
 @property (nonatomic) UILabel *navigationBarSubtitleLabel;
-@property (nonatomic) UIButton *attachButton;
 @property (nonatomic) UIView *bannerView;
 
 // Back Button Unread Count
@@ -296,7 +281,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic, readonly) OutboundCallInitiator *outboundCallInitiator;
 @property (nonatomic, readonly) OWSBlockingManager *blockingManager;
 
-@property (nonatomic) NSCache *messageAdapterCache;
+//@property (nonatomic) NSCache *messageAdapterCache;
 @property (nonatomic) BOOL userHasScrolled;
 @property (nonatomic) NSDate *lastMessageSentDate;
 
@@ -331,20 +316,10 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (instancetype)init
-{
-    self = [super init];
-    if (!self) {
-        return self;
-    }
-
-    [self commonInit];
-
-    return self;
-}
-
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
+    OWSFail(@"Do not instantiate this view from coder");
+
     self = [super initWithCoder:aDecoder];
     if (!self) {
         return self;
@@ -606,67 +581,133 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 - (void)hideInputIfNeeded
 {
     if (_peek) {
-        [self inputToolbar].hidden = YES;
+        self.inputToolbar.hidden = YES;
         [self.inputToolbar endEditing:TRUE];
         return;
     }
 
     if (self.userLeftGroup) {
-        [self inputToolbar].hidden = YES; // user has requested they leave the group. further sends disallowed
+        self.inputToolbar.hidden = YES; // user has requested they leave the group. further sends disallowed
         [self.inputToolbar endEditing:TRUE];
     } else {
-        [self inputToolbar].hidden = NO;
+        self.inputToolbar.hidden = NO;
         [self loadDraftInCompose];
     }
 }
 
 - (void)viewDidLoad
 {
-    self.collectionView.layoutDelegate = self;
-
     [super viewDidLoad];
-
+    
+    [self createContents];
+    
     [self.navigationController.navigationBar setTranslucent:NO];
-
-    self.messageAdapterCache = [[NSCache alloc] init];
-
-    _attachButton = [[UIButton alloc] init];
-    _attachButton.accessibilityLabel
-        = NSLocalizedString(@"ATTACHMENT_LABEL", @"Accessibility label for attaching photos");
-    _attachButton.accessibilityHint = NSLocalizedString(
-        @"ATTACHMENT_HINT", @"Accessibility hint describing what you can do with the attachment button");
-    [_attachButton setFrame:CGRectMake(0,
-                                0,
-                                JSQ_TOOLBAR_ICON_WIDTH + JSQ_IMAGE_INSET * 2,
-                                JSQ_TOOLBAR_ICON_HEIGHT + JSQ_IMAGE_INSET * 2)];
-    _attachButton.imageEdgeInsets
-        = UIEdgeInsetsMake(JSQ_IMAGE_INSET, JSQ_IMAGE_INSET, JSQ_IMAGE_INSET, JSQ_IMAGE_INSET);
-    [_attachButton setImage:[UIImage imageNamed:@"btnAttachments--blue"] forState:UIControlStateNormal];
-
-    [self initializeTextView];
-
+    
+//    self.messageAdapterCache = [[NSCache alloc] init];
+    
     [JSQMessagesCollectionViewCell registerMenuAction:@selector(delete:)];
     SEL saveSelector = NSSelectorFromString(@"save:");
     [JSQMessagesCollectionViewCell registerMenuAction:saveSelector];
     SEL shareSelector = NSSelectorFromString(@"share:");
     [JSQMessagesCollectionViewCell registerMenuAction:shareSelector];
     [JSQMessagesCollectionViewCell registerMenuAction:[TSMessageAdapter messageMetadataSelector]];
-
-    [self initializeCollectionViewLayout];
+    
     [self registerCustomMessageNibs];
-
-    self.senderId = ME_MESSAGE_IDENTIFIER;
-    self.senderDisplayName = ME_MESSAGE_IDENTIFIER;
-    self.automaticallyScrollsToMostRecentMessage = NO;
-
-    [self initializeToolbars];
+    
+//    self.senderId = ME_MESSAGE_IDENTIFIER;
+//    self.senderDisplayName = ME_MESSAGE_IDENTIFIER;
+//    self.automaticallyScrollsToMostRecentMessage = NO;
+    
     [self createScrollDownButton];
     [self createHeaderViews];
     [self addNotificationListeners];
 }
 
+- (void)createContents
+{
+    ConversationViewLayout *layout = [ConversationViewLayout new];
+    layout.delegate = self;
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero
+                                             collectionViewLayout:layout];
+    self.collectionView.delegate = self;
+    self.collectionView.dataSource = self;
+    self.collectionView.showsVerticalScrollIndicator = NO;
+    self.collectionView.showsHorizontalScrollIndicator = NO;
+    [self.view addSubview:self.collectionView];
+    [self.collectionView autoPinWidthToSuperview];
+    [self.collectionView autoPinToTopLayoutGuideOfViewController:self withInset:0];
+
+    _inputToolbar = [ConversationInputToolbar new];
+    self.inputToolbar.inputToolbarDelegate = self;
+    OWSAssert(self.inputToolbar.inputTextView);
+    self.inputToolbar.inputTextView.inputTextViewDelegate = self;
+    [self.view addSubview:self.inputToolbar];
+    [self.inputToolbar autoPinWidthToSuperview];
+    [self.inputToolbar autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:self.collectionView];
+    [self.inputToolbar autoPinToBottomLayoutGuideOfViewController:self withInset:0];
+    
+    [self.collectionView addRedBorder];
+    [self.inputToolbar addBorderWithColor:[UIColor blueColor]];
+    
+//    self.collectionView.layoutDelegate = self;
+    
+//                           - (void)initializeToolbars
+//                           {
+//                               // HACK JSQMessagesViewController doesn't yet support dynamic type in the inputToolbar.
+//                               // See: https://github.com/jessesquires/JSQMessagesViewController/pull/1169/files
+//                               [self.inputToolbar.inputTextView sizeToFit];
+//                               self.inputToolbar.preferredDefaultHeight = self.inputToolbar.inputTextView.frame.size.height + 16;
+//                               
+//                               // prevent draft from obscuring message history in case user wants to scroll back to refer to something
+//                               // while composing a long message.
+//                               self.inputToolbar.maximumHeight = 300;
+//                               
+//                               OWSAssert(self.inputToolbar.contentView);
+//                               OWSAssert(self.inputToolbar.inputTextView);
+//                               self.inputToolbar.inputTextView.jsqPasteDelegate = self;
+//                               ((ConversationInputTextView *)self.inputToolbar.inputTextView).inputTextViewDelegate = self;
+//                               ((OWSMessagesToolbarContentView *)self.inputToolbar.contentView).voiceMemoGestureDelegate = self;
+//                           }
+//                           
+//                           // Overiding JSQMVC layout defaults
+//                           - (void)initializeCollectionViewLayout
+//                           {
+//                               CGRect screenBounds = [UIScreen mainScreen].bounds;
+//                               CGRect viewFrame = CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height);
+//                               self.view.frame = viewFrame;
+//                               self.collectionView.frame = viewFrame;
+//                               
+//                               [self.collectionView.collectionViewLayout setMessageBubbleFont:[UIFont ows_dynamicTypeBodyFont]];
+//                               
+//                               self.collectionView.showsVerticalScrollIndicator = NO;
+//                               self.collectionView.showsHorizontalScrollIndicator = NO;
+//
+//                               [self updateLoadEarlierVisible];
+//                               
+//                               self.collectionView.collectionViewLayout.incomingAvatarViewSize = CGSizeZero;
+//                               self.collectionView.collectionViewLayout.outgoingAvatarViewSize = CGSizeZero;
+//                               
+//                               if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPad) {
+//                                   // Narrow the bubbles a bit to create more white space in the messages view
+//                                   // Since we're not using avatars it gets a bit crowded otherwise.
+//                                   self.collectionView.collectionViewLayout.messageBubbleLeftRightMargin = 80.0f;
+//                               }
+//                               
+//                               // Bubbles
+//                               self.collectionView.collectionViewLayout.bubbleSizeCalculator = [OWSMessagesBubblesSizeCalculator new];
+//                               OWSMessagesBubbleImageFactory *bubbleFactory = [OWSMessagesBubbleImageFactory new];
+//                               self.incomingBubbleImageData = bubbleFactory.incoming;
+//                               self.outgoingBubbleImageData = bubbleFactory.outgoing;
+//                               self.currentlyOutgoingBubbleImageData = bubbleFactory.currentlyOutgoing;
+//                               self.outgoingMessageFailedImageData = bubbleFactory.outgoingFailed;
+//                           }
+}
+
 - (void)registerCustomMessageNibs
 {
+    [self.collectionView registerClass:[ConversationViewCell class]
+            forCellWithReuseIdentifier:[ConversationViewCell cellReuseIdentifier]];
+    
     [self.collectionView registerClass:[OWSSystemMessageCell class]
             forCellWithReuseIdentifier:[OWSSystemMessageCell cellReuseIdentifier]];
 
@@ -676,19 +717,19 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self.collectionView registerClass:[OWSContactOffersCell class]
             forCellWithReuseIdentifier:[OWSContactOffersCell cellReuseIdentifier]];
 
-    self.outgoingCellIdentifier = [OWSOutgoingMessageCollectionViewCell cellReuseIdentifier];
+//    self.outgoingCellIdentifier = [OWSOutgoingMessageCollectionViewCell cellReuseIdentifier];
     [self.collectionView registerNib:[OWSOutgoingMessageCollectionViewCell nib]
           forCellWithReuseIdentifier:[OWSOutgoingMessageCollectionViewCell cellReuseIdentifier]];
 
-    self.outgoingMediaCellIdentifier = [OWSOutgoingMessageCollectionViewCell mediaCellReuseIdentifier];
+//    self.outgoingMediaCellIdentifier = [OWSOutgoingMessageCollectionViewCell mediaCellReuseIdentifier];
     [self.collectionView registerNib:[OWSOutgoingMessageCollectionViewCell nib]
           forCellWithReuseIdentifier:[OWSOutgoingMessageCollectionViewCell mediaCellReuseIdentifier]];
 
-    self.incomingCellIdentifier = [OWSIncomingMessageCollectionViewCell cellReuseIdentifier];
+//    self.incomingCellIdentifier = [OWSIncomingMessageCollectionViewCell cellReuseIdentifier];
     [self.collectionView registerNib:[OWSIncomingMessageCollectionViewCell nib]
           forCellWithReuseIdentifier:[OWSIncomingMessageCollectionViewCell cellReuseIdentifier]];
 
-    self.incomingMediaCellIdentifier = [OWSIncomingMessageCollectionViewCell mediaCellReuseIdentifier];
+//    self.incomingMediaCellIdentifier = [OWSIncomingMessageCollectionViewCell mediaCellReuseIdentifier];
     [self.collectionView registerNib:[OWSIncomingMessageCollectionViewCell nib]
           forCellWithReuseIdentifier:[OWSIncomingMessageCollectionViewCell mediaCellReuseIdentifier]];
 }
@@ -713,20 +754,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 {
     [self cancelVoiceMemo];
     self.isUserScrolling = NO;
-}
-
-- (void)initializeTextView
-{
-    [self.inputToolbar.contentView.textView setFont:[UIFont ows_dynamicTypeBodyFont]];
-
-    self.inputToolbar.contentView.leftBarButtonItem = self.attachButton;
-
-    UILabel *sendLabel = self.inputToolbar.contentView.rightBarButtonItem.titleLabel;
-    // override superclass translations since we support more translations than upstream.
-    sendLabel.text = NSLocalizedString(@"SEND_BUTTON_TITLE", nil);
-    sendLabel.font = [UIFont ows_regularFontWithSize:17.0f];
-    sendLabel.textColor = [UIColor ows_materialBlueColor];
-    sendLabel.textAlignment = NSTextAlignmentCenter;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -776,7 +803,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                    action:[TSMessageAdapter messageMetadataSelector]],
     ];
 
-    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureSubviews];
+//    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureSubviews];
 
     [self.view layoutSubviews];
 
@@ -788,34 +815,44 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (NSIndexPath *_Nullable)indexPathOfUnreadMessagesIndicator
 {
-    __block TSUnreadIndicatorInteraction *_Nullable unreadIndicator = nil;
-    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        [[TSDatabaseView threadSpecialMessagesDatabaseView:transaction]
-            enumerateRowsInGroup:self.thread.uniqueId
-                      usingBlock:^(
-                          NSString *collection, NSString *key, id object, id metadata, NSUInteger index, BOOL *stop) {
-
-                          if ([object isKindOfClass:[TSUnreadIndicatorInteraction class]]) {
-                              unreadIndicator = (TSUnreadIndicatorInteraction *)object;
-                              *stop = YES;
-                          }
-                      }];
-    }];
-
-    if (!unreadIndicator) {
-        return nil;
-    }
-
-    // TODO: We could do binary search.
-    int numberOfMessages = (int)[self.messageMappings numberOfItemsInGroup:self.thread.uniqueId];
-    for (int i = 0; i < numberOfMessages; i++) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
-        id<OWSMessageData> message = [self messageAtIndexPath:indexPath];
-        if (message.messageType == TSUnreadIndicatorAdapter) {
-            return indexPath;
+    NSInteger row = 0;
+    for (ConversationViewItem * viewItem in self.viewItems) {
+        OWSInteractionType interactionType = (viewItem ? viewItem.interaction.interactionType : OWSInteractionType_Unknown);
+        if (interactionType == OWSInteractionType_UnreadIndicator) {
+            return [NSIndexPath indexPathForRow:row inSection:0];
         }
+        row++;
     }
     return nil;
+    
+//    __block TSUnreadIndicatorInteraction *_Nullable unreadIndicator = nil;
+//    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//        [[TSDatabaseView threadSpecialMessagesDatabaseView:transaction]
+//            enumerateRowsInGroup:self.thread.uniqueId
+//                      usingBlock:^(
+//                          NSString *collection, NSString *key, id object, id metadata, NSUInteger index, BOOL *stop) {
+//
+//                          if ([object isKindOfClass:[TSUnreadIndicatorInteraction class]]) {
+//                              unreadIndicator = (TSUnreadIndicatorInteraction *)object;
+//                              *stop = YES;
+//                          }
+//                      }];
+//    }];
+//
+//    if (!unreadIndicator) {
+//        return nil;
+//    }
+//
+//    // TODO: We could do binary search.
+//    int numberOfMessages = (int)[self.messageMappings numberOfItemsInGroup:self.thread.uniqueId];
+//    for (int i = 0; i < numberOfMessages; i++) {
+//        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+//        id<OWSMessageData> message = [self messageAtIndexPath:indexPath];
+//        if (message.messageType == TSUnreadIndicatorAdapter) {
+//            return indexPath;
+//        }
+//    }
+//    return nil;
 }
 
 - (void)scrollToDefaultPosition
@@ -866,6 +903,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self.collectionView.collectionViewLayout
         invalidateLayoutWithContext:[JSQMessagesCollectionViewFlowLayoutInvalidationContext context]];
     [self.collectionView reloadData];
+    
+    // TODO: Should we evacuate cached cell sizes here?
 }
 
 - (void)setUserHasScrolled:(BOOL)userHasScrolled
@@ -1188,9 +1227,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     [self updateBackButtonUnreadCount];
 
-    [self.inputToolbar.contentView.textView endEditing:YES];
+    [self.inputToolbar endEditing:YES];
 
-    self.inputToolbar.contentView.textView.editable = YES;
+//    self.inputToolbar.inputTextView.editable = YES;
     if (_composeOnOpen && !self.inputToolbar.hidden) {
         [self popKeyBoard];
         _composeOnOpen = NO;
@@ -1240,7 +1279,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-    self.inputToolbar.contentView.textView.editable = NO;
+//    self.inputToolbar.inputTextView.editable = NO;
     self.userHasScrolled = NO;
 }
 
@@ -1290,7 +1329,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     _backButtonUnreadCountLabel.font = [UIFont systemFontOfSize:11];
     _backButtonUnreadCountLabel.textAlignment = NSTextAlignmentCenter;
 
-    self.navigationBarTitleView = [ConversationHeader new];
+    self.navigationBarTitleView = [ConversationHeaderView new];
     self.navigationBarTitleView.userInteractionEnabled = YES;
     [self.navigationBarTitleView
         addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self
@@ -1519,59 +1558,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self.navigationBarSubtitleLabel sizeToFit];
 }
 
-- (void)initializeToolbars
-{
-    // HACK JSQMessagesViewController doesn't yet support dynamic type in the inputToolbar.
-    // See: https://github.com/jessesquires/JSQMessagesViewController/pull/1169/files
-    [self.inputToolbar.contentView.textView sizeToFit];
-    self.inputToolbar.preferredDefaultHeight = self.inputToolbar.contentView.textView.frame.size.height + 16;
-
-    // prevent draft from obscuring message history in case user wants to scroll back to refer to something
-    // while composing a long message.
-    self.inputToolbar.maximumHeight = 300;
-
-    OWSAssert(self.inputToolbar.contentView);
-    OWSAssert(self.inputToolbar.contentView.textView);
-    self.inputToolbar.contentView.textView.jsqPasteDelegate = self;
-    ((OWSMessagesComposerTextView *)self.inputToolbar.contentView.textView).textViewPasteDelegate = self;
-    ((OWSMessagesToolbarContentView *)self.inputToolbar.contentView).voiceMemoGestureDelegate = self;
-}
-
-// Overiding JSQMVC layout defaults
-- (void)initializeCollectionViewLayout
-{
-    CGRect screenBounds = [UIScreen mainScreen].bounds;
-    CGRect viewFrame = CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height);
-    self.view.frame = viewFrame;
-    self.collectionView.frame = viewFrame;
-
-    OWSMessagesCollectionViewFlowLayout *layout = [OWSMessagesCollectionViewFlowLayout new];
-    layout.delegate = self;
-    self.collectionView.collectionViewLayout = layout;
-    [self.collectionView.collectionViewLayout setMessageBubbleFont:[UIFont ows_dynamicTypeBodyFont]];
-
-    self.collectionView.showsVerticalScrollIndicator = NO;
-    self.collectionView.showsHorizontalScrollIndicator = NO;
-
-    [self updateLoadEarlierVisible];
-
-    self.collectionView.collectionViewLayout.incomingAvatarViewSize = CGSizeZero;
-    self.collectionView.collectionViewLayout.outgoingAvatarViewSize = CGSizeZero;
-
-    if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPad) {
-        // Narrow the bubbles a bit to create more white space in the messages view
-        // Since we're not using avatars it gets a bit crowded otherwise.
-        self.collectionView.collectionViewLayout.messageBubbleLeftRightMargin = 80.0f;
-    }
-
-    // Bubbles
-    self.collectionView.collectionViewLayout.bubbleSizeCalculator = [OWSMessagesBubblesSizeCalculator new];
-    OWSMessagesBubbleImageFactory *bubbleFactory = [OWSMessagesBubbleImageFactory new];
-    self.incomingBubbleImageData = bubbleFactory.incoming;
-    self.outgoingBubbleImageData = bubbleFactory.outgoing;
-    self.currentlyOutgoingBubbleImageData = bubbleFactory.currentlyOutgoing;
-    self.outgoingMessageFailedImageData = bubbleFactory.outgoingFailed;
-}
 
 #pragma mark - Identity
 
@@ -1725,262 +1711,100 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
     [self clearDraft];
     [self finishSendingMessage];
-    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureSubviews];
+//    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureSubviews];
     if (didAddToProfileWhitelist) {
         [self ensureDynamicInteractions];
     }
 }
 
+// TODO:
+- (void)finishSendingMessage
+{
+    //    [self finishSendingMessageAnimated:YES];
+    //}
+    //
+    //- (void)finishSendingMessageAnimated:(BOOL)animated {
+    
+    UITextView *textView = self.inputToolbar.inputTextView;
+    textView.text = nil;
+    [textView.undoManager removeAllActions];
+    
+    [self.inputToolbar ensureContent];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:textView];
+    
+    [self.collectionView.collectionViewLayout invalidateLayoutWithContext:[JSQMessagesCollectionViewFlowLayoutInvalidationContext context]];
+    [self.collectionView reloadData];
+    
+    //    if (self.automaticallyScrollsToMostRecentMessage) {
+    //        [self scrollToBottomAnimated:animated];
+    //    }
+}
+
 - (void)toggleDefaultKeyboard
 {
-    // Primary language is nil for the emoji keyboard & we want to stay on it after sending
-    if (![self.inputToolbar.contentView.textView.textInputMode primaryLanguage]) {
-        return;
-    }
-
-    // The JSQ event listeners cause a bounce animation, so we temporarily disable them.
-    [self.keyboardController endListeningForKeyboard];
-    [self dismissKeyBoard];
-    [self popKeyBoard];
-    [self.keyboardController beginListeningForKeyboard];
-}
-
-#pragma mark - UICollectionViewDelegate
-
-// Override JSQMVC
-- (BOOL)collectionView:(JSQMessagesCollectionView *)collectionView
-    shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (indexPath == nil) {
-        DDLogError(@"Aborting shouldShowMenuForItemAtIndexPath because indexPath is nil");
-        // Not sure why this is nil, but occasionally it is, which crashes.
-        return NO;
-    }
-
-    // JSQM does some setup in super method
-    [super collectionView:collectionView shouldShowMenuForItemAtIndexPath:indexPath];
-
-
-    // Don't show menu for in-progress downloads.
-    // We don't want to give the user the wrong idea that deleting would "cancel" the download.
-    id<OWSMessageData> message = [self messageAtIndexPath:indexPath];
-    if (message.isMediaMessage && [message.media isKindOfClass:[AttachmentPointerAdapter class]]) {
-        AttachmentPointerAdapter *attachmentPointerAdapter = (AttachmentPointerAdapter *)message.media;
-        return attachmentPointerAdapter.attachmentPointer.state == TSAttachmentPointerStateFailed;
-    }
-
-    // Super method returns false for media methods. We want menu for *all* items
-    return YES;
-}
-
-- (BOOL)collectionView:(UICollectionView *)collectionView
-      canPerformAction:(SEL)action
-    forItemAtIndexPath:(NSIndexPath *)indexPath
-            withSender:(id)sender
-{
-    if (!indexPath) {
-        // Sometimes this method is called when long-pressing in the body of a text message,
-        // especially during animations.
-        return NO;
-    }
-
-    id<OWSMessageData> messageData = [self messageAtIndexPath:indexPath];
-    return [messageData canPerformEditingAction:action];
-}
-
-- (void)collectionView:(UICollectionView *)collectionView
-         performAction:(SEL)action
-    forItemAtIndexPath:(NSIndexPath *)indexPath
-            withSender:(id)sender
-{
-    id<OWSMessageData> messageData = [self messageAtIndexPath:indexPath];
-    if (action == [TSMessageAdapter messageMetadataSelector]) {
-        TSInteraction *interaction = messageData.interaction;
-        if ([interaction isKindOfClass:[TSIncomingMessage class]] ||
-            [interaction isKindOfClass:[TSOutgoingMessage class]]) {
-            TSMessage *message = (TSMessage *)interaction;
-            MessageMetadataViewController *view = [[MessageMetadataViewController alloc] initWithMessage:message];
-            [self.navigationController pushViewController:view animated:YES];
-        } else {
-            OWSFail(@"%@ Can't show message metadata for message of type: %@", self.tag, [interaction class]);
-        }
-    } else {
-        [messageData performEditingAction:action];
-    }
-}
-
-- (void)collectionView:(UICollectionView *)collectionView
-       willDisplayCell:(UICollectionViewCell *)cell
-    forItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([cell conformsToProtocol:@protocol(OWSMessageCollectionViewCell)]) {
-        [((id<OWSMessageCollectionViewCell>)cell) setCellVisible:YES];
-    }
-}
-
-- (void)collectionView:(UICollectionView *)collectionView
-    didEndDisplayingCell:(nonnull UICollectionViewCell *)cell
-      forItemAtIndexPath:(nonnull NSIndexPath *)indexPath
-{
-    if ([cell conformsToProtocol:@protocol(OWSExpirableMessageView)]) {
-        id<OWSExpirableMessageView> expirableView = (id<OWSExpirableMessageView>)cell;
-        [expirableView stopExpirationTimer];
-    }
-
-    if ([cell conformsToProtocol:@protocol(OWSMessageCollectionViewCell)]) {
-        [((id<OWSMessageCollectionViewCell>)cell) setCellVisible:NO];
-    }
-}
-
-#pragma mark - JSQMessages CollectionView DataSource
-
-- (id<OWSMessageData>)collectionView:(JSQMessagesCollectionView *)collectionView
-       messageDataForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    return [self messageAtIndexPath:indexPath];
-}
-
-- (id<JSQMessageBubbleImageDataSource>)collectionView:(JSQMessagesCollectionView *)collectionView
-             messageBubbleImageDataForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    TSInteraction *message = [self interactionAtIndexPath:indexPath];
-
-    if ([message isKindOfClass:[TSOutgoingMessage class]]) {
-        TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)message;
-        switch (outgoingMessage.messageState) {
-            case TSOutgoingMessageStateUnsent:
-                return self.outgoingMessageFailedImageData;
-            case TSOutgoingMessageStateAttemptingOut:
-                return self.currentlyOutgoingBubbleImageData;
-            case TSOutgoingMessageStateSent_OBSOLETE:
-            case TSOutgoingMessageStateDelivered_OBSOLETE:
-                OWSFail(@"%@ Obsolete message state.", self.tag);
-                return self.outgoingBubbleImageData;
-            case TSOutgoingMessageStateSentToService:
-                return self.outgoingBubbleImageData;
-        }
-    }
-
-    return self.incomingBubbleImageData;
-}
-
-- (id<JSQMessageAvatarImageDataSource>)collectionView:(JSQMessagesCollectionView *)collectionView
-                    avatarImageDataForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    return nil;
-}
-
-#pragma mark - UICollectionView DataSource
-
-- (UICollectionViewCell *)collectionView:(JSQMessagesCollectionView *)collectionView
-                  cellForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    id<OWSMessageData> message = [self messageAtIndexPath:indexPath];
-    NSParameterAssert(message != nil);
-
-    JSQMessagesCollectionViewCell *cell;
-    switch (message.messageType) {
-        case TSCallAdapter: {
-            cell = [self loadSystemMessageCell:indexPath interaction:message.interaction];
-            break;
-        }
-        case TSInfoMessageAdapter: {
-            // HACK this will get called when we get a new info message, but there's gotta be a better spot for this.
-            OWSDisappearingMessagesConfiguration *configuration =
-                [OWSDisappearingMessagesConfiguration fetchObjectWithUniqueID:self.thread.uniqueId];
-            [self setBarButtonItemsForDisappearingMessagesConfiguration:configuration];
-
-            cell = [self loadSystemMessageCell:indexPath interaction:message.interaction];
-            break;
-        }
-        case TSErrorMessageAdapter: {
-            cell = [self loadSystemMessageCell:indexPath interaction:message.interaction];
-            break;
-        }
-        case TSIncomingMessageAdapter: {
-            cell = [self loadIncomingMessageCellForMessage:message atIndexPath:indexPath];
-            break;
-        }
-        case TSOutgoingMessageAdapter: {
-            cell = [self loadOutgoingCellForMessage:message atIndexPath:indexPath];
-            break;
-        }
-        case TSUnreadIndicatorAdapter: {
-            cell = [self loadUnreadIndicatorCell:indexPath interaction:message.interaction];
-            break;
-        }
-        case OWSContactOffersAdapter: {
-            cell = [self loadContactOffersCell:indexPath interaction:message.interaction];
-            break;
-        }
-        default: {
-            OWSFail(@"using default cell constructor for message: %@", message);
-            cell = (JSQMessagesCollectionViewCell *)[super collectionView:collectionView
-                                                   cellForItemAtIndexPath:indexPath];
-            break;
-        }
-    }
-    cell.delegate = collectionView;
-
-    if (message.shouldStartExpireTimer && [cell conformsToProtocol:@protocol(OWSExpirableMessageView)]) {
-        id<OWSExpirableMessageView> expirableView = (id<OWSExpirableMessageView>)cell;
-        [expirableView startExpirationTimerWithExpiresAtSeconds:message.expiresAtSeconds
-                                         initialDurationSeconds:message.expiresInSeconds];
-    }
-
-    return cell;
+//    // Primary language is nil for the emoji keyboard & we want to stay on it after sending
+//    if (![self.inputToolbar.inputTextView.textInputMode primaryLanguage]) {
+//        return;
+//    }
+//
+//    // The JSQ event listeners cause a bounce animation, so we temporarily disable them.
+//    [self.keyboardController endListeningForKeyboard];
+//    [self dismissKeyBoard];
+//    [self popKeyBoard];
+//    [self.keyboardController beginListeningForKeyboard];
 }
 
 #pragma mark - Loading message cells
 
-- (JSQMessagesCollectionViewCell *)loadIncomingMessageCellForMessage:(id<OWSMessageData>)message
-                                                         atIndexPath:(NSIndexPath *)indexPath
-{
-    OWSIncomingMessageCollectionViewCell *cell
-        = (OWSIncomingMessageCollectionViewCell *)[super collectionView:self.collectionView
-                                                 cellForItemAtIndexPath:indexPath];
-
-    if (![cell isKindOfClass:[OWSIncomingMessageCollectionViewCell class]]) {
-        OWSFail(@"%@ Unexpected cell type: %@", self.tag, cell);
-        return cell;
-    }
-
-    if ([message isMediaMessage] && [[message media] conformsToProtocol:@protocol(OWSMessageMediaAdapter)]) {
-        cell.mediaAdapter = (id<OWSMessageMediaAdapter>)[message media];
-    }
-
-    [cell ows_didLoad];
-    return cell;
-}
-
-- (JSQMessagesCollectionViewCell *)loadOutgoingCellForMessage:(id<OWSMessageData>)message
-                                                  atIndexPath:(NSIndexPath *)indexPath
-{
-    OWSOutgoingMessageCollectionViewCell *cell
-        = (OWSOutgoingMessageCollectionViewCell *)[super collectionView:self.collectionView
-                                                 cellForItemAtIndexPath:indexPath];
-
-    if (![cell isKindOfClass:[OWSOutgoingMessageCollectionViewCell class]]) {
-        OWSFail(@"%@ Unexpected cell type: %@", self.tag, cell);
-        return cell;
-    }
-
-    if ([message isMediaMessage] && [[message media] conformsToProtocol:@protocol(OWSMessageMediaAdapter)]) {
-        cell.mediaAdapter = (id<OWSMessageMediaAdapter>)[message media];
-    }
-
-    [cell ows_didLoad];
-
-    if (message.isMediaMessage) {
-        if (![message isKindOfClass:[TSMessageAdapter class]]) {
-            DDLogError(@"%@ Unexpected media message:%@", self.tag, message.class);
-        }
-        TSMessageAdapter *messageAdapter = (TSMessageAdapter *)message;
-        cell.mediaView.alpha = messageAdapter.mediaViewAlpha;
-    }
-
-    return cell;
-}
+//- (JSQMessagesCollectionViewCell *)loadIncomingMessageCellForMessage:(id<OWSMessageData>)message
+//                                                         atIndexPath:(NSIndexPath *)indexPath
+//{
+//    OWSIncomingMessageCollectionViewCell *cell
+//        = (OWSIncomingMessageCollectionViewCell *)[super collectionView:self.collectionView
+//                                                 cellForItemAtIndexPath:indexPath];
+//
+//    if (![cell isKindOfClass:[OWSIncomingMessageCollectionViewCell class]]) {
+//        OWSFail(@"%@ Unexpected cell type: %@", self.tag, cell);
+//        return cell;
+//    }
+//
+//    if ([message isMediaMessage] && [[message media] conformsToProtocol:@protocol(OWSMessageMediaAdapter)]) {
+//        cell.mediaAdapter = (id<OWSMessageMediaAdapter>)[message media];
+//    }
+//
+//    [cell ows_didLoad];
+//    return cell;
+//}
+//
+//- (JSQMessagesCollectionViewCell *)loadOutgoingCellForMessage:(id<OWSMessageData>)message
+//                                                  atIndexPath:(NSIndexPath *)indexPath
+//{
+//    OWSOutgoingMessageCollectionViewCell *cell
+//        = (OWSOutgoingMessageCollectionViewCell *)[super collectionView:self.collectionView
+//                                                 cellForItemAtIndexPath:indexPath];
+//
+//    if (![cell isKindOfClass:[OWSOutgoingMessageCollectionViewCell class]]) {
+//        OWSFail(@"%@ Unexpected cell type: %@", self.tag, cell);
+//        return cell;
+//    }
+//
+//    if ([message isMediaMessage] && [[message media] conformsToProtocol:@protocol(OWSMessageMediaAdapter)]) {
+//        cell.mediaAdapter = (id<OWSMessageMediaAdapter>)[message media];
+//    }
+//
+//    [cell ows_didLoad];
+//
+//    if (message.isMediaMessage) {
+//        if (![message isKindOfClass:[TSMessageAdapter class]]) {
+//            DDLogError(@"%@ Unexpected media message:%@", self.tag, message.class);
+//        }
+//        TSMessageAdapter *messageAdapter = (TSMessageAdapter *)message;
+//        cell.mediaView.alpha = messageAdapter.mediaViewAlpha;
+//    }
+//
+//    return cell;
+//}
 
 - (JSQMessagesCollectionViewCell *)loadUnreadIndicatorCell:(NSIndexPath *)indexPath
                                                interaction:(TSInteraction *)interaction
@@ -2026,8 +1850,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         [self.collectionView dequeueReusableCellWithReuseIdentifier:[OWSSystemMessageCell cellReuseIdentifier]
                                                        forIndexPath:indexPath];
     [cell configureWithInteraction:interaction];
-    cell.cellTopLabel.attributedText =
-        [self collectionView:self.collectionView attributedTextForCellTopLabelAtIndexPath:indexPath];
+//    cell.cellTopLabel.attributedText =
+//        [self collectionView:self.collectionView attributedTextForCellTopLabelAtIndexPath:indexPath];
 
     cell.systemMessageCellDelegate = self;
 
@@ -2036,37 +1860,36 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark - Adjusting cell label heights
 
-/**
- Due to the usage of JSQMessagesViewController, and it non-conformity to Dynamyc Type
- we're left to our own devices to make this as usable as possible.
- JSQMessagesVC also does not expose the constraint for the input toolbar height nor does it seem to
- give us a method to tell it to re-adjust (I think it should observe the preferredDefaultHeight property).
-
- With that in mind, we use magical runtime to get that property, and if it doesn't exist, we just don't apply the
- dynamic type change. If it does exist, than we apply the font changes and adjust the views to contain them properly.
-
- This is not the prettiest code, but it's working code. We should tag this code for deletion as soon as JSQMessagesVC
- adops Dynamic type.
- */
-- (void)reloadInputToolbarSizeIfNeeded
-{
-    NSLayoutConstraint *heightConstraint = ((NSLayoutConstraint *)[self valueForKeyPath:@"toolbarHeightConstraint"]);
-    if (heightConstraint == nil) {
-        return;
-    }
-
-    [self.inputToolbar.contentView.textView setFont:[UIFont ows_dynamicTypeBodyFont]];
-
-    CGRect f = self.inputToolbar.contentView.textView.frame;
-    f.size.height =
-        [self.inputToolbar.contentView.textView sizeThatFits:self.inputToolbar.contentView.textView.frame.size].height;
-    self.inputToolbar.contentView.textView.frame = f;
-
-    self.inputToolbar.preferredDefaultHeight = self.inputToolbar.contentView.textView.frame.size.height + 16;
-    heightConstraint.constant = self.inputToolbar.preferredDefaultHeight;
-    [self.inputToolbar setNeedsLayout];
-}
-
+///**
+// Due to the usage of JSQMessagesViewController, and it non-conformity to Dynamyc Type
+// we're left to our own devices to make this as usable as possible.
+// JSQMessagesVC also does not expose the constraint for the input toolbar height nor does it seem to
+// give us a method to tell it to re-adjust (I think it should observe the preferredDefaultHeight property).
+//
+// With that in mind, we use magical runtime to get that property, and if it doesn't exist, we just don't apply the
+// dynamic type change. If it does exist, than we apply the font changes and adjust the views to contain them properly.
+//
+// This is not the prettiest code, but it's working code. We should tag this code for deletion as soon as JSQMessagesVC
+// adops Dynamic type.
+// */
+//- (void)reloadInputToolbarSizeIfNeeded
+//{
+//    NSLayoutConstraint *heightConstraint = ((NSLayoutConstraint *)[self valueForKeyPath:@"toolbarHeightConstraint"]);
+//    if (heightConstraint == nil) {
+//        return;
+//    }
+//
+//    [self.inputToolbar.inputTextView setFont:[UIFont ows_dynamicTypeBodyFont]];
+//
+//    CGRect f = self.inputToolbar.inputTextView.frame;
+//    f.size.height =
+//        [self.inputToolbar.inputTextView sizeThatFits:self.inputToolbar.inputTextView.frame.size].height;
+//    self.inputToolbar.inputTextView.frame = f;
+//
+//    self.inputToolbar.preferredDefaultHeight = self.inputToolbar.inputTextView.frame.size.height + 16;
+//    heightConstraint.constant = self.inputToolbar.preferredDefaultHeight;
+//    [self.inputToolbar setNeedsLayout];
+//}
 
 /**
  Called whenever the user manually changes the dynamic type options inside Settings.
@@ -2075,154 +1898,104 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
  */
 - (void)didChangePreferredContentSize:(NSNotification *)notification
 {
-    [self.collectionView.collectionViewLayout setMessageBubbleFont:[UIFont ows_dynamicTypeBodyFont]];
+//    [self.collectionView.collectionViewLayout setMessageBubbleFont:[UIFont ows_dynamicTypeBodyFont]];
     [self resetContentAndLayout];
-    [self reloadInputToolbarSizeIfNeeded];
+//    [self reloadInputToolbarSizeIfNeeded];
 }
 
-- (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
-                              layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout
-    heightForCellTopLabelAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([self showDateAtIndexPath:indexPath]) {
-        return kJSQMessagesCollectionViewCellLabelHeightDefault;
-    }
+//- (BOOL)shouldShowMessageStatusAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    id<OWSMessageData> currentMessage = [self messageAtIndexPath:indexPath];
+//
+//    if (currentMessage.isExpiringMessage) {
+//        return YES;
+//    }
+//
+//    return !![self collectionView:self.collectionView attributedTextForCellBottomLabelAtIndexPath:indexPath];
+//}
+//
+//- (TSOutgoingMessage *)nextOutgoingMessage:(NSIndexPath *)indexPath
+//{
+//    NSInteger rowCount = [self.collectionView numberOfItemsInSection:indexPath.section];
+//    for (NSInteger row = indexPath.row + 1; row < rowCount; row++) {
+//        NSIndexPath *nextIndexPath = [NSIndexPath indexPathForRow:row inSection:indexPath.section];
+//        TSInteraction *nextMessage = [self interactionAtIndexPath:nextIndexPath];
+//        if ([nextMessage isKindOfClass:[TSOutgoingMessage class]]) {
+//            return (TSOutgoingMessage *)nextMessage;
+//        }
+//    }
+//    return nil;
+//}
+//
+//- (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView
+//    attributedTextForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    id<OWSMessageData> messageData = [self messageAtIndexPath:indexPath];
+//    if (![messageData isKindOfClass:[TSMessageAdapter class]]) {
+//        return nil;
+//    }
+//
+//    TSMessageAdapter *message = (TSMessageAdapter *)messageData;
+//    if (message.messageType == TSOutgoingMessageAdapter) {
+//        TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)message.interaction;
+//        if (outgoingMessage.messageState == TSOutgoingMessageStateUnsent) {
+//            return [[NSAttributedString alloc]
+//                initWithString:NSLocalizedString(@"MESSAGE_STATUS_FAILED", @"message footer for failed messages")];
+//        } else if (outgoingMessage.messageState == TSOutgoingMessageStateSentToService) {
+//            NSString *text;
+//            if (outgoingMessage.wasDelivered) {
+//                NSNumber *_Nullable firstRecipientReadTimestamp = [outgoingMessage firstRecipientReadTimestamp];
+//                if ([OWSReadReceiptManager.sharedManager areReadReceiptsEnabled] && firstRecipientReadTimestamp) {
+//                    text = NSLocalizedString(@"MESSAGE_STATUS_READ", @"message footer for read messages");
+//                    text = [text rtlSafeAppend:@" " referenceView:self.view];
+//                    text = [text rtlSafeAppend:[DateUtil formatPastTimestampRelativeToNow:firstRecipientReadTimestamp
+//                                                                                              .unsignedLongLongValue]
+//                                 referenceView:self.view];
+//                } else {
+//                    text = NSLocalizedString(@"MESSAGE_STATUS_DELIVERED", @"message footer for delivered messages");
+//                }
+//            } else {
+//                text = NSLocalizedString(@"MESSAGE_STATUS_SENT", @"message footer for sent messages");
+//            }
+//            NSAttributedString *result = [[NSAttributedString alloc] initWithString:text];
+//
+//            // Show when it's the last message in the thread
+//            if (indexPath.item == [self.collectionView numberOfItemsInSection:indexPath.section] - 1) {
+//                [self updateLastDeliveredMessage:message];
+//                return result;
+//            }
+//
+//            // Or when the next message is *not* an outgoing sent/delivered message.
+//            TSOutgoingMessage *nextMessage = [self nextOutgoingMessage:indexPath];
+//            if (nextMessage && nextMessage.messageState == TSOutgoingMessageStateUnsent) {
+//                [self updateLastDeliveredMessage:message];
+//                return result;
+//            }
+//        } else if (message.isMediaBeingSent) {
+//            return [[NSAttributedString alloc] initWithString:NSLocalizedString(@"MESSAGE_STATUS_UPLOADING",
+//                                                                  @"message footer while attachment is uploading")];
+//        } else {
+//            OWSAssert(outgoingMessage.messageState == TSOutgoingMessageStateAttemptingOut);
+//            // Show an "..." ellisis icon.
+//            //
+//            // TODO: It'd be nice to animate this, but JSQMessageViewController doesn't give us a great way to do so.
+//            //       We already have problems with unstable cell layout; we don't want to exacerbate them.
+//            NSAttributedString *result =
+//                [[NSAttributedString alloc] initWithString:@"/"
+//                                                attributes:@{
+//                                                    NSFontAttributeName : [UIFont ows_dripIconsFont:14.f],
+//                                                }];
+//            return result;
+//        }
+//    } else if (message.messageType == TSIncomingMessageAdapter && [self.thread isKindOfClass:[TSGroupThread class]]) {
+//        TSIncomingMessage *incomingMessage = (TSIncomingMessage *)message.interaction;
+//        return [self.contactsManager attributedContactOrProfileNameForPhoneIdentifier:incomingMessage.authorId];
+//    }
+//
+//    return nil;
+//}
 
-    return 0.0f;
-}
-
-- (BOOL)showDateAtIndexPath:(NSIndexPath *)indexPath
-{
-    BOOL showDate = NO;
-    if (indexPath.row == 0) {
-        showDate = YES;
-    } else {
-        id<OWSMessageData> currentMessage = [self messageAtIndexPath:indexPath];
-
-        id<OWSMessageData> previousMessage =
-            [self messageAtIndexPath:[NSIndexPath indexPathForItem:indexPath.row - 1 inSection:indexPath.section]];
-
-        if ([previousMessage.interaction isKindOfClass:[TSUnreadIndicatorInteraction class]] ||
-            [previousMessage.interaction isKindOfClass:[OWSContactOffersInteraction class]]) {
-            // Always show timestamp between unread indicator / contacts offers
-            // and the following interaction.
-            return YES;
-        }
-
-        OWSAssert(currentMessage.date);
-        OWSAssert(previousMessage.date);
-        NSTimeInterval timeDifference = [currentMessage.date timeIntervalSinceDate:previousMessage.date];
-        if (timeDifference > kTSMessageSentDateShowTimeInterval) {
-            showDate = YES;
-        }
-    }
-    return showDate;
-}
-
-- (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView
-    attributedTextForCellTopLabelAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([self showDateAtIndexPath:indexPath]) {
-        id<OWSMessageData> currentMessage = [self messageAtIndexPath:indexPath];
-
-        return [[JSQMessagesTimestampFormatter sharedFormatter] attributedTimestampForDate:currentMessage.date];
-    }
-
-    return nil;
-}
-
-- (BOOL)shouldShowMessageStatusAtIndexPath:(NSIndexPath *)indexPath
-{
-    id<OWSMessageData> currentMessage = [self messageAtIndexPath:indexPath];
-
-    if (currentMessage.isExpiringMessage) {
-        return YES;
-    }
-
-    return !![self collectionView:self.collectionView attributedTextForCellBottomLabelAtIndexPath:indexPath];
-}
-
-- (TSOutgoingMessage *)nextOutgoingMessage:(NSIndexPath *)indexPath
-{
-    NSInteger rowCount = [self.collectionView numberOfItemsInSection:indexPath.section];
-    for (NSInteger row = indexPath.row + 1; row < rowCount; row++) {
-        NSIndexPath *nextIndexPath = [NSIndexPath indexPathForRow:row inSection:indexPath.section];
-        TSInteraction *nextMessage = [self interactionAtIndexPath:nextIndexPath];
-        if ([nextMessage isKindOfClass:[TSOutgoingMessage class]]) {
-            return (TSOutgoingMessage *)nextMessage;
-        }
-    }
-    return nil;
-}
-
-- (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView
-    attributedTextForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath
-{
-    id<OWSMessageData> messageData = [self messageAtIndexPath:indexPath];
-    if (![messageData isKindOfClass:[TSMessageAdapter class]]) {
-        return nil;
-    }
-
-    TSMessageAdapter *message = (TSMessageAdapter *)messageData;
-    if (message.messageType == TSOutgoingMessageAdapter) {
-        TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)message.interaction;
-        if (outgoingMessage.messageState == TSOutgoingMessageStateUnsent) {
-            return [[NSAttributedString alloc]
-                initWithString:NSLocalizedString(@"MESSAGE_STATUS_FAILED", @"message footer for failed messages")];
-        } else if (outgoingMessage.messageState == TSOutgoingMessageStateSentToService) {
-            NSString *text;
-            if (outgoingMessage.wasDelivered) {
-                NSNumber *_Nullable firstRecipientReadTimestamp = [outgoingMessage firstRecipientReadTimestamp];
-                if ([OWSReadReceiptManager.sharedManager areReadReceiptsEnabled] && firstRecipientReadTimestamp) {
-                    text = NSLocalizedString(@"MESSAGE_STATUS_READ", @"message footer for read messages");
-                    text = [text rtlSafeAppend:@" " referenceView:self.view];
-                    text = [text rtlSafeAppend:[DateUtil formatPastTimestampRelativeToNow:firstRecipientReadTimestamp
-                                                                                              .unsignedLongLongValue]
-                                 referenceView:self.view];
-                } else {
-                    text = NSLocalizedString(@"MESSAGE_STATUS_DELIVERED", @"message footer for delivered messages");
-                }
-            } else {
-                text = NSLocalizedString(@"MESSAGE_STATUS_SENT", @"message footer for sent messages");
-            }
-            NSAttributedString *result = [[NSAttributedString alloc] initWithString:text];
-
-            // Show when it's the last message in the thread
-            if (indexPath.item == [self.collectionView numberOfItemsInSection:indexPath.section] - 1) {
-                [self updateLastDeliveredMessage:message];
-                return result;
-            }
-
-            // Or when the next message is *not* an outgoing sent/delivered message.
-            TSOutgoingMessage *nextMessage = [self nextOutgoingMessage:indexPath];
-            if (nextMessage && nextMessage.messageState == TSOutgoingMessageStateUnsent) {
-                [self updateLastDeliveredMessage:message];
-                return result;
-            }
-        } else if (message.isMediaBeingSent) {
-            return [[NSAttributedString alloc] initWithString:NSLocalizedString(@"MESSAGE_STATUS_UPLOADING",
-                                                                  @"message footer while attachment is uploading")];
-        } else {
-            OWSAssert(outgoingMessage.messageState == TSOutgoingMessageStateAttemptingOut);
-            // Show an "..." ellisis icon.
-            //
-            // TODO: It'd be nice to animate this, but JSQMessageViewController doesn't give us a great way to do so.
-            //       We already have problems with unstable cell layout; we don't want to exacerbate them.
-            NSAttributedString *result =
-                [[NSAttributedString alloc] initWithString:@"/"
-                                                attributes:@{
-                                                    NSFontAttributeName : [UIFont ows_dripIconsFont:14.f],
-                                                }];
-            return result;
-        }
-    } else if (message.messageType == TSIncomingMessageAdapter && [self.thread isKindOfClass:[TSGroupThread class]]) {
-        TSIncomingMessage *incomingMessage = (TSIncomingMessage *)message.interaction;
-        return [self.contactsManager attributedContactOrProfileNameForPhoneIdentifier:incomingMessage.authorId];
-    }
-
-    return nil;
-}
-
+// TODO:
 - (void)updateLastDeliveredMessage:(TSMessageAdapter *)newLastDeliveredMessage
 {
     if (newLastDeliveredMessage.interaction.timestamp > self.lastDeliveredMessage.interaction.timestamp) {
@@ -2232,16 +2005,16 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
 }
 
-- (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
-                                 layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout
-    heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([self shouldShowMessageStatusAtIndexPath:indexPath]) {
-        return 16.0f;
-    }
-
-    return 0.0f;
-}
+//- (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
+//                                 layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout
+//    heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    if ([self shouldShowMessageStatusAtIndexPath:indexPath]) {
+//        return 16.0f;
+//    }
+//
+//    return 0.0f;
+//}
 
 #pragma mark - Actions
 
@@ -2282,218 +2055,218 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self showConversationSettings];
 }
 
-- (void)collectionView:(JSQMessagesCollectionView *)collectionView
-    didTapMessageBubbleAtIndexPath:(NSIndexPath *)indexPath
-{
-    id<OWSMessageData> messageItem = [self messageAtIndexPath:indexPath];
-    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
-
-    switch (messageItem.messageType) {
-        case TSOutgoingMessageAdapter: {
-            TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)interaction;
-            if (outgoingMessage.messageState == TSOutgoingMessageStateUnsent) {
-                [self handleUnsentMessageTap:outgoingMessage];
-
-                // This `break` is intentionally within the if.
-                // We want to activate fullscreen media view for sent items
-                // but not those which failed-to-send
-                break;
-            } else if (outgoingMessage.messageState == TSOutgoingMessageStateAttemptingOut) {
-                // Ignore taps on outgoing messages being sent.
-                break;
-            }
-
-            // No `break` as we want to fall through to capture tapping on Outgoing media items too
-        }
-        case TSIncomingMessageAdapter: {
-            BOOL isMediaMessage = [messageItem isMediaMessage];
-
-            if (isMediaMessage) {
-                if ([[messageItem media] isKindOfClass:[TSPhotoAdapter class]]) {
-                    TSPhotoAdapter *messageMedia = (TSPhotoAdapter *)[messageItem media];
-
-                    UIView *mediaView = [messageMedia mediaView];
-                    if (![mediaView isKindOfClass:[UIImageView class]]) {
-                        OWSFail(@"unexpected mediaView of type: %@", [mediaView class]);
-                        return;
-                    }
-                    UIImageView *imageView = (UIImageView *)mediaView;
-                    UIImage *tappedImage = imageView.image;
-                    if (tappedImage == nil) {
-                        DDLogWarn(@"tapped TSPhotoAdapter with nil image");
-                        return;
-                    }
-                    UIWindow *window = [UIApplication sharedApplication].keyWindow;
-                    JSQMessagesCollectionViewCell *cell
-                        = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-                    OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
-                    CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
-
-                    __block TSAttachment *attachment = nil;
-                    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-                        attachment =
-                            [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId transaction:transaction];
-                    }];
-
-                    if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-                        TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
-                        FullImageViewController *vc = [[FullImageViewController alloc] initWithAttachment:attStream
-                                                                                                 fromRect:convertedRect
-                                                                                           forInteraction:interaction
-                                                                                              messageItem:messageItem
-                                                                                               isAnimated:NO];
-
-                        [vc presentFromViewController:self];
-                    }
-                } else if ([[messageItem media] isKindOfClass:[TSAnimatedAdapter class]]) {
-                    // Show animated image full-screen
-                    TSAnimatedAdapter *messageMedia = (TSAnimatedAdapter *)[messageItem media];
-                    UIImage *tappedImage = ((UIImageView *)[messageMedia mediaView]).image;
-                    if (tappedImage == nil) {
-                        DDLogWarn(@"tapped TSAnimatedAdapter with nil image");
-                    } else {
-                        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-                        JSQMessagesCollectionViewCell *cell
-                            = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-                        OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
-                        CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
-
-                        __block TSAttachment *attachment = nil;
-                        [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-                            attachment = [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId
-                                                                   transaction:transaction];
-                        }];
-                        if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-                            TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
-                            FullImageViewController *vc =
-                                [[FullImageViewController alloc] initWithAttachment:attStream
-                                                                           fromRect:convertedRect
-                                                                     forInteraction:interaction
-                                                                        messageItem:messageItem
-                                                                         isAnimated:YES];
-                            [vc presentFromViewController:self];
-                        }
-                    }
-                } else if ([[messageItem media] isKindOfClass:[TSVideoAttachmentAdapter class]]) {
-                    // fileurl disappeared should look up in db as before. will do refactor
-                    // full screen, check this setup with a .mov
-                    TSVideoAttachmentAdapter *messageMedia = (TSVideoAttachmentAdapter *)[messageItem media];
-                    __block TSAttachment *attachment = nil;
-                    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-                        attachment =
-                            [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId transaction:transaction];
-                    }];
-
-                    if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-                        TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
-                        NSFileManager *fileManager = [NSFileManager defaultManager];
-                        if ([messageMedia isVideo]) {
-                            if ([fileManager fileExistsAtPath:[attStream.mediaURL path]]) {
-                                [self dismissKeyBoard];
-                                self.videoPlayer =
-                                    [[MPMoviePlayerController alloc] initWithContentURL:attStream.mediaURL];
-                                [_videoPlayer prepareToPlay];
-
-                                [[NSNotificationCenter defaultCenter]
-                                    addObserver:self
-                                       selector:@selector(moviePlayerWillExitFullscreen:)
-                                           name:MPMoviePlayerWillExitFullscreenNotification
-                                         object:_videoPlayer];
-                                [[NSNotificationCenter defaultCenter]
-                                    addObserver:self
-                                       selector:@selector(moviePlayerDidExitFullscreen:)
-                                           name:MPMoviePlayerDidExitFullscreenNotification
-                                         object:_videoPlayer];
-
-                                _videoPlayer.controlStyle = MPMovieControlStyleDefault;
-                                _videoPlayer.shouldAutoplay = YES;
-                                [self.view addSubview:_videoPlayer.view];
-                                // We can't animate from the cell media frame;
-                                // MPMoviePlayerController will animate a crop of its
-                                // contents rather than scaling them.
-                                _videoPlayer.view.frame = self.view.bounds;
-                                [_videoPlayer setFullscreen:YES animated:NO];
-                            }
-                        } else if ([messageMedia isAudio]) {
-                            if (self.audioAttachmentPlayer) {
-                                // Is this player associated with this media adapter?
-                                if (self.audioAttachmentPlayer.owner == messageMedia) {
-                                    // Tap to pause & unpause.
-                                    [self.audioAttachmentPlayer togglePlayState];
-                                    return;
-                                }
-                                [self.audioAttachmentPlayer stop];
-                                self.audioAttachmentPlayer = nil;
-                            }
-                            self.audioAttachmentPlayer =
-                                [[OWSAudioAttachmentPlayer alloc] initWithMediaAdapter:messageMedia
-                                                                    databaseConnection:self.uiDatabaseConnection];
-                            // Associate the player with this media adapter.
-                            self.audioAttachmentPlayer.owner = messageMedia;
-                            [self.audioAttachmentPlayer play];
-                        }
-                    }
-                } else if ([messageItem.media isKindOfClass:[AttachmentPointerAdapter class]]) {
-                    AttachmentPointerAdapter *attachmentPointerAdadpter = (AttachmentPointerAdapter *)messageItem.media;
-                    TSAttachmentPointer *attachmentPointer = attachmentPointerAdadpter.attachmentPointer;
-                    // Restart failed downloads
-                    if (attachmentPointer.state == TSAttachmentPointerStateFailed) {
-                        if (![interaction isKindOfClass:[TSMessage class]]) {
-                            OWSFail(@"%@ Expected attachment downloads from an instance of message, but found: %@",
-                                self.tag,
-                                interaction);
-                            return;
-                        }
-                        TSMessage *message = (TSMessage *)interaction;
-                        [self handleFailedDownloadTapForMessage:message attachmentPointer:attachmentPointer];
-                    } else {
-                        DDLogVerbose(@"%@ Ignoring tap for attachment pointer %@ with state %lu",
-                            self.tag,
-                            attachmentPointer,
-                            (unsigned long)attachmentPointer.state);
-                    }
-                } else {
-                    DDLogDebug(@"%@ Unhandled tap on 'media item' with media: %@", self.tag, messageItem.media);
-                }
-            }
-        } break;
-        case TSErrorMessageAdapter:
-        case TSInfoMessageAdapter:
-        case TSCallAdapter:
-        case TSUnreadIndicatorAdapter:
-            OWSFail(@"Unexpected tap for system message.");
-            break;
-        case OWSContactOffersAdapter:
-            OWSFail(@"Unexpected tap for contacts offer.");
-            break;
-        default:
-            DDLogDebug(@"Unhandled bubble touch for interaction: %@.", interaction);
-            break;
-    }
-
-    if (messageItem.messageType == TSOutgoingMessageAdapter || messageItem.messageType == TSIncomingMessageAdapter) {
-        TSMessage *message = (TSMessage *)interaction;
-        if ([message hasAttachments]) {
-            NSString *attachmentID = message.attachmentIds[0];
-            TSAttachment *attachment = [TSAttachment fetchObjectWithUniqueID:attachmentID];
-            if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-                TSAttachmentStream *stream = (TSAttachmentStream *)attachment;
-                // Tapping on incoming and outgoing unknown extensions should show the
-                // sharing UI.
-                if ([[messageItem media] isKindOfClass:[TSGenericAttachmentAdapter class]]) {
-                    [AttachmentSharing showShareUIForAttachment:stream];
-                }
-                // Tapping on incoming and outgoing "oversize text messages" should show the
-                // "oversize text message" view.
-                if ([attachment.contentType isEqualToString:OWSMimeTypeOversizeTextMessage]) {
-                    OversizeTextMessageViewController *messageVC =
-                        [[OversizeTextMessageViewController alloc] initWithMessage:message];
-                    [self.navigationController pushViewController:messageVC animated:YES];
-                }
-            }
-        }
-    }
-}
+//- (void)collectionView:(JSQMessagesCollectionView *)collectionView
+//    didTapMessageBubbleAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    id<OWSMessageData> messageItem = [self messageAtIndexPath:indexPath];
+//    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
+//
+//    switch (messageItem.messageType) {
+//        case TSOutgoingMessageAdapter: {
+//            TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)interaction;
+//            if (outgoingMessage.messageState == TSOutgoingMessageStateUnsent) {
+//                [self handleUnsentMessageTap:outgoingMessage];
+//
+//                // This `break` is intentionally within the if.
+//                // We want to activate fullscreen media view for sent items
+//                // but not those which failed-to-send
+//                break;
+//            } else if (outgoingMessage.messageState == TSOutgoingMessageStateAttemptingOut) {
+//                // Ignore taps on outgoing messages being sent.
+//                break;
+//            }
+//
+//            // No `break` as we want to fall through to capture tapping on Outgoing media items too
+//        }
+//        case TSIncomingMessageAdapter: {
+//            BOOL isMediaMessage = [messageItem isMediaMessage];
+//
+//            if (isMediaMessage) {
+//                if ([[messageItem media] isKindOfClass:[TSPhotoAdapter class]]) {
+//                    TSPhotoAdapter *messageMedia = (TSPhotoAdapter *)[messageItem media];
+//
+//                    UIView *mediaView = [messageMedia mediaView];
+//                    if (![mediaView isKindOfClass:[UIImageView class]]) {
+//                        OWSFail(@"unexpected mediaView of type: %@", [mediaView class]);
+//                        return;
+//                    }
+//                    UIImageView *imageView = (UIImageView *)mediaView;
+//                    UIImage *tappedImage = imageView.image;
+//                    if (tappedImage == nil) {
+//                        DDLogWarn(@"tapped TSPhotoAdapter with nil image");
+//                        return;
+//                    }
+//                    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+//                    JSQMessagesCollectionViewCell *cell
+//                        = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+//                    OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
+//                    CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
+//
+//                    __block TSAttachment *attachment = nil;
+//                    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//                        attachment =
+//                            [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId transaction:transaction];
+//                    }];
+//
+//                    if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
+//                        TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
+//                        FullImageViewController *vc = [[FullImageViewController alloc] initWithAttachment:attStream
+//                                                                                                 fromRect:convertedRect
+//                                                                                           forInteraction:interaction
+//                                                                                              messageItem:messageItem
+//                                                                                               isAnimated:NO];
+//
+//                        [vc presentFromViewController:self];
+//                    }
+//                } else if ([[messageItem media] isKindOfClass:[TSAnimatedAdapter class]]) {
+//                    // Show animated image full-screen
+//                    TSAnimatedAdapter *messageMedia = (TSAnimatedAdapter *)[messageItem media];
+//                    UIImage *tappedImage = ((UIImageView *)[messageMedia mediaView]).image;
+//                    if (tappedImage == nil) {
+//                        DDLogWarn(@"tapped TSAnimatedAdapter with nil image");
+//                    } else {
+//                        UIWindow *window = [UIApplication sharedApplication].keyWindow;
+//                        JSQMessagesCollectionViewCell *cell
+//                            = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+//                        OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
+//                        CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
+//
+//                        __block TSAttachment *attachment = nil;
+//                        [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//                            attachment = [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId
+//                                                                   transaction:transaction];
+//                        }];
+//                        if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
+//                            TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
+//                            FullImageViewController *vc =
+//                                [[FullImageViewController alloc] initWithAttachment:attStream
+//                                                                           fromRect:convertedRect
+//                                                                     forInteraction:interaction
+//                                                                        messageItem:messageItem
+//                                                                         isAnimated:YES];
+//                            [vc presentFromViewController:self];
+//                        }
+//                    }
+//                } else if ([[messageItem media] isKindOfClass:[TSVideoAttachmentAdapter class]]) {
+//                    // fileurl disappeared should look up in db as before. will do refactor
+//                    // full screen, check this setup with a .mov
+//                    TSVideoAttachmentAdapter *messageMedia = (TSVideoAttachmentAdapter *)[messageItem media];
+//                    __block TSAttachment *attachment = nil;
+//                    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//                        attachment =
+//                            [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId transaction:transaction];
+//                    }];
+//
+//                    if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
+//                        TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
+//                        NSFileManager *fileManager = [NSFileManager defaultManager];
+//                        if ([messageMedia isVideo]) {
+//                            if ([fileManager fileExistsAtPath:[attStream.mediaURL path]]) {
+//                                [self dismissKeyBoard];
+//                                self.videoPlayer =
+//                                    [[MPMoviePlayerController alloc] initWithContentURL:attStream.mediaURL];
+//                                [_videoPlayer prepareToPlay];
+//
+//                                [[NSNotificationCenter defaultCenter]
+//                                    addObserver:self
+//                                       selector:@selector(moviePlayerWillExitFullscreen:)
+//                                           name:MPMoviePlayerWillExitFullscreenNotification
+//                                         object:_videoPlayer];
+//                                [[NSNotificationCenter defaultCenter]
+//                                    addObserver:self
+//                                       selector:@selector(moviePlayerDidExitFullscreen:)
+//                                           name:MPMoviePlayerDidExitFullscreenNotification
+//                                         object:_videoPlayer];
+//
+//                                _videoPlayer.controlStyle = MPMovieControlStyleDefault;
+//                                _videoPlayer.shouldAutoplay = YES;
+//                                [self.view addSubview:_videoPlayer.view];
+//                                // We can't animate from the cell media frame;
+//                                // MPMoviePlayerController will animate a crop of its
+//                                // contents rather than scaling them.
+//                                _videoPlayer.view.frame = self.view.bounds;
+//                                [_videoPlayer setFullscreen:YES animated:NO];
+//                            }
+//                        } else if ([messageMedia isAudio]) {
+//                            if (self.audioAttachmentPlayer) {
+//                                // Is this player associated with this media adapter?
+//                                if (self.audioAttachmentPlayer.owner == messageMedia) {
+//                                    // Tap to pause & unpause.
+//                                    [self.audioAttachmentPlayer togglePlayState];
+//                                    return;
+//                                }
+//                                [self.audioAttachmentPlayer stop];
+//                                self.audioAttachmentPlayer = nil;
+//                            }
+//                            self.audioAttachmentPlayer =
+//                                [[OWSAudioAttachmentPlayer alloc] initWithMediaAdapter:messageMedia
+//                                                                    databaseConnection:self.uiDatabaseConnection];
+//                            // Associate the player with this media adapter.
+//                            self.audioAttachmentPlayer.owner = messageMedia;
+//                            [self.audioAttachmentPlayer play];
+//                        }
+//                    }
+//                } else if ([messageItem.media isKindOfClass:[AttachmentPointerAdapter class]]) {
+//                    AttachmentPointerAdapter *attachmentPointerAdadpter = (AttachmentPointerAdapter *)messageItem.media;
+//                    TSAttachmentPointer *attachmentPointer = attachmentPointerAdadpter.attachmentPointer;
+//                    // Restart failed downloads
+//                    if (attachmentPointer.state == TSAttachmentPointerStateFailed) {
+//                        if (![interaction isKindOfClass:[TSMessage class]]) {
+//                            OWSFail(@"%@ Expected attachment downloads from an instance of message, but found: %@",
+//                                self.tag,
+//                                interaction);
+//                            return;
+//                        }
+//                        TSMessage *message = (TSMessage *)interaction;
+//                        [self handleFailedDownloadTapForMessage:message attachmentPointer:attachmentPointer];
+//                    } else {
+//                        DDLogVerbose(@"%@ Ignoring tap for attachment pointer %@ with state %lu",
+//                            self.tag,
+//                            attachmentPointer,
+//                            (unsigned long)attachmentPointer.state);
+//                    }
+//                } else {
+//                    DDLogDebug(@"%@ Unhandled tap on 'media item' with media: %@", self.tag, messageItem.media);
+//                }
+//            }
+//        } break;
+//        case TSErrorMessageAdapter:
+//        case TSInfoMessageAdapter:
+//        case TSCallAdapter:
+//        case TSUnreadIndicatorAdapter:
+//            OWSFail(@"Unexpected tap for system message.");
+//            break;
+//        case OWSContactOffersAdapter:
+//            OWSFail(@"Unexpected tap for contacts offer.");
+//            break;
+//        default:
+//            DDLogDebug(@"Unhandled bubble touch for interaction: %@.", interaction);
+//            break;
+//    }
+//
+//    if (messageItem.messageType == TSOutgoingMessageAdapter || messageItem.messageType == TSIncomingMessageAdapter) {
+//        TSMessage *message = (TSMessage *)interaction;
+//        if ([message hasAttachments]) {
+//            NSString *attachmentID = message.attachmentIds[0];
+//            TSAttachment *attachment = [TSAttachment fetchObjectWithUniqueID:attachmentID];
+//            if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
+//                TSAttachmentStream *stream = (TSAttachmentStream *)attachment;
+//                // Tapping on incoming and outgoing unknown extensions should show the
+//                // sharing UI.
+//                if ([[messageItem media] isKindOfClass:[TSGenericAttachmentAdapter class]]) {
+//                    [AttachmentSharing showShareUIForAttachment:stream];
+//                }
+//                // Tapping on incoming and outgoing "oversize text messages" should show the
+//                // "oversize text message" view.
+//                if ([attachment.contentType isEqualToString:OWSMimeTypeOversizeTextMessage]) {
+//                    OversizeTextMessageViewController *messageVC =
+//                        [[OversizeTextMessageViewController alloc] initWithMessage:message];
+//                    [self.navigationController pushViewController:messageVC animated:YES];
+//                }
+//            }
+//        }
+//    }
+//}
 
 // There's more than one way to exit the fullscreen video playback.
 // There's a done button, a "toggle fullscreen" button and I think
@@ -2577,7 +2350,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)updateLoadEarlierVisible
 {
-    [self setShowLoadEarlierMessagesHeader:[self shouldShowLoadEarlierMessages]];
+    // TODO:
+//    [self setShowLoadEarlierMessagesHeader:[self shouldShowLoadEarlierMessages]];
 }
 
 - (void)updateMessageMappingRangeOptions:(MessagesRangeSizeMode)mode
@@ -2626,6 +2400,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     rangeOptions.minLength = kYapDatabaseRangeMinLength;
 
     [self.messageMappings setRangeOptions:rangeOptions forGroup:self.thread.uniqueId];
+    [self reloadViewItems];
 }
 
 #pragma mark Bubble User Actions
@@ -3677,6 +3452,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
             [self.messageMappings updateWithTransaction:transaction];
         }];
+        [self reloadViewItems];
         return;
     }
 
@@ -3696,6 +3472,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         [self resetContentAndLayout];
         return;
     }
+
+    [self reloadViewItems];
 
     BOOL wasAtBottom = [self isScrolledToBottom];
     // We want sending messages to feel snappy.  So, if the only
@@ -3717,7 +3495,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
                     OWSAssert(collectionKey.key.length > 0);
                     if (collectionKey.key) {
-                        [self.messageAdapterCache removeObjectForKey:collectionKey.key];
+                        [self.viewItemMap removeObjectForKey:collectionKey.key];
                     }
 
                     break;
@@ -3744,7 +3522,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
                     OWSAssert(collectionKey.key.length > 0);
                     if (collectionKey.key) {
-                        [self.messageAdapterCache removeObjectForKey:collectionKey.key];
+                        [self.viewItemMap removeObjectForKey:collectionKey.key];
                     }
                     [self.collectionView reloadItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     break;
@@ -3798,51 +3576,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         = MAX(0.f, self.collectionView.contentSize.height - self.collectionView.bounds.size.height);
     BOOL isScrolledToBottom = (self.collectionView.contentOffset.y > contentOffsetYBottom - kIsAtBottomTolerancePts);
     return isScrolledToBottom;
-}
-
-#pragma mark - UICollectionView DataSource
-
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
-{
-    NSInteger numberOfMessages = (NSInteger)[self.messageMappings numberOfItemsInSection:(NSUInteger)section];
-    return numberOfMessages;
-}
-
-- (TSInteraction *)interactionAtIndexPath:(NSIndexPath *)indexPath
-{
-    OWSAssert(indexPath);
-    OWSAssert(indexPath.section == 0);
-    OWSAssert(self.messageMappings);
-
-    __block TSInteraction *interaction;
-
-    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        YapDatabaseViewTransaction *viewTransaction = [transaction ext:TSMessageDatabaseViewExtensionName];
-        OWSAssert(viewTransaction);
-        interaction = [viewTransaction objectAtRow:(NSUInteger)indexPath.row
-                                         inSection:(NSUInteger)indexPath.section
-                                      withMappings:self.messageMappings];
-        OWSAssert(interaction);
-    }];
-    return interaction;
-}
-
-- (id<OWSMessageData>)messageAtIndexPath:(NSIndexPath *)indexPath
-{
-    OWSAssert(self.messageAdapterCache);
-
-    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
-
-    id<OWSMessageData> messageAdapter = [self.messageAdapterCache objectForKey:interaction.uniqueId];
-
-    if (!messageAdapter) {
-        messageAdapter = [TSMessageAdapter messageViewDataWithInteraction:interaction
-                                                                 inThread:self.thread
-                                                          contactsManager:self.contactsManager];
-        [self.messageAdapterCache setObject:messageAdapter forKey:interaction.uniqueId];
-    }
-
-    return messageAdapter;
 }
 
 #pragma mark - Audio
@@ -4135,6 +3868,17 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     return [self interactionAtIndexPath:lastVisibleIndexPath];
 }
 
+// TODO: Is this safe?
+// TODO: Remove most usages of this.
+- (TSInteraction *)interactionAtIndexPath:(NSIndexPath *)indexPath
+{
+    OWSAssert(indexPath);
+    OWSAssert(indexPath.section == 0);
+
+    ConversationViewItem * _Nullable viewItem = [self viewItemForIndex:(NSUInteger) indexPath.row];
+    return viewItem.interaction;
+}
+
 - (void)updateLastVisibleTimestamp
 {
     TSInteraction *lastVisibleInteraction = [self lastVisibleInteraction];
@@ -4221,26 +3965,26 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)popKeyBoard
 {
-    [self.inputToolbar.contentView.textView becomeFirstResponder];
+    [self.inputToolbar.inputTextView becomeFirstResponder];
 }
 
 - (void)dismissKeyBoard
 {
-    [self.inputToolbar.contentView.textView resignFirstResponder];
+    [self.inputToolbar.inputTextView resignFirstResponder];
 }
 
 #pragma mark Drafts
 
 - (void)loadDraftInCompose
 {
-    __block NSString *placeholder;
+    __block NSString *draft;
     [self.editingDatabaseConnection asyncReadWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        placeholder = [_thread currentDraftWithTransaction:transaction];
+        draft = [_thread currentDraftWithTransaction:transaction];
     }
         completionBlock:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.inputToolbar.contentView.textView setText:placeholder];
-                [self textViewDidChange:self.inputToolbar.contentView.textView];
+                [self.inputToolbar.inputTextView setText:draft];
+                [self textViewDidChange:self.inputToolbar.inputTextView];
             });
         }];
 }
@@ -4249,7 +3993,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 {
     if (self.inputToolbar.hidden == NO) {
         __block TSThread *thread = _thread;
-        __block NSString *currentDraft = self.inputToolbar.contentView.textView.text;
+        __block NSString *currentDraft = self.inputToolbar.inputTextView.text;
 
         [self.editingDatabaseConnection asyncReadWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
             [thread setDraft:currentDraft transaction:transaction];
@@ -4324,7 +4068,14 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     return YES;
 }
 
-#pragma mark - OWSTextViewPasteDelegate
+#pragma mark - ConversationInputTextViewDelegate
+
+- (void)inputTextViewDidBecomeFirstResponder
+{
+    OWSAssert([NSThread isMainThread]);
+    
+    [self scrollToBottomAnimated:YES];
+}
 
 - (void)didPasteAttachment:(SignalAttachment *_Nullable)attachment
 {
@@ -4437,80 +4188,15 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         return;
     }
 
-    [super scrollToBottomAnimated:animated];
-}
-
-#pragma mark - OWSVoiceMemoGestureDelegate
-
-- (void)voiceMemoGestureDidStart
-{
-    OWSAssert([NSThread isMainThread]);
-
-    DDLogInfo(@"voiceMemoGestureDidStart");
-
-    const CGFloat kIgnoreMessageSendDoubleTapDurationSeconds = 2.f;
-    if (self.lastMessageSentDate &&
-        [[NSDate new] timeIntervalSinceDate:self.lastMessageSentDate] < kIgnoreMessageSendDoubleTapDurationSeconds) {
-        // If users double-taps the message send button, the second tap can look like a
-        // very short voice message gesture.  We want to ignore such gestures.
-        [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)cancelVoiceMemoIfNecessary];
-        [((OWSMessagesInputToolbar *)self.inputToolbar) hideVoiceMemoUI:NO];
-        [self cancelRecordingVoiceMemo];
-        return;
-    }
-
-    [((OWSMessagesInputToolbar *)self.inputToolbar)showVoiceMemoUI];
-    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
-    [self requestRecordingVoiceMemo];
-}
-
-- (void)voiceMemoGestureDidEnd
-{
-    OWSAssert([NSThread isMainThread]);
-
-    DDLogInfo(@"voiceMemoGestureDidEnd");
-
-    [((OWSMessagesInputToolbar *)self.inputToolbar) hideVoiceMemoUI:YES];
-    [self endRecordingVoiceMemo];
-    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
-}
-
-- (void)voiceMemoGestureDidCancel
-{
-    OWSAssert([NSThread isMainThread]);
-
-    DDLogInfo(@"voiceMemoGestureDidCancel");
-
-    [((OWSMessagesInputToolbar *)self.inputToolbar) hideVoiceMemoUI:NO];
-    [self cancelRecordingVoiceMemo];
-    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
-}
-
-- (void)voiceMemoGestureDidChange:(CGFloat)cancelAlpha
-{
-    OWSAssert([NSThread isMainThread]);
-
-    [((OWSMessagesInputToolbar *)self.inputToolbar) setVoiceMemoUICancelAlpha:cancelAlpha];
-}
-
-- (void)cancelVoiceMemo
-{
-    OWSAssert([NSThread isMainThread]);
-
-    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)cancelVoiceMemoIfNecessary];
-    [((OWSMessagesInputToolbar *)self.inputToolbar) hideVoiceMemoUI:NO];
-    [self cancelRecordingVoiceMemo];
-}
-
-- (void)textViewDidChange:(UITextView *)textView
-{
-    // Override.
-    //
-    // We want to show the "voice message" button if the text input is empty
-    // and the "send" button if it isn't.
-    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureEnabling];
-
-    [self updateLastVisibleTimestamp];
+    CGFloat dstY = MAX(0, self.collectionView.contentSize.height - self.collectionView.height);
+//    [self.collectionView scrollToItemAtIndexPath:<#(nonnull NSIndexPath *)#> atScrollPosition:<#(UICollectionViewScrollPosition)#> animated:<#(BOOL)#>
+    [self.collectionView setContentOffset:CGPointMake(0, dstY)
+                                 animated:animated];
+    
+//    // TODO: Remove all references to : ([self.collectionView numberOfItemsInSection:0]
+//    NSInteger cellCount = (NSInteger) self.viewItems.count;
+//    NSIndexPath *lastCell = [NSIndexPath indexPathForItem:cellCount - 1 inSection:0];
+//    [self.collectionView scrollToIndexPath:lastCell animated:animated];
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -4573,15 +4259,87 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
 }
 
-#pragma mark - OWSMessagesCollectionViewFlowLayoutDelegate
+#pragma mark - ConversationViewLayoutDelegate
 
-- (BOOL)shouldShowCellDecorationsAtIndexPath:(NSIndexPath *)indexPath
+- (NSArray<id<ConversationViewLayoutItem>> *)layoutItems
 {
-    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
+    return self.viewItems;
+}
 
-    // Show any top/bottom labels for all but the unread indicator
-    return !([interaction isKindOfClass:[TSUnreadIndicatorInteraction class]] ||
-        [interaction isKindOfClass:[OWSContactOffersInteraction class]]);
+#pragma mark - ConversationInputToolbarDelegate
+
+- (void)didPressSendButton
+{
+    // TODO:
+}
+
+- (void)voiceMemoGestureDidStart
+{
+    OWSAssert([NSThread isMainThread]);
+    
+    DDLogInfo(@"voiceMemoGestureDidStart");
+    
+    const CGFloat kIgnoreMessageSendDoubleTapDurationSeconds = 2.f;
+    if (self.lastMessageSentDate &&
+        [[NSDate new] timeIntervalSinceDate:self.lastMessageSentDate] < kIgnoreMessageSendDoubleTapDurationSeconds) {
+        // If users double-taps the message send button, the second tap can look like a
+        // very short voice message gesture.  We want to ignore such gestures.
+        [self.inputToolbar cancelVoiceMemoIfNecessary];
+        [self.inputToolbar hideVoiceMemoUI:NO];
+        [self cancelRecordingVoiceMemo];
+        return;
+    }
+    
+    [self.inputToolbar showVoiceMemoUI];
+    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+    [self requestRecordingVoiceMemo];
+}
+
+- (void)voiceMemoGestureDidEnd
+{
+    OWSAssert([NSThread isMainThread]);
+    
+    DDLogInfo(@"voiceMemoGestureDidEnd");
+    
+    [self.inputToolbar hideVoiceMemoUI:YES];
+    [self endRecordingVoiceMemo];
+    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+}
+
+- (void)voiceMemoGestureDidCancel
+{
+    OWSAssert([NSThread isMainThread]);
+    
+    DDLogInfo(@"voiceMemoGestureDidCancel");
+    
+    [self.inputToolbar hideVoiceMemoUI:NO];
+    [self cancelRecordingVoiceMemo];
+    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+}
+
+- (void)voiceMemoGestureDidChange:(CGFloat)cancelAlpha
+{
+    OWSAssert([NSThread isMainThread]);
+    
+    [self.inputToolbar setVoiceMemoUICancelAlpha:cancelAlpha];
+}
+
+- (void)cancelVoiceMemo
+{
+    OWSAssert([NSThread isMainThread]);
+    
+    [self.inputToolbar cancelVoiceMemoIfNecessary];
+    [self.inputToolbar hideVoiceMemoUI:NO];
+    [self cancelRecordingVoiceMemo];
+}
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    // We want to show the "voice message" button if the text input is empty
+    // and the "send" button if it isn't.
+    [self.inputToolbar ensureContent];
+    
+    [self updateLastVisibleTimestamp];
 }
 
 #pragma mark - Database Observation
@@ -4657,8 +4415,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         }];
         [self updateMessageMappingRangeOptions:MessagesRangeSizeMode_Normal];
     }
+    [self reloadViewItems];
 
-    self.messageAdapterCache = [[NSCache alloc] init];
+//    self.messageAdapterCache = [[NSCache alloc] init];
     [self resetContentAndLayout];
     [self updateLoadEarlierVisible];
     [self ensureDynamicInteractions];
@@ -4689,19 +4448,402 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
 }
 
-#pragma mark - Class methods
+#pragma mark - View Items
 
-+ (UINib *)nib
-{
-    return [UINib nibWithNibName:NSStringFromClass([ConversationViewController class])
-                          bundle:[NSBundle bundleForClass:[ConversationViewController class]]];
+- (void)reloadViewItems {
+    NSMutableArray<ConversationViewItem * > *viewItems = [NSMutableArray new];
+    NSMutableDictionary<NSString *, ConversationViewItem * > *viewItemMap = [NSMutableDictionary new];
+
+    NSUInteger count = [self.messageMappings numberOfItemsInSection:0];
+    
+    // TODO: Recycle view items where possible.
+    // TODO: Distinguish interaction types through some enum.
+    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        YapDatabaseViewTransaction *viewTransaction = [transaction ext:TSMessageDatabaseViewExtensionName];
+        OWSAssert(viewTransaction);
+        for (NSUInteger row=0; row < count; row++) {
+            TSInteraction *interaction = [viewTransaction objectAtRow:row
+                                                            inSection:0
+                                                         withMappings:self.messageMappings];
+            OWSAssert(interaction);
+            
+            ConversationViewItem *_Nullable viewItem = self.viewItemMap[interaction.uniqueId];
+            if (!viewItem) {
+                viewItem = [ConversationViewItemSimple new];
+            }
+            viewItem.interaction = interaction;
+            [viewItems addObject:viewItem];
+            OWSAssert(!viewItemMap[interaction.uniqueId]);
+            viewItemMap[interaction.uniqueId] = viewItem;
+        }
+    }];
+    
+    // Update the "shouldShowDate" property of the view items.
+    int row = 0;
+    BOOL shouldShowDateOnNextViewItem = NO;
+    uint64_t previousViewItemTimestamp = 0;
+    for (ConversationViewItem *viewItem in viewItems) {
+        if (row == 0) {
+            viewItem.shouldShowDate = YES;
+            shouldShowDateOnNextViewItem = NO;
+        } else if (viewItem.interaction.interactionType == OWSInteractionType_UnreadIndicator ||
+                   viewItem.interaction.interactionType == OWSInteractionType_Offer) {
+            viewItem.shouldShowDate = NO;
+            shouldShowDateOnNextViewItem = YES;
+        } else if (shouldShowDateOnNextViewItem) {
+            viewItem.shouldShowDate = YES;
+            shouldShowDateOnNextViewItem = NO;
+        } else {
+            uint64_t viewItemTimestamp = viewItem.interaction.timestampForSorting;
+            OWSAssert(viewItemTimestamp > 0);
+            OWSAssert(previousViewItemTimestamp > 0);
+            uint64_t timeDifferenceMs = viewItemTimestamp - previousViewItemTimestamp;
+            static const uint64_t kShowTimeIntervalMs = 5 * kMinuteInMs;
+            if (timeDifferenceMs > kShowTimeIntervalMs) {
+                viewItem.shouldShowDate = YES;
+            }
+            shouldShowDateOnNextViewItem = NO;
+        }
+        previousViewItemTimestamp = viewItem.interaction.timestampForSorting;
+        row++;
+    }
+
+    self.viewItems = viewItems;
+    self.viewItemMap = viewItemMap;
 }
 
-+ (instancetype)messagesViewController
+- (nullable ConversationViewItem *)viewItemForIndex:(NSUInteger)index
 {
-    return [[[self class] alloc] initWithNibName:NSStringFromClass([ConversationViewController class])
-                                          bundle:[NSBundle bundleForClass:[ConversationViewController class]]];
+    if (index >= self.viewItems.count) {
+        OWSFail(@"%@ Invalid view item index: %zd", self.tag, index)
+        return nil;
+    }
+    return self.viewItems[index];
 }
+
+#pragma mark - UICollectionViewDataSource
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    return (NSInteger) self.viewItems.count;
+}
+
+- (UICollectionViewCell *)collectionView:(JSQMessagesCollectionView *)collectionView
+                  cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    ConversationViewItem * _Nullable viewItem = [self viewItemForIndex:(NSUInteger) indexPath.row];
+    OWSInteractionType interactionType = (viewItem ? viewItem.interaction.interactionType : OWSInteractionType_Unknown);
+    
+    ConversationViewCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:[ConversationViewCell cellReuseIdentifier]
+                                                                                forIndexPath:indexPath];
+    cell.viewItem = viewItem;
+    
+    if (viewItem.shouldShowDate) {
+        cell.messageDateHeaderText = [[JSQMessagesTimestampFormatter sharedFormatter] attributedTimestampForDate:viewItem.interaction.dateForSorting];
+    }
+
+    return cell;
+    
+//case TSInfoMessageAdapter: {
+//    // HACK this will get called when we get a new info message, but there's gotta be a better spot for this.
+//    OWSDisappearingMessagesConfiguration *configuration =
+//    [OWSDisappearingMessagesConfiguration fetchObjectWithUniqueID:self.thread.uniqueId];
+//    [self setBarButtonItemsForDisappearingMessagesConfiguration:configuration];
+
+//    switch (interactionType) {
+//        case OWSInteractionType_IncomingMessage: {
+//            return nil;
+//        }
+//        case OWSInteractionType_Call: {
+//            UICollectionViewCell *cell = [self loadSystemMessageCell:indexPath interaction:viewItem.interaction];
+//            return cell;
+//        }
+//        case OWSInteractionType_Unknown:
+//            OWSFail(@"%@ unknown interaction type", self.tag);
+//            return nil;
+//    }
+    
+//    typedef NS_ENUM(NSInteger, OWSInteractionType) {
+//        OWSInteractionType_Unknown,
+//        OWSInteractionType_IncomingMessage,
+//        OWSInteractionType_OutgoingMessage,
+//        OWSInteractionType_Error,
+//        OWSInteractionType_Call,
+//        OWSInteractionType_Info,
+//        OWSInteractionType_UnreadIndicator,
+//        OWSInteractionType_Offer,
+//    };
+    
+//    id<OWSMessageData> message = [self messageAtIndexPath:indexPath];
+//    NSParameterAssert(message != nil);
+//    
+//    UICollectionViewCell *cell = nil;
+//    switch (message.messageType) {
+//        case TSCallAdapter: {
+//            cell = [self loadSystemMessageCell:indexPath interaction:message.interaction];
+//            break;
+//        }
+//        case TSInfoMessageAdapter: {
+//            // HACK this will get called when we get a new info message, but there's gotta be a better spot for this.
+//            OWSDisappearingMessagesConfiguration *configuration =
+//            [OWSDisappearingMessagesConfiguration fetchObjectWithUniqueID:self.thread.uniqueId];
+//            [self setBarButtonItemsForDisappearingMessagesConfiguration:configuration];
+//            
+//            cell = [self loadSystemMessageCell:indexPath interaction:message.interaction];
+//            break;
+//        }
+//        case TSErrorMessageAdapter: {
+//            cell = [self loadSystemMessageCell:indexPath interaction:message.interaction];
+//            break;
+//        }
+//        case TSIncomingMessageAdapter: {
+//            cell = [self loadIncomingMessageCellForMessage:message atIndexPath:indexPath];
+//            break;
+//        }
+//        case TSOutgoingMessageAdapter: {
+//            cell = [self loadOutgoingCellForMessage:message atIndexPath:indexPath];
+//            break;
+//        }
+//        case TSUnreadIndicatorAdapter: {
+//            cell = [self loadUnreadIndicatorCell:indexPath interaction:message.interaction];
+//            break;
+//        }
+//        case OWSContactOffersAdapter: {
+//            cell = [self loadContactOffersCell:indexPath interaction:message.interaction];
+//            break;
+//        }
+//        default: {
+//            OWSFail(@"using default cell constructor for message: %@", message);
+//            cell = (JSQMessagesCollectionViewCell *)[super collectionView:collectionView
+//                                                   cellForItemAtIndexPath:indexPath];
+//            break;
+//        }
+//    }
+//    
+//    // TODO:
+////    cell.delegate = collectionView;
+//    
+//    if (message.shouldStartExpireTimer && [cell conformsToProtocol:@protocol(OWSExpirableMessageView)]) {
+//        id<OWSExpirableMessageView> expirableView = (id<OWSExpirableMessageView>)cell;
+//        [expirableView startExpirationTimerWithExpiresAtSeconds:message.expiresAtSeconds
+//                                         initialDurationSeconds:message.expiresInSeconds];
+//    }
+//    
+//    return cell;
+}
+
+
+#pragma mark - UICollectionViewDelegate
+
+//// Methods for notification of selection/deselection and highlight/unhighlight events.
+//// The sequence of calls leading to selection from a user touch is:
+////
+//// (when the touch begins)
+//// 1. -collectionView:shouldHighlightItemAtIndexPath:
+//// 2. -collectionView:didHighlightItemAtIndexPath:
+////
+//// (when the touch lifts)
+//// 3. -collectionView:shouldSelectItemAtIndexPath: or -collectionView:shouldDeselectItemAtIndexPath:
+//// 4. -collectionView:didSelectItemAtIndexPath: or -collectionView:didDeselectItemAtIndexPath:
+//// 5. -collectionView:didUnhighlightItemAtIndexPath:
+//- (BOOL)collectionView:(UICollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath;
+//- (void)collectionView:(UICollectionView *)collectionView didHighlightItemAtIndexPath:(NSIndexPath *)indexPath;
+//- (void)collectionView:(UICollectionView *)collectionView didUnhighlightItemAtIndexPath:(NSIndexPath *)indexPath;
+//- (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath;
+//- (BOOL)collectionView:(UICollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath; // called when the user taps on an already-selected item in multi-select mode
+//- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
+//- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath;
+//
+//- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(8_0);
+//- (void)collectionView:(UICollectionView *)collectionView willDisplaySupplementaryView:(UICollectionReusableView *)view forElementKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(8_0);
+//- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath;
+//- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingSupplementaryView:(UICollectionReusableView *)view forElementOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath;
+//
+//// These methods provide support for copy/paste actions on cells.
+//// All three should be implemented if any are.
+//- (BOOL)collectionView:(UICollectionView *)collectionView shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath;
+//- (BOOL)collectionView:(UICollectionView *)collectionView canPerformAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(nullable id)sender;
+//- (void)collectionView:(UICollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(nullable id)sender;
+//
+//// support for custom transition layout
+//- (nonnull UICollectionViewTransitionLayout *)collectionView:(UICollectionView *)collectionView transitionLayoutForOldLayout:(UICollectionViewLayout *)fromLayout newLayout:(UICollectionViewLayout *)toLayout;
+//
+//// Focus
+//- (BOOL)collectionView:(UICollectionView *)collectionView canFocusItemAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(9_0);
+//- (BOOL)collectionView:(UICollectionView *)collectionView shouldUpdateFocusInContext:(UICollectionViewFocusUpdateContext *)context NS_AVAILABLE_IOS(9_0);
+//- (void)collectionView:(UICollectionView *)collectionView didUpdateFocusInContext:(UICollectionViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator NS_AVAILABLE_IOS(9_0);
+//- (nullable NSIndexPath *)indexPathForPreferredFocusedViewInCollectionView:(UICollectionView *)collectionView NS_AVAILABLE_IOS(9_0);
+//
+//- (NSIndexPath *)collectionView:(UICollectionView *)collectionView targetIndexPathForMoveFromItemAtIndexPath:(NSIndexPath *)originalIndexPath toProposedIndexPath:(NSIndexPath *)proposedIndexPath NS_AVAILABLE_IOS(9_0);
+//
+//- (CGPoint)collectionView:(UICollectionView *)collectionView targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset NS_AVAILABLE_IOS(9_0); // customize the content offset to be applied during transition or update animations
+
+//// Override JSQMVC
+//- (BOOL)collectionView:(JSQMessagesCollectionView *)collectionView
+//shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    if (indexPath == nil) {
+//        DDLogError(@"Aborting shouldShowMenuForItemAtIndexPath because indexPath is nil");
+//        // Not sure why this is nil, but occasionally it is, which crashes.
+//        return NO;
+//    }
+//    
+//    // JSQM does some setup in super method
+//    [super collectionView:collectionView shouldShowMenuForItemAtIndexPath:indexPath];
+//    
+//    // Don't show menu for in-progress downloads.
+//    // We don't want to give the user the wrong idea that deleting would "cancel" the download.
+//    id<OWSMessageData> message = [self messageAtIndexPath:indexPath];
+//    if (message.isMediaMessage && [message.media isKindOfClass:[AttachmentPointerAdapter class]]) {
+//        AttachmentPointerAdapter *attachmentPointerAdapter = (AttachmentPointerAdapter *)message.media;
+//        return attachmentPointerAdapter.attachmentPointer.state == TSAttachmentPointerStateFailed;
+//    }
+//    
+//    // Super method returns false for media methods. We want menu for *all* items
+//    return YES;
+//}
+//
+//- (BOOL)collectionView:(UICollectionView *)collectionView
+//      canPerformAction:(SEL)action
+//    forItemAtIndexPath:(NSIndexPath *)indexPath
+//            withSender:(id)sender
+//{
+//    if (!indexPath) {
+//        // Sometimes this method is called when long-pressing in the body of a text message,
+//        // especially during animations.
+//        return NO;
+//    }
+//    
+//    id<OWSMessageData> messageData = [self messageAtIndexPath:indexPath];
+//    return [messageData canPerformEditingAction:action];
+//}
+//
+//- (void)collectionView:(UICollectionView *)collectionView
+//         performAction:(SEL)action
+//    forItemAtIndexPath:(NSIndexPath *)indexPath
+//            withSender:(id)sender
+//{
+//    id<OWSMessageData> messageData = [self messageAtIndexPath:indexPath];
+//    if (action == [TSMessageAdapter messageMetadataSelector]) {
+//        TSInteraction *interaction = messageData.interaction;
+//        if ([interaction isKindOfClass:[TSIncomingMessage class]] ||
+//            [interaction isKindOfClass:[TSOutgoingMessage class]]) {
+//            TSMessage *message = (TSMessage *)interaction;
+//            MessageMetadataViewController *view = [[MessageMetadataViewController alloc] initWithMessage:message];
+//            [self.navigationController pushViewController:view animated:YES];
+//        } else {
+//            OWSFail(@"%@ Can't show message metadata for message of type: %@", self.tag, [interaction class]);
+//        }
+//    } else {
+//        [messageData performEditingAction:action];
+//    }
+//}
+
+- (void)collectionView:(UICollectionView *)collectionView
+       willDisplayCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell conformsToProtocol:@protocol(OWSMessageCollectionViewCell)]) {
+        [((id<OWSMessageCollectionViewCell>)cell) setCellVisible:YES];
+    }
+}
+
+- (void)collectionView:(UICollectionView *)collectionView
+  didEndDisplayingCell:(nonnull UICollectionViewCell *)cell
+    forItemAtIndexPath:(nonnull NSIndexPath *)indexPath
+{
+    if ([cell conformsToProtocol:@protocol(OWSExpirableMessageView)]) {
+        id<OWSExpirableMessageView> expirableView = (id<OWSExpirableMessageView>)cell;
+        [expirableView stopExpirationTimer];
+    }
+    
+    if ([cell conformsToProtocol:@protocol(OWSMessageCollectionViewCell)]) {
+        [((id<OWSMessageCollectionViewCell>)cell) setCellVisible:NO];
+    }
+}
+
+#pragma mark - JSQMessages CollectionView DataSource
+
+//- (id<OWSMessageData>)collectionView:(JSQMessagesCollectionView *)collectionView
+//       messageDataForItemAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    return [self messageAtIndexPath:indexPath];
+//}
+
+//- (id<JSQMessageBubbleImageDataSource>)collectionView:(JSQMessagesCollectionView *)collectionView
+//             messageBubbleImageDataForItemAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    TSInteraction *message = [self interactionAtIndexPath:indexPath];
+//    
+//    if ([message isKindOfClass:[TSOutgoingMessage class]]) {
+//        TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)message;
+//        switch (outgoingMessage.messageState) {
+//            case TSOutgoingMessageStateUnsent:
+//                return self.outgoingMessageFailedImageData;
+//            case TSOutgoingMessageStateAttemptingOut:
+//                return self.currentlyOutgoingBubbleImageData;
+//            case TSOutgoingMessageStateSent_OBSOLETE:
+//            case TSOutgoingMessageStateDelivered_OBSOLETE:
+//                OWSFail(@"%@ Obsolete message state.", self.tag);
+//                return self.outgoingBubbleImageData;
+//            case TSOutgoingMessageStateSentToService:
+//                return self.outgoingBubbleImageData;
+//        }
+//    }
+//    
+//    return self.incomingBubbleImageData;
+//}
+
+//- (id<JSQMessageAvatarImageDataSource>)collectionView:(JSQMessagesCollectionView *)collectionView
+//                    avatarImageDataForItemAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    return nil;
+//}
+
+#pragma mark - UICollectionView DataSource
+
+//- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+//{
+//    NSInteger numberOfMessages = (NSInteger)[self.messageMappings numberOfItemsInSection:(NSUInteger)section];
+//    return numberOfMessages;
+//}
+
+//- (TSInteraction *)interactionAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    OWSAssert(indexPath);
+//    OWSAssert(indexPath.section == 0);
+//    OWSAssert(self.messageMappings);
+//    
+//    __block TSInteraction *interaction;
+//    
+//    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//        YapDatabaseViewTransaction *viewTransaction = [transaction ext:TSMessageDatabaseViewExtensionName];
+//        OWSAssert(viewTransaction);
+//        interaction = [viewTransaction objectAtRow:(NSUInteger)indexPath.row
+//                                         inSection:(NSUInteger)indexPath.section
+//                                      withMappings:self.messageMappings];
+//        OWSAssert(interaction);
+//    }];
+//    return interaction;
+//}
+
+//- (id<OWSMessageData>)messageAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    OWSAssert(self.messageAdapterCache);
+//    
+//    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
+//    
+//    id<OWSMessageData> messageAdapter = [self.messageAdapterCache objectForKey:interaction.uniqueId];
+//    
+//    if (!messageAdapter) {
+//        messageAdapter = [TSMessageAdapter messageViewDataWithInteraction:interaction
+//                                                                 inThread:self.thread
+//                                                          contactsManager:self.contactsManager];
+//        [self.messageAdapterCache setObject:messageAdapter forKey:interaction.uniqueId];
+//    }
+//    
+//    return messageAdapter;
+//}
 
 #pragma mark - Logging
 

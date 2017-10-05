@@ -2,13 +2,14 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import <JSQMessagesViewController/JSQMessagesViewController.h>
+#import "OWSViewController.h"
 
 @class TSThread;
 
+// TODO: Audit this.
 extern NSString *const ConversationViewControllerDidAppearNotification;
 
-@interface ConversationViewController : JSQMessagesViewController
+@interface ConversationViewController : OWSViewController
 
 @property (nonatomic, readonly) TSThread *thread;
 

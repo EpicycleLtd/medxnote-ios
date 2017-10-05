@@ -24,10 +24,7 @@
 		34330AA31E79686200DF2FB9 /* OWSProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 34330AA21E79686200DF2FB9 /* OWSProgressView.m */; };
 		343D3D9B1E9283F100165CA4 /* BlockListUIUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 343D3D9A1E9283F100165CA4 /* BlockListUIUtils.m */; };
 		3448BFCC1EDF0EA7005B2D69 /* OWSMessagesToolbarContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3448BFC21EDF0EA7005B2D69 /* OWSMessagesToolbarContentView.m */; };
-		3448BFCD1EDF0EA7005B2D69 /* OWSMessagesInputToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 3448BFC41EDF0EA7005B2D69 /* OWSMessagesInputToolbar.m */; };
-		3448BFCF1EDF0EA7005B2D69 /* OWSMessagesComposerTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3448BFC81EDF0EA7005B2D69 /* OWSMessagesComposerTextView.m */; };
 		3448BFD01EDF0EA7005B2D69 /* ConversationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3448BFCA1EDF0EA7005B2D69 /* ConversationViewController.m */; };
-		3448BFD11EDF0EA7005B2D69 /* ConversationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3448BFCB1EDF0EA7005B2D69 /* ConversationViewController.xib */; };
 		344F2F671E57A932000D9322 /* UIViewController+OWS.m in Sources */ = {isa = PBXBuildFile; fileRef = 344F2F661E57A932000D9322 /* UIViewController+OWS.m */; };
 		34533F181EA8D2070006114F /* OWSAudioAttachmentPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 34533F171EA8D2070006114F /* OWSAudioAttachmentPlayer.m */; };
 		34535D821E256BE9008A4747 /* UIView+OWS.m in Sources */ = {isa = PBXBuildFile; fileRef = 34535D811E256BE9008A4747 /* UIView+OWS.m */; };
@@ -93,6 +90,10 @@
 		34CE88ED1F3237260098030F /* ProfileFetcherJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CE88EB1F3237260098030F /* ProfileFetcherJob.swift */; };
 		34D1F0501F7D45A60066283D /* GifPickerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F04F1F7D45A60066283D /* GifPickerCell.swift */; };
 		34D1F0521F7E8EA30066283D /* GiphyDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0511F7E8EA30066283D /* GiphyDownloader.swift */; };
+		34D1F0551F854A3A0066283D /* ConversationViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0541F854A3A0066283D /* ConversationViewLayout.m */; };
+		34D1F0581F8564EB0066283D /* ConversationHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0571F8564EB0066283D /* ConversationHeaderView.m */; };
+		34D1F05B1F8566780066283D /* ConversationInputToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F05A1F8566780066283D /* ConversationInputToolbar.m */; };
+		34D1F05E1F8569450066283D /* ConversationInputTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F05D1F8569450066283D /* ConversationInputTextView.m */; };
 		34D5CC961EA6AFAD005515DB /* OWSContactsSyncing.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */; };
 		34D5CCA91EAE3D30005515DB /* AvatarViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CCA81EAE3D30005515DB /* AvatarViewHelper.m */; };
 		34D5CCB11EAE7E7F005515DB /* SelectRecipientViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CCB01EAE7E7F005515DB /* SelectRecipientViewController.m */; };
@@ -435,13 +436,8 @@
 		343D3D9A1E9283F100165CA4 /* BlockListUIUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockListUIUtils.m; sourceTree = "<group>"; };
 		3448BFC11EDF0EA7005B2D69 /* OWSMessagesToolbarContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessagesToolbarContentView.h; sourceTree = "<group>"; };
 		3448BFC21EDF0EA7005B2D69 /* OWSMessagesToolbarContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSMessagesToolbarContentView.m; sourceTree = "<group>"; };
-		3448BFC31EDF0EA7005B2D69 /* OWSMessagesInputToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessagesInputToolbar.h; sourceTree = "<group>"; };
-		3448BFC41EDF0EA7005B2D69 /* OWSMessagesInputToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSMessagesInputToolbar.m; sourceTree = "<group>"; };
-		3448BFC71EDF0EA7005B2D69 /* OWSMessagesComposerTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessagesComposerTextView.h; sourceTree = "<group>"; };
-		3448BFC81EDF0EA7005B2D69 /* OWSMessagesComposerTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSMessagesComposerTextView.m; sourceTree = "<group>"; };
 		3448BFC91EDF0EA7005B2D69 /* ConversationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationViewController.h; sourceTree = "<group>"; };
 		3448BFCA1EDF0EA7005B2D69 /* ConversationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConversationViewController.m; sourceTree = "<group>"; };
-		3448BFCB1EDF0EA7005B2D69 /* ConversationViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConversationViewController.xib; sourceTree = "<group>"; };
 		344F2F651E57A932000D9322 /* UIViewController+OWS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIViewController+OWS.h"; path = "util/UIViewController+OWS.h"; sourceTree = "<group>"; };
 		344F2F661E57A932000D9322 /* UIViewController+OWS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIViewController+OWS.m"; path = "util/UIViewController+OWS.m"; sourceTree = "<group>"; };
 		34533F161EA8D2070006114F /* OWSAudioAttachmentPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSAudioAttachmentPlayer.h; sourceTree = "<group>"; };
@@ -553,6 +549,14 @@
 		34CE88EB1F3237260098030F /* ProfileFetcherJob.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileFetcherJob.swift; sourceTree = "<group>"; };
 		34D1F04F1F7D45A60066283D /* GifPickerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GifPickerCell.swift; sourceTree = "<group>"; };
 		34D1F0511F7E8EA30066283D /* GiphyDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GiphyDownloader.swift; sourceTree = "<group>"; };
+		34D1F0531F854A3A0066283D /* ConversationViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationViewLayout.h; sourceTree = "<group>"; };
+		34D1F0541F854A3A0066283D /* ConversationViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConversationViewLayout.m; sourceTree = "<group>"; };
+		34D1F0561F8564EB0066283D /* ConversationHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationHeaderView.h; sourceTree = "<group>"; };
+		34D1F0571F8564EB0066283D /* ConversationHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConversationHeaderView.m; sourceTree = "<group>"; };
+		34D1F0591F8566780066283D /* ConversationInputToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationInputToolbar.h; sourceTree = "<group>"; };
+		34D1F05A1F8566780066283D /* ConversationInputToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConversationInputToolbar.m; sourceTree = "<group>"; };
+		34D1F05C1F8569450066283D /* ConversationInputTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationInputTextView.h; sourceTree = "<group>"; };
+		34D1F05D1F8569450066283D /* ConversationInputTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConversationInputTextView.m; sourceTree = "<group>"; };
 		34D5CC941EA6AFAD005515DB /* OWSContactsSyncing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSContactsSyncing.h; sourceTree = "<group>"; };
 		34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSContactsSyncing.m; sourceTree = "<group>"; };
 		34D5CC981EA6EB79005515DB /* OWSMessageCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessageCollectionViewCell.h; sourceTree = "<group>"; };
@@ -982,13 +986,16 @@
 		3448BFC01EDF0EA7005B2D69 /* ConversationView */ = {
 			isa = PBXGroup;
 			children = (
+				34D1F0561F8564EB0066283D /* ConversationHeaderView.h */,
+				34D1F0571F8564EB0066283D /* ConversationHeaderView.m */,
+				34D1F05C1F8569450066283D /* ConversationInputTextView.h */,
+				34D1F05D1F8569450066283D /* ConversationInputTextView.m */,
+				34D1F0591F8566780066283D /* ConversationInputToolbar.h */,
+				34D1F05A1F8566780066283D /* ConversationInputToolbar.m */,
 				3448BFC91EDF0EA7005B2D69 /* ConversationViewController.h */,
 				3448BFCA1EDF0EA7005B2D69 /* ConversationViewController.m */,
-				3448BFCB1EDF0EA7005B2D69 /* ConversationViewController.xib */,
-				3448BFC71EDF0EA7005B2D69 /* OWSMessagesComposerTextView.h */,
-				3448BFC81EDF0EA7005B2D69 /* OWSMessagesComposerTextView.m */,
-				3448BFC31EDF0EA7005B2D69 /* OWSMessagesInputToolbar.h */,
-				3448BFC41EDF0EA7005B2D69 /* OWSMessagesInputToolbar.m */,
+				34D1F0531F854A3A0066283D /* ConversationViewLayout.h */,
+				34D1F0541F854A3A0066283D /* ConversationViewLayout.m */,
 				3448BFC11EDF0EA7005B2D69 /* OWSMessagesToolbarContentView.h */,
 				3448BFC21EDF0EA7005B2D69 /* OWSMessagesToolbarContentView.m */,
 			);
@@ -2012,7 +2019,6 @@
 				B633C59D1A1D190B0059AC12 /* endcall@2x.png in Resources */,
 				FC5CDF391A3393DD00B47253 /* error_white@2x.png in Resources */,
 				B633C5D21A1D190B0059AC12 /* savephoto@2x.png in Resources */,
-				3448BFD11EDF0EA7005B2D69 /* ConversationViewController.xib in Resources */,
 				B10C9B611A7049EC00ECA2BF /* play_icon.png in Resources */,
 				AD83FF401A73426500B5C81A /* audio_pause_button_blue@2x.png in Resources */,
 				B66DBF4A19D5BBC8006EA940 /* Images.xcassets in Resources */,
@@ -2244,6 +2250,7 @@
 				45CD81F21DC03A22004C9430 /* OWSLogger.m in Sources */,
 				4542F0941EB9372700C7EE92 /* SystemContactsFetcher.swift in Sources */,
 				B60C16651988999D00E97A6C /* VersionMigrations.m in Sources */,
+				34D1F0551F854A3A0066283D /* ConversationViewLayout.m in Sources */,
 				B97940271832BD2400BD66CB /* UIUtil.m in Sources */,
 				34CE88ED1F3237260098030F /* ProfileFetcherJob.swift in Sources */,
 				34B3F8791E8DF1700035BE1A /* CountryCodeViewController.m in Sources */,
@@ -2272,7 +2279,6 @@
 				34D5CCB11EAE7E7F005515DB /* SelectRecipientViewController.m in Sources */,
 				34B3F88F1E8DF1710035BE1A /* RegistrationViewController.m in Sources */,
 				3430FE181F7751D4000EC51B /* GiphyAPI.swift in Sources */,
-				3448BFCD1EDF0EA7005B2D69 /* OWSMessagesInputToolbar.m in Sources */,
 				34B3F8901E8DF1710035BE1A /* AppSettingsViewController.m in Sources */,
 				34FD93701E3BD43A00109093 /* OWSAnyTouchGestureRecognizer.m in Sources */,
 				343D3D9B1E9283F100165CA4 /* BlockListUIUtils.m in Sources */,
@@ -2311,7 +2317,6 @@
 				450449391F45EE7D002D1ADA /* NSString+OWS.m in Sources */,
 				45464DBC1DFA041F001D3FD6 /* DataChannelMessage.swift in Sources */,
 				34E3E5681EC4B19400495BAC /* AudioProgressView.swift in Sources */,
-				3448BFCF1EDF0EA7005B2D69 /* OWSMessagesComposerTextView.m in Sources */,
 				34D1F0521F7E8EA30066283D /* GiphyDownloader.swift in Sources */,
 				450DF2051E0D74AC003D14BE /* Platform.swift in Sources */,
 				34BECE301F7ABCF800D7438D /* GifPickerLayout.swift in Sources */,
@@ -2323,6 +2328,7 @@
 				452ECA4D1E087E7200E2F016 /* MessageFetcherJob.swift in Sources */,
 				4556FA681F54AA9500AF40DD /* DebugUIProfile.swift in Sources */,
 				452EA0971EA662330078744B /* AttachmentPointerAdapter.swift in Sources */,
+				34D1F0581F8564EB0066283D /* ConversationHeaderView.m in Sources */,
 				34DFCB851E8E04B500053165 /* AddToBlockListViewController.m in Sources */,
 				45855F371D9498A40084F340 /* OWSContactAvatarBuilder.m in Sources */,
 				45A6DAD61EBBF85500893231 /* ReminderView.swift in Sources */,
@@ -2344,6 +2350,7 @@
 				45F170CC1E310E22003FC1F2 /* WeakTimer.swift in Sources */,
 				34B3F8871E8DF1700035BE1A /* NotificationSettingsViewController.m in Sources */,
 				A5E9D4BB1A65FAD800E4481C /* TSVideoAttachmentAdapter.m in Sources */,
+				34D1F05B1F8566780066283D /* ConversationInputToolbar.m in Sources */,
 				458E38371D668EBF0094BD24 /* OWSDeviceProvisioningURLParser.m in Sources */,
 				FCFA64B41A24F3880007FB87 /* UIColor+OWS.m in Sources */,
 				4517642B1DE939FD00EDB8B9 /* ContactCell.swift in Sources */,
@@ -2402,6 +2409,7 @@
 				45F170D61E315310003FC1F2 /* Weak.swift in Sources */,
 				4521C3C01F59F3BA00B4C582 /* TextFieldHelper.swift in Sources */,
 				34B3F8891E8DF1700035BE1A /* OWSConversationSettingsViewController.m in Sources */,
+				34D1F05E1F8569450066283D /* ConversationInputTextView.m in Sources */,
 				34C42D671F4734ED0072EC04 /* TSUnreadIndicatorInteraction.m in Sources */,
 				34B3F87E1E8DF1700035BE1A /* InboxTableViewCell.m in Sources */,
 				34B3F8731E8DF1700035BE1A /* AttachmentApprovalViewController.swift in Sources */,
