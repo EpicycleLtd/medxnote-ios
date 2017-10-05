@@ -126,6 +126,74 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark -
 
+@protocol ConversationCollectionViewDelegate <NSObject>
+
+- (void)collectionViewWillChangeLayout;
+- (void)collectionViewDidChangeLayout;
+
+@end
+
+#pragma mark -
+
+@interface ConversationCollectionView : UICollectionView
+
+@property (weak, nonatomic) id<ConversationCollectionViewDelegate> layoutDelegate;
+
+@end
+
+#pragma mark -
+
+@implementation ConversationCollectionView
+
+- (void)setFrame:(CGRect)frame {
+    BOOL isChanging = !CGSizeEqualToSize(frame.size, self.frame.size);
+    if (isChanging) {
+        [self.layoutDelegate collectionViewWillChangeLayout];
+    }
+    [super setFrame:frame];
+    if (isChanging) {
+        [self.layoutDelegate collectionViewDidChangeLayout];
+    }
+}
+
+- (void)setBounds:(CGRect)bounds {
+    BOOL isChanging = !CGSizeEqualToSize(bounds.size, self.bounds.size);
+    if (isChanging) {
+        [self.layoutDelegate collectionViewWillChangeLayout];
+    }
+    [super setBounds:bounds];
+    if (isChanging) {
+        [self.layoutDelegate collectionViewDidChangeLayout];
+    }
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset {
+    if (self.contentSize.height < 1 &&
+        CGPointEqualToPoint(CGPointZero, contentOffset)) {
+        // [UIScrollView _adjustContentOffsetIfNecessary] resets the content
+        // offset to zero under a number of undocumented conditions.  We don't
+        // want this behavior; we want fine-grained control over the default
+        // scroll state of the message view.
+        //
+        // [UIScrollView _adjustContentOffsetIfNecessary] is called in
+        // response to many different events; trying to prevent them all is
+        // whack-a-mole.
+        //
+        // It's not safe to override [UIScrollView _adjustContentOffsetIfNecessary],
+        // since its a private API.
+        //
+        // We can avoid the issue by simply ignoring attempt to reset the content
+        // offset to zero before the collection view has determined its content size.
+        return;
+    }
+    
+    [super setContentOffset:contentOffset];
+}
+
+@end
+
+#pragma mark -
+
 @interface ConversationViewController () <AVAudioPlayerDelegate,
     ContactsViewHelperDelegate,
     ContactEditingDelegate,
@@ -142,7 +210,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     UIImagePickerControllerDelegate,
     UINavigationControllerDelegate,
     UITextViewDelegate,
-    JSQLayoutDelegate,
+    ConversationCollectionViewDelegate,
     ConversationInputToolbarDelegate,
     GifPickerViewControllerDelegate>
 
@@ -166,7 +234,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic) YapDatabaseViewMappings *messageMappings;
 
 @property (nonatomic, readonly) ConversationInputToolbar *inputToolbar;
-@property (nonatomic, readonly) UICollectionView *collectionView;
+@property (nonatomic, readonly) ConversationCollectionView *collectionView;
 
 @property (nonatomic) NSArray<ConversationViewItem * > *viewItems;
 @property (nonatomic) NSMutableDictionary<NSString *, ConversationViewItem * > *viewItemMap;
@@ -549,8 +617,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 {
     ConversationViewLayout *layout = [ConversationViewLayout new];
     layout.delegate = self;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero
+    _collectionView = [[ConversationCollectionView alloc] initWithFrame:CGRectZero
                                              collectionViewLayout:layout];
+    self.collectionView.layoutDelegate = self;
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
     self.collectionView.showsVerticalScrollIndicator = NO;
@@ -2074,7 +2143,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     // We want to restore the current scroll state after we update the range, update
     // the dynamic interactions and re-layout.  Here we take a "before" snapshot.
-    CGFloat scrollDistanceToBottom = self.collectionView.contentSize.height - self.collectionView.contentOffset.y;
+    CGFloat scrollDistanceToBottom = self.safeContentHeight - self.collectionView.contentOffset.y;
 
     self.page = MIN(self.page + 1, (NSUInteger)kYapDatabaseMaxPageCount - 1);
 
@@ -2082,7 +2151,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     [self.collectionView layoutSubviews];
 
-    self.collectionView.contentOffset = CGPointMake(0, self.collectionView.contentSize.height - scrollDistanceToBottom);
+    self.collectionView.contentOffset = CGPointMake(0, self.safeContentHeight - scrollDistanceToBottom);
 
     // Don’t auto-scroll after “loading more messages” unless we have “more unseen messages”.
     //
@@ -2701,7 +2770,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     BOOL shouldShowScrollDownButton = NO;
     NSUInteger numberOfMessages = [self.messageMappings numberOfItemsInSection:0];
-    CGFloat scrollSpaceToBottom = (self.collectionView.contentSize.height + self.collectionView.contentInset.bottom
+    CGFloat scrollSpaceToBottom = (self.safeContentHeight + self.collectionView.contentInset.bottom
         - (self.collectionView.contentOffset.y + self.collectionView.frame.size.height));
     CGFloat pageHeight = (self.collectionView.frame.size.height
         - (self.collectionView.contentInset.top + self.collectionView.contentInset.bottom));
@@ -3308,7 +3377,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (BOOL)isScrolledToBottom
 {
-    if (self.collectionView.contentSize.height < 1) {
+    CGFloat contentHeight = self.safeContentHeight;
+    if (contentHeight < 1) {
         // If the collection view hasn't determined its content size yet,
         // scroll state is not yet coherent. Therefore we can't (and don't
         // need to) determine whether we're "scrolled to the bottom" until
@@ -3334,8 +3404,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     // Note the usage of MAX() to handle the case where there isn't enough
     // content to fill the collection view at its current size.
     CGFloat contentOffsetYBottom
-        = MAX(0.f, self.collectionView.contentSize.height - self.collectionView.bounds.size.height);
+        = MAX(0.f, contentHeight - self.collectionView.bounds.size.height);
     BOOL isScrolledToBottom = (self.collectionView.contentOffset.y > contentOffsetYBottom - kIsAtBottomTolerancePts);
+    
     return isScrolledToBottom;
 }
 
@@ -3920,7 +3991,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     BOOL wasAtBottom = [self isScrolledToBottom];
     if (wasAtBottom) {
         [self scrollToBottomImmediately];
-    } else if (self.collectionView.contentSize.height < 1) {
+    } else if (self.safeContentHeight < 1) {
         // If the collection view hasn't determined its content size yet,
         // scroll state is not yet coherent. Therefore we can't (and don't
         // need to) determine whether we're "scrolled to the bottom" until
@@ -3932,6 +4003,17 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
 
     [self updateLastVisibleTimestamp];
+}
+
+- (CGFloat)safeContentHeight
+{
+    // Don't use self.collectionView.contentSize.height as the collection view's
+    // content size might not be set yet.
+    //
+    // We can safely call prepareLayout to ensure the layout state is up-to-date
+    // since our layout uses a dirty flag internally to debounce redundant work.
+    [self.collectionView.collectionViewLayout prepareLayout];
+    return [self.collectionView.collectionViewLayout collectionViewContentSize].height;
 }
 
 - (void)scrollToBottomImmediately
@@ -3949,15 +4031,10 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         return;
     }
 
-    CGFloat dstY = MAX(0, self.collectionView.contentSize.height - self.collectionView.height);
-//    [self.collectionView scrollToItemAtIndexPath:<#(nonnull NSIndexPath *)#> atScrollPosition:<#(UICollectionViewScrollPosition)#> animated:<#(BOOL)#>
+    CGFloat contentHeight = self.safeContentHeight;
+    CGFloat dstY = MAX(0, contentHeight - self.collectionView.height);
     [self.collectionView setContentOffset:CGPointMake(0, dstY)
                                  animated:animated];
-    
-//    // TODO: Remove all references to : ([self.collectionView numberOfItemsInSection:0]
-//    NSInteger cellCount = (NSInteger) self.viewItems.count;
-//    NSIndexPath *lastCell = [NSIndexPath indexPathForItem:cellCount - 1 inSection:0];
-//    [self.collectionView scrollToIndexPath:lastCell animated:animated];
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -4234,7 +4311,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         // Snapshot the scroll state by measuring the "distance from top of view to
         // bottom of content"; if the mapping's "window" size grows, it will grow
         // _upward_.
-        CGFloat viewTopToContentBottom = self.collectionView.contentSize.height - self.collectionView.contentOffset.y;
+        CGFloat viewTopToContentBottom = self.safeContentHeight - self.collectionView.contentOffset.y;
 
         NSUInteger oldCellCount = [self.messageMappings numberOfItemsInGroup:self.thread.uniqueId];
         [self resetMappings];
@@ -4242,11 +4319,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
         // Detect changes in the mapping's "window" size.
         if (oldCellCount != newCellCount) {
-            // There's no way to imperatively force the collection view to layout its
-            // content, but we can safely use `collectionViewContentSize` to determine
-            // the new content size.
-            CGSize newContentSize = [self.collectionView.collectionViewLayout collectionViewContentSize];
-            CGPoint newContentOffset = CGPointMake(0, MAX(0, newContentSize.height - viewTopToContentBottom));
+            CGFloat newContentHeight = self.safeContentHeight;
+            CGPoint newContentOffset = CGPointMake(0, MAX(0, newContentHeight - viewTopToContentBottom));
             [self.collectionView setContentOffset:newContentOffset animated:NO];
         }
     }
@@ -4277,16 +4351,16 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self updateNavigationBarSubtitleLabel];
 }
 
-#pragma mark - JSQLayoutDelegate
+#pragma mark - ConversationCollectionViewDelegate
 
-- (void)jsqWillChangeLayout
+- (void)collectionViewWillChangeLayout
 {
     OWSAssert([NSThread isMainThread]);
 
     self.wasScrolledToBottomBeforeLayoutChange = [self isScrolledToBottom];
 }
 
-- (void)jsqDidChangeLayout
+- (void)collectionViewDidChangeLayout
 {
     OWSAssert([NSThread isMainThread]);
 

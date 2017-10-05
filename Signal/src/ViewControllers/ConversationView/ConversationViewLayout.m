@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) CGSize contentSize;
 @property (nonatomic, readonly) NSMutableDictionary<NSNumber *, UICollectionViewLayoutAttributes *> *itemAttributesMap;
+@property (nonatomic) BOOL hasLayout;
 
 @end
 
@@ -45,11 +46,17 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self.contentSize = CGSizeZero;
     [self.itemAttributesMap removeAllObjects];
+    self.hasLayout = NO;
 }
 
 - (void)prepareLayout
 {
     [super prepareLayout];
+
+    if (self.hasLayout) {
+        return;
+    }
+    self.hasLayout = YES;
 
     id<ConversationViewLayoutDelegate> delegate = self.delegate;
     if (!delegate) {
