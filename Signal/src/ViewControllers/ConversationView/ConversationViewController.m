@@ -1555,119 +1555,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark - JSQMessagesViewController method overrides
 
-- (void)didPressSendButton:(UIButton *)button
-           withMessageText:(NSString *)text
-                  senderId:(NSString *)senderId
-         senderDisplayName:(NSString *)senderDisplayName
-                      date:(NSDate *)date
-{
-    [self didPressSendButton:button
-             withMessageText:text
-                    senderId:senderId
-           senderDisplayName:senderDisplayName
-                        date:date
-         updateKeyboardState:YES];
-}
-
-- (void)didPressSendButton:(UIButton *)button
-           withMessageText:(NSString *)text
-                  senderId:(NSString *)senderId
-         senderDisplayName:(NSString *)senderDisplayName
-                      date:(NSDate *)date
-       updateKeyboardState:(BOOL)updateKeyboardState
-{
-
-    __weak ConversationViewController *weakSelf = self;
-    if ([self isBlockedContactConversation]) {
-        [self showUnblockContactUI:^(BOOL isBlocked) {
-            if (!isBlocked) {
-                [weakSelf didPressSendButton:button
-                             withMessageText:text
-                                    senderId:senderId
-                           senderDisplayName:senderDisplayName
-                                        date:date
-                         updateKeyboardState:NO];
-            }
-        }];
-        return;
-    }
-
-    BOOL didShowSNAlert =
-        [self showSafetyNumberConfirmationIfNecessaryWithConfirmationText:[SafetyNumberStrings confirmSendButton]
-                                                               completion:^(BOOL didConfirmIdentity) {
-                                                                   if (didConfirmIdentity) {
-                                                                       [weakSelf didPressSendButton:button
-                                                                                    withMessageText:text
-                                                                                           senderId:senderId
-                                                                                  senderDisplayName:senderDisplayName
-                                                                                               date:date
-                                                                                updateKeyboardState:NO];
-                                                                   }
-                                                               }];
-    if (didShowSNAlert) {
-        return;
-    }
-
-    text = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-
-    if (text.length < 1) {
-        return;
-    }
-
-    // Limit outgoing text messages to 16kb.
-    //
-    // We convert large text messages to attachments
-    // which are presented as normal text messages.
-    const NSUInteger kOversizeTextMessageSizeThreshold = 16 * 1024;
-    BOOL didAddToProfileWhitelist = [ThreadUtil addThreadToProfileWhitelistIfEmptyContactThread:self.thread];
-    TSOutgoingMessage *message;
-    if ([text lengthOfBytesUsingEncoding:NSUTF8StringEncoding] >= kOversizeTextMessageSizeThreshold) {
-        DataSource *_Nullable dataSource = [DataSourceValue dataSourceWithOversizeText:text];
-        SignalAttachment *attachment =
-            [SignalAttachment attachmentWithDataSource:dataSource dataUTI:kOversizeTextAttachmentUTI];
-        message =
-            [ThreadUtil sendMessageWithAttachment:attachment inThread:self.thread messageSender:self.messageSender];
-    } else {
-        message = [ThreadUtil sendMessageWithText:text inThread:self.thread messageSender:self.messageSender];
-    }
-
-    [self messageWasSent:message];
-
-    if (updateKeyboardState) {
-        [self toggleDefaultKeyboard];
-    }
-    [self clearDraft];
-    [self finishSendingMessage];
-//    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureSubviews];
-    if (didAddToProfileWhitelist) {
-        [self ensureDynamicInteractions];
-    }
-}
-
-// TODO:
-- (void)finishSendingMessage
-{
-    //    [self finishSendingMessageAnimated:YES];
-    //}
-    //
-    //- (void)finishSendingMessageAnimated:(BOOL)animated {
-    
-    UITextView *textView = self.inputToolbar.inputTextView;
-    textView.text = nil;
-    [textView.undoManager removeAllActions];
-    
-    [self.inputToolbar ensureContent];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:textView];
-    
-    [self.collectionView.collectionViewLayout invalidateLayoutWithContext:[JSQMessagesCollectionViewFlowLayoutInvalidationContext context]];
-    [self.collectionView reloadData];
-    
-    //    if (self.automaticallyScrollsToMostRecentMessage) {
-    //        [self scrollToBottomAnimated:animated];
-    //    }
-}
-
 - (void)toggleDefaultKeyboard
 {
 //    // Primary language is nil for the emoji keyboard & we want to stay on it after sending
@@ -4142,8 +4029,100 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark - ConversationInputToolbarDelegate
 
-- (void)didPressSendButton
+- (void)sendButtonPressed
 {
+    [self tryToSendTextMessage:self.inputToolbar.inputTextView.text
+         updateKeyboardState:YES];
+}
+
+- (void)tryToSendTextMessage:(NSString *)text
+       updateKeyboardState:(BOOL)updateKeyboardState
+{
+    
+    __weak ConversationViewController *weakSelf = self;
+    if ([self isBlockedContactConversation]) {
+        [self showUnblockContactUI:^(BOOL isBlocked) {
+            if (!isBlocked) {
+                [weakSelf tryToSendTextMessage:text
+                         updateKeyboardState:NO];
+            }
+        }];
+        return;
+    }
+    
+    BOOL didShowSNAlert =
+    [self showSafetyNumberConfirmationIfNecessaryWithConfirmationText:[SafetyNumberStrings confirmSendButton]
+                                                           completion:^(BOOL didConfirmIdentity) {
+                                                               if (didConfirmIdentity) {
+                                                                   [weakSelf tryToSendTextMessage:text
+                                                                            updateKeyboardState:NO];
+                                                               }
+                                                           }];
+    if (didShowSNAlert) {
+        return;
+    }
+    
+    text = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    if (text.length < 1) {
+        return;
+    }
+    
+    // Limit outgoing text messages to 16kb.
+    //
+    // We convert large text messages to attachments
+    // which are presented as normal text messages.
+    const NSUInteger kOversizeTextMessageSizeThreshold = 16 * 1024;
+    BOOL didAddToProfileWhitelist = [ThreadUtil addThreadToProfileWhitelistIfEmptyContactThread:self.thread];
+    TSOutgoingMessage *message;
+    if ([text lengthOfBytesUsingEncoding:NSUTF8StringEncoding] >= kOversizeTextMessageSizeThreshold) {
+        DataSource *_Nullable dataSource = [DataSourceValue dataSourceWithOversizeText:text];
+        SignalAttachment *attachment =
+        [SignalAttachment attachmentWithDataSource:dataSource dataUTI:kOversizeTextAttachmentUTI];
+        message =
+        [ThreadUtil sendMessageWithAttachment:attachment inThread:self.thread messageSender:self.messageSender];
+    } else {
+        message = [ThreadUtil sendMessageWithText:text inThread:self.thread messageSender:self.messageSender];
+    }
+    
+    [self messageWasSent:message];
+    
+    if (updateKeyboardState) {
+        [self toggleDefaultKeyboard];
+    }
+    [self clearDraft];
+    [self finishSendingMessage];
+    //    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureSubviews];
+    if (didAddToProfileWhitelist) {
+        [self ensureDynamicInteractions];
+    }
+}
+
+// TODO:
+- (void)finishSendingMessage
+{
+    //    [self finishSendingMessageAnimated:YES];
+    //}
+    //
+    //- (void)finishSendingMessageAnimated:(BOOL)animated {
+    
+    UITextView *textView = self.inputToolbar.inputTextView;
+    textView.text = nil;
+    [textView.undoManager removeAllActions];
+    
+    [self.inputToolbar ensureContent];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:textView];
+    
+    [self.collectionView.collectionViewLayout invalidateLayoutWithContext:[JSQMessagesCollectionViewFlowLayoutInvalidationContext context]];
+    [self.collectionView reloadData];
+    
+    //    if (self.automaticallyScrollsToMostRecentMessage) {
+    //        [self scrollToBottomAnimated:animated];
+    //    }
+}
+
+- (void)attachmentButtonPressed {
     // TODO:
 }
 

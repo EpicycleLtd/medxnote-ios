@@ -16,8 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ConversationInputToolbar ()
 
-//<OWSSendMessageGestureDelegate>
-
 @property (nonatomic, readonly) UIButton *attachmentButton;
 
 @property (nonatomic, readonly) UIButton *sendButton;
@@ -67,6 +65,10 @@ NS_ASSUME_NONNULL_BEGIN
     = NSLocalizedString(@"ATTACHMENT_LABEL", @"Accessibility label for attaching photos");
     self.attachmentButton.accessibilityHint = NSLocalizedString(
                                                         @"ATTACHMENT_HINT", @"Accessibility hint describing what you can do with the attachment button");
+    [self.attachmentButton addTarget:self
+                              action:@selector(attachmentButtonPressed)
+                    forControlEvents:UIControlEventTouchUpInside];
+    
 //    [_attachButton setFrame:CGRectMake(0,
 //                                       0,
 //                                       JSQ_TOOLBAR_ICON_WIDTH + JSQ_IMAGE_INSET * 2,
@@ -88,6 +90,9 @@ NS_ASSUME_NONNULL_BEGIN
     self.sendButton.titleLabel.textAlignment = NSTextAlignmentCenter;
     // TODO:
     self.sendButton.titleLabel.font = [UIFont ows_mediumFontWithSize:16.f];
+    [self.sendButton addTarget:self
+                        action:@selector(sendButtonPressed)
+              forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:self.sendButton];
     
     // TODO: RTL, margin, spacing.
@@ -1058,6 +1063,18 @@ NS_ASSUME_NONNULL_BEGIN
 //}
 //
 //@end
+
+- (void)sendButtonPressed {
+    OWSAssert(self.inputToolbarDelegate);
+    
+    [self.inputToolbarDelegate sendButtonPressed];
+}
+
+- (void)attachmentButtonPressed {
+    OWSAssert(self.inputToolbarDelegate);
+    
+    [self.inputToolbarDelegate attachmentButtonPressed];
+}
 
 @end
 

@@ -8,7 +8,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol ConversationInputToolbarDelegate <NSObject>
 
-- (void)didPressSendButton;
+- (void)sendButtonPressed;
+
+- (void)attachmentButtonPressed;
 
 - (void)voiceMemoGestureDidStart;
 

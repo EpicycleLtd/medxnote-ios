@@ -13,37 +13,36 @@ NS_ASSUME_NONNULL_BEGIN
 {
     [super prepareForReuse];
     
-    self.viewItem = nil;
+    _viewItem = nil;
     self.messageDateHeaderText = nil;
     self.delegate = nil;
     self.isCellVisible = NO;
 }
 
-// TODO:
-- (void)setFrame:(CGRect)frame {
-    [super setFrame:frame];
-    
-    DDLogError(@"%@ setFrame: %@", NSStringFromClass(self.class), NSStringFromCGRect(frame));
-}
-
-// TODO:
-- (void)setBounds:(CGRect)bounds {
-    [super setBounds:bounds];
-    
-    DDLogError(@"%@ setFrame: %@", ConversationViewCell.logTag, NSStringFromCGRect(bounds));
-}
+//// TODO:
+//- (void)setFrame:(CGRect)frame {
+//    [super setFrame:frame];
+//    
+//    DDLogError(@"%@ setFrame: %@", NSStringFromClass(self.class), NSStringFromCGRect(frame));
+//}
+//
+//// TODO:
+//- (void)setBounds:(CGRect)bounds {
+//    [super setBounds:bounds];
+//    
+//    DDLogError(@"%@ setFrame: %@", ConversationViewCell.logTag, NSStringFromCGRect(bounds));
+//}
 
 - (void)configure
 {
-    OWSFail(@"%@ this method should be overridden.", self.logTag);
+    OWSFail(@"%@ This method should be overridden.", self.logTag);
 }
 
 - (CGSize)cellSizeForViewWidth:(int)viewWidth
                maxMessageWidth:(int)maxMessageWidth
 {
-    OWSFail(@"%@ this method should be overridden.", self.logTag);
-    // TODO:
-    return CGSizeMake(maxMessageWidth, maxMessageWidth);
+    OWSFail(@"%@ This method should be overridden.", self.logTag);
+    return CGSizeZero;
 }
 
 #pragma mark - Logging

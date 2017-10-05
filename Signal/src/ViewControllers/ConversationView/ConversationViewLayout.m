@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     const int vInset = 5;
     const int hInset = 5;
-    const int vSpacing = 3;
+    const int vSpacing = 5;
     const int viewWidth = (int)floor(self.collectionView.bounds.size.width);
     const int maxMessageWidth = (int)floor((viewWidth - 2 * hInset) * 0.7f);
 
