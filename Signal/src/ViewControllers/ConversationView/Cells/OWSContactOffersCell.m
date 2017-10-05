@@ -173,10 +173,16 @@ NS_ASSUME_NONNULL_BEGIN
     layoutButton(self.blockButton, interaction.hasBlockOffer);
 }
 
-- (CGSize)bubbleSizeForInteraction:(OWSContactOffersInteraction *)interaction
-               collectionViewWidth:(CGFloat)collectionViewWidth
+- (CGSize)cellSizeForViewWidth:(int)viewWidth
+               maxMessageWidth:(int)maxMessageWidth
 {
-    CGSize result = CGSizeMake(collectionViewWidth, 0);
+    OWSAssert(self.viewItem);
+    OWSAssert([self.viewItem.interaction isKindOfClass:[OWSContactOffersInteraction class]]);
+    
+    OWSContactOffersInteraction *interaction = (OWSContactOffersInteraction *) self.viewItem.interaction;
+
+    // TODO: Should we use viewWidth?
+    CGSize result = CGSizeMake(viewWidth, 0);
     result.height += self.topVMargin;
     result.height += self.bottomVMargin;
 

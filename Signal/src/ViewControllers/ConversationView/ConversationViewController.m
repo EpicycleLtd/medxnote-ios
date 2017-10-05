@@ -3408,7 +3408,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
                     OWSAssert(collectionKey.key.length > 0);
                     if (collectionKey.key) {
-                        [self.viewItemMap removeObjectForKey:collectionKey.key];
+                        [self.viewItemMap[collectionKey.key] clearCachedLayoutState];
                     }
                     [self.collectionView reloadItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     break;
@@ -4418,7 +4418,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                   cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ConversationViewItem * _Nullable viewItem = [self viewItemForIndex:(NSUInteger) indexPath.row];
-    OWSInteractionType interactionType = (viewItem ? viewItem.interaction.interactionType : OWSInteractionType_Unknown);
     
     ConversationViewCell *cell = [viewItem dequeueCellForCollectionView:self.collectionView
                                                               indexPath:indexPath];
@@ -4429,6 +4428,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     cell.viewItem = viewItem;
     cell.delegate = self;
     
+    // TODO: Could we move this inside the cell base class?
     if (viewItem.shouldShowDate) {
         cell.messageDateHeaderText = [[JSQMessagesTimestampFormatter sharedFormatter] attributedTimestampForDate:viewItem.interaction.dateForSorting];
     }

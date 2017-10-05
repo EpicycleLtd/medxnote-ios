@@ -280,14 +280,20 @@ NS_ASSUME_NONNULL_BEGIN
         ceil(titleSize.height + 1.f));
 }
 
-- (CGSize)bubbleSizeForInteraction:(TSInteraction *)interaction collectionViewWidth:(CGFloat)collectionViewWidth
+- (CGSize)cellSizeForViewWidth:(int)viewWidth
+               maxMessageWidth:(int)maxMessageWidth
 {
-    CGSize result = CGSizeMake(collectionViewWidth, 0);
+    OWSAssert(self.viewItem);
+    
+    TSInteraction *interaction = self.viewItem.interaction;
+    
+    // TODO: Should we use maxMessageWidth?
+    CGSize result = CGSizeMake(viewWidth, 0);
     result.height += self.topVMargin;
     result.height += self.bottomVMargin;
 
     [self applyTitleForInteraction:interaction label:self.titleLabel];
-    CGFloat maxTitleWidth = (collectionViewWidth - ([self hMargin] * 2.f + [self hSpacing] + [self iconSize]));
+    CGFloat maxTitleWidth = (viewWidth - ([self hMargin] * 2.f + [self hSpacing] + [self iconSize]));
     CGSize titleSize = [self.titleLabel sizeThatFits:CGSizeMake(maxTitleWidth, CGFLOAT_MAX)];
 
     CGFloat contentHeight = ceil(MAX([self iconSize], titleSize.height));

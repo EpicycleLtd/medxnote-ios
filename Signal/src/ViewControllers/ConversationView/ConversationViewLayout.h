@@ -11,8 +11,11 @@ typedef NS_ENUM(NSInteger, ConversationViewLayoutAlignment) {
 
 @protocol ConversationViewLayoutItem <NSObject>
 
+// TODO: Perhaps maxMessageWidth should be an implementation detail of the
+//       message cells.
 - (CGSize)cellSizeForViewWidth:(int)viewWidth
                maxMessageWidth:(int)maxMessageWidth;
+
 - (ConversationViewLayoutAlignment)layoutAlignment;
 
 @end

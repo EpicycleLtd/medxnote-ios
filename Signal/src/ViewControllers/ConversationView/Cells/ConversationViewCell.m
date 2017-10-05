@@ -21,7 +21,7 @@
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
     
-    DDLogError(@"%@ setFrame: %@", ConversationViewCell.logTag, NSStringFromCGRect(frame));
+    DDLogError(@"%@ setFrame: %@", NSStringFromClass(self.class), NSStringFromCGRect(frame));
 }
 
 // TODO:
@@ -34,6 +34,14 @@
 - (void)configure
 {
     OWSFail(@"%@ this method should be overridden.", self.logTag);
+}
+
+- (CGSize)cellSizeForViewWidth:(int)viewWidth
+               maxMessageWidth:(int)maxMessageWidth
+{
+    OWSFail(@"%@ this method should be overridden.", self.logTag);
+    // TODO:
+    return CGSizeMake(maxMessageWidth, maxMessageWidth);
 }
 
 #pragma mark - Logging

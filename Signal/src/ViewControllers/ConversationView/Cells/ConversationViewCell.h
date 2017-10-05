@@ -41,4 +41,7 @@
 
 - (void)configure;
 
+- (CGSize)cellSizeForViewWidth:(int)viewWidth
+               maxMessageWidth:(int)maxMessageWidth;
+
 @end

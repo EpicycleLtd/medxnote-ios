@@ -15,4 +15,6 @@
 - (ConversationViewCell *)dequeueCellForCollectionView:(UICollectionView *)collectionView
                                              indexPath:(NSIndexPath *)indexPath;
 
+- (void)clearCachedLayoutState;
+
 @end

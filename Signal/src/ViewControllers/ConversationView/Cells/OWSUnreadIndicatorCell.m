@@ -202,10 +202,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (CGSize)bubbleSizeForInteraction:(TSUnreadIndicatorInteraction *)interaction
-               collectionViewWidth:(CGFloat)collectionViewWidth
+- (CGSize)cellSizeForViewWidth:(int)viewWidth
+               maxMessageWidth:(int)maxMessageWidth
 {
-    CGSize result = CGSizeMake(collectionViewWidth, 0);
+    OWSAssert(self.viewItem);
+    OWSAssert([self.viewItem.interaction isKindOfClass:[TSUnreadIndicatorInteraction class]]);
+    
+    TSUnreadIndicatorInteraction *interaction = (TSUnreadIndicatorInteraction *) self.viewItem.interaction;
+
+    // TODO: Should we use viewWidth?
+    CGSize result = CGSizeMake(viewWidth, 0);
     result.height += self.titleVMargin * 2.f;
     result.height += self.topVMargin;
     result.height += self.bottomVMargin;
@@ -221,7 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
 
         self.subtitleLabel.text = subtitle;
         result.height += ceil(
-            [self.subtitleLabel sizeThatFits:CGSizeMake(collectionViewWidth - self.subtitleHMargin * 2.f, CGFLOAT_MAX)]
+            [self.subtitleLabel sizeThatFits:CGSizeMake(viewWidth - self.subtitleHMargin * 2.f, CGFLOAT_MAX)]
                 .height);
     }
 

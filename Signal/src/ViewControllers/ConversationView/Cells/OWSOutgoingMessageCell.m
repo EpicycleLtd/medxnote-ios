@@ -31,6 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert([self.viewItem.interaction isKindOfClass:[TSOutgoingMessage class]]);
 }
 
+- (CGSize)cellSizeForViewWidth:(int)viewWidth
+               maxMessageWidth:(int)maxMessageWidth
+{
+    OWSAssert(self.viewItem);
+    OWSAssert([self.viewItem.interaction isKindOfClass:[TSOutgoingMessage class]]);
+    
+    TSOutgoingMessage *interaction = (TSOutgoingMessage *) self.viewItem.interaction;
+    
+    return CGSizeMake(maxMessageWidth, maxMessageWidth);
+}
+
 //- (void)awakeFromNib
 //{
 //    [super awakeFromNib];
