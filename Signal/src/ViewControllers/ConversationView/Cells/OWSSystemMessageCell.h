@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OWSSystemMessageCell : ConversationViewCell
 
-- (CGSize)bubbleSizeForInteraction:(TSInteraction *)interaction collectionViewWidth:(CGFloat)collectionViewWidth;
+//- (CGSize)bubbleSizeForInteraction:(TSInteraction *)interaction collectionViewWidth:(CGFloat)collectionViewWidth;
 
 + (NSString *)cellReuseIdentifier;
 

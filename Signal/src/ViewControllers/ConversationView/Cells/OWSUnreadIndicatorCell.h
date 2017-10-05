@@ -10,8 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OWSUnreadIndicatorCell : ConversationViewCell
 
-- (CGSize)bubbleSizeForInteraction:(TSUnreadIndicatorInteraction *)interaction
-               collectionViewWidth:(CGFloat)collectionViewWidth;
+//- (CGSize)bubbleSizeForInteraction:(TSUnreadIndicatorInteraction *)interaction
+//               collectionViewWidth:(CGFloat)collectionViewWidth;
 
 + (NSString *)cellReuseIdentifier;
 

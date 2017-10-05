@@ -102,6 +102,7 @@
 		34D1F0AF1F867BFC0066283D /* OWSOutgoingMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0A41F867BFC0066283D /* OWSOutgoingMessageCell.m */; };
 		34D1F0B01F867BFC0066283D /* OWSSystemMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0A61F867BFC0066283D /* OWSSystemMessageCell.m */; };
 		34D1F0B11F867BFC0066283D /* OWSUnreadIndicatorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0A81F867BFC0066283D /* OWSUnreadIndicatorCell.m */; };
+		34D1F0B41F86D31D0066283D /* ConversationCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0B31F86D31D0066283D /* ConversationCollectionView.m */; };
 		34D5CC961EA6AFAD005515DB /* OWSContactsSyncing.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */; };
 		34D5CCA91EAE3D30005515DB /* AvatarViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CCA81EAE3D30005515DB /* AvatarViewHelper.m */; };
 		34D5CCB11EAE7E7F005515DB /* SelectRecipientViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CCB01EAE7E7F005515DB /* SelectRecipientViewController.m */; };
@@ -573,6 +574,8 @@
 		34D1F0A61F867BFC0066283D /* OWSSystemMessageCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSSystemMessageCell.m; sourceTree = "<group>"; };
 		34D1F0A71F867BFC0066283D /* OWSUnreadIndicatorCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSUnreadIndicatorCell.h; sourceTree = "<group>"; };
 		34D1F0A81F867BFC0066283D /* OWSUnreadIndicatorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSUnreadIndicatorCell.m; sourceTree = "<group>"; };
+		34D1F0B21F86D31D0066283D /* ConversationCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationCollectionView.h; sourceTree = "<group>"; };
+		34D1F0B31F86D31D0066283D /* ConversationCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConversationCollectionView.m; sourceTree = "<group>"; };
 		34D5CC941EA6AFAD005515DB /* OWSContactsSyncing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSContactsSyncing.h; sourceTree = "<group>"; };
 		34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSContactsSyncing.m; sourceTree = "<group>"; };
 		34D5CC9B1EA6ED17005515DB /* OWSMessageMediaAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessageMediaAdapter.h; sourceTree = "<group>"; };
@@ -989,6 +992,8 @@
 			isa = PBXGroup;
 			children = (
 				34D1F0951F867BFC0066283D /* Cells */,
+				34D1F0B21F86D31D0066283D /* ConversationCollectionView.h */,
+				34D1F0B31F86D31D0066283D /* ConversationCollectionView.m */,
 				34D1F0651F8678AA0066283D /* ConversationHeaderView.h */,
 				34D1F0661F8678AA0066283D /* ConversationHeaderView.m */,
 				34D1F0671F8678AA0066283D /* ConversationInputTextView.h */,
@@ -2373,6 +2378,7 @@
 				B6C93C4E199567AD00EDF894 /* DebugLogger.m in Sources */,
 				34D1F08C1F8678AA0066283D /* OWSMessagesToolbarContentView.m in Sources */,
 				34D8C0271ED3673300188D7C /* DebugUIMessages.m in Sources */,
+				34D1F0B41F86D31D0066283D /* ConversationCollectionView.m in Sources */,
 				34B3F8821E8DF1700035BE1A /* NewContactThreadViewController.m in Sources */,
 				3453D8EA1EC0D4ED003F9E6F /* OWSAlerts.swift in Sources */,
 				45F659821E1BE77000444429 /* NonCallKitCallUIAdaptee.swift in Sources */,

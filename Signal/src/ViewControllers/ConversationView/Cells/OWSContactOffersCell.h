@@ -12,8 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OWSContactOffersCell : ConversationViewCell
 
-- (CGSize)bubbleSizeForInteraction:(OWSContactOffersInteraction *)interaction
-               collectionViewWidth:(CGFloat)collectionViewWidth;
+//- (CGSize)bubbleSizeForInteraction:(OWSContactOffersInteraction *)interaction
+//               collectionViewWidth:(CGFloat)collectionViewWidth;
 
 + (NSString *)cellReuseIdentifier;
 

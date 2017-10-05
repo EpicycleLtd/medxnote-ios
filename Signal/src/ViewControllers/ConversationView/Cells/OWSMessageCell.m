@@ -67,6 +67,14 @@ NS_ASSUME_NONNULL_BEGIN
 //    [self createButtonWithTitle:NSLocalizedString(@"CONVERSATION_VIEW_UNKNOWN_CONTACT_BLOCK_OFFER",
 //                                                  @"Message shown in conversation view that offers to block an unknown user.")
 //                       selector:@selector(block)];
+
+    UITapGestureRecognizer *tap =
+    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    [self addGestureRecognizer:tap];
+
+    UILongPressGestureRecognizer *longPress =
+    [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressGesture:)];
+    [self addGestureRecognizer:longPress];
 }
 
 - (void)configure
@@ -291,6 +299,26 @@ NS_ASSUME_NONNULL_BEGIN
 //{
 //    [self.expirationTimerView stopTimer];
 //}
+
+#pragma mark - Gesture recognizers
+
+- (void)handleTapGesture:(UITapGestureRecognizer *)sender
+{
+    OWSAssert(self.delegate);
+    
+    if (sender.state == UIGestureRecognizerStateRecognized) {
+        [self.delegate didTapViewItem:self.viewItem];
+    }
+}
+
+- (void)handleLongPressGesture:(UILongPressGestureRecognizer *)longPress
+{
+    OWSAssert(self.delegate);
+    
+    if (longPress.state == UIGestureRecognizerStateBegan) {
+        [self.delegate didLongPressViewItem:self.viewItem];
+    }
+}
 
 @end
 

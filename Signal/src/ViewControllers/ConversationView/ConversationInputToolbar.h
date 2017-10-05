@@ -20,18 +20,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)voiceMemoGestureDidChange:(CGFloat)cancelAlpha;
 
+- (void)textViewDidChange;
+//- (void)textViewDidBeginEditing;
+
 @end
 
 #pragma mark -
 
 @class ConversationInputTextView;
+@protocol ConversationInputTextViewDelegate;
 
-//@interface ConversationInputToolbar : JSQMessagesInputToolbar
 @interface ConversationInputToolbar : UIToolbar
 
 @property (nonatomic, weak) id<ConversationInputToolbarDelegate> inputToolbarDelegate;
 
-@property (nonatomic, readonly) ConversationInputTextView *inputTextView;
+//@property (nonatomic, readonly) ConversationInputTextView *inputTextView;
+
+//- (void)endEditing:(BOOL)force;
+//- (void)endEditing:(BOOL)force;
+- (void)beginEditingTextMessage;
+- (void)endEditingTextMessage;
+
+- (void)setInputTextViewDelegate:(id<ConversationInputTextViewDelegate>)value;
+
+- (NSString *)messageText;
+- (void)setMessageText:(NSString * _Nullable)value;
+- (void)clearTextMessage;
 
 #pragma mark - Voice Memo
 
@@ -42,10 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setVoiceMemoUICancelAlpha:(CGFloat)cancelAlpha;
 
 - (void)cancelVoiceMemoIfNecessary;
-
-- (void)endEditing:(BOOL)force;
-
-- (void)ensureContent;
 
 @end
 

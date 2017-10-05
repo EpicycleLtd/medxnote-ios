@@ -6,6 +6,7 @@
 #import "AppDelegate.h"
 #import "AttachmentSharing.h"
 #import "BlockListUIUtils.h"
+#import "ConversationCollectionView.h"
 #import "BlockListViewController.h"
 #import "ContactsViewHelper.h"
 #import "ConversationViewLayout.h"
@@ -92,9 +93,9 @@
 #import <SignalServiceKit/Threading.h>
 #import <YapDatabase/YapDatabaseView.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @import Photos;
+
+NS_ASSUME_NONNULL_BEGIN
 
 // Always load up to 50 messages when user arrives.
 static const int kYapDatabasePageSize = 50;
@@ -106,9 +107,9 @@ static const int kYapDatabaseMaxInitialPageCount = 6;
 static const int kConversationInitialMaxRangeSize = kYapDatabasePageSize * kYapDatabaseMaxInitialPageCount;
 static const int kYapDatabaseRangeMaxLength = kYapDatabasePageSize * kYapDatabaseMaxPageCount;
 static const int kYapDatabaseRangeMinLength = 0;
-static const int JSQ_TOOLBAR_ICON_HEIGHT = 22;
-static const int JSQ_TOOLBAR_ICON_WIDTH = 22;
-static const int JSQ_IMAGE_INSET = 5;
+//static const int JSQ_TOOLBAR_ICON_HEIGHT = 22;
+//static const int JSQ_TOOLBAR_ICON_WIDTH = 22;
+//static const int JSQ_IMAGE_INSET = 5;
 
 NSString *const ConversationViewControllerDidAppearNotification = @"ConversationViewControllerDidAppear";
 
@@ -123,74 +124,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     MessagesRangeSizeMode_Truncate,
     MessagesRangeSizeMode_Normal
 };
-
-#pragma mark -
-
-@protocol ConversationCollectionViewDelegate <NSObject>
-
-- (void)collectionViewWillChangeLayout;
-- (void)collectionViewDidChangeLayout;
-
-@end
-
-#pragma mark -
-
-@interface ConversationCollectionView : UICollectionView
-
-@property (weak, nonatomic) id<ConversationCollectionViewDelegate> layoutDelegate;
-
-@end
-
-#pragma mark -
-
-@implementation ConversationCollectionView
-
-- (void)setFrame:(CGRect)frame {
-    BOOL isChanging = !CGSizeEqualToSize(frame.size, self.frame.size);
-    if (isChanging) {
-        [self.layoutDelegate collectionViewWillChangeLayout];
-    }
-    [super setFrame:frame];
-    if (isChanging) {
-        [self.layoutDelegate collectionViewDidChangeLayout];
-    }
-}
-
-- (void)setBounds:(CGRect)bounds {
-    BOOL isChanging = !CGSizeEqualToSize(bounds.size, self.bounds.size);
-    if (isChanging) {
-        [self.layoutDelegate collectionViewWillChangeLayout];
-    }
-    [super setBounds:bounds];
-    if (isChanging) {
-        [self.layoutDelegate collectionViewDidChangeLayout];
-    }
-}
-
-- (void)setContentOffset:(CGPoint)contentOffset {
-    if (self.contentSize.height < 1 &&
-        CGPointEqualToPoint(CGPointZero, contentOffset)) {
-        // [UIScrollView _adjustContentOffsetIfNecessary] resets the content
-        // offset to zero under a number of undocumented conditions.  We don't
-        // want this behavior; we want fine-grained control over the default
-        // scroll state of the message view.
-        //
-        // [UIScrollView _adjustContentOffsetIfNecessary] is called in
-        // response to many different events; trying to prevent them all is
-        // whack-a-mole.
-        //
-        // It's not safe to override [UIScrollView _adjustContentOffsetIfNecessary],
-        // since its a private API.
-        //
-        // We can avoid the issue by simply ignoring attempt to reset the content
-        // offset to zero before the collection view has determined its content size.
-        return;
-    }
-    
-    [super setContentOffset:contentOffset];
-}
-
-@end
 
 #pragma mark -
 
@@ -239,21 +172,21 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic) NSArray<ConversationViewItem * > *viewItems;
 @property (nonatomic) NSMutableDictionary<NSString *, ConversationViewItem * > *viewItemMap;
 
-@property (nonatomic) JSQMessagesBubbleImage *outgoingBubbleImageData;
-@property (nonatomic) JSQMessagesBubbleImage *incomingBubbleImageData;
-@property (nonatomic) JSQMessagesBubbleImage *currentlyOutgoingBubbleImageData;
-@property (nonatomic) JSQMessagesBubbleImage *outgoingMessageFailedImageData;
+//@property (nonatomic) JSQMessagesBubbleImage *outgoingBubbleImageData;
+//@property (nonatomic) JSQMessagesBubbleImage *incomingBubbleImageData;
+//@property (nonatomic) JSQMessagesBubbleImage *currentlyOutgoingBubbleImageData;
+//@property (nonatomic) JSQMessagesBubbleImage *outgoingMessageFailedImageData;
 
-@property (nonatomic) MPMoviePlayerController *videoPlayer;
-@property (nonatomic) AVAudioRecorder *audioRecorder;
-@property (nonatomic) OWSAudioAttachmentPlayer *audioAttachmentPlayer;
-@property (nonatomic) NSUUID *voiceMessageUUID;
+@property (nonatomic, nullable) MPMoviePlayerController *videoPlayer;
+@property (nonatomic, nullable) AVAudioRecorder *audioRecorder;
+@property (nonatomic, nullable) OWSAudioAttachmentPlayer *audioAttachmentPlayer;
+@property (nonatomic, nullable) NSUUID *voiceMessageUUID;
 
 @property (nonatomic) NSTimer *readTimer;
 @property (nonatomic) ConversationHeaderView *navigationBarTitleView;
 @property (nonatomic) UILabel *navigationBarTitleLabel;
 @property (nonatomic) UILabel *navigationBarSubtitleLabel;
-@property (nonatomic) UIView *bannerView;
+@property (nonatomic, nullable) UIView *bannerView;
 
 // Back Button Unread Count
 @property (nonatomic, readonly) UIView *backButtonUnreadCountView;
@@ -273,11 +206,11 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic, readonly) TSNetworkManager *networkManager;
 @property (nonatomic, readonly) OutboundCallInitiator *outboundCallInitiator;
 @property (nonatomic, readonly) OWSBlockingManager *blockingManager;
+@property (nonatomic, readonly) ContactsViewHelper *contactsViewHelper;
 
 @property (nonatomic) BOOL userHasScrolled;
 @property (nonatomic) NSDate *lastMessageSentDate;
 
-@property (nonatomic, readonly) ContactsViewHelper *contactsViewHelper;
 @property (nonatomic, nullable) ThreadDynamicInteractions *dynamicInteractions;
 @property (nonatomic) BOOL hasClearedUnreadMessagesIndicator;
 @property (nonatomic) uint64_t lastVisibleTimestamp;
@@ -299,14 +232,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 #pragma mark -
 
 @implementation ConversationViewController
-
-- (void)dealloc
-{
-    // Surface memory leaks by logging the deallocation of view controllers.
-    DDLogVerbose(@"Dealloc: %@", self.class);
-
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder
 {
@@ -395,65 +320,11 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                                object:nil];
 }
 
-- (void)addVisibleListeners
-{
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillShow:)
-                                                 name:UIKeyboardWillShowNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardDidShow:)
-                                                 name:UIKeyboardDidShowNotification
-                                               object:nil];
-}
-
-- (void)removeVisibleListeners
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
-}
-
 - (void)signalAccountsDidChange:(NSNotification *)notification
 {
     OWSAssert([NSThread isMainThread]);
 
     [self ensureDynamicInteractions];
-}
-
-- (void)keyboardWillShow:(NSNotification *)notification
-{
-    OWSAssert([NSThread isMainThread]);
-
-    // If we were scrolled to the bottom before the keyboard was presented, we
-    // want to scroll to the bottom after the keyboard is presented.
-    CGRect beginValue = ((NSValue *)notification.userInfo[UIKeyboardFrameBeginUserInfoKey]).CGRectValue;
-    CGRect endValue = ((NSValue *)notification.userInfo[UIKeyboardFrameEndUserInfoKey]).CGRectValue;
-
-    // Some custom keyboards fire this event multiple times for a given "show".
-    // We only want to capture the "before" scroll for the initial show.
-    BOOL isPresenting = (beginValue.size.height == 0.f && endValue.size.height > 0.f);
-
-    if (isPresenting) {
-        self.wasScrolledToBottomBeforeKeyboardShow = [self isScrolledToBottom];
-    }
-}
-
-- (void)keyboardDidShow:(NSNotification *)notification
-{
-    OWSAssert([NSThread isMainThread]);
-
-    // If we were scrolled to the bottom before the keyboard was presented, we
-    // want to scroll to the bottom after the keyboard is presented.
-
-    CGRect endValue = ((NSValue *)notification.userInfo[UIKeyboardFrameEndUserInfoKey]).CGRectValue;
-
-    // Some custom keyboards fire this event multiple times for a given "show".
-    // We only want to update scroll state for non-empty show events.
-    BOOL isPresenting = endValue.size.height > 0.f;
-
-    if (isPresenting && self.wasScrolledToBottomBeforeKeyboardShow) {
-        [self scrollToBottomImmediately];
-    }
 }
 
 - (void)otherUsersProfileDidChange:(NSNotification *)notification
@@ -615,9 +486,14 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)createContents
 {
+//    DDLogError(@"\t createContents: %@", NSStringFromCGRect(self.view.frame));
+//    [DDLog flushLog];
+
     ConversationViewLayout *layout = [ConversationViewLayout new];
     layout.delegate = self;
-    _collectionView = [[ConversationCollectionView alloc] initWithFrame:CGRectZero
+    // We use the root view bounds as the initial frame for the collection
+    // view so that its contents can be laid out immediately.
+    _collectionView = [[ConversationCollectionView alloc] initWithFrame:self.view.bounds
                                              collectionViewLayout:layout];
     self.collectionView.layoutDelegate = self;
     self.collectionView.delegate = self;
@@ -631,13 +507,13 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     _inputToolbar = [ConversationInputToolbar new];
     self.inputToolbar.inputToolbarDelegate = self;
-    OWSAssert(self.inputToolbar.inputTextView);
-    self.inputToolbar.inputTextView.inputTextViewDelegate = self;
+    self.inputToolbar.inputTextViewDelegate = self;
     [self.view addSubview:self.inputToolbar];
     [self.inputToolbar autoPinWidthToSuperview];
     [self.inputToolbar autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:self.collectionView];
-    [self.inputToolbar autoPinToBottomLayoutGuideOfViewController:self withInset:0];
-    
+//    [self.inputToolbar autoPinToBottomLayoutGuideOfViewController:self withInset:0];
+    [self autoPinViewToBottomGuideOrKeyboard:self.inputToolbar];
+
     [self.collectionView addRedBorder];
     [self.inputToolbar addBorderWithColor:[UIColor blueColor]];
     
@@ -763,7 +639,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     // In case we're dismissing a CNContactViewController which requires default system appearance
     [UIUtil applySignalAppearence];
 
-    [self addVisibleListeners];
+//    [self addVisibleListeners];
 
     // We need to recheck on every appearance, since the user may have left the group in the settings VC,
     // or on another device.
@@ -1258,7 +1134,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self markVisibleMessagesAsRead];
 
     [self cancelVoiceMemo];
-    [self removeVisibleListeners];
+//    [self removeVisibleListeners];
 
     self.isUserScrolling = NO;
 }
@@ -2126,7 +2002,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     self.videoPlayer = nil;
 }
 
-- (void)setVideoPlayer:(MPMoviePlayerController *)videoPlayer
+- (void)setVideoPlayer:(MPMoviePlayerController * _Nullable)videoPlayer
 {
     _videoPlayer = videoPlayer;
 
@@ -2600,6 +2476,24 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                                        fromViewController:self
                                                                   success:successHandler];
 }
+
+#pragma mark - Incoming and Outgoing Messages
+
+- (void)didTapViewItem:(ConversationViewItem *)viewItem
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem.interaction.interactionType == OWSInteractionType_IncomingMessage ||
+              viewItem.interaction.interactionType == OWSInteractionType_OutgoingMessage);
+}
+
+- (void)didLongPressViewItem:(ConversationViewItem *)viewItem
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem.interaction.interactionType == OWSInteractionType_IncomingMessage ||
+              viewItem.interaction.interactionType == OWSInteractionType_OutgoingMessage);
+}
+
+#pragma mark - System Messages
 
 - (void)didTapSystemMessageWithInteraction:(TSInteraction *)interaction
 {
@@ -3582,7 +3476,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     self.voiceMessageUUID = nil;
 }
 
-- (void)setAudioRecorder:(AVAudioRecorder *)audioRecorder
+- (void)setAudioRecorder:(AVAudioRecorder * _Nullable)audioRecorder
 {
     // Prevent device from sleeping while recording a voice message.
     if (audioRecorder) {
@@ -3596,14 +3490,14 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark Accessory View
 
-- (void)didPressAccessoryButton:(UIButton *)sender
+- (void)attachmentButtonPressed
 {
 
     __weak ConversationViewController *weakSelf = self;
     if ([self isBlockedContactConversation]) {
         [self showUnblockContactUI:^(BOOL isBlocked) {
             if (!isBlocked) {
-                [weakSelf didPressAccessoryButton:nil];
+                [weakSelf attachmentButtonPressed];
             }
         }];
         return;
@@ -3614,7 +3508,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                   NSLocalizedString(@"CONFIRMATION_TITLE", @"Generic button text to proceed with an action")
                                                                completion:^(BOOL didConfirmIdentity) {
                                                                    if (didConfirmIdentity) {
-                                                                       [weakSelf didPressAccessoryButton:nil];
+                                                                       [weakSelf attachmentButtonPressed];
                                                                    }
                                                                }];
     if (didShowSNAlert) {
@@ -3797,12 +3691,12 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)popKeyBoard
 {
-    [self.inputToolbar.inputTextView becomeFirstResponder];
+    [self.inputToolbar beginEditingTextMessage];
 }
 
 - (void)dismissKeyBoard
 {
-    [self.inputToolbar.inputTextView resignFirstResponder];
+    [self.inputToolbar endEditingTextMessage];
 }
 
 #pragma mark Drafts
@@ -3815,8 +3709,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
         completionBlock:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.inputToolbar.inputTextView setText:draft];
-                [self textViewDidChange:self.inputToolbar.inputTextView];
+                [self.inputToolbar setMessageText:draft];
             });
         }];
 }
@@ -3825,7 +3718,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 {
     if (self.inputToolbar.hidden == NO) {
         __block TSThread *thread = _thread;
-        __block NSString *currentDraft = self.inputToolbar.inputTextView.text;
+        __block NSString *currentDraft = [self.inputToolbar messageText];
 
         [self.editingDatabaseConnection asyncReadWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
             [thread setDraft:currentDraft transaction:transaction];
@@ -4108,7 +4001,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)sendButtonPressed
 {
-    [self tryToSendTextMessage:self.inputToolbar.inputTextView.text
+    [self tryToSendTextMessage:self.inputToolbar.messageText
          updateKeyboardState:YES];
 }
 
@@ -4183,24 +4076,12 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     //
     //- (void)finishSendingMessageAnimated:(BOOL)animated {
     
-    UITextView *textView = self.inputToolbar.inputTextView;
-    textView.text = nil;
-    [textView.undoManager removeAllActions];
+    [self.inputToolbar clearTextMessage];
     
-    [self.inputToolbar ensureContent];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:textView];
+//    [[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:textView];
     
     [self.collectionView.collectionViewLayout invalidateLayoutWithContext:[JSQMessagesCollectionViewFlowLayoutInvalidationContext context]];
     [self.collectionView reloadData];
-    
-    //    if (self.automaticallyScrollsToMostRecentMessage) {
-    //        [self scrollToBottomAnimated:animated];
-    //    }
-}
-
-- (void)attachmentButtonPressed {
-    // TODO:
 }
 
 - (void)voiceMemoGestureDidStart
@@ -4263,12 +4144,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self cancelRecordingVoiceMemo];
 }
 
-- (void)textViewDidChange:(UITextView *)textView
+// TODO: We should use a different event: when the input toolbar changes size.
+- (void)textViewDidChange
 {
-    // We want to show the "voice message" button if the text input is empty
-    // and the "send" button if it isn't.
-    [self.inputToolbar ensureContent];
-    
     [self updateLastVisibleTimestamp];
 }
 

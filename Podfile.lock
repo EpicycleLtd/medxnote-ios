@@ -115,14 +115,17 @@ PODS:
   - YYImage/Core (1.0.4)
 
 DEPENDENCIES:
+  - '25519'
   - ATAppUpdater
   - AxolotlKit (from `https://github.com/WhisperSystems/SignalProtocolKit.git`)
   - JSQMessagesViewController (from `https://github.com/WhisperSystems/JSQMessagesViewController.git`, branch `signal-master`)
+  - Mantle
   - OpenSSL (from `https://github.com/WhisperSystems/OpenSSL-Pod`)
   - PureLayout
   - Reachability
   - SignalServiceKit (from `.`)
   - SocketRocket (from `https://github.com/facebook/SocketRocket.git`)
+  - YapDatabase/SQLCipher (~> 2.9.3)
   - YYImage
 
 EXTERNAL SOURCES:
@@ -176,6 +179,6 @@ SPEC CHECKSUMS:
   YapDatabase: cd911121580ff16675f65ad742a9eb0ab4d9e266
   YYImage: 1e1b62a9997399593e4b9c4ecfbbabbf1d3f3b54
 
-PODFILE CHECKSUM: 00831faaa7677029090c311c00ceadaa44f65c0f
+PODFILE CHECKSUM: 86d2d04c8ef7f596e3d0f2e72fc007be13a41cce
 
 COCOAPODS: 1.2.1

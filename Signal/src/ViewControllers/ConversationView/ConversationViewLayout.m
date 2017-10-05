@@ -52,21 +52,27 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)prepareLayout
 {
     [super prepareLayout];
-
-    if (self.hasLayout) {
-        return;
-    }
-    self.hasLayout = YES;
-
+    
     id<ConversationViewLayoutDelegate> delegate = self.delegate;
     if (!delegate) {
         OWSFail(@"%@ Missing delegate", self.tag);
         [self clearState];
         return;
     }
+    if (self.collectionView.bounds.size.width <= 0.f ||
+        self.collectionView.bounds.size.height <= 0.f) {
+        OWSFail(@"%@ Collection view has invalid size: %@", self.tag, NSStringFromCGRect(self.collectionView.bounds));
+        [self clearState];
+        return;
+    }
 
-    const int vInset = 5;
-    const int hInset = 5;
+    if (self.hasLayout) {
+        return;
+    }
+    self.hasLayout = YES;
+
+    const int vInset = 15;
+    const int hInset = 10;
     const int vSpacing = 5;
     const int viewWidth = (int)floor(self.collectionView.bounds.size.width);
     const int maxMessageWidth = (int)floor((viewWidth - 2 * hInset) * 0.7f);
@@ -82,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
         CGSize layoutSize = [layoutItem cellSizeForViewWidth:viewWidth
                                              maxMessageWidth:maxMessageWidth];
 
-        layoutSize.width = MIN(maxMessageWidth, floor(layoutSize.width));
+        layoutSize.width = MIN(viewWidth, floor(layoutSize.width));
         layoutSize.height = floor(layoutSize.height);
         CGRect itemFrame;
         switch (layoutItem.layoutAlignment) {
@@ -99,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
                 break;
             }
             case ConversationViewLayoutAlignment_FullWidth:
-                itemFrame = CGRectMake(hInset, y, maxMessageWidth, layoutSize.height);
+                itemFrame = CGRectMake(0, y, viewWidth, layoutSize.height);
                 break;
             case ConversationViewLayoutAlignment_Center:
                 itemFrame = CGRectMake(

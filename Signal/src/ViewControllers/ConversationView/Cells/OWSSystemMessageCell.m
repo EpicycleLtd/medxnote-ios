@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSAssert(!self.imageView);
 
-    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
+//    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     self.backgroundColor = [UIColor whiteColor];
 
@@ -274,10 +274,19 @@ NS_ASSUME_NONNULL_BEGIN
         [self iconSize],
         [self iconSize]);
 
+//    DDLogError(@"system: %@", self.viewItem.interaction.description);
+//    DDLogError(@"\t cell: %@", NSStringFromCGRect(self.frame));
+//    DDLogError(@"\t self.contentView: %@", NSStringFromCGRect(self.contentView.frame));
+//    DDLogError(@"\t imageView: %@", NSStringFromCGRect(self.imageView.frame));
+//    DDLogError(@"\t titleLabel: %@", NSStringFromCGRect(self.titleLabel.frame));
+//    [DDLog flushLog];
+    
     self.titleLabel.frame = CGRectMake(titleLeft,
         round((self.contentView.height - titleSize.height + topLabelSpacing) * 0.5f),
         ceil(titleSize.width + 1.f),
         ceil(titleSize.height + 1.f));
+    
+//    [self addRedBorder];
 }
 
 - (CGSize)cellSizeForViewWidth:(int)viewWidth
@@ -298,7 +307,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     CGFloat contentHeight = ceil(MAX([self iconSize], titleSize.height));
     result.height += contentHeight;
-
+    
+//    DDLogError(@"system?: %@", self.viewItem.interaction.description);
+//    DDLogError(@"\t result: %@", NSStringFromCGSize(result));
+//    [DDLog flushLog];
+    
     return result;
 }
 

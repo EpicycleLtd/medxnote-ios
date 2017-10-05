@@ -13,6 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO: Rework these delegate methods.
 @protocol ConversationViewCellDelegate <NSObject>
 
+- (void)didTapViewItem:(ConversationViewItem *)viewItem;
+- (void)didLongPressViewItem:(ConversationViewItem *)viewItem;
+
 #pragma mark - System Cell
 
 - (void)didTapSystemMessageWithInteraction:(TSInteraction *)interaction;
