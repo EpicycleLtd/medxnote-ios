@@ -14,6 +14,7 @@
 #import <SignalServiceKit/TSCall.h>
 #import <SignalServiceKit/TSErrorMessage.h>
 #import <SignalServiceKit/TSInfoMessage.h>
+#import "ConversationViewItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -84,17 +85,17 @@ NS_ASSUME_NONNULL_BEGIN
     return NSStringFromClass([self class]);
 }
 
-- (void)configureWithInteraction:(TSInteraction *)interaction;
+- (void)configure
 {
-    OWSAssert(interaction);
+    OWSAssert(self.viewItem);
 
-    _interaction = interaction;
+    TSInteraction *interaction = self.viewItem.interaction;
 
-    UIImage *icon = [self iconForInteraction:self.interaction];
+    UIImage *icon = [self iconForInteraction:interaction];
     self.imageView.image = [icon imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    self.imageView.tintColor = [self iconColorForInteraction:self.interaction];
+    self.imageView.tintColor = [self iconColorForInteraction:interaction];
     self.titleLabel.textColor = [self textColor];
-    [self applyTitleForInteraction:self.interaction label:self.titleLabel];
+    [self applyTitleForInteraction:interaction label:self.titleLabel];
 
     [self setNeedsLayout];
 }
@@ -120,8 +121,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     UIImage *result = nil;
 
+    // TODO: Don't cast.
     if ([interaction isKindOfClass:[TSErrorMessage class]]) {
-        switch (((TSErrorMessage *)self.interaction).errorType) {
+        switch (((TSErrorMessage *)interaction).errorType) {
             case TSErrorMessageNonBlockingIdentityChange:
             case TSErrorMessageWrongTrustedIdentityKey:
                 result = [UIImage imageNamed:@"system_message_security"];
@@ -138,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
                 break;
         }
     } else if ([interaction isKindOfClass:[TSInfoMessage class]]) {
-        switch (((TSInfoMessage *)self.interaction).messageType) {
+        switch (((TSInfoMessage *)interaction).messageType) {
             case TSInfoMessageUserNotRegistered:
             case TSInfoMessageTypeSessionDidEnd:
             case TSInfoMessageTypeUnsupportedMessage:
@@ -297,8 +299,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-
-    self.interaction = nil;
 }
 
 #pragma mark - editing
@@ -311,27 +311,36 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)delete:(nullable id)sender
 {
     DDLogInfo(@"%@ chose delete", self.logTag);
-    OWSAssert(self.interaction);
 
-    [self.interaction remove];
+    TSInteraction *interaction = self.viewItem.interaction;
+    OWSAssert(interaction);
+
+    [interaction remove];
 }
 
 #pragma mark - Gesture recognizers
 
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender
 {
-    OWSAssert(self.interaction);
+    OWSAssert(self.delegate);
 
     if (sender.state == UIGestureRecognizerStateRecognized) {
-        [self.systemMessageCellDelegate didTapSystemMessageWithInteraction:self.interaction];
+        TSInteraction *interaction = self.viewItem.interaction;
+        OWSAssert(interaction);
+        [self.delegate didTapSystemMessageWithInteraction:interaction];
     }
 }
 
 - (void)handleLongPressGesture:(UILongPressGestureRecognizer *)longPress
 {
-    OWSAssert(self.interaction);
+    OWSAssert(self.delegate);
+
+    TSInteraction *interaction = self.viewItem.interaction;
+    OWSAssert(interaction);
+
     if (longPress.state == UIGestureRecognizerStateBegan) {
-        [self.systemMessageCellDelegate didLongPressSystemMessageCell:self];
+        [self.delegate didLongPressSystemMessageCell:self
+         fromView:self.titleLabel];
     }
 }
 

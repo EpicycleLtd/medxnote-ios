@@ -9,6 +9,7 @@
 #import "UIFont+OWS.h"
 #import "UIView+OWS.h"
 #import <JSQMessagesViewController/UIView+JSQMessages.h>
+#import "ConversationViewItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,14 +84,15 @@ NS_ASSUME_NONNULL_BEGIN
     return NSStringFromClass([self class]);
 }
 
-- (void)configureWithInteraction:(TSUnreadIndicatorInteraction *)interaction;
+- (void)configure
 {
-    OWSAssert(interaction);
+    OWSAssert(self.viewItem);
+    OWSAssert([self.viewItem.interaction isKindOfClass:[TSUnreadIndicatorInteraction class]]);
 
-    _interaction = interaction;
+    TSUnreadIndicatorInteraction *interaction = (TSUnreadIndicatorInteraction *)self.viewItem.interaction;
 
-    self.titleLabel.text = [self titleForInteraction:self.interaction];
-    self.subtitleLabel.text = [self subtitleForInteraction:self.interaction];
+    self.titleLabel.text = [self titleForInteraction:interaction];
+    self.subtitleLabel.text = [self subtitleForInteraction:interaction];
 
     self.backgroundColor = [UIColor whiteColor];
 

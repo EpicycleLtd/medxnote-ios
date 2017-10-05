@@ -25,14 +25,13 @@
 #import "OWSConversationSettingsViewController.h"
 #import "OWSConversationSettingsViewDelegate.h"
 #import "OWSDisappearingMessagesJob.h"
-#import "OWSExpirableMessageView.h"
-#import "OWSIncomingMessageCollectionViewCell.h"
-#import "OWSMessageCollectionViewCell.h"
+//#import "OWSExpirableMessageView.h"
+#import "OWSIncomingMessageCell.h"
 #import "OWSMessagesBubblesSizeCalculator.h"
 #import "ConversationInputTextView.h"
 #import "ConversationInputToolbar.h"
 #import "OWSMessagesToolbarContentView.h"
-#import "OWSOutgoingMessageCollectionViewCell.h"
+#import "OWSOutgoingMessageCell.h"
 #import "OWSSystemMessageCell.h"
 #import "OWSUnreadIndicatorCell.h"
 #import "Signal-Swift.h"
@@ -41,6 +40,8 @@
 #import "TSCall.h"
 #import "TSContactThread.h"
 #import "TSContentAdapters.h"
+#import "ConversationViewCell.h"
+#import "ConversationViewItem.h"
 #import "TSDatabaseView.h"
 #import "TSErrorMessage.h"
 #import "TSGenericAttachmentAdapter.h"
@@ -121,41 +122,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     MessagesRangeSizeMode_Normal
 };
 
-//@protocol ConversationViewItem <NSObject>
-//
-//- (TSInteraction *)interaction;
-//
-//@end
-//
-//#pragma mark -
-
-@interface ConversationViewItem : NSObject <ConversationViewLayoutItem>
-
-@property (nonatomic) TSInteraction *interaction;
-@property (nonatomic) BOOL shouldShowDate;
-
-@end
-
-#pragma mark -
-
-@implementation ConversationViewItem
-
-- (CGSize)layoutSizeForMaxMessageWidth:(int)maxMessageWidth
-{
-    // TODO:
-    return CGSizeMake(maxMessageWidth, maxMessageWidth);
-}
-
-- (ConversationViewLayoutAlignment)layoutAlignment
-{
-    // TODO:
-    return ConversationViewLayoutAlignment_Left;
-}
-
-@end
-
-#pragma mark -
-
 // TODO: We should use a custom subclass for each interaction type.
 @interface ConversationViewItemSimple : ConversationViewItem
 
@@ -169,61 +135,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark -
 
-// TODO: We should use a custom subclass for each interaction type.
-@interface ConversationViewCell : UICollectionViewCell
-
-@property (nonatomic) ConversationViewItem * viewItem;
-
-// If this is non-null, we should show the message date header.
-@property (nonatomic, nullable) NSAttributedString * messageDateHeaderText;
-
-@end
-
-#pragma mark -
-
-@implementation ConversationViewCell
-
-+ (NSString *)cellReuseIdentifier {
-    return NSStringFromClass([self class]);
-}
-
-- (void)prepareForReuse
-{
-    [super prepareForReuse];
-    
-    self.viewItem = nil;
-    self.messageDateHeaderText = nil;
-}
-
-- (void)setFrame:(CGRect)frame {
-    [super setFrame:frame];
-    
-    DDLogError(@"%@ setFrame: %@", ConversationViewCell.logTag, NSStringFromCGRect(frame));
-}
-
-- (void)setBounds:(CGRect)bounds {
-    [super setBounds:bounds];
-    
-    DDLogError(@"%@ setFrame: %@", ConversationViewCell.logTag, NSStringFromCGRect(bounds));
-}
-
-#pragma mark - Logging
-
-+ (NSString *)logTag
-{
-    return [NSString stringWithFormat:@"[%@]", self.class];
-}
-
-- (NSString *)logTag
-{
-//    return [NSString stringWithFormat:@"[%@]", self];
-    return self.class.logTag;
-}
-
-@end
-
-#pragma mark -
-
 @interface ConversationViewController () <AVAudioPlayerDelegate,
     ContactsViewHelperDelegate,
     ContactEditingDelegate,
@@ -231,12 +142,10 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     JSQMessagesComposerTextViewPasteDelegate,
     OWSConversationSettingsViewDelegate,
     ConversationViewLayoutDelegate,
-    OWSSystemMessageCellDelegate,
-    OWSContactOffersCellDelegate,
+    ConversationViewCellDelegate,
     ConversationInputTextViewDelegate,
-UICollectionViewDelegate,
-UICollectionViewDataSource,
-//    OWSVoiceMemoGestureDelegate,
+    UICollectionViewDelegate,
+    UICollectionViewDataSource,
     UIDocumentMenuDelegate,
     UIDocumentPickerDelegate,
     UIImagePickerControllerDelegate,
@@ -731,33 +640,37 @@ UICollectionViewDataSource,
 
 - (void)registerCustomMessageNibs
 {
-    [self.collectionView registerClass:[ConversationViewCell class]
-            forCellWithReuseIdentifier:[ConversationViewCell cellReuseIdentifier]];
-    
     [self.collectionView registerClass:[OWSSystemMessageCell class]
             forCellWithReuseIdentifier:[OWSSystemMessageCell cellReuseIdentifier]];
 
     [self.collectionView registerClass:[OWSUnreadIndicatorCell class]
             forCellWithReuseIdentifier:[OWSUnreadIndicatorCell cellReuseIdentifier]];
-
+    
     [self.collectionView registerClass:[OWSContactOffersCell class]
             forCellWithReuseIdentifier:[OWSContactOffersCell cellReuseIdentifier]];
+    
+    [self.collectionView registerClass:[OWSOutgoingMessageCell class]
+            forCellWithReuseIdentifier:[OWSOutgoingMessageCell cellReuseIdentifier]];
+    
+    [self.collectionView registerClass:[OWSIncomingMessageCell class]
+            forCellWithReuseIdentifier:[OWSIncomingMessageCell cellReuseIdentifier]];
 
-//    self.outgoingCellIdentifier = [OWSOutgoingMessageCollectionViewCell cellReuseIdentifier];
-    [self.collectionView registerNib:[OWSOutgoingMessageCollectionViewCell nib]
-          forCellWithReuseIdentifier:[OWSOutgoingMessageCollectionViewCell cellReuseIdentifier]];
-
-//    self.outgoingMediaCellIdentifier = [OWSOutgoingMessageCollectionViewCell mediaCellReuseIdentifier];
-    [self.collectionView registerNib:[OWSOutgoingMessageCollectionViewCell nib]
-          forCellWithReuseIdentifier:[OWSOutgoingMessageCollectionViewCell mediaCellReuseIdentifier]];
-
-//    self.incomingCellIdentifier = [OWSIncomingMessageCollectionViewCell cellReuseIdentifier];
-    [self.collectionView registerNib:[OWSIncomingMessageCollectionViewCell nib]
-          forCellWithReuseIdentifier:[OWSIncomingMessageCollectionViewCell cellReuseIdentifier]];
-
-//    self.incomingMediaCellIdentifier = [OWSIncomingMessageCollectionViewCell mediaCellReuseIdentifier];
-    [self.collectionView registerNib:[OWSIncomingMessageCollectionViewCell nib]
-          forCellWithReuseIdentifier:[OWSIncomingMessageCollectionViewCell mediaCellReuseIdentifier]];
+    // TODO:
+////    self.outgoingCellIdentifier = [OWSOutgoingMessageCell cellReuseIdentifier];
+//    [self.collectionView registerNib:[OWSOutgoingMessageCell nib]
+//          forCellWithReuseIdentifier:[OWSOutgoingMessageCell cellReuseIdentifier]];
+//
+////    self.outgoingMediaCellIdentifier = [OWSOutgoingMessageCell mediaCellReuseIdentifier];
+//    [self.collectionView registerNib:[OWSOutgoingMessageCell nib]
+//          forCellWithReuseIdentifier:[OWSOutgoingMessageCell mediaCellReuseIdentifier]];
+//
+////    self.incomingCellIdentifier = [OWSIncomingMessageCell cellReuseIdentifier];
+//    [self.collectionView registerNib:[OWSIncomingMessageCell nib]
+//          forCellWithReuseIdentifier:[OWSIncomingMessageCell cellReuseIdentifier]];
+//
+////    self.incomingMediaCellIdentifier = [OWSIncomingMessageCell mediaCellReuseIdentifier];
+//    [self.collectionView registerNib:[OWSIncomingMessageCell nib]
+//          forCellWithReuseIdentifier:[OWSIncomingMessageCell mediaCellReuseIdentifier]];
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification
@@ -1786,11 +1699,11 @@ UICollectionViewDataSource,
 //- (JSQMessagesCollectionViewCell *)loadIncomingMessageCellForMessage:(id<OWSMessageData>)message
 //                                                         atIndexPath:(NSIndexPath *)indexPath
 //{
-//    OWSIncomingMessageCollectionViewCell *cell
-//        = (OWSIncomingMessageCollectionViewCell *)[super collectionView:self.collectionView
+//    OWSIncomingMessageCell *cell
+//        = (OWSIncomingMessageCell *)[super collectionView:self.collectionView
 //                                                 cellForItemAtIndexPath:indexPath];
 //
-//    if (![cell isKindOfClass:[OWSIncomingMessageCollectionViewCell class]]) {
+//    if (![cell isKindOfClass:[OWSIncomingMessageCell class]]) {
 //        OWSFail(@"%@ Unexpected cell type: %@", self.tag, cell);
 //        return cell;
 //    }
@@ -1806,11 +1719,11 @@ UICollectionViewDataSource,
 //- (JSQMessagesCollectionViewCell *)loadOutgoingCellForMessage:(id<OWSMessageData>)message
 //                                                  atIndexPath:(NSIndexPath *)indexPath
 //{
-//    OWSOutgoingMessageCollectionViewCell *cell
-//        = (OWSOutgoingMessageCollectionViewCell *)[super collectionView:self.collectionView
+//    OWSOutgoingMessageCell *cell
+//        = (OWSOutgoingMessageCell *)[super collectionView:self.collectionView
 //                                                 cellForItemAtIndexPath:indexPath];
 //
-//    if (![cell isKindOfClass:[OWSOutgoingMessageCollectionViewCell class]]) {
+//    if (![cell isKindOfClass:[OWSOutgoingMessageCell class]]) {
 //        OWSFail(@"%@ Unexpected cell type: %@", self.tag, cell);
 //        return cell;
 //    }
@@ -1831,58 +1744,6 @@ UICollectionViewDataSource,
 //
 //    return cell;
 //}
-
-- (JSQMessagesCollectionViewCell *)loadUnreadIndicatorCell:(NSIndexPath *)indexPath
-                                               interaction:(TSInteraction *)interaction
-{
-    OWSAssert(indexPath);
-    OWSAssert(interaction);
-    OWSAssert([interaction isKindOfClass:[TSUnreadIndicatorInteraction class]]);
-
-    TSUnreadIndicatorInteraction *unreadIndicator = (TSUnreadIndicatorInteraction *)interaction;
-
-    OWSUnreadIndicatorCell *cell =
-        [self.collectionView dequeueReusableCellWithReuseIdentifier:[OWSUnreadIndicatorCell cellReuseIdentifier]
-                                                       forIndexPath:indexPath];
-    [cell configureWithInteraction:unreadIndicator];
-
-    return cell;
-}
-
-- (JSQMessagesCollectionViewCell *)loadContactOffersCell:(NSIndexPath *)indexPath
-                                             interaction:(TSInteraction *)interaction
-{
-    OWSAssert(indexPath);
-    OWSAssert(interaction);
-    OWSAssert([interaction isKindOfClass:[OWSContactOffersInteraction class]]);
-
-    OWSContactOffersInteraction *offersInteraction = (OWSContactOffersInteraction *)interaction;
-
-    OWSContactOffersCell *cell =
-        [self.collectionView dequeueReusableCellWithReuseIdentifier:[OWSContactOffersCell cellReuseIdentifier]
-                                                       forIndexPath:indexPath];
-    cell.contactOffersCellDelegate = self;
-    [cell configureWithInteraction:offersInteraction];
-
-    return cell;
-}
-
-- (OWSSystemMessageCell *)loadSystemMessageCell:(NSIndexPath *)indexPath interaction:(TSInteraction *)interaction
-{
-    OWSAssert(indexPath);
-    OWSAssert(interaction);
-
-    OWSSystemMessageCell *cell =
-        [self.collectionView dequeueReusableCellWithReuseIdentifier:[OWSSystemMessageCell cellReuseIdentifier]
-                                                       forIndexPath:indexPath];
-    [cell configureWithInteraction:interaction];
-//    cell.cellTopLabel.attributedText =
-//        [self collectionView:self.collectionView attributedTextForCellTopLabelAtIndexPath:indexPath];
-
-    cell.systemMessageCellDelegate = self;
-
-    return cell;
-}
 
 #pragma mark - Adjusting cell label heights
 
@@ -2706,7 +2567,7 @@ UICollectionViewDataSource,
                                                                           completion:nil];
 }
 
-#pragma mark - OWSContactOffersCellDelegate
+#pragma mark - ConversationViewCellDelegate
 
 - (void)tappedUnknownContactBlockOfferMessage:(OWSContactOffersInteraction *)interaction
 {
@@ -2796,8 +2657,6 @@ UICollectionViewDataSource,
                                                                   success:successHandler];
 }
 
-#pragma mark - OWSSystemMessageCellDelegate
-
 - (void)didTapSystemMessageWithInteraction:(TSInteraction *)interaction
 {
     OWSAssert([NSThread isMainThread]);
@@ -2814,18 +2673,19 @@ UICollectionViewDataSource,
     }
 }
 
-- (void)didLongPressSystemMessageCell:(OWSSystemMessageCell *)systemMessageCell;
+- (void)didLongPressSystemMessageCell:(ConversationViewCell *)systemMessageCell
+                             fromView:(UIView *)fromView
 {
     OWSAssert([NSThread isMainThread]);
     OWSAssert(systemMessageCell);
-    OWSAssert(systemMessageCell.interaction);
+    OWSAssert(fromView);
 
     DDLogDebug(@"%@ long pressed system message cell: %@", self.tag, systemMessageCell);
 
     [systemMessageCell becomeFirstResponder];
 
     UIMenuController *theMenu = [UIMenuController sharedMenuController];
-    CGRect targetRect = [systemMessageCell.titleLabel.superview convertRect:systemMessageCell.titleLabel.frame
+    CGRect targetRect = [fromView.superview convertRect:fromView.frame
                                                                      toView:systemMessageCell];
     [theMenu setTargetRect:targetRect inView:systemMessageCell];
     [theMenu setMenuVisible:YES animated:YES];
@@ -4560,13 +4420,20 @@ UICollectionViewDataSource,
     ConversationViewItem * _Nullable viewItem = [self viewItemForIndex:(NSUInteger) indexPath.row];
     OWSInteractionType interactionType = (viewItem ? viewItem.interaction.interactionType : OWSInteractionType_Unknown);
     
-    ConversationViewCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:[ConversationViewCell cellReuseIdentifier]
-                                                                                forIndexPath:indexPath];
+    ConversationViewCell *cell = [viewItem dequeueCellForCollectionView:self.collectionView
+                                                              indexPath:indexPath];
+    if (!cell) {
+        OWSFail(@"%@ Could not dequeue cell.", self.tag);
+        return cell;
+    }
     cell.viewItem = viewItem;
+    cell.delegate = self;
     
     if (viewItem.shouldShowDate) {
         cell.messageDateHeaderText = [[JSQMessagesTimestampFormatter sharedFormatter] attributedTimestampForDate:viewItem.interaction.dateForSorting];
     }
+    
+    [cell configure];
 
     return cell;
     
@@ -4769,23 +4636,26 @@ UICollectionViewDataSource,
        willDisplayCell:(UICollectionViewCell *)cell
     forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([cell conformsToProtocol:@protocol(OWSMessageCollectionViewCell)]) {
-        [((id<OWSMessageCollectionViewCell>)cell) setCellVisible:YES];
-    }
+    OWSAssert([cell isKindOfClass:[ConversationViewCell class]]);
+    
+    ConversationViewCell *conversationViewCell = (ConversationViewCell *)cell;
+    conversationViewCell.isCellVisible = YES;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView
   didEndDisplayingCell:(nonnull UICollectionViewCell *)cell
     forItemAtIndexPath:(nonnull NSIndexPath *)indexPath
 {
-    if ([cell conformsToProtocol:@protocol(OWSExpirableMessageView)]) {
-        id<OWSExpirableMessageView> expirableView = (id<OWSExpirableMessageView>)cell;
-        [expirableView stopExpirationTimer];
-    }
+    OWSAssert([cell isKindOfClass:[ConversationViewCell class]]);
     
-    if ([cell conformsToProtocol:@protocol(OWSMessageCollectionViewCell)]) {
-        [((id<OWSMessageCollectionViewCell>)cell) setCellVisible:NO];
-    }
+    ConversationViewCell *conversationViewCell = (ConversationViewCell *)cell;
+    conversationViewCell.isCellVisible = NO;
+    
+    // TODO:
+//    if ([cell conformsToProtocol:@protocol(OWSExpirableMessageView)]) {
+//        id<OWSExpirableMessageView> expirableView = (id<OWSExpirableMessageView>)cell;
+//        [expirableView stopExpirationTimer];
+//    }
 }
 
 #pragma mark - JSQMessages CollectionView DataSource

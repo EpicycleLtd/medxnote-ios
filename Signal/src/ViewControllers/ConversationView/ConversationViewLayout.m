@@ -68,7 +68,9 @@
 
     NSInteger row = 0;
     for (id<ConversationViewLayoutItem> layoutItem in layoutItems) {
-        CGSize layoutSize = [layoutItem layoutSizeForMaxMessageWidth:maxMessageWidth];
+        CGSize layoutSize = [layoutItem cellSizeForViewWidth:viewWidth
+                                             maxMessageWidth:maxMessageWidth];
+
         layoutSize.width = MIN(maxMessageWidth, floor(layoutSize.width));
         layoutSize.height = floor(layoutSize.height);
         CGRect itemFrame;

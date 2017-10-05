@@ -5,6 +5,7 @@
 #import "OWSContactOffersCell.h"
 #import "NSBundle+JSQMessages.h"
 #import "OWSContactOffersInteraction.h"
+#import "ConversationViewItem.h"
 #import "UIColor+OWS.h"
 #import "UIFont+OWS.h"
 #import "UIView+OWS.h"
@@ -86,11 +87,12 @@ NS_ASSUME_NONNULL_BEGIN
     return NSStringFromClass([self class]);
 }
 
-- (void)configureWithInteraction:(OWSContactOffersInteraction *)interaction;
+- (void)configure
 {
-    OWSAssert(interaction);
+    OWSAssert(self.viewItem);
+    OWSAssert([self.viewItem.interaction isKindOfClass:[OWSContactOffersInteraction class]]);
 
-    _interaction = interaction;
+    OWSContactOffersInteraction *interaction = (OWSContactOffersInteraction *) self.viewItem.interaction;
 
     OWSAssert(
         interaction.hasBlockOffer || interaction.hasAddToContactsOffer || interaction.hasAddToProfileWhitelistOffer);
@@ -137,6 +139,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     [super layoutSubviews];
 
+    OWSContactOffersInteraction *interaction = (OWSContactOffersInteraction *) self.viewItem.interaction;
+
     // We're using a bit of a hack to get JSQ to layout this and the unread indicator as
     // "full width" cells.  These cells will end up with an erroneous left margin that we
     // want to reverse.
@@ -164,9 +168,9 @@ NS_ASSUME_NONNULL_BEGIN
         }
     };
 
-    layoutButton(self.addToContactsButton, self.interaction.hasAddToContactsOffer);
-    layoutButton(self.addToProfileWhitelistButton, self.interaction.hasAddToProfileWhitelistOffer);
-    layoutButton(self.blockButton, self.interaction.hasBlockOffer);
+    layoutButton(self.addToContactsButton, interaction.hasAddToContactsOffer);
+    layoutButton(self.addToProfileWhitelistButton, interaction.hasAddToProfileWhitelistOffer);
+    layoutButton(self.blockButton, interaction.hasBlockOffer);
 }
 
 - (CGSize)bubbleSizeForInteraction:(OWSContactOffersInteraction *)interaction
@@ -197,26 +201,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addToContacts
 {
-    OWSAssert(self.contactOffersCellDelegate);
+    OWSAssert(self.delegate);
     OWSAssert(self.interaction);
 
-    [self.contactOffersCellDelegate tappedAddToContactsOfferMessage:self.interaction];
+    [self.delegate tappedAddToContactsOfferMessage:self.interaction];
 }
 
 - (void)addToProfileWhitelist
 {
-    OWSAssert(self.contactOffersCellDelegate);
+    OWSAssert(self.delegate);
     OWSAssert(self.interaction);
 
-    [self.contactOffersCellDelegate tappedAddToProfileWhitelistOfferMessage:self.interaction];
+    [self.delegate tappedAddToProfileWhitelistOfferMessage:self.interaction];
 }
 
 - (void)block
 {
-    OWSAssert(self.contactOffersCellDelegate);
+    OWSAssert(self.delegate);
     OWSAssert(self.interaction);
 
-    [self.contactOffersCellDelegate tappedUnknownContactBlockOfferMessage:self.interaction];
+    [self.delegate tappedUnknownContactBlockOfferMessage:self.interaction];
 }
 
 #pragma mark - Logging
