@@ -5,6 +5,8 @@
 #import "ConversationHeaderView.h"
 #import "UIView+OWS.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation ConversationHeaderView
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -59,3 +61,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

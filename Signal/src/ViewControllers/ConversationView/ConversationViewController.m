@@ -92,6 +92,8 @@
 #import <SignalServiceKit/Threading.h>
 #import <YapDatabase/YapDatabaseView.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @import Photos;
 
 // Always load up to 50 messages when user arrives.
@@ -238,7 +240,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (instancetype)initWithCoder:(NSCoder *)aDecoder
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     OWSFail(@"Do not instantiate this view from coder");
 
@@ -4720,3 +4722,5 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

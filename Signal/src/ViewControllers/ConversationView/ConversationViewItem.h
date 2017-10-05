@@ -4,6 +4,8 @@
 
 #import "ConversationViewLayout.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class TSInteraction;
 @class ConversationViewCell;
 
@@ -23,3 +25,5 @@
 - (void)clearCachedLayoutState;
 
 @end
+
+NS_ASSUME_NONNULL_END

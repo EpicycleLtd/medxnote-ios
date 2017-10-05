@@ -4,6 +4,8 @@
 
 #import "OWSViewController.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class TSThread;
 
 // TODO: Audit this.
@@ -25,3 +27,5 @@ extern NSString *const ConversationViewControllerDidAppearNotification;
 - (void)popped;
 
 @end
+
+NS_ASSUME_NONNULL_END

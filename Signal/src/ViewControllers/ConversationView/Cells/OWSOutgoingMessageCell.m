@@ -25,22 +25,26 @@ NS_ASSUME_NONNULL_BEGIN
     return NSStringFromClass([self class]);
 }
 
-- (void)configure
-{
-    OWSAssert(self.viewItem);
-    OWSAssert([self.viewItem.interaction isKindOfClass:[TSOutgoingMessage class]]);
+//- (void)configure
+//{
+//    OWSAssert(self.viewItem);
+//    OWSAssert([self.viewItem.interaction isKindOfClass:[TSOutgoingMessage class]]);
+//}
+
+- (BOOL)isIncoming {
+    return NO;
 }
 
-- (CGSize)cellSizeForViewWidth:(int)viewWidth
-               maxMessageWidth:(int)maxMessageWidth
-{
-    OWSAssert(self.viewItem);
-    OWSAssert([self.viewItem.interaction isKindOfClass:[TSOutgoingMessage class]]);
-    
-    TSOutgoingMessage *interaction = (TSOutgoingMessage *) self.viewItem.interaction;
-    
-    return CGSizeMake(maxMessageWidth, maxMessageWidth);
-}
+//- (CGSize)cellSizeForViewWidth:(int)viewWidth
+//               maxMessageWidth:(int)maxMessageWidth
+//{
+//    OWSAssert(self.viewItem);
+//    OWSAssert([self.viewItem.interaction isKindOfClass:[TSOutgoingMessage class]]);
+//    
+//    TSOutgoingMessage *interaction = (TSOutgoingMessage *) self.viewItem.interaction;
+//    
+//    return CGSizeMake(maxMessageWidth, maxMessageWidth);
+//}
 
 //- (void)awakeFromNib
 //{

@@ -3,6 +3,9 @@
 //
 
 #import "ConversationViewLayout.h"
+#import "UIView+OWS.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface ConversationViewLayout ()
 
@@ -65,7 +68,8 @@
 
     CGFloat y = vInset;
     CGFloat contentBottom = y;
-
+    BOOL isRTL = self.collectionView.isRTL;
+    
     NSInteger row = 0;
     for (id<ConversationViewLayoutItem> layoutItem in layoutItems) {
         CGSize layoutSize = [layoutItem cellSizeForViewWidth:viewWidth
@@ -75,18 +79,24 @@
         layoutSize.height = floor(layoutSize.height);
         CGRect itemFrame;
         switch (layoutItem.layoutAlignment) {
-            case ConversationViewLayoutAlignment_Left:
-                itemFrame = CGRectMake(hInset, y, layoutSize.width, layoutSize.height);
+            case ConversationViewLayoutAlignment_Incoming:
+            case ConversationViewLayoutAlignment_Outgoing:
+            {
+                BOOL isLeft = ((layoutItem.layoutAlignment == ConversationViewLayoutAlignment_Incoming && !isRTL) ||
+                               (layoutItem.layoutAlignment == ConversationViewLayoutAlignment_Outgoing && isRTL));
+                if (isLeft) {
+                    itemFrame = CGRectMake(hInset, y, layoutSize.width, layoutSize.height);
+                } else {
+                    itemFrame = CGRectMake(viewWidth - (hInset + layoutSize.width), y, layoutSize.width, layoutSize.height);
+                }
                 break;
+            }
             case ConversationViewLayoutAlignment_FullWidth:
                 itemFrame = CGRectMake(hInset, y, maxMessageWidth, layoutSize.height);
                 break;
             case ConversationViewLayoutAlignment_Center:
                 itemFrame = CGRectMake(
                     hInset + round((viewWidth - layoutSize.width) * 0.5f), y, layoutSize.width, layoutSize.height);
-                break;
-            case ConversationViewLayoutAlignment_Right:
-                itemFrame = CGRectMake(viewWidth - (hInset + layoutSize.width), y, layoutSize.width, layoutSize.height);
                 break;
         }
 
@@ -144,3 +154,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

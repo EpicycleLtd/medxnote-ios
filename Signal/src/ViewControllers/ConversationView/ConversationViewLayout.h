@@ -2,11 +2,13 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef NS_ENUM(NSInteger, ConversationViewLayoutAlignment) {
-    ConversationViewLayoutAlignment_Left,
+    ConversationViewLayoutAlignment_Incoming,
+    ConversationViewLayoutAlignment_Outgoing,
     ConversationViewLayoutAlignment_FullWidth,
     ConversationViewLayoutAlignment_Center,
-    ConversationViewLayoutAlignment_Right,
 };
 
 @protocol ConversationViewLayoutItem <NSObject>
@@ -35,3 +37,5 @@ typedef NS_ENUM(NSInteger, ConversationViewLayoutAlignment) {
 @property (nonatomic, weak) id<ConversationViewLayoutDelegate> delegate;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -5,6 +5,8 @@
 #import "ConversationViewCell.h"
 #import "ConversationViewItem.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation ConversationViewCell
 
 - (void)prepareForReuse
@@ -57,4 +59,6 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
 

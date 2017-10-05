@@ -10,6 +10,8 @@
 #import "OWSUnreadIndicatorCell.h"
 #import "OWSOutgoingMessageCell.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface ConversationViewItem ()
 
 @property (nonatomic, nullable) NSValue *cachedCellSize;
@@ -68,8 +70,24 @@
 
 - (ConversationViewLayoutAlignment)layoutAlignment
 {
-    // TODO:
-    return ConversationViewLayoutAlignment_Left;
+    switch (self.interaction.interactionType) {
+        case OWSInteractionType_Unknown:
+            return ConversationViewLayoutAlignment_Center;
+        case OWSInteractionType_IncomingMessage:
+            return ConversationViewLayoutAlignment_Incoming;
+            break;
+        case OWSInteractionType_OutgoingMessage:
+            return ConversationViewLayoutAlignment_Outgoing;
+            break;
+        case OWSInteractionType_Error:
+        case OWSInteractionType_Info:
+        case OWSInteractionType_Call:
+            return ConversationViewLayoutAlignment_Center;
+        case OWSInteractionType_UnreadIndicator:
+            return ConversationViewLayoutAlignment_FullWidth;
+        case OWSInteractionType_Offer:
+            return ConversationViewLayoutAlignment_Center;
+    }
 }
 
 - (nullable ConversationViewCell *)measurementCell
@@ -163,3 +181,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
