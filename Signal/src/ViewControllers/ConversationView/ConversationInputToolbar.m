@@ -146,8 +146,8 @@ NS_ASSUME_NONNULL_BEGIN
     // TODO:
 //    [self ensureShouldShowVoiceMemoButton];
     
-    OWSAssert(self.voiceMemoButton.isEnabled == YES);
-    OWSAssert(self.sendButton.isEnabled == YES);
+//    OWSAssert(self.voiceMemoButton.isEnabled == YES);
+//    OWSAssert(self.sendButton.isEnabled == YES);
 }
 
 //- (void)ensureShouldShowVoiceMemoButton

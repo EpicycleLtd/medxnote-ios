@@ -195,6 +195,31 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     self.messageDateHeaderText = nil;
 }
 
+- (void)setFrame:(CGRect)frame {
+    [super setFrame:frame];
+    
+    DDLogError(@"%@ setFrame: %@", ConversationViewCell.logTag, NSStringFromCGRect(frame));
+}
+
+- (void)setBounds:(CGRect)bounds {
+    [super setBounds:bounds];
+    
+    DDLogError(@"%@ setFrame: %@", ConversationViewCell.logTag, NSStringFromCGRect(bounds));
+}
+
+#pragma mark - Logging
+
++ (NSString *)logTag
+{
+    return [NSString stringWithFormat:@"[%@]", self.class];
+}
+
+- (NSString *)logTag
+{
+//    return [NSString stringWithFormat:@"[%@]", self];
+    return self.class.logTag;
+}
+
 @end
 
 #pragma mark -
@@ -633,6 +658,7 @@ UICollectionViewDataSource,
     self.collectionView.dataSource = self;
     self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.showsHorizontalScrollIndicator = NO;
+    self.collectionView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:self.collectionView];
     [self.collectionView autoPinWidthToSuperview];
     [self.collectionView autoPinToTopLayoutGuideOfViewController:self withInset:0];
