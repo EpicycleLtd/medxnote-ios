@@ -3106,6 +3106,18 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     __block BOOL scrollToBottom = wasAtBottom;
 
     [self.collectionView performBatchUpdates:^{
+        // TODO: Is there a better way to do this?
+        void (^reloadNeighbors)(NSIndexPath *) = ^(NSIndexPath *indexPath) {
+            if (indexPath.row > 0) {
+                [self.collectionView reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForRow:indexPath.row - 1
+                                                                                   inSection:0] ]];
+            }
+            if (indexPath.row + 1 < (NSInteger) self.viewItems.count) {
+                [self.collectionView reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForRow:indexPath.row + 1
+                                                                                   inSection:0] ]];
+            }
+        };
+        
         for (YapDatabaseViewRowChange *rowChange in messageRowChanges) {
             switch (rowChange.type) {
                 case YapDatabaseViewChangeDelete: {
@@ -3116,7 +3128,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     if (collectionKey.key) {
                         [self.viewItemMap removeObjectForKey:collectionKey.key];
                     }
-
+                    reloadNeighbors(rowChange.indexPath);
                     break;
                 }
                 case YapDatabaseViewChangeInsert: {
@@ -3130,11 +3142,14 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                             shouldAnimateScrollToBottom = NO;
                         }
                     }
+                    reloadNeighbors(rowChange.newIndexPath);
                     break;
                 }
                 case YapDatabaseViewChangeMove: {
                     [self.collectionView deleteItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     [self.collectionView insertItemsAtIndexPaths:@[ rowChange.newIndexPath ]];
+                    reloadNeighbors(rowChange.indexPath);
+                    reloadNeighbors(rowChange.newIndexPath);
                     break;
                 }
                 case YapDatabaseViewChangeUpdate: {
@@ -3144,6 +3159,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                         [self.viewItemMap[collectionKey.key] clearCachedLayoutState];
                     }
                     [self.collectionView reloadItemsAtIndexPaths:@[ rowChange.indexPath ]];
+                    reloadNeighbors(rowChange.indexPath);
                     break;
                 }
             }
@@ -3154,6 +3170,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
             if (!success) {
                 [self resetContentAndLayout];
+            } else {
+                [self.collectionView.collectionViewLayout invalidateLayout];
             }
 
             [self updateLastVisibleTimestamp];
@@ -4245,7 +4263,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         cell.messageDateHeaderText = [[JSQMessagesTimestampFormatter sharedFormatter] attributedTimestampForDate:viewItem.interaction.dateForSorting];
     }
     
-    [cell configure];
+    [cell loadForDisplay];
 
     return cell;
     

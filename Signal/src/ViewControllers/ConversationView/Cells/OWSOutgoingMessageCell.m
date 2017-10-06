@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     return NSStringFromClass([self class]);
 }
 
-//- (void)configure
+//- (void)loadForDisplay
 //{
 //    OWSAssert(self.viewItem);
 //    OWSAssert([self.viewItem.interaction isKindOfClass:[TSOutgoingMessage class]]);

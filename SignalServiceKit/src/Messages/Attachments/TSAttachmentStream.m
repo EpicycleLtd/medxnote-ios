@@ -20,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *localRelativeFilePath;
 
 // These properties should only be accessed on the main thread.
-@property (nullable, nonatomic) NSNumber *cachedImageWidth;
-@property (nullable, nonatomic) NSNumber *cachedImageHeight;
+@property (nullable, nonatomic) NSNumber *cachedImageWidth2;
+@property (nullable, nonatomic) NSNumber *cachedImageHeight2;
 @property (nullable, nonatomic) NSNumber *cachedAudioDurationSeconds;
 
 @end
@@ -345,10 +345,17 @@ NS_ASSUME_NONNULL_BEGIN
             = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, (CFDictionaryRef)options);
         CGSize imageSize = CGSizeZero;
         if (properties) {
+            NSNumber *orientation = properties[(NSString *)kCGImagePropertyOrientation];
             NSNumber *width = properties[(NSString *)kCGImagePropertyPixelWidth];
             NSNumber *height = properties[(NSString *)kCGImagePropertyPixelHeight];
+            
             if (width && height) {
                 imageSize = CGSizeMake(width.floatValue, height.floatValue);
+                
+                if (orientation) {
+                    imageSize = [self applyImageOrientation:(UIImageOrientation) orientation.intValue
+                                                toImageSize:imageSize];
+                }
             } else {
                 OWSFail(@"%@ Could not determine size of image: %@", self.tag, mediaUrl);
             }
@@ -360,17 +367,36 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (CGSize)applyImageOrientation:(UIImageOrientation)orientation
+                    toImageSize:(CGSize)imageSize
+{
+    switch (orientation) {
+        case UIImageOrientationUp: // EXIF = 1
+        case UIImageOrientationUpMirrored: // EXIF = 2
+        case UIImageOrientationDown: // EXIF = 3
+        case UIImageOrientationDownMirrored: // EXIF = 4
+            return imageSize;
+        case UIImageOrientationLeftMirrored: // EXIF = 5
+        case UIImageOrientationLeft: // EXIF = 6
+        case UIImageOrientationRightMirrored: // EXIF = 7
+        case UIImageOrientationRight: // EXIF = 8
+            return CGSizeMake(imageSize.height, imageSize.width);
+        default:
+            return imageSize;
+    }
+}
+
 - (CGSize)ensureCachedImageSizeWithTransaction:(YapDatabaseReadWriteTransaction *_Nullable)transaction
 {
     OWSAssert([NSThread isMainThread]);
 
-    if (self.cachedImageWidth && self.cachedImageHeight) {
-        return CGSizeMake(self.cachedImageWidth.floatValue, self.cachedImageHeight.floatValue);
+    if (self.cachedImageWidth2 && self.cachedImageHeight2) {
+        return CGSizeMake(self.cachedImageWidth2.floatValue, self.cachedImageHeight2.floatValue);
     }
 
     CGSize imageSize = [self calculateImageSize];
-    self.cachedImageWidth = @(imageSize.width);
-    self.cachedImageHeight = @(imageSize.height);
+    self.cachedImageWidth2 = @(imageSize.width);
+    self.cachedImageHeight2 = @(imageSize.height);
 
     void (^updateDataStore)() = ^(YapDatabaseReadWriteTransaction *transaction) {
         OWSAssert(transaction);
@@ -378,8 +404,8 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *collection = [[self class] collection];
         TSAttachmentStream *latestInstance = [transaction objectForKey:self.uniqueId inCollection:collection];
         if (latestInstance) {
-            latestInstance.cachedImageWidth = @(imageSize.width);
-            latestInstance.cachedImageHeight = @(imageSize.height);
+            latestInstance.cachedImageWidth2 = @(imageSize.width);
+            latestInstance.cachedImageHeight2 = @(imageSize.height);
             [latestInstance saveWithTransaction:transaction];
         } else {
             // This message has not yet been saved; do nothing.

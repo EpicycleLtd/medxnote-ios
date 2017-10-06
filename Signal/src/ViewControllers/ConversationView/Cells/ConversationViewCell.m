@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 //    DDLogError(@"%@ setFrame: %@", ConversationViewCell.logTag, NSStringFromCGRect(bounds));
 //}
 
-- (void)configure
+- (void)loadForDisplay
 {
     OWSFail(@"%@ This method should be overridden.", self.logTag);
 }

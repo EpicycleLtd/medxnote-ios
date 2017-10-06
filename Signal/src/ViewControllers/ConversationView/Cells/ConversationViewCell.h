@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 // If this is non-null, we should show the message date header.
 @property (nonatomic, nullable) NSAttributedString * messageDateHeaderText;
 
-- (void)configure;
+- (void)loadForDisplay;
 
 - (CGSize)cellSizeForViewWidth:(int)viewWidth
                maxMessageWidth:(int)maxMessageWidth;

@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
     self = [super initWithFrame:frame];
 
     if (self) {
-        self.layoutMargins = UIEdgeInsetsMake(0, 0, 0, 0);
+        self.layoutMargins = UIEdgeInsetsZero;
     }
 
     return self;

@@ -106,9 +106,9 @@ NS_ASSUME_NONNULL_BEGIN
     CGRect keyboardEndFrame = [keyboardEndFrameValue CGRectValue];
     CGRect keyboardEndFrameConverted = [self.view convertRect:keyboardEndFrame fromView:nil];
     // Adjust the position of the bottom view to account for the keyboard's
-    // new location.
-    CGFloat offset = -(self.view.height - keyboardEndFrameConverted.origin.y);
-
+    // intrusion into the view.
+    CGFloat offset = -MAX(0, (self.view.height - keyboardEndFrameConverted.origin.y));
+    
     // There's no need to use: [UIView animateWithDuration:...].
     // Any layout changes made during these notifications are
     // automatically animated.

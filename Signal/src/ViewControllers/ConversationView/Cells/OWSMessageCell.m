@@ -8,14 +8,39 @@
 //#import <JSQMessagesViewController/JSQMediaItem.h>
 #import "ConversationViewItem.h"
 #import "Signal-Swift.h"
+#import "AttachmentUploadView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
+    OWSMessageCellMode_TextMessage,
+    OWSMessageCellMode_StillImage,
+    OWSMessageCellMode_AnimatedImage,
+    OWSMessageCellMode_Audio,
+    OWSMessageCellMode_Video,
+    OWSMessageCellMode_GenericAttachment,
+    OWSMessageCellMode_DownloadingAttachment,
+    // Treat invalid messages as empty text messages.
+    OWSMessageCellMode_Unknown = OWSMessageCellMode_TextMessage,
+};
+
 @interface OWSMessageCell ()
 
+@property (nonatomic) OWSMessageCellMode cellMode;
+
+@property (nonatomic, nullable) NSString *textMessage;
+@property (nonatomic, nullable) TSAttachmentStream *attachmentStream;
+@property (nonatomic, nullable) TSAttachmentPointer *attachmentPointer;
+@property (nonatomic) CGSize contentSize;
+
+// The text label is used so frequently that we always keep one around.
 @property (nonatomic) UILabel *textLabel;
-@property (nonatomic) UIImageView *bubbleImageView;
-@property (nonatomic) NSArray<NSLayoutConstraint *> *bubbleContraints;
+@property (nonatomic, nullable) UIImageView *bubbleImageView;
+@property (nonatomic, nullable) AttachmentUploadView *attachmentUploadView;
+@property (nonatomic, nullable) UIImageView *stillImageView;
+@property (nonatomic, nullable) UIImageView *animatedImageView;
+@property (nonatomic, nullable) UIView *errorView;
+@property (nonatomic, nullable) NSArray<NSLayoutConstraint *> *contentConstraints;
 
 //@property (strong, nonatomic) IBOutlet OWSExpirationTimerView *expirationTimerView;
 //@property (strong, nonatomic) IBOutlet NSLayoutConstraint *expirationTimerViewWidthConstraint;
@@ -39,20 +64,22 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(!self.textLabel);
     
     [self setTranslatesAutoresizingMaskIntoConstraints:NO];
-    self.layoutMargins = UIEdgeInsetsMake(0, 0, 0, 0);
-    
+    self.layoutMargins = UIEdgeInsetsZero;
+
     self.bubbleImageView = [UIImageView new];
-    self.bubbleImageView.layoutMargins = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.bubbleImageView.layoutMargins = UIEdgeInsetsZero;
     [self.contentView addSubview:self.bubbleImageView];
     [self.bubbleImageView autoPinToSuperviewEdges];
-    
+
     self.textLabel = [UILabel new];
     self.textLabel.font = [UIFont ows_regularFontWithSize:16.f];
     self.textLabel.numberOfLines = 0;
     self.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.textLabel.textAlignment = NSTextAlignmentLeft;
+    self.textLabel.hidden = YES;
     [self.bubbleImageView addSubview:self.textLabel];
-    
+    OWSAssert(self.textLabel.superview);
+
 //    [self.contentView addRedBorder];
 //    self.addToContactsButton = [self
 //                                createButtonWithTitle:
@@ -77,58 +104,205 @@ NS_ASSUME_NONNULL_BEGIN
     [self addGestureRecognizer:longPress];
 }
 
-- (void)configure
+- (NSCache *)displayableTextCache
+{
+    static NSCache *cache = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cache = [NSCache new];
+        // Cache the results for up to 1,000 messages.
+        cache.countLimit = 1000;
+    });
+    return cache;
+}
+
+- (NSString *)displayableTextForText:(NSString *)text
+                       interactionId:(NSString *)interactionId
+{
+    OWSAssert(text);
+    OWSAssert(interactionId.length > 0);
+    
+    NSString *_Nullable displayableText = [[self displayableTextCache] objectForKey:interactionId];
+    if (!displayableText) {
+        // Only show up to 2kb of text.
+        const NSUInteger kMaxTextDisplayLength = 2 * 1024;
+        displayableText = [[DisplayableTextFilter new] displayableText:text];
+        if (displayableText.length > kMaxTextDisplayLength) {
+            // Trim whitespace before _AND_ after slicing the snipper from the string.
+            NSString *snippet = [[[displayableText
+                                   stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                                  substringWithRange:NSMakeRange(0, kMaxTextDisplayLength)]
+                                 stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            displayableText =
+            [NSString stringWithFormat:NSLocalizedString(@"OVERSIZE_TEXT_DISPLAY_FORMAT",
+                                                         @"A display format for oversize text messages."),
+             snippet];
+        }
+        if (!displayableText) {
+            displayableText = @"";
+        }
+        [[self displayableTextCache] setObject:displayableText forKey:interactionId];
+    }
+    return displayableText;
+}
+
+- (NSString *)displayableTextForAttachmentStream:(TSAttachmentStream *)attachmentStream
+                       interactionId:(NSString *)interactionId
+{
+    OWSAssert(attachmentStream);
+    OWSAssert(interactionId.length > 0);
+    
+    NSString *_Nullable displayableText = [[self displayableTextCache] objectForKey:interactionId];
+    if (displayableText) {
+        return displayableText;
+    }
+    
+    NSData *textData = [NSData dataWithContentsOfURL:attachmentStream.mediaURL];
+    NSString *text = [[NSString alloc] initWithData:textData encoding:NSUTF8StringEncoding];
+    return [self displayableTextForText:text
+                          interactionId:interactionId];
+}
+
+- (void)ensureCellMode
 {
     OWSAssert(self.viewItem);
     OWSAssert(self.viewItem.interaction);
     OWSAssert([self.viewItem.interaction isKindOfClass:[TSMessage class]]);
     
     TSMessage *interaction = (TSMessage *) self.viewItem.interaction;
-    NSString *_Nullable messageBody = interaction.body;
-    NSString *_Nullable attachmentId = interaction.attachmentIds.firstObject;
-    
-    if (messageBody.length > 0) {
-        // Text
-        BOOL isRTL = self.isRTL;
-//        CGFloat leftMargin = isRTL ? self.trailingMargin : self.leadingMargin;
-//        CGFloat rightMargin = isRTL ? self.leadingMargin : self.trailingMargin;
-//        CGFloat vMargin = self.vMargin;
-        BOOL isIncoming = self.isIncoming;
-        
-        // Zalgo.
-        self.textLabel.text = messageBody;
-        self.textLabel.textColor = [self textColor];
-
-        JSQMessagesBubbleImage *bubbleImageData = isIncoming ? [self.bubbleFactory incoming] : [self.bubbleFactory outgoing];
-        self.bubbleImageView.image = bubbleImageData.messageBubbleImage;
-        
-        [NSLayoutConstraint deactivateConstraints:self.bubbleContraints];
-//        NSMutableArray<NSLayoutConstraint *> *bubbleContraints = [NSMutableArray new];
-        self.bubbleContraints = @[
-                                  [self.textLabel autoPinLeadingToSuperviewWithMargin:self.leadingMargin],
-                                  [self.textLabel autoPinTrailingToSuperviewWithMargin:self.trailingMargin],
-                                  [self.textLabel autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:self.vMargin],
-                                  [self.textLabel autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:self.vMargin],
-                                  ];
-//
-//        @property (nonatomic) NSArray<NSLayoutConstraint *> *bubbleContraints;
-
-        //
-        //let leadingMargin: CGFloat = isIncoming ? 15 : 10
-        //let trailingMargin: CGFloat = isIncoming ? 10 : 15
-        //
-        //let bubbleView = UIImageView(image: bubbleImageData.messageBubbleImage)
-
-        
-        self.textLabel.hidden = NO;
-        self.bubbleImageView.hidden = NO;
-        self.contentView.backgroundColor = [UIColor whiteColor];
+    if (interaction.body.length > 0) {
+        self.cellMode = OWSMessageCellMode_TextMessage;
+        // TODO: This can be expensive.  Should we cache it on the view item?
+        self.textMessage = [self displayableTextForText:interaction.body
+                                          interactionId:interaction.uniqueId];
+        return;
     } else {
-        // Attachment
-        self.textLabel.hidden = YES;
-        self.bubbleImageView.hidden = YES;
-        self.contentView.backgroundColor = [UIColor redColor];
+        NSString *_Nullable attachmentId = interaction.attachmentIds.firstObject;
+        if (attachmentId.length > 0) {
+            TSAttachment *attachment = [TSAttachment fetchObjectWithUniqueID:attachmentId];
+            if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
+                self.attachmentStream = (TSAttachmentStream *)attachment;
+                
+                if ([attachment.contentType isEqualToString:OWSMimeTypeOversizeTextMessage]) {
+                    self.cellMode = OWSMessageCellMode_TextMessage;
+                    // TODO: This can be expensive.  Should we cache it on the view item?
+                    self.textMessage = [self displayableTextForAttachmentStream:self.attachmentStream
+                                                                  interactionId:interaction.uniqueId];
+                    return;
+                } else if ([self.attachmentStream isAnimated]) {
+                    self.cellMode = OWSMessageCellMode_AnimatedImage;
+                    self.contentSize = [self.attachmentStream imageSizeWithoutTransaction];
+                    if (self.contentSize.width <= 0 ||
+                        self.contentSize.height <= 0) {
+                        self.cellMode = OWSMessageCellMode_GenericAttachment;
+                    }
+                    return;
+                } else if ([self.attachmentStream isImage]) {
+                    self.cellMode = OWSMessageCellMode_StillImage;
+                    self.contentSize = [self.attachmentStream imageSizeWithoutTransaction];
+
+//                    DDLogError(@"still image: %@ %@ %@", self.viewItem.interaction.description, self.attachmentStream.contentType, self.attachmentStream.mediaURL);
+//                    DDLogError(@"\t contentSize: %@", NSStringFromCGSize(self.contentSize));
+
+                    if (self.contentSize.width <= 0 ||
+                        self.contentSize.height <= 0) {
+                        self.cellMode = OWSMessageCellMode_GenericAttachment;
+                    }
+                    return;
+//                    adapter.mediaItem =
+//                    [[TSAnimatedAdapter alloc] initWithAttachment:stream incoming:isIncomingAttachment];
+//                    adapter.mediaItem.appliesMediaViewMaskAsOutgoing = !isIncomingAttachment;
+//                } else if ([self.attachmentStream isImage]) {
+//                    adapter.mediaItem =
+//                    [[TSPhotoAdapter alloc] initWithAttachment:stream incoming:isIncomingAttachment];
+//                    adapter.mediaItem.appliesMediaViewMaskAsOutgoing = !isIncomingAttachment;
+//                    break;
+//                } else if ([self.attachmentStream isVideo] || [self.attachmentStream isAudio]) {
+//                    adapter.mediaItem = [[TSVideoAttachmentAdapter alloc]
+//                                         initWithAttachment:stream
+//                                         incoming:[interaction isKindOfClass:[TSIncomingMessage class]]];
+//                    adapter.mediaItem.appliesMediaViewMaskAsOutgoing = !isIncomingAttachment;
+//                    break;
+//                } else {
+//                    adapter.mediaItem = [[TSGenericAttachmentAdapter alloc]
+//                                         initWithAttachment:stream
+//                                         incoming:[interaction isKindOfClass:[TSIncomingMessage class]]];
+//                    adapter.mediaItem.appliesMediaViewMaskAsOutgoing = !isIncomingAttachment;
+//                    break;
+                }
+            } else if ([attachment isKindOfClass:[TSAttachmentPointer class]]) {
+                self.cellMode = OWSMessageCellMode_DownloadingAttachment;
+                self.attachmentPointer = (TSAttachmentPointer *)attachment;
+//                adapter.mediaItem =
+//                [[AttachmentPointerAdapter alloc] initWithAttachmentPointer:pointer
+//                                                                 isIncoming:isIncomingAttachment];
+                return;
+            }
+//            } else {
+        }
     }
+
+    self.cellMode = OWSMessageCellMode_Unknown;
+}
+
+- (void)loadForDisplay
+{
+    OWSAssert(self.viewItem);
+    OWSAssert(self.viewItem.interaction);
+    OWSAssert([self.viewItem.interaction isKindOfClass:[TSMessage class]]);
+    
+    [self ensureCellMode];
+    
+    BOOL isIncoming = self.isIncoming;
+    JSQMessagesBubbleImage *bubbleImageData = isIncoming ? [self.bubbleFactory incoming] : [self.bubbleFactory outgoing];
+    self.bubbleImageView.image = bubbleImageData.messageBubbleImage;
+
+    switch(self.cellMode) {
+        case OWSMessageCellMode_TextMessage: {
+            self.bubbleImageView.hidden = NO;
+            self.textLabel.hidden = NO;
+            self.textLabel.text = self.textMessage;
+            self.textLabel.textColor = [self textColor];
+            
+            self.contentConstraints = @[
+                                      [self.textLabel autoPinLeadingToSuperviewWithMargin:self.leadingMargin],
+                                      [self.textLabel autoPinTrailingToSuperviewWithMargin:self.trailingMargin],
+                                      [self.textLabel autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:self.vMargin],
+                                      [self.textLabel autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:self.vMargin],
+                                      ];
+            return;
+        }
+        case OWSMessageCellMode_StillImage: {
+            UIImage *_Nullable image = self.attachmentStream.image;
+            if (!image) {
+                DDLogError(@"%@ Could not load image: %@", [self logTag], [self.attachmentStream mediaURL]);
+                [self showAttachmentErrorView];
+                return;
+            }
+
+            self.stillImageView = [[UIImageView alloc] initWithImage:image];
+            // Use trilinear filters for better scaling quality at
+            // some performance cost.
+            self.stillImageView.layer.minificationFilter = kCAFilterTrilinear;
+            self.stillImageView.layer.magnificationFilter = kCAFilterTrilinear;
+            [self.contentView addSubview:self.stillImageView];
+            self.contentConstraints = [self.stillImageView autoPinToSuperviewEdges];
+            [self cropViewToBubbbleShape:self.stillImageView];
+            return;
+        }
+        case OWSMessageCellMode_AnimatedImage:
+            break;
+        case OWSMessageCellMode_Audio:
+            break;
+        case OWSMessageCellMode_Video:
+            break;
+        case OWSMessageCellMode_GenericAttachment:
+            break;
+        case OWSMessageCellMode_DownloadingAttachment:
+            break;
+    }
+    
+    self.contentView.backgroundColor = [UIColor redColor];
 
 //    [self.textLabel addBorderWithColor:[UIColor blueColor]];
 //    [self.bubbleImageView addBorderWithColor:[UIColor greenColor]];
@@ -140,13 +314,23 @@ NS_ASSUME_NONNULL_BEGIN
 //        NSLog(@"textLabel: %@", NSStringFromCGRect(self.textLabel.frame));
 //        NSLog(@"bubbleImageView: %@", NSStringFromCGRect(self.bubbleImageView.frame));
 //    });
+}
 
-    //
-//
-//    OWSAssert(
-//              interaction.hasBlockOffer || interaction.hasAddToContactsOffer || interaction.hasAddToProfileWhitelistOffer);
-    
-//    [self setNeedsLayout];
+- (void)cropViewToBubbbleShape:(UIView *)view
+{
+    view.frame = view.superview.bounds;
+    [JSQMessagesMediaViewBubbleImageMasker applyBubbleImageMaskToMediaView:view
+                                                                isOutgoing:!self.isIncoming];
+}
+
+- (void)showAttachmentErrorView
+{
+    // TODO: We could do a better job of indicating that the image could not be loaded.
+    self.errorView = [UIView new];
+    self.errorView.backgroundColor = [UIColor colorWithWhite:0.85f alpha:1.f];
+    [self.contentView addSubview:self.errorView];
+    self.contentConstraints = [self.errorView autoPinToSuperviewEdges];
+    [self cropViewToBubbbleShape:self.stillImageView];
 }
 
 - (CGSize)cellSizeForViewWidth:(int)viewWidth
@@ -155,33 +339,83 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(self.viewItem);
     OWSAssert([self.viewItem.interaction isKindOfClass:[TSMessage class]]);
     
-    TSMessage *interaction = (TSMessage *) self.viewItem.interaction;
-    NSString *_Nullable messageBody = interaction.body;
-    NSString *_Nullable attachmentId = interaction.attachmentIds.firstObject;
-    
-    if (messageBody.length > 0) {
-        // Text
-        BOOL isRTL = self.isRTL;
-        CGFloat leftMargin = isRTL ? self.trailingMargin : self.leadingMargin;
-        CGFloat rightMargin = isRTL ? self.leadingMargin : self.trailingMargin;
-        CGFloat vMargin = self.vMargin;
-        CGFloat maxTextWidth = maxMessageWidth - (leftMargin + rightMargin);
-        
-        // Zalgo.
-        self.textLabel.text = messageBody;
-        CGSize textSize = [self.textLabel sizeThatFits:CGSizeMake(maxTextWidth, CGFLOAT_MAX)];
-        CGSize result = CGSizeMake((CGFloat) ceil(textSize.width + leftMargin + rightMargin),
-                          (CGFloat) ceil(textSize.height + vMargin * 2));
-//        NSLog(@"???? %@", self.viewItem.interaction.debugDescription);
-//        NSLog(@"\t %@", messageBody);
-//        NSLog(@"textSize: %@", NSStringFromCGSize(textSize));
-//        NSLog(@"result: %@", NSStringFromCGSize(result));
-        return result;
-    } else {
-        // Attachment
-        // TODO:
-        return CGSizeMake(maxMessageWidth, maxMessageWidth);
+    [self ensureCellMode];
+
+    switch(self.cellMode) {
+        case OWSMessageCellMode_TextMessage: {
+            BOOL isRTL = self.isRTL;
+            CGFloat leftMargin = isRTL ? self.trailingMargin : self.leadingMargin;
+            CGFloat rightMargin = isRTL ? self.leadingMargin : self.trailingMargin;
+            CGFloat vMargin = self.vMargin;
+            CGFloat maxTextWidth = maxMessageWidth - (leftMargin + rightMargin);
+            
+            self.textLabel.text = self.textMessage;
+            CGSize textSize = [self.textLabel sizeThatFits:CGSizeMake(maxTextWidth, CGFLOAT_MAX)];
+            CGSize result = CGSizeMake((CGFloat) ceil(textSize.width + leftMargin + rightMargin),
+                                       (CGFloat) ceil(textSize.height + vMargin * 2));
+            //        NSLog(@"???? %@", self.viewItem.interaction.debugDescription);
+            //        NSLog(@"\t %@", messageBody);
+            //        NSLog(@"textSize: %@", NSStringFromCGSize(textSize));
+            //        NSLog(@"result: %@", NSStringFromCGSize(result));
+            return result;
+        }
+        case OWSMessageCellMode_StillImage:
+        case OWSMessageCellMode_AnimatedImage: {
+            OWSAssert(self.contentSize.width > 0);
+            OWSAssert(self.contentSize.height > 0);
+            
+            // TODO: Adjust this behavior.
+            const CGFloat maxContentWidth = maxMessageWidth;
+            const CGFloat maxContentHeight = maxMessageWidth;
+            CGFloat contentWidth = (CGFloat) round(maxContentWidth);
+            CGFloat contentHeight = (CGFloat) round(maxContentWidth * self.contentSize.height / self.contentSize.width);
+            if (contentHeight > maxContentHeight) {
+                contentWidth = (CGFloat) round(maxContentHeight * self.contentSize.width / self.contentSize.height);
+                contentHeight = (CGFloat) round(maxContentHeight);
+            }
+            CGSize result = CGSizeMake(contentWidth, contentHeight);
+//            DDLogError(@"measuring: %@ %@", self.viewItem.interaction.description, self.attachmentStream.contentType);
+//            DDLogError(@"\t contentSize: %@", NSStringFromCGSize(self.contentSize));
+//            DDLogError(@"\t result: %@", NSStringFromCGSize(result));
+            return result;
+        }
+        case OWSMessageCellMode_Audio:
+            break;
+        case OWSMessageCellMode_Video:
+            break;
+        case OWSMessageCellMode_GenericAttachment:
+            break;
+        case OWSMessageCellMode_DownloadingAttachment:
+            break;
     }
+    
+//    TSMessage *interaction = (TSMessage *) self.viewItem.interaction;
+//    NSString *_Nullable messageBody = interaction.body;
+//    NSString *_Nullable attachmentId = interaction.attachmentIds.firstObject;
+////    
+////    if (messageBody.length > 0) {
+//        // Text
+//        BOOL isRTL = self.isRTL;
+//        CGFloat leftMargin = isRTL ? self.trailingMargin : self.leadingMargin;
+//        CGFloat rightMargin = isRTL ? self.leadingMargin : self.trailingMargin;
+//        CGFloat vMargin = self.vMargin;
+//        CGFloat maxTextWidth = maxMessageWidth - (leftMargin + rightMargin);
+//        
+//        self.textLabel.text = self.textMessage;
+//        CGSize textSize = [self.textLabel sizeThatFits:CGSizeMake(maxTextWidth, CGFLOAT_MAX)];
+//        CGSize result = CGSizeMake((CGFloat) ceil(textSize.width + leftMargin + rightMargin),
+//                          (CGFloat) ceil(textSize.height + vMargin * 2));
+////        NSLog(@"???? %@", self.viewItem.interaction.debugDescription);
+////        NSLog(@"\t %@", messageBody);
+////        NSLog(@"textSize: %@", NSStringFromCGSize(textSize));
+////        NSLog(@"result: %@", NSStringFromCGSize(result));
+//        return result;
+//    } else {
+//        // Attachment
+//        // TODO:
+//        return CGSizeMake(maxMessageWidth, maxMessageWidth);
+//    }
+    return CGSizeMake(maxMessageWidth, maxMessageWidth);
 }
 
 - (BOOL)isIncoming {
@@ -218,8 +452,36 @@ NS_ASSUME_NONNULL_BEGIN
 {
     [super prepareForReuse];
     
+    [NSLayoutConstraint deactivateConstraints:self.contentConstraints];
+    self.contentConstraints = nil;
+
+    self.textMessage = nil;
+    self.attachmentStream = nil;
+    self.attachmentPointer = nil;
+    self.contentSize = CGSizeZero;
+    
+    // The text label is used so frequently that we always keep one around.
     self.textLabel.text = nil;
+    self.textLabel.hidden = YES;
     self.bubbleImageView.image = nil;
+    self.bubbleImageView.hidden = YES;
+    
+    [self.stillImageView removeFromSuperview];
+    self.stillImageView = nil;
+    [self.animatedImageView removeFromSuperview];
+    self.animatedImageView = nil;
+    [self.errorView removeFromSuperview];
+    self.errorView = nil;
+
+//    [self.textLabel removeFromSuperview];
+//    self.textLabel = nil;
+//    [self.bubbleImageView removeFromSuperview];
+//    self.bubbleImageView = nil;
+//    [self.attachmentUploadView removeFromSuperview];
+    self.attachmentUploadView = nil;
+    self.cellMode = OWSMessageCellMode_Unknown;
+    
+    self.contentView.backgroundColor = [UIColor whiteColor];
 }
 
 //let bubbleFactory = OWSMessagesBubbleImageFactory()
@@ -318,6 +580,18 @@ NS_ASSUME_NONNULL_BEGIN
     if (longPress.state == UIGestureRecognizerStateBegan) {
         [self.delegate didLongPressViewItem:self.viewItem];
     }
+}
+
+#pragma mark - Logging
+
++ (NSString *)logTag
+{
+    return [NSString stringWithFormat:@"[%@]", self.class];
+}
+
+- (NSString *)logTag
+{
+    return self.class.logTag;
 }
 
 @end
