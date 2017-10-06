@@ -3108,19 +3108,21 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self.collectionView performBatchUpdates:^{
         // TODO: Is there a better way to do this?
         void (^reloadNeighbors)(NSIndexPath *) = ^(NSIndexPath *indexPath) {
-            if (indexPath.row > 0) {
-                [self.collectionView reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForRow:indexPath.row - 1
-                                                                                   inSection:0] ]];
-            }
-            if (indexPath.row + 1 < (NSInteger) self.viewItems.count) {
-                [self.collectionView reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForRow:indexPath.row + 1
-                                                                                   inSection:0] ]];
-            }
+//            if (indexPath.row > 0) {
+//                [self.collectionView reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForRow:indexPath.row - 1
+//                                                                                   inSection:0] ]];
+//            }
+//            if (indexPath.row + 1 < (NSInteger) self.viewItems.count) {
+//                [self.collectionView reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForRow:indexPath.row + 1
+//                                                                                   inSection:0] ]];
+//            }
         };
         
         for (YapDatabaseViewRowChange *rowChange in messageRowChanges) {
             switch (rowChange.type) {
                 case YapDatabaseViewChangeDelete: {
+                    DDLogError(@".... YapDatabaseViewChangeDelete: %@", rowChange.collectionKey);
+
                     [self.collectionView deleteItemsAtIndexPaths:@[ rowChange.indexPath ]];
 
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
@@ -3132,6 +3134,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     break;
                 }
                 case YapDatabaseViewChangeInsert: {
+                    DDLogError(@".... YapDatabaseViewChangeInsert: %@", rowChange.collectionKey);
                     [self.collectionView insertItemsAtIndexPaths:@[ rowChange.newIndexPath ]];
 
                     TSInteraction *interaction = [self interactionAtIndexPath:rowChange.newIndexPath];
@@ -3146,6 +3149,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     break;
                 }
                 case YapDatabaseViewChangeMove: {
+                    DDLogError(@".... YapDatabaseViewChangeMove: %@", rowChange.collectionKey);
                     [self.collectionView deleteItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     [self.collectionView insertItemsAtIndexPaths:@[ rowChange.newIndexPath ]];
                     reloadNeighbors(rowChange.indexPath);
@@ -3153,6 +3157,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     break;
                 }
                 case YapDatabaseViewChangeUpdate: {
+                    DDLogError(@".... YapDatabaseViewChangeUpdate: %@", rowChange.collectionKey);
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
                     OWSAssert(collectionKey.key.length > 0);
                     if (collectionKey.key) {

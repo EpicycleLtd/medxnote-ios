@@ -6,8 +6,10 @@
 //#import "OWSExpirationTimerView.h"
 //#import "UIView+OWS.h"
 //#import <JSQMessagesViewController/JSQMediaItem.h>
+#import <JSQMessagesViewController/UIColor+JSQMessages.h>
 #import "ConversationViewItem.h"
 #import "Signal-Swift.h"
+#import "UIColor+OWS.h"
 #import "AttachmentUploadView.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,8 +40,9 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 @property (nonatomic, nullable) UIImageView *bubbleImageView;
 @property (nonatomic, nullable) AttachmentUploadView *attachmentUploadView;
 @property (nonatomic, nullable) UIImageView *stillImageView;
-@property (nonatomic, nullable) UIImageView *animatedImageView;
-@property (nonatomic, nullable) UIView *errorView;
+@property (nonatomic, nullable) YYAnimatedImageView *animatedImageView;
+@property (nonatomic, nullable) UIView *customView;
+@property (nonatomic, nullable) AttachmentPointerView *attachmentPointerView;
 @property (nonatomic, nullable) NSArray<NSLayoutConstraint *> *contentConstraints;
 
 //@property (strong, nonatomic) IBOutlet OWSExpirationTimerView *expirationTimerView;
@@ -63,7 +66,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 {
     OWSAssert(!self.textLabel);
     
-    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
+//    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.layoutMargins = UIEdgeInsetsZero;
 
     self.bubbleImageView = [UIImageView new];
@@ -273,13 +276,14 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
             return;
         }
         case OWSMessageCellMode_StillImage: {
+            OWSAssert(self.attachmentStream);
             UIImage *_Nullable image = self.attachmentStream.image;
             if (!image) {
                 DDLogError(@"%@ Could not load image: %@", [self logTag], [self.attachmentStream mediaURL]);
                 [self showAttachmentErrorView];
                 return;
             }
-
+            
             self.stillImageView = [[UIImageView alloc] initWithImage:image];
             // Use trilinear filters for better scaling quality at
             // some performance cost.
@@ -290,16 +294,67 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
             [self cropViewToBubbbleShape:self.stillImageView];
             return;
         }
-        case OWSMessageCellMode_AnimatedImage:
-            break;
+        case OWSMessageCellMode_AnimatedImage: {
+            OWSAssert(self.attachmentStream);
+
+            NSString *_Nullable filePath = [self.attachmentStream filePath];
+            YYImage *_Nullable animatedImage = nil;
+            if (filePath && [NSData ows_isValidImageAtPath:filePath]) {
+                animatedImage = [YYImage imageWithContentsOfFile:filePath];
+            }
+            if (!animatedImage) {
+                DDLogError(@"%@ Could not load animated image: %@", [self logTag], [self.attachmentStream mediaURL]);
+                [self showAttachmentErrorView];
+                return;
+            }
+
+            self.animatedImageView = [[YYAnimatedImageView alloc] init];
+            self.animatedImageView.image = animatedImage;
+            [self.contentView addSubview:self.animatedImageView];
+            self.contentConstraints = [self.animatedImageView autoPinToSuperviewEdges];
+            [self cropViewToBubbbleShape:self.animatedImageView];
+            return;
+        }
         case OWSMessageCellMode_Audio:
             break;
         case OWSMessageCellMode_Video:
             break;
         case OWSMessageCellMode_GenericAttachment:
             break;
-        case OWSMessageCellMode_DownloadingAttachment:
-            break;
+        case OWSMessageCellMode_DownloadingAttachment: {
+            OWSAssert(self.attachmentPointer);
+            
+            self.customView = [UIView new];
+            switch (self.attachmentPointer.state) {
+                case TSAttachmentPointerStateEnqueued:
+                    self.customView.backgroundColor = (self.isIncoming
+                                                       ? [UIColor jsq_messageBubbleLightGrayColor]
+                                                       : [UIColor ows_fadedBlueColor]);
+                    break;
+                case TSAttachmentPointerStateDownloading:
+                    [[NSNotificationCenter defaultCenter] addObserver:self
+                                                             selector:@selector(attachmentDownloadProgress:)
+                                                                 name:kAttachmentDownloadProgressNotification
+                                                               object:nil];
+                    self.customView.backgroundColor = (self.isIncoming
+                                                       ? [UIColor jsq_messageBubbleLightGrayColor]
+                                                       : [UIColor ows_fadedBlueColor]);
+                    break;
+                case TSAttachmentPointerStateFailed:
+                    self.customView.backgroundColor = [UIColor grayColor];
+                    break;
+            }
+            [self.contentView addSubview:self.customView];
+            self.contentConstraints = [self.customView autoPinToSuperviewEdges];
+            [self cropViewToBubbbleShape:self.customView];
+
+            self.attachmentPointerView = [[AttachmentPointerView alloc] initWithAttachmentPointer:self.attachmentPointer
+                                                                                                         isIncoming:self.isIncoming];
+            [self.customView addSubview:self.attachmentPointerView];
+            [self.attachmentPointerView autoPinWidthToSuperviewWithMargin:20.f];
+            [self.attachmentPointerView autoVCenterInSuperview];
+            return;
+        }
     }
     
     self.contentView.backgroundColor = [UIColor redColor];
@@ -318,19 +373,42 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 
 - (void)cropViewToBubbbleShape:(UIView *)view
 {
-    view.frame = view.superview.bounds;
+//    OWSAssert(CGRectEqualToRect(self.bounds, self.contentView.frame));
+//    DDLogError(@"cropViewToBubbbleShape: %@ %@", self.viewItem.interaction.uniqueId, self.viewItem.interaction.description);
+//    DDLogError(@"\t %@ %@ %@ %@",
+//               NSStringFromCGRect(self.frame),
+//               NSStringFromCGRect(self.contentView.frame),
+//               NSStringFromCGRect(view.frame),
+//               NSStringFromCGRect(view.superview.bounds));
+
+//    view.frame = view.superview.bounds;
+    view.frame = self.bounds;
     [JSQMessagesMediaViewBubbleImageMasker applyBubbleImageMaskToMediaView:view
                                                                 isOutgoing:!self.isIncoming];
 }
 
+//// TODO:
+//- (void)setFrame:(CGRect)frame {
+//    [super setFrame:frame];
+//
+//    DDLogError(@"setFrame: %@ %@ %@", self.viewItem.interaction.uniqueId, self.viewItem.interaction.description, NSStringFromCGRect(frame));
+//}
+//
+//// TODO:
+//- (void)setBounds:(CGRect)bounds {
+//    [super setBounds:bounds];
+//
+//    DDLogError(@"setBounds: %@ %@ %@", self.viewItem.interaction.uniqueId, self.viewItem.interaction.description, NSStringFromCGRect(bounds));
+//}
+
 - (void)showAttachmentErrorView
 {
     // TODO: We could do a better job of indicating that the image could not be loaded.
-    self.errorView = [UIView new];
-    self.errorView.backgroundColor = [UIColor colorWithWhite:0.85f alpha:1.f];
-    [self.contentView addSubview:self.errorView];
-    self.contentConstraints = [self.errorView autoPinToSuperviewEdges];
-    [self cropViewToBubbbleShape:self.stillImageView];
+    self.customView = [UIView new];
+    self.customView.backgroundColor = [UIColor colorWithWhite:0.85f alpha:1.f];
+    [self.contentView addSubview:self.customView];
+    self.contentConstraints = [self.customView autoPinToSuperviewEdges];
+    [self cropViewToBubbbleShape:self.customView];
 }
 
 - (CGSize)cellSizeForViewWidth:(int)viewWidth
@@ -374,7 +452,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
                 contentHeight = (CGFloat) round(maxContentHeight);
             }
             CGSize result = CGSizeMake(contentWidth, contentHeight);
-//            DDLogError(@"measuring: %@ %@", self.viewItem.interaction.description, self.attachmentStream.contentType);
+//            DDLogError(@"measuring: %@ %@ %@", self.viewItem.interaction.uniqueId, self.viewItem.interaction.description, self.attachmentStream.contentType);
 //            DDLogError(@"\t contentSize: %@", NSStringFromCGSize(self.contentSize));
 //            DDLogError(@"\t result: %@", NSStringFromCGSize(result));
             return result;
@@ -386,35 +464,9 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
         case OWSMessageCellMode_GenericAttachment:
             break;
         case OWSMessageCellMode_DownloadingAttachment:
-            break;
+            return CGSizeMake(200, 90);
     }
     
-//    TSMessage *interaction = (TSMessage *) self.viewItem.interaction;
-//    NSString *_Nullable messageBody = interaction.body;
-//    NSString *_Nullable attachmentId = interaction.attachmentIds.firstObject;
-////    
-////    if (messageBody.length > 0) {
-//        // Text
-//        BOOL isRTL = self.isRTL;
-//        CGFloat leftMargin = isRTL ? self.trailingMargin : self.leadingMargin;
-//        CGFloat rightMargin = isRTL ? self.leadingMargin : self.trailingMargin;
-//        CGFloat vMargin = self.vMargin;
-//        CGFloat maxTextWidth = maxMessageWidth - (leftMargin + rightMargin);
-//        
-//        self.textLabel.text = self.textMessage;
-//        CGSize textSize = [self.textLabel sizeThatFits:CGSizeMake(maxTextWidth, CGFLOAT_MAX)];
-//        CGSize result = CGSizeMake((CGFloat) ceil(textSize.width + leftMargin + rightMargin),
-//                          (CGFloat) ceil(textSize.height + vMargin * 2));
-////        NSLog(@"???? %@", self.viewItem.interaction.debugDescription);
-////        NSLog(@"\t %@", messageBody);
-////        NSLog(@"textSize: %@", NSStringFromCGSize(textSize));
-////        NSLog(@"result: %@", NSStringFromCGSize(result));
-//        return result;
-//    } else {
-//        // Attachment
-//        // TODO:
-//        return CGSizeMake(maxMessageWidth, maxMessageWidth);
-//    }
     return CGSizeMake(maxMessageWidth, maxMessageWidth);
 }
 
@@ -452,6 +504,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 {
     [super prepareForReuse];
     
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [NSLayoutConstraint deactivateConstraints:self.contentConstraints];
     self.contentConstraints = nil;
 
@@ -470,9 +523,11 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     self.stillImageView = nil;
     [self.animatedImageView removeFromSuperview];
     self.animatedImageView = nil;
-    [self.errorView removeFromSuperview];
-    self.errorView = nil;
-
+    [self.customView removeFromSuperview];
+    self.customView = nil;
+    [self.attachmentPointerView removeFromSuperview];
+    self.attachmentPointerView = nil;
+    
 //    [self.textLabel removeFromSuperview];
 //    self.textLabel = nil;
 //    [self.bubbleImageView removeFromSuperview];
@@ -561,6 +616,21 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 //{
 //    [self.expirationTimerView stopTimer];
 //}
+
+#pragma mark - Notifications:
+
+// TODO: Move this logic into AttachmentPointerView.
+- (void)attachmentDownloadProgress:(NSNotification *)notification
+{
+    NSNumber *progress = notification.userInfo[kAttachmentDownloadProgressKey];
+    NSString *attachmentId = notification.userInfo[kAttachmentDownloadAttachmentIDKey];
+    if (!self.attachmentPointer ||
+        ![self.attachmentPointer.uniqueId isEqualToString:attachmentId]) {
+        OWSFail(@"%@ Unexpected attachment progress notification: %@", self.logTag, attachmentId);
+        return;
+    }
+    self.attachmentPointerView.progress = progress.floatValue;
+}
 
 #pragma mark - Gesture recognizers
 

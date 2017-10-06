@@ -20,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *localRelativeFilePath;
 
 // These properties should only be accessed on the main thread.
-@property (nullable, nonatomic) NSNumber *cachedImageWidth2;
-@property (nullable, nonatomic) NSNumber *cachedImageHeight2;
+@property (nullable, nonatomic) NSNumber *cachedImageWidth;
+@property (nullable, nonatomic) NSNumber *cachedImageHeight;
 @property (nullable, nonatomic) NSNumber *cachedAudioDurationSeconds;
 
 @end
@@ -92,13 +92,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)upgradeFromAttachmentSchemaVersion:(NSUInteger)attachmentSchemaVersion
 {
     [super upgradeFromAttachmentSchemaVersion:attachmentSchemaVersion];
-
+    
     if (attachmentSchemaVersion < 3) {
         // We want to treat any legacy TSAttachmentStream as though
         // they have already been uploaded.  If it needs to be reuploaded,
         // the OWSUploadingService will update this progress when the
         // upload begins.
         self.isUploaded = YES;
+    }
+    
+    if (attachmentSchemaVersion < 4) {
+        // Legacy image sizes don't correctly reflect image orientation.
+        self.cachedImageWidth = nil;
+        self.cachedImageHeight = nil;
     }
 }
 
@@ -390,13 +396,13 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSAssert([NSThread isMainThread]);
 
-    if (self.cachedImageWidth2 && self.cachedImageHeight2) {
-        return CGSizeMake(self.cachedImageWidth2.floatValue, self.cachedImageHeight2.floatValue);
+    if (self.cachedImageWidth && self.cachedImageHeight) {
+        return CGSizeMake(self.cachedImageWidth.floatValue, self.cachedImageHeight.floatValue);
     }
 
     CGSize imageSize = [self calculateImageSize];
-    self.cachedImageWidth2 = @(imageSize.width);
-    self.cachedImageHeight2 = @(imageSize.height);
+    self.cachedImageWidth = @(imageSize.width);
+    self.cachedImageHeight = @(imageSize.height);
 
     void (^updateDataStore)() = ^(YapDatabaseReadWriteTransaction *transaction) {
         OWSAssert(transaction);
@@ -404,8 +410,8 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *collection = [[self class] collection];
         TSAttachmentStream *latestInstance = [transaction objectForKey:self.uniqueId inCollection:collection];
         if (latestInstance) {
-            latestInstance.cachedImageWidth2 = @(imageSize.width);
-            latestInstance.cachedImageHeight2 = @(imageSize.height);
+            latestInstance.cachedImageWidth = @(imageSize.width);
+            latestInstance.cachedImageHeight = @(imageSize.height);
             [latestInstance saveWithTransaction:transaction];
         } else {
             // This message has not yet been saved; do nothing.

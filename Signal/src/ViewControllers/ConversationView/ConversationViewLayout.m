@@ -70,6 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     self.hasLayout = YES;
+    
+    DDLogInfo(@"%@ prepareLayout", self.tag);
 
     const int vInset = 15;
     const int hInset = 10;

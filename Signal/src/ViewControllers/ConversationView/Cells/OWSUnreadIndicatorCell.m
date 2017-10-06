@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSAssert(!self.bannerView);
 
-    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
+//    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     self.backgroundColor = [UIColor whiteColor];
 

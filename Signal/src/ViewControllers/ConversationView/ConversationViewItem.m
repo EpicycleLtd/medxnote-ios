@@ -54,18 +54,24 @@ NS_ASSUME_NONNULL_BEGIN
                maxMessageWidth:(int)maxMessageWidth
 {
     OWSAssert([NSThread isMainThread]);
-    
+
+    CGSize cellSize = CGSizeZero;
     if (!self.cachedCellSize) {
-        ConversationViewCell *_Nullable measurementCell = [self measurementCell];
-        
+        ConversationViewCell *_Nullable measurementCell = [self measurementCell];        
         measurementCell.viewItem = self;
-        CGSize cellSize =
+        cellSize =
         [measurementCell cellSizeForViewWidth:viewWidth maxMessageWidth:maxMessageWidth];
         self.cachedCellSize = [NSValue valueWithCGSize:cellSize];
-        
         [measurementCell prepareForReuse];
+        
+//        DDLogError(@"cellSizeForViewWidth: %@ %@", self.interaction.uniqueId, self.interaction.description);
+//        DDLogError(@"\t fresh cellSize: %@", NSStringFromCGSize(cellSize));
+    } else {
+        cellSize = [self.cachedCellSize CGSizeValue];
+//        DDLogError(@"cellSizeForViewWidth: %@ %@", self.interaction.uniqueId, self.interaction.description);
+//        DDLogError(@"\t cached cellSize: %@", NSStringFromCGSize(cellSize));
     }
-    return [self.cachedCellSize CGSizeValue];
+    return cellSize;
 }
 
 - (ConversationViewLayoutAlignment)layoutAlignment

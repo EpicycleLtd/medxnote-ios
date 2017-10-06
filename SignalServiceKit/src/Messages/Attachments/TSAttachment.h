@@ -6,6 +6,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSUInteger const TSAttachmentSchemaVersionRotatedImageSize;
+
 typedef NS_ENUM(NSUInteger, TSAttachmentType) {
     TSAttachmentTypeDefault = 0,
     TSAttachmentTypeVoiceMessage = 1,

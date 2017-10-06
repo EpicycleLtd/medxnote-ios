@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSAssert(!self.titleLabel);
 
-    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
+//    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     self.titleLabel = [UILabel new];
     self.titleLabel.textColor = [UIColor blackColor];
