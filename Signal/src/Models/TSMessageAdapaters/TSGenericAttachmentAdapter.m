@@ -77,32 +77,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - JSQMessageMediaData protocol
 
-- (CGFloat)iconHMargin
+- (CGFloat)genericIconHMargin
 {
     return 12.f;
 }
 
-- (CGFloat)iconHSpacing
+- (CGFloat)genericIconHSpacing
 {
     return 10.f;
 }
 
-- (CGFloat)iconVMargin
+- (CGFloat)genericIconVMargin
 {
     return 12.f;
 }
 
-- (CGFloat)bubbleHeight
+- (CGFloat)genericBubbleHeight
 {
-    return self.iconSize + self.iconVMargin * 2;
+    return self.genericIconSize + self.genericIconVMargin * 2;
 }
 
-- (CGFloat)iconSize
+- (CGFloat)genericIconSize
 {
     return 40.f;
 }
 
-- (CGFloat)vMargin
+- (CGFloat)genericVMargin
 {
     return 10.f;
 }
@@ -112,21 +112,21 @@ NS_ASSUME_NONNULL_BEGIN
     return self.incoming ? [UIColor jsq_messageBubbleLightGrayColor] : [UIColor ows_materialBlueColor];
 }
 
-- (UIColor *)textColor
+- (UIColor *)genericTextColor
 {
     return (self.incoming ? [UIColor colorWithWhite:0.2f alpha:1.f] : [UIColor whiteColor]);
 }
 
 - (UIColor *)foregroundColorWithOpacity:(CGFloat)alpha
 {
-    return [self.textColor blendWithColor:self.bubbleBackgroundColor alpha:alpha];
+    return [self.genericTextColor blendWithColor:self.bubbleBackgroundColor alpha:alpha];
 }
 
 - (UIView *)mediaView
 {
     if (_cachedMediaView == nil) {
         CGSize viewSize = [self mediaViewDisplaySize];
-        UIColor *textColor = (self.incoming ? [UIColor colorWithWhite:0.2 alpha:1.f] : [UIColor whiteColor]);
+        UIColor *genericTextColor = (self.incoming ? [UIColor colorWithWhite:0.2 alpha:1.f] : [UIColor whiteColor]);
 
         _cachedMediaView = [[UIView alloc] initWithFrame:CGRectMake(0.f, 0.f, viewSize.width, viewSize.height)];
 
@@ -136,17 +136,17 @@ NS_ASSUME_NONNULL_BEGIN
 
         const CGFloat kBubbleTailWidth = 6.f;
         CGRect contentFrame = CGRectMake(self.incoming ? kBubbleTailWidth : 0.f,
-            self.vMargin,
-            viewSize.width - kBubbleTailWidth - self.iconHMargin,
-            viewSize.height - self.vMargin * 2);
+            self.genericVMargin,
+            viewSize.width - kBubbleTailWidth - self.genericIconHMargin,
+            viewSize.height - self.genericVMargin * 2);
 
         UIImage *image = [UIImage imageNamed:@"generic-attachment-small"];
         OWSAssert(image);
         UIImageView *imageView = [UIImageView new];
-        CGRect iconFrame = CGRectMake(round(contentFrame.origin.x + self.iconHMargin),
-            round(contentFrame.origin.y + (contentFrame.size.height - self.iconSize) * 0.5f),
-            self.iconSize,
-            self.iconSize);
+        CGRect iconFrame = CGRectMake(round(contentFrame.origin.x + self.genericIconHMargin),
+            round(contentFrame.origin.y + (contentFrame.size.height - self.genericIconSize) * 0.5f),
+            self.genericIconSize,
+            self.genericIconSize);
         imageView.frame = iconFrame;
         imageView.image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         imageView.tintColor = self.bubbleBackgroundColor;
@@ -187,7 +187,7 @@ NS_ASSUME_NONNULL_BEGIN
         fileTypeLabel.frame = fileTypeLabelFrame;
         [_cachedMediaView addSubview:fileTypeLabel];
 
-        const CGFloat kLabelHSpacing = self.iconHSpacing;
+        const CGFloat kLabelHSpacing = self.genericIconHSpacing;
         const CGFloat kLabelVSpacing = 2;
         NSString *topText =
             [self.attachment.sourceFilename stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
@@ -199,7 +199,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
         UILabel *topLabel = [UILabel new];
         topLabel.text = topText;
-        topLabel.textColor = textColor;
+        topLabel.textColor = genericTextColor;
         topLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
         topLabel.font = [UIFont ows_regularFontWithSize:ScaleFromIPhone5To7Plus(13.f, 15.f)];
         [topLabel sizeToFit];
@@ -212,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *bottomText = [ViewControllerUtils formatFileSize:fileSize];
         UILabel *bottomLabel = [UILabel new];
         bottomLabel.text = bottomText;
-        bottomLabel.textColor = [textColor colorWithAlphaComponent:0.85f];
+        bottomLabel.textColor = [genericTextColor colorWithAlphaComponent:0.85f];
         bottomLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
         bottomLabel.font = [UIFont ows_regularFontWithSize:ScaleFromIPhone5To7Plus(11.f, 13.f)];
         [bottomLabel sizeToFit];
@@ -245,7 +245,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     CGSize size = [super mediaViewDisplaySize];
     size.width = [self ows_maxMediaBubbleWidth:size];
-    size.height = (CGFloat)ceil(self.bubbleHeight);
+    size.height = (CGFloat)ceil(self.genericBubbleHeight);
     return size;
 }
 

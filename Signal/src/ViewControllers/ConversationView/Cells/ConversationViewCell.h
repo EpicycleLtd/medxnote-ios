@@ -4,17 +4,36 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class ConversationViewItem;
+typedef NS_ENUM(NSInteger, OWSMessageCellType) {
+    OWSMessageCellType_TextMessage,
+    OWSMessageCellType_StillImage,
+    OWSMessageCellType_AnimatedImage,
+    OWSMessageCellType_Audio,
+    OWSMessageCellType_Video,
+    OWSMessageCellType_GenericAttachment,
+    OWSMessageCellType_DownloadingAttachment,
+    // Treat invalid messages as empty text messages.
+    OWSMessageCellType_Unknown = OWSMessageCellType_TextMessage,
+};
 
+@class ConversationViewItem;
 @class TSInteraction;
 @class ConversationViewCell;
 @class OWSContactOffersInteraction;
+@class TSAttachmentStream;
 
 // TODO: Rework these delegate methods.
 @protocol ConversationViewCellDelegate <NSObject>
 
-- (void)didTapViewItem:(ConversationViewItem *)viewItem;
-- (void)didLongPressViewItem:(ConversationViewItem *)viewItem;
+- (void)didTapViewItem:(ConversationViewItem *)viewItem
+              cellType:(OWSMessageCellType)cellType;
+- (void)didLongPressViewItem:(ConversationViewItem *)viewItem
+                    cellType:(OWSMessageCellType)cellType;
+
+- (void)didTapVideoViewItem:(ConversationViewItem *)viewItem
+           attachmentStream:(TSAttachmentStream *)attachmentStream;
+- (void)didTapAudioViewItem:(ConversationViewItem *)viewItem
+           attachmentStream:(TSAttachmentStream *)attachmentStream;
 
 #pragma mark - System Cell
 

@@ -103,6 +103,8 @@
 		34D1F0B01F867BFC0066283D /* OWSSystemMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0A61F867BFC0066283D /* OWSSystemMessageCell.m */; };
 		34D1F0B11F867BFC0066283D /* OWSUnreadIndicatorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0A81F867BFC0066283D /* OWSUnreadIndicatorCell.m */; };
 		34D1F0B41F86D31D0066283D /* ConversationCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0B31F86D31D0066283D /* ConversationCollectionView.m */; };
+		34D1F0B71F87F8850066283D /* OWSGenericAttachmentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0B61F87F8850066283D /* OWSGenericAttachmentView.m */; };
+		34D1F0BA1F8800D90066283D /* OWSAudioMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0B91F8800D90066283D /* OWSAudioMessageView.m */; };
 		34D5CC961EA6AFAD005515DB /* OWSContactsSyncing.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */; };
 		34D5CCA91EAE3D30005515DB /* AvatarViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CCA81EAE3D30005515DB /* AvatarViewHelper.m */; };
 		34D5CCB11EAE7E7F005515DB /* SelectRecipientViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D5CCB01EAE7E7F005515DB /* SelectRecipientViewController.m */; };
@@ -576,6 +578,10 @@
 		34D1F0A81F867BFC0066283D /* OWSUnreadIndicatorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSUnreadIndicatorCell.m; sourceTree = "<group>"; };
 		34D1F0B21F86D31D0066283D /* ConversationCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationCollectionView.h; sourceTree = "<group>"; };
 		34D1F0B31F86D31D0066283D /* ConversationCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConversationCollectionView.m; sourceTree = "<group>"; };
+		34D1F0B51F87F8850066283D /* OWSGenericAttachmentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSGenericAttachmentView.h; sourceTree = "<group>"; };
+		34D1F0B61F87F8850066283D /* OWSGenericAttachmentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSGenericAttachmentView.m; sourceTree = "<group>"; };
+		34D1F0B81F8800D90066283D /* OWSAudioMessageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSAudioMessageView.h; sourceTree = "<group>"; };
+		34D1F0B91F8800D90066283D /* OWSAudioMessageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSAudioMessageView.m; sourceTree = "<group>"; };
 		34D5CC941EA6AFAD005515DB /* OWSContactsSyncing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSContactsSyncing.h; sourceTree = "<group>"; };
 		34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OWSContactsSyncing.m; sourceTree = "<group>"; };
 		34D5CC9B1EA6ED17005515DB /* OWSMessageMediaAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OWSMessageMediaAdapter.h; sourceTree = "<group>"; };
@@ -1177,11 +1183,15 @@
 				34D1F0971F867BFC0066283D /* ConversationViewCell.m */,
 				34D1F0981F867BFC0066283D /* JSQMessagesCollectionViewCell+OWS.h */,
 				34D1F0991F867BFC0066283D /* JSQMessagesCollectionViewCell+OWS.m */,
+				34D1F0B81F8800D90066283D /* OWSAudioMessageView.h */,
+				34D1F0B91F8800D90066283D /* OWSAudioMessageView.m */,
 				34D1F09A1F867BFC0066283D /* OWSContactOffersCell.h */,
 				34D1F09B1F867BFC0066283D /* OWSContactOffersCell.m */,
 				34D1F09C1F867BFC0066283D /* OWSExpirableMessageView.h */,
 				34D1F09D1F867BFC0066283D /* OWSExpirationTimerView.h */,
 				34D1F09E1F867BFC0066283D /* OWSExpirationTimerView.m */,
+				34D1F0B51F87F8850066283D /* OWSGenericAttachmentView.h */,
+				34D1F0B61F87F8850066283D /* OWSGenericAttachmentView.m */,
 				34D1F09F1F867BFC0066283D /* OWSIncomingMessageCell.h */,
 				34D1F0A01F867BFC0066283D /* OWSIncomingMessageCell.m */,
 				34D1F0A11F867BFC0066283D /* OWSMessageCell.h */,
@@ -2245,6 +2255,7 @@
 			files = (
 				34B3F8761E8DF1700035BE1A /* CodeVerificationViewController.m in Sources */,
 				76EB063E18170B33006006FC /* Operation.m in Sources */,
+				34D1F0BA1F8800D90066283D /* OWSAudioMessageView.m in Sources */,
 				34B3F8741E8DF1700035BE1A /* AttachmentSharing.m in Sources */,
 				34D8C02B1ED3685800188D7C /* DebugUIContacts.m in Sources */,
 				45C9DEB81DF4E35A0065CA84 /* WebRTCCallMessageHandler.swift in Sources */,
@@ -2362,6 +2373,7 @@
 				34D5CCA91EAE3D30005515DB /* AvatarViewHelper.m in Sources */,
 				453D28BA1D332DB100D523F0 /* OWSMessagesBubblesSizeCalculator.m in Sources */,
 				45F170AC1E2F0351003FC1F2 /* CallAudioSession.swift in Sources */,
+				34D1F0B71F87F8850066283D /* OWSGenericAttachmentView.m in Sources */,
 				34B3F8801E8DF1700035BE1A /* InviteFlow.swift in Sources */,
 				B68EF9BB1C0B1EBD009C3DCD /* FLAnimatedImageView.m in Sources */,
 				45F170CC1E310E22003FC1F2 /* WeakTimer.swift in Sources */,

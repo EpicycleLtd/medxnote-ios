@@ -9,12 +9,18 @@
 #import "OWSSystemMessageCell.h"
 #import "OWSUnreadIndicatorCell.h"
 #import "OWSOutgoingMessageCell.h"
+#import "OWSAudioMessageView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ConversationViewItem ()
 
 @property (nonatomic, nullable) NSValue *cachedCellSize;
+
+#pragma mark - OWSAudioAttachmentPlayerDelegate
+
+@property (nonatomic) AudioPlaybackState audioPlaybackState;
+@property (nonatomic) CGFloat audioProgressSeconds;
 
 @end
 
@@ -172,6 +178,26 @@ NS_ASSUME_NONNULL_BEGIN
             return [collectionView dequeueReusableCellWithReuseIdentifier:[OWSContactOffersCell cellReuseIdentifier]
                                                              forIndexPath:indexPath];
     }
+}
+
+#pragma mark - OWSAudioAttachmentPlayerDelegate
+
+- (void)setAudioPlaybackState:(AudioPlaybackState)audioPlaybackState {
+    _audioPlaybackState = audioPlaybackState;
+    
+    [self.lastAudioMessageView updateContents];
+}
+
+- (void)setAudioProgress:(CGFloat)progress duration:(CGFloat)duration
+{
+    OWSAssert([NSThread isMainThread]);
+    
+    self.audioProgressSeconds = progress;
+    if (duration > 0) {
+        self.audioDurationSeconds = @(duration);
+    }
+    
+    [self.lastAudioMessageView updateContents];
 }
 
 #pragma mark - Logging

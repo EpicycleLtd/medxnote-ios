@@ -172,11 +172,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic) NSArray<ConversationViewItem * > *viewItems;
 @property (nonatomic) NSMutableDictionary<NSString *, ConversationViewItem * > *viewItemMap;
 
-//@property (nonatomic) JSQMessagesBubbleImage *outgoingBubbleImageData;
-//@property (nonatomic) JSQMessagesBubbleImage *incomingBubbleImageData;
-//@property (nonatomic) JSQMessagesBubbleImage *currentlyOutgoingBubbleImageData;
-//@property (nonatomic) JSQMessagesBubbleImage *outgoingMessageFailedImageData;
-
 @property (nonatomic, nullable) MPMoviePlayerController *videoPlayer;
 @property (nonatomic, nullable) AVAudioRecorder *audioRecorder;
 @property (nonatomic, nullable) OWSAudioAttachmentPlayer *audioAttachmentPlayer;
@@ -514,8 +509,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 //    [self.inputToolbar autoPinToBottomLayoutGuideOfViewController:self withInset:0];
     [self autoPinViewToBottomGuideOrKeyboard:self.inputToolbar];
 
-    [self.collectionView addRedBorder];
-    [self.inputToolbar addBorderWithColor:[UIColor blueColor]];
+//    [self.collectionView addRedBorder];
+//    [self.inputToolbar addBorderWithColor:[UIColor blueColor]];
 }
 
 - (void)registerCellClasses
@@ -1622,253 +1617,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self showConversationSettings];
 }
 
-//- (void)collectionView:(JSQMessagesCollectionView *)collectionView
-//    didTapMessageBubbleAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    id<OWSMessageData> messageItem = [self messageAtIndexPath:indexPath];
-//    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
-//
-//    switch (messageItem.messageType) {
-//        case TSOutgoingMessageAdapter: {
-//            TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)interaction;
-//            if (outgoingMessage.messageState == TSOutgoingMessageStateUnsent) {
-//                [self handleUnsentMessageTap:outgoingMessage];
-//
-//                // This `break` is intentionally within the if.
-//                // We want to activate fullscreen media view for sent items
-//                // but not those which failed-to-send
-//                break;
-//            } else if (outgoingMessage.messageState == TSOutgoingMessageStateAttemptingOut) {
-//                // Ignore taps on outgoing messages being sent.
-//                break;
-//            }
-//
-//            // No `break` as we want to fall through to capture tapping on Outgoing media items too
-//        }
-//        case TSIncomingMessageAdapter: {
-//            BOOL isMediaMessage = [messageItem isMediaMessage];
-//
-//            if (isMediaMessage) {
-//                if ([[messageItem media] isKindOfClass:[TSPhotoAdapter class]]) {
-//                    TSPhotoAdapter *messageMedia = (TSPhotoAdapter *)[messageItem media];
-//
-//                    UIView *mediaView = [messageMedia mediaView];
-//                    if (![mediaView isKindOfClass:[UIImageView class]]) {
-//                        OWSFail(@"unexpected mediaView of type: %@", [mediaView class]);
-//                        return;
-//                    }
-//                    UIImageView *imageView = (UIImageView *)mediaView;
-//                    UIImage *tappedImage = imageView.image;
-//                    if (tappedImage == nil) {
-//                        DDLogWarn(@"tapped TSPhotoAdapter with nil image");
-//                        return;
-//                    }
-//                    UIWindow *window = [UIApplication sharedApplication].keyWindow;
-//                    JSQMessagesCollectionViewCell *cell
-//                        = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-//                    OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
-//                    CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
-//
-//                    __block TSAttachment *attachment = nil;
-//                    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-//                        attachment =
-//                            [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId transaction:transaction];
-//                    }];
-//
-//                    if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-//                        TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
-//                        FullImageViewController *vc = [[FullImageViewController alloc] initWithAttachment:attStream
-//                                                                                                 fromRect:convertedRect
-//                                                                                           forInteraction:interaction
-//                                                                                              messageItem:messageItem
-//                                                                                               isAnimated:NO];
-//
-//                        [vc presentFromViewController:self];
-//                    }
-//                } else if ([[messageItem media] isKindOfClass:[TSAnimatedAdapter class]]) {
-//                    // Show animated image full-screen
-//                    TSAnimatedAdapter *messageMedia = (TSAnimatedAdapter *)[messageItem media];
-//                    UIImage *tappedImage = ((UIImageView *)[messageMedia mediaView]).image;
-//                    if (tappedImage == nil) {
-//                        DDLogWarn(@"tapped TSAnimatedAdapter with nil image");
-//                    } else {
-//                        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-//                        JSQMessagesCollectionViewCell *cell
-//                            = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-//                        OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
-//                        CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
-//
-//                        __block TSAttachment *attachment = nil;
-//                        [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-//                            attachment = [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId
-//                                                                   transaction:transaction];
-//                        }];
-//                        if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-//                            TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
-//                            FullImageViewController *vc =
-//                                [[FullImageViewController alloc] initWithAttachment:attStream
-//                                                                           fromRect:convertedRect
-//                                                                     forInteraction:interaction
-//                                                                        messageItem:messageItem
-//                                                                         isAnimated:YES];
-//                            [vc presentFromViewController:self];
-//                        }
-//                    }
-//                } else if ([[messageItem media] isKindOfClass:[TSVideoAttachmentAdapter class]]) {
-//                    // fileurl disappeared should look up in db as before. will do refactor
-//                    // full screen, check this setup with a .mov
-//                    TSVideoAttachmentAdapter *messageMedia = (TSVideoAttachmentAdapter *)[messageItem media];
-//                    __block TSAttachment *attachment = nil;
-//                    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-//                        attachment =
-//                            [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId transaction:transaction];
-//                    }];
-//
-//                    if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-//                        TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
-//                        NSFileManager *fileManager = [NSFileManager defaultManager];
-//                        if ([messageMedia isVideo]) {
-//                            if ([fileManager fileExistsAtPath:[attStream.mediaURL path]]) {
-//                                [self dismissKeyBoard];
-//                                self.videoPlayer =
-//                                    [[MPMoviePlayerController alloc] initWithContentURL:attStream.mediaURL];
-//                                [_videoPlayer prepareToPlay];
-//
-//                                [[NSNotificationCenter defaultCenter]
-//                                    addObserver:self
-//                                       selector:@selector(moviePlayerWillExitFullscreen:)
-//                                           name:MPMoviePlayerWillExitFullscreenNotification
-//                                         object:_videoPlayer];
-//                                [[NSNotificationCenter defaultCenter]
-//                                    addObserver:self
-//                                       selector:@selector(moviePlayerDidExitFullscreen:)
-//                                           name:MPMoviePlayerDidExitFullscreenNotification
-//                                         object:_videoPlayer];
-//
-//                                _videoPlayer.controlStyle = MPMovieControlStyleDefault;
-//                                _videoPlayer.shouldAutoplay = YES;
-//                                [self.view addSubview:_videoPlayer.view];
-//                                // We can't animate from the cell media frame;
-//                                // MPMoviePlayerController will animate a crop of its
-//                                // contents rather than scaling them.
-//                                _videoPlayer.view.frame = self.view.bounds;
-//                                [_videoPlayer setFullscreen:YES animated:NO];
-//                            }
-//                        } else if ([messageMedia isAudio]) {
-//                            if (self.audioAttachmentPlayer) {
-//                                // Is this player associated with this media adapter?
-//                                if (self.audioAttachmentPlayer.owner == messageMedia) {
-//                                    // Tap to pause & unpause.
-//                                    [self.audioAttachmentPlayer togglePlayState];
-//                                    return;
-//                                }
-//                                [self.audioAttachmentPlayer stop];
-//                                self.audioAttachmentPlayer = nil;
-//                            }
-//                            self.audioAttachmentPlayer =
-//                                [[OWSAudioAttachmentPlayer alloc] initWithMediaAdapter:messageMedia
-//                                                                    databaseConnection:self.uiDatabaseConnection];
-//                            // Associate the player with this media adapter.
-//                            self.audioAttachmentPlayer.owner = messageMedia;
-//                            [self.audioAttachmentPlayer play];
-//                        }
-//                    }
-//                } else if ([messageItem.media isKindOfClass:[AttachmentPointerAdapter class]]) {
-//                    AttachmentPointerAdapter *attachmentPointerAdadpter = (AttachmentPointerAdapter *)messageItem.media;
-//                    TSAttachmentPointer *attachmentPointer = attachmentPointerAdadpter.attachmentPointer;
-//                    // Restart failed downloads
-//                    if (attachmentPointer.state == TSAttachmentPointerStateFailed) {
-//                        if (![interaction isKindOfClass:[TSMessage class]]) {
-//                            OWSFail(@"%@ Expected attachment downloads from an instance of message, but found: %@",
-//                                self.tag,
-//                                interaction);
-//                            return;
-//                        }
-//                        TSMessage *message = (TSMessage *)interaction;
-//                        [self handleFailedDownloadTapForMessage:message attachmentPointer:attachmentPointer];
-//                    } else {
-//                        DDLogVerbose(@"%@ Ignoring tap for attachment pointer %@ with state %lu",
-//                            self.tag,
-//                            attachmentPointer,
-//                            (unsigned long)attachmentPointer.state);
-//                    }
-//                } else {
-//                    DDLogDebug(@"%@ Unhandled tap on 'media item' with media: %@", self.tag, messageItem.media);
-//                }
-//            }
-//        } break;
-//        case TSErrorMessageAdapter:
-//        case TSInfoMessageAdapter:
-//        case TSCallAdapter:
-//        case TSUnreadIndicatorAdapter:
-//            OWSFail(@"Unexpected tap for system message.");
-//            break;
-//        case OWSContactOffersAdapter:
-//            OWSFail(@"Unexpected tap for contacts offer.");
-//            break;
-//        default:
-//            DDLogDebug(@"Unhandled bubble touch for interaction: %@.", interaction);
-//            break;
-//    }
-//
-//    if (messageItem.messageType == TSOutgoingMessageAdapter || messageItem.messageType == TSIncomingMessageAdapter) {
-//        TSMessage *message = (TSMessage *)interaction;
-//        if ([message hasAttachments]) {
-//            NSString *attachmentID = message.attachmentIds[0];
-//            TSAttachment *attachment = [TSAttachment fetchObjectWithUniqueID:attachmentID];
-//            if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-//                TSAttachmentStream *stream = (TSAttachmentStream *)attachment;
-//                // Tapping on incoming and outgoing unknown extensions should show the
-//                // sharing UI.
-//                if ([[messageItem media] isKindOfClass:[TSGenericAttachmentAdapter class]]) {
-//                    [AttachmentSharing showShareUIForAttachment:stream];
-//                }
-//                // Tapping on incoming and outgoing "oversize text messages" should show the
-//                // "oversize text message" view.
-//                if ([attachment.contentType isEqualToString:OWSMimeTypeOversizeTextMessage]) {
-//                    OversizeTextMessageViewController *messageVC =
-//                        [[OversizeTextMessageViewController alloc] initWithMessage:message];
-//                    [self.navigationController pushViewController:messageVC animated:YES];
-//                }
-//            }
-//        }
-//    }
-//}
-
-// There's more than one way to exit the fullscreen video playback.
-// There's a done button, a "toggle fullscreen" button and I think
-// there's some gestures too.  These fire slightly different notifications.
-// We want to hide & clean up the video player immediately in all of
-// these cases.
-- (void)moviePlayerWillExitFullscreen:(id)sender
-{
-    DDLogDebug(@"%@ %s", self.tag, __PRETTY_FUNCTION__);
-
-    [self clearVideoPlayer];
-}
-
-// See comment on moviePlayerWillExitFullscreen:
-- (void)moviePlayerDidExitFullscreen:(id)sender
-{
-    DDLogDebug(@"%@ %s", self.tag, __PRETTY_FUNCTION__);
-
-    [self clearVideoPlayer];
-}
-
-- (void)clearVideoPlayer
-{
-    [_videoPlayer stop];
-    [_videoPlayer.view removeFromSuperview];
-    self.videoPlayer = nil;
-}
-
-- (void)setVideoPlayer:(MPMoviePlayerController * _Nullable)videoPlayer
-{
-    _videoPlayer = videoPlayer;
-
-    [ViewControllerUtils setAudioIgnoresHardwareMuteSwitch:videoPlayer != nil];
-}
-
 - (void)collectionView:(JSQMessagesCollectionView *)collectionView
                              header:(JSQMessagesLoadEarlierHeaderView *)headerView
     didTapLoadEarlierMessagesButton:(UIButton *)sender
@@ -2336,24 +2084,290 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                                                   success:successHandler];
 }
 
-#pragma mark - Incoming and Outgoing Messages
+#pragma mark - Message Events
 
 - (void)didTapViewItem:(ConversationViewItem *)viewItem
+              cellType:(OWSMessageCellType)cellType
 {
     OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem);
     OWSAssert(viewItem.interaction.interactionType == OWSInteractionType_IncomingMessage ||
               viewItem.interaction.interactionType == OWSInteractionType_OutgoingMessage);
     
     // TODO:
 }
 
-- (void)didLongPressViewItem:(ConversationViewItem *)viewItem
+- (void)didTapVideoViewItem:(ConversationViewItem *)viewItem
+           attachmentStream:(TSAttachmentStream *)attachmentStream
 {
     OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem);
+    OWSAssert(attachmentStream);
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:[attachmentStream.mediaURL path]]) {
+        OWSFail(@"%@ Missing video file: %@", self.tag, attachmentStream.mediaURL);
+    }
+    
+    [self dismissKeyBoard];
+    self.videoPlayer =
+    [[MPMoviePlayerController alloc] initWithContentURL:attachmentStream.mediaURL];
+    [_videoPlayer prepareToPlay];
+    
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(moviePlayerWillExitFullscreen:)
+     name:MPMoviePlayerWillExitFullscreenNotification
+     object:_videoPlayer];
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(moviePlayerDidExitFullscreen:)
+     name:MPMoviePlayerDidExitFullscreenNotification
+     object:_videoPlayer];
+    
+    _videoPlayer.controlStyle = MPMovieControlStyleDefault;
+    _videoPlayer.shouldAutoplay = YES;
+    [self.view addSubview:_videoPlayer.view];
+    // We can't animate from the cell media frame;
+    // MPMoviePlayerController will animate a crop of its
+    // contents rather than scaling them.
+    _videoPlayer.view.frame = self.view.bounds;
+    [_videoPlayer setFullscreen:YES animated:NO];
+}
+
+- (void)didTapAudioViewItem:(ConversationViewItem *)viewItem
+           attachmentStream:(TSAttachmentStream *)attachmentStream
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem);
+    OWSAssert(attachmentStream);
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:[attachmentStream.mediaURL path]]) {
+        OWSFail(@"%@ Missing video file: %@", self.tag, attachmentStream.mediaURL);
+    }
+    
+    [self dismissKeyBoard];
+
+    if (self.audioAttachmentPlayer) {
+        // Is this player associated with this media adapter?
+        if (self.audioAttachmentPlayer.owner == viewItem) {
+            // Tap to pause & unpause.
+            [self.audioAttachmentPlayer togglePlayState];
+            return;
+        }
+        [self.audioAttachmentPlayer stop];
+        self.audioAttachmentPlayer = nil;
+    }
+    self.audioAttachmentPlayer =
+    [[OWSAudioAttachmentPlayer alloc] initWithMediaUrl:attachmentStream.mediaURL
+                                              delegate:viewItem];
+    // Associate the player with this media adapter.
+    self.audioAttachmentPlayer.owner = viewItem;
+    [self.audioAttachmentPlayer play];
+}
+
+//- (void)collectionView:(JSQMessagesCollectionView *)collectionView
+//    didTapMessageBubbleAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    id<OWSMessageData> messageItem = [self messageAtIndexPath:indexPath];
+//    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
+//
+//    switch (messageItem.messageType) {
+//        case TSOutgoingMessageAdapter: {
+//            TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)interaction;
+//            if (outgoingMessage.messageState == TSOutgoingMessageStateUnsent) {
+//                [self handleUnsentMessageTap:outgoingMessage];
+//
+//                // This `break` is intentionally within the if.
+//                // We want to activate fullscreen media view for sent items
+//                // but not those which failed-to-send
+//                break;
+//            } else if (outgoingMessage.messageState == TSOutgoingMessageStateAttemptingOut) {
+//                // Ignore taps on outgoing messages being sent.
+//                break;
+//            }
+//
+//            // No `break` as we want to fall through to capture tapping on Outgoing media items too
+//        }
+//        case TSIncomingMessageAdapter: {
+//            BOOL isMediaMessage = [messageItem isMediaMessage];
+//
+//            if (isMediaMessage) {
+//                if ([[messageItem media] isKindOfClass:[TSPhotoAdapter class]]) {
+//                    TSPhotoAdapter *messageMedia = (TSPhotoAdapter *)[messageItem media];
+//
+//                    UIView *mediaView = [messageMedia mediaView];
+//                    if (![mediaView isKindOfClass:[UIImageView class]]) {
+//                        OWSFail(@"unexpected mediaView of type: %@", [mediaView class]);
+//                        return;
+//                    }
+//                    UIImageView *imageView = (UIImageView *)mediaView;
+//                    UIImage *tappedImage = imageView.image;
+//                    if (tappedImage == nil) {
+//                        DDLogWarn(@"tapped TSPhotoAdapter with nil image");
+//                        return;
+//                    }
+//                    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+//                    JSQMessagesCollectionViewCell *cell
+//                        = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+//                    OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
+//                    CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
+//
+//                    __block TSAttachment *attachment = nil;
+//                    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//                        attachment =
+//                            [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId transaction:transaction];
+//                    }];
+//
+//                    if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
+//                        TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
+//                        FullImageViewController *vc = [[FullImageViewController alloc] initWithAttachment:attStream
+//                                                                                                 fromRect:convertedRect
+//                                                                                           forInteraction:interaction
+//                                                                                              messageItem:messageItem
+//                                                                                               isAnimated:NO];
+//
+//                        [vc presentFromViewController:self];
+//                    }
+//                } else if ([[messageItem media] isKindOfClass:[TSAnimatedAdapter class]]) {
+//                    // Show animated image full-screen
+//                    TSAnimatedAdapter *messageMedia = (TSAnimatedAdapter *)[messageItem media];
+//                    UIImage *tappedImage = ((UIImageView *)[messageMedia mediaView]).image;
+//                    if (tappedImage == nil) {
+//                        DDLogWarn(@"tapped TSAnimatedAdapter with nil image");
+//                    } else {
+//                        UIWindow *window = [UIApplication sharedApplication].keyWindow;
+//                        JSQMessagesCollectionViewCell *cell
+//                            = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+//                        OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
+//                        CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
+//
+//                        __block TSAttachment *attachment = nil;
+//                        [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//                            attachment = [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId
+//                                                                   transaction:transaction];
+//                        }];
+//                        if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
+//                            TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
+//                            FullImageViewController *vc =
+//                                [[FullImageViewController alloc] initWithAttachment:attStream
+//                                                                           fromRect:convertedRect
+//                                                                     forInteraction:interaction
+//                                                                        messageItem:messageItem
+//                                                                         isAnimated:YES];
+//                            [vc presentFromViewController:self];
+//                        }
+//                    }
+//      //                        }
+//                    }
+//                } else if ([messageItem.media isKindOfClass:[AttachmentPointerAdapter class]]) {
+//                    AttachmentPointerAdapter *attachmentPointerAdadpter = (AttachmentPointerAdapter *)messageItem.media;
+//                    TSAttachmentPointer *attachmentPointer = attachmentPointerAdadpter.attachmentPointer;
+//                    // Restart failed downloads
+//                    if (attachmentPointer.state == TSAttachmentPointerStateFailed) {
+//                        if (![interaction isKindOfClass:[TSMessage class]]) {
+//                            OWSFail(@"%@ Expected attachment downloads from an instance of message, but found: %@",
+//                                self.tag,
+//                                interaction);
+//                            return;
+//                        }
+//                        TSMessage *message = (TSMessage *)interaction;
+//                        [self handleFailedDownloadTapForMessage:message attachmentPointer:attachmentPointer];
+//                    } else {
+//                        DDLogVerbose(@"%@ Ignoring tap for attachment pointer %@ with state %lu",
+//                            self.tag,
+//                            attachmentPointer,
+//                            (unsigned long)attachmentPointer.state);
+//                    }
+//                } else {
+//                    DDLogDebug(@"%@ Unhandled tap on 'media item' with media: %@", self.tag, messageItem.media);
+//                }
+//            }
+//        } break;
+//        case TSErrorMessageAdapter:
+//        case TSInfoMessageAdapter:
+//        case TSCallAdapter:
+//        case TSUnreadIndicatorAdapter:
+//            OWSFail(@"Unexpected tap for system message.");
+//            break;
+//        case OWSContactOffersAdapter:
+//            OWSFail(@"Unexpected tap for contacts offer.");
+//            break;
+//        default:
+//            DDLogDebug(@"Unhandled bubble touch for interaction: %@.", interaction);
+//            break;
+//    }
+//
+//    if (messageItem.messageType == TSOutgoingMessageAdapter || messageItem.messageType == TSIncomingMessageAdapter) {
+//        TSMessage *message = (TSMessage *)interaction;
+//        if ([message hasAttachments]) {
+//            NSString *attachmentID = message.attachmentIds[0];
+//            TSAttachment *attachment = [TSAttachment fetchObjectWithUniqueID:attachmentID];
+//            if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
+//                TSAttachmentStream *stream = (TSAttachmentStream *)attachment;
+//                // Tapping on incoming and outgoing unknown extensions should show the
+//                // sharing UI.
+//                if ([[messageItem media] isKindOfClass:[TSGenericAttachmentAdapter class]]) {
+//                    [AttachmentSharing showShareUIForAttachment:stream];
+//                }
+//                // Tapping on incoming and outgoing "oversize text messages" should show the
+//                // "oversize text message" view.
+//                if ([attachment.contentType isEqualToString:OWSMimeTypeOversizeTextMessage]) {
+//                    OversizeTextMessageViewController *messageVC =
+//                        [[OversizeTextMessageViewController alloc] initWithMessage:message];
+//                    [self.navigationController pushViewController:messageVC animated:YES];
+//                }
+//            }
+//        }
+//    }
+//}
+
+- (void)didLongPressViewItem:(ConversationViewItem *)viewItem
+                    cellType:(OWSMessageCellType)cellType
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem);
     OWSAssert(viewItem.interaction.interactionType == OWSInteractionType_IncomingMessage ||
               viewItem.interaction.interactionType == OWSInteractionType_OutgoingMessage);
     
     // TODO:
+}
+
+#pragma mark - Video Playback
+
+// There's more than one way to exit the fullscreen video playback.
+// There's a done button, a "toggle fullscreen" button and I think
+// there's some gestures too.  These fire slightly different notifications.
+// We want to hide & clean up the video player immediately in all of
+// these cases.
+- (void)moviePlayerWillExitFullscreen:(id)sender
+{
+    DDLogDebug(@"%@ %s", self.tag, __PRETTY_FUNCTION__);
+    
+    [self clearVideoPlayer];
+}
+
+// See comment on moviePlayerWillExitFullscreen:
+- (void)moviePlayerDidExitFullscreen:(id)sender
+{
+    DDLogDebug(@"%@ %s", self.tag, __PRETTY_FUNCTION__);
+    
+    [self clearVideoPlayer];
+}
+
+- (void)clearVideoPlayer
+{
+    [_videoPlayer stop];
+    [_videoPlayer.view removeFromSuperview];
+    self.videoPlayer = nil;
+}
+
+- (void)setVideoPlayer:(MPMoviePlayerController * _Nullable)videoPlayer
+{
+    _videoPlayer = videoPlayer;
+    
+    [ViewControllerUtils setAudioIgnoresHardwareMuteSwitch:videoPlayer != nil];
 }
 
 #pragma mark - System Messages

@@ -11,24 +11,14 @@
 #import "Signal-Swift.h"
 #import "UIColor+OWS.h"
 #import "AttachmentUploadView.h"
+#import "OWSGenericAttachmentView.h"
+#import "OWSAudioMessageView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
-    OWSMessageCellMode_TextMessage,
-    OWSMessageCellMode_StillImage,
-    OWSMessageCellMode_AnimatedImage,
-    OWSMessageCellMode_Audio,
-    OWSMessageCellMode_Video,
-    OWSMessageCellMode_GenericAttachment,
-    OWSMessageCellMode_DownloadingAttachment,
-    // Treat invalid messages as empty text messages.
-    OWSMessageCellMode_Unknown = OWSMessageCellMode_TextMessage,
-};
-
 @interface OWSMessageCell ()
 
-@property (nonatomic) OWSMessageCellMode cellMode;
+@property (nonatomic) OWSMessageCellType cellType;
 
 @property (nonatomic, nullable) NSString *textMessage;
 @property (nonatomic, nullable) TSAttachmentStream *attachmentStream;
@@ -43,6 +33,8 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 @property (nonatomic, nullable) YYAnimatedImageView *animatedImageView;
 @property (nonatomic, nullable) UIView *customView;
 @property (nonatomic, nullable) AttachmentPointerView *attachmentPointerView;
+@property (nonatomic, nullable) OWSGenericAttachmentView *attachmentView;
+@property (nonatomic, nullable) OWSAudioMessageView *audioMessageView;
 @property (nonatomic, nullable) NSArray<NSLayoutConstraint *> *contentConstraints;
 
 //@property (strong, nonatomic) IBOutlet OWSExpirationTimerView *expirationTimerView;
@@ -71,6 +63,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 
     self.bubbleImageView = [UIImageView new];
     self.bubbleImageView.layoutMargins = UIEdgeInsetsZero;
+    self.bubbleImageView.userInteractionEnabled = NO;
     [self.contentView addSubview:self.bubbleImageView];
     [self.bubbleImageView autoPinToSuperviewEdges];
 
@@ -79,24 +72,12 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     self.textLabel.numberOfLines = 0;
     self.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.textLabel.textAlignment = NSTextAlignmentLeft;
-    self.textLabel.hidden = YES;
     [self.bubbleImageView addSubview:self.textLabel];
     OWSAssert(self.textLabel.superview);
 
-//    [self.contentView addRedBorder];
-//    self.addToContactsButton = [self
-//                                createButtonWithTitle:
-//                                NSLocalizedString(@"CONVERSATION_VIEW_ADD_TO_CONTACTS_OFFER",
-//                                                  @"Message shown in conversation view that offers to add an unknown user to your phone's contacts.")
-//                                selector:@selector(addToContacts)];
-//    self.addToProfileWhitelistButton = [self
-//                                        createButtonWithTitle:NSLocalizedString(@"CONVERSATION_VIEW_ADD_USER_TO_PROFILE_WHITELIST_OFFER",
-//                                                                                @"Message shown in conversation view that offers to share your profile with a user.")
-//                                        selector:@selector(addToProfileWhitelist)];
-//    self.blockButton =
-//    [self createButtonWithTitle:NSLocalizedString(@"CONVERSATION_VIEW_UNKNOWN_CONTACT_BLOCK_OFFER",
-//                                                  @"Message shown in conversation view that offers to block an unknown user.")
-//                       selector:@selector(block)];
+    // Hide these views by default.
+    self.bubbleImageView.hidden = YES;
+    self.textLabel.hidden = YES;
 
     UITapGestureRecognizer *tap =
     [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
@@ -166,7 +147,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
                           interactionId:interactionId];
 }
 
-- (void)ensureCellMode
+- (void)ensureCellType
 {
     OWSAssert(self.viewItem);
     OWSAssert(self.viewItem.interaction);
@@ -174,7 +155,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     
     TSMessage *interaction = (TSMessage *) self.viewItem.interaction;
     if (interaction.body.length > 0) {
-        self.cellMode = OWSMessageCellMode_TextMessage;
+        self.cellType = OWSMessageCellType_TextMessage;
         // TODO: This can be expensive.  Should we cache it on the view item?
         self.textMessage = [self displayableTextForText:interaction.body
                                           interactionId:interaction.uniqueId];
@@ -187,38 +168,37 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
                 self.attachmentStream = (TSAttachmentStream *)attachment;
                 
                 if ([attachment.contentType isEqualToString:OWSMimeTypeOversizeTextMessage]) {
-                    self.cellMode = OWSMessageCellMode_TextMessage;
+                    self.cellType = OWSMessageCellType_TextMessage;
                     // TODO: This can be expensive.  Should we cache it on the view item?
                     self.textMessage = [self displayableTextForAttachmentStream:self.attachmentStream
                                                                   interactionId:interaction.uniqueId];
                     return;
-                } else if ([self.attachmentStream isAnimated]) {
-                    self.cellMode = OWSMessageCellMode_AnimatedImage;
+                } else if ([self.attachmentStream isAnimated] ||
+                           [self.attachmentStream isImage] ||
+                           [self.attachmentStream isVideo]) {
+                    if ([self.attachmentStream isAnimated]) {
+                        self.cellType = OWSMessageCellType_AnimatedImage;
+                    } else if ([self.attachmentStream isImage]) {
+                        self.cellType = OWSMessageCellType_StillImage;
+                    } else if ([self.attachmentStream isVideo]) {
+                        self.cellType = OWSMessageCellType_Video;
+                    } else {
+                        OWSFail(@"%@ unexpected attachment type.", self.logTag);
+                        self.cellType = OWSMessageCellType_GenericAttachment;
+                        return;
+                    }
                     self.contentSize = [self.attachmentStream imageSizeWithoutTransaction];
                     if (self.contentSize.width <= 0 ||
                         self.contentSize.height <= 0) {
-                        self.cellMode = OWSMessageCellMode_GenericAttachment;
+                        self.cellType = OWSMessageCellType_GenericAttachment;
                     }
                     return;
-                } else if ([self.attachmentStream isImage]) {
-                    self.cellMode = OWSMessageCellMode_StillImage;
-                    self.contentSize = [self.attachmentStream imageSizeWithoutTransaction];
-
-//                    DDLogError(@"still image: %@ %@ %@", self.viewItem.interaction.description, self.attachmentStream.contentType, self.attachmentStream.mediaURL);
-//                    DDLogError(@"\t contentSize: %@", NSStringFromCGSize(self.contentSize));
-
-                    if (self.contentSize.width <= 0 ||
-                        self.contentSize.height <= 0) {
-                        self.cellMode = OWSMessageCellMode_GenericAttachment;
-                    }
+                } else if ([self.attachmentStream isAudio]) {
+                    self.cellType = OWSMessageCellType_Audio;
                     return;
-//                    adapter.mediaItem =
-//                    [[TSAnimatedAdapter alloc] initWithAttachment:stream incoming:isIncomingAttachment];
-//                    adapter.mediaItem.appliesMediaViewMaskAsOutgoing = !isIncomingAttachment;
-//                } else if ([self.attachmentStream isImage]) {
-//                    adapter.mediaItem =
-//                    [[TSPhotoAdapter alloc] initWithAttachment:stream incoming:isIncomingAttachment];
-//                    adapter.mediaItem.appliesMediaViewMaskAsOutgoing = !isIncomingAttachment;
+                } else {
+                    self.cellType = OWSMessageCellType_GenericAttachment;
+                    return;
 //                    break;
 //                } else if ([self.attachmentStream isVideo] || [self.attachmentStream isAudio]) {
 //                    adapter.mediaItem = [[TSVideoAttachmentAdapter alloc]
@@ -234,7 +214,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 //                    break;
                 }
             } else if ([attachment isKindOfClass:[TSAttachmentPointer class]]) {
-                self.cellMode = OWSMessageCellMode_DownloadingAttachment;
+                self.cellType = OWSMessageCellType_DownloadingAttachment;
                 self.attachmentPointer = (TSAttachmentPointer *)attachment;
 //                adapter.mediaItem =
 //                [[AttachmentPointerAdapter alloc] initWithAttachmentPointer:pointer
@@ -245,7 +225,10 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
         }
     }
 
-    self.cellMode = OWSMessageCellMode_Unknown;
+    // TODO:
+    //                    adapter.mediaItem.appliesMediaViewMaskAsOutgoing = !isIncomingAttachment;
+
+    self.cellType = OWSMessageCellType_Unknown;
 }
 
 - (void)loadForDisplay
@@ -254,105 +237,42 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     OWSAssert(self.viewItem.interaction);
     OWSAssert([self.viewItem.interaction isKindOfClass:[TSMessage class]]);
     
-    [self ensureCellMode];
+    [self ensureCellType];
     
     BOOL isIncoming = self.isIncoming;
     JSQMessagesBubbleImage *bubbleImageData = isIncoming ? [self.bubbleFactory incoming] : [self.bubbleFactory outgoing];
     self.bubbleImageView.image = bubbleImageData.messageBubbleImage;
 
-    switch(self.cellMode) {
-        case OWSMessageCellMode_TextMessage: {
-            self.bubbleImageView.hidden = NO;
-            self.textLabel.hidden = NO;
-            self.textLabel.text = self.textMessage;
-            self.textLabel.textColor = [self textColor];
-            
-            self.contentConstraints = @[
-                                      [self.textLabel autoPinLeadingToSuperviewWithMargin:self.leadingMargin],
-                                      [self.textLabel autoPinTrailingToSuperviewWithMargin:self.trailingMargin],
-                                      [self.textLabel autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:self.vMargin],
-                                      [self.textLabel autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:self.vMargin],
-                                      ];
+    switch(self.cellType) {
+        case OWSMessageCellType_TextMessage:
+            [self loadForTextDisplay];
+            return;
+        case OWSMessageCellType_StillImage:
+            [self loadForStillImageDisplay];
+            return;
+        case OWSMessageCellType_AnimatedImage:
+            [self loadForAnimatedImageDisplay];
+            return;
+        case OWSMessageCellType_Audio:
+            self.audioMessageView = [[OWSAudioMessageView alloc] initWithAttachment:self.attachmentStream
+                                                                         isIncoming:self.isIncoming
+                                                                           viewItem:self.viewItem];
+            self.viewItem.lastAudioMessageView = self.audioMessageView;
+            [self.audioMessageView createContentsForSize:self.bounds.size];
+            [self replaceBubbleWithView:self.audioMessageView];
+            return;
+        case OWSMessageCellType_Video:
+            [self loadForVideoDisplay];
+            return;
+        case OWSMessageCellType_GenericAttachment: {
+            self.attachmentView = [[OWSGenericAttachmentView alloc] initWithAttachment:self.attachmentStream
+                                                                                                 isIncoming:self.isIncoming];
+            [self.attachmentView createContentsForSize:self.bounds.size];
+            [self replaceBubbleWithView:self.attachmentView];
             return;
         }
-        case OWSMessageCellMode_StillImage: {
-            OWSAssert(self.attachmentStream);
-            UIImage *_Nullable image = self.attachmentStream.image;
-            if (!image) {
-                DDLogError(@"%@ Could not load image: %@", [self logTag], [self.attachmentStream mediaURL]);
-                [self showAttachmentErrorView];
-                return;
-            }
-            
-            self.stillImageView = [[UIImageView alloc] initWithImage:image];
-            // Use trilinear filters for better scaling quality at
-            // some performance cost.
-            self.stillImageView.layer.minificationFilter = kCAFilterTrilinear;
-            self.stillImageView.layer.magnificationFilter = kCAFilterTrilinear;
-            [self.contentView addSubview:self.stillImageView];
-            self.contentConstraints = [self.stillImageView autoPinToSuperviewEdges];
-            [self cropViewToBubbbleShape:self.stillImageView];
-            return;
-        }
-        case OWSMessageCellMode_AnimatedImage: {
-            OWSAssert(self.attachmentStream);
-
-            NSString *_Nullable filePath = [self.attachmentStream filePath];
-            YYImage *_Nullable animatedImage = nil;
-            if (filePath && [NSData ows_isValidImageAtPath:filePath]) {
-                animatedImage = [YYImage imageWithContentsOfFile:filePath];
-            }
-            if (!animatedImage) {
-                DDLogError(@"%@ Could not load animated image: %@", [self logTag], [self.attachmentStream mediaURL]);
-                [self showAttachmentErrorView];
-                return;
-            }
-
-            self.animatedImageView = [[YYAnimatedImageView alloc] init];
-            self.animatedImageView.image = animatedImage;
-            [self.contentView addSubview:self.animatedImageView];
-            self.contentConstraints = [self.animatedImageView autoPinToSuperviewEdges];
-            [self cropViewToBubbbleShape:self.animatedImageView];
-            return;
-        }
-        case OWSMessageCellMode_Audio:
-            break;
-        case OWSMessageCellMode_Video:
-            break;
-        case OWSMessageCellMode_GenericAttachment:
-            break;
-        case OWSMessageCellMode_DownloadingAttachment: {
-            OWSAssert(self.attachmentPointer);
-            
-            self.customView = [UIView new];
-            switch (self.attachmentPointer.state) {
-                case TSAttachmentPointerStateEnqueued:
-                    self.customView.backgroundColor = (self.isIncoming
-                                                       ? [UIColor jsq_messageBubbleLightGrayColor]
-                                                       : [UIColor ows_fadedBlueColor]);
-                    break;
-                case TSAttachmentPointerStateDownloading:
-                    [[NSNotificationCenter defaultCenter] addObserver:self
-                                                             selector:@selector(attachmentDownloadProgress:)
-                                                                 name:kAttachmentDownloadProgressNotification
-                                                               object:nil];
-                    self.customView.backgroundColor = (self.isIncoming
-                                                       ? [UIColor jsq_messageBubbleLightGrayColor]
-                                                       : [UIColor ows_fadedBlueColor]);
-                    break;
-                case TSAttachmentPointerStateFailed:
-                    self.customView.backgroundColor = [UIColor grayColor];
-                    break;
-            }
-            [self.contentView addSubview:self.customView];
-            self.contentConstraints = [self.customView autoPinToSuperviewEdges];
-            [self cropViewToBubbbleShape:self.customView];
-
-            self.attachmentPointerView = [[AttachmentPointerView alloc] initWithAttachmentPointer:self.attachmentPointer
-                                                                                                         isIncoming:self.isIncoming];
-            [self.customView addSubview:self.attachmentPointerView];
-            [self.attachmentPointerView autoPinWidthToSuperviewWithMargin:20.f];
-            [self.attachmentPointerView autoVCenterInSuperview];
+        case OWSMessageCellType_DownloadingAttachment: {
+            [self loadForDownloadingAttachment];
             return;
         }
     }
@@ -369,6 +289,137 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 //        NSLog(@"textLabel: %@", NSStringFromCGRect(self.textLabel.frame));
 //        NSLog(@"bubbleImageView: %@", NSStringFromCGRect(self.bubbleImageView.frame));
 //    });
+}
+
+- (void)loadForTextDisplay {
+    self.bubbleImageView.hidden = NO;
+    self.textLabel.hidden = NO;
+    self.textLabel.text = self.textMessage;
+    self.textLabel.textColor = [self textColor];
+    
+    self.contentConstraints = @[
+                                [self.textLabel autoPinLeadingToSuperviewWithMargin:self.textLeadingMargin],
+                                [self.textLabel autoPinTrailingToSuperviewWithMargin:self.textTrailingMargin],
+                                [self.textLabel autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:self.textVMargin],
+                                [self.textLabel autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:self.textVMargin],
+                                ];
+}
+
+- (void)loadForStillImageDisplay
+{
+    OWSAssert(self.attachmentStream);
+    OWSAssert([self.attachmentStream isImage]);
+    
+    UIImage *_Nullable image = self.attachmentStream.image;
+    if (!image) {
+        DDLogError(@"%@ Could not load image: %@", [self logTag], [self.attachmentStream mediaURL]);
+        [self showAttachmentErrorView];
+        return;
+    }
+    
+    self.stillImageView = [[UIImageView alloc] initWithImage:image];
+    // Use trilinear filters for better scaling quality at
+    // some performance cost.
+    self.stillImageView.layer.minificationFilter = kCAFilterTrilinear;
+    self.stillImageView.layer.magnificationFilter = kCAFilterTrilinear;
+    [self replaceBubbleWithView:self.stillImageView];
+}
+
+- (void)loadForAnimatedImageDisplay {
+    OWSAssert(self.attachmentStream);
+    OWSAssert([self.attachmentStream isAnimated]);
+    
+    NSString *_Nullable filePath = [self.attachmentStream filePath];
+    YYImage *_Nullable animatedImage = nil;
+    if (filePath && [NSData ows_isValidImageAtPath:filePath]) {
+        animatedImage = [YYImage imageWithContentsOfFile:filePath];
+    }
+    if (!animatedImage) {
+        DDLogError(@"%@ Could not load animated image: %@", [self logTag], [self.attachmentStream mediaURL]);
+        [self showAttachmentErrorView];
+        return;
+    }
+    
+    self.animatedImageView = [[YYAnimatedImageView alloc] init];
+    self.animatedImageView.image = animatedImage;
+    [self replaceBubbleWithView:self.animatedImageView];
+}
+
+- (void)loadForVideoDisplay {
+    OWSAssert(self.attachmentStream);
+    OWSAssert([self.attachmentStream isVideo]);
+
+//    CGSize size = [self mediaViewDisplaySize];
+    
+    UIImage *_Nullable image = self.attachmentStream.image;
+    if (!image) {
+        DDLogError(@"%@ Could not load image: %@", [self logTag], [self.attachmentStream mediaURL]);
+        [self showAttachmentErrorView];
+        return;
+    }
+    
+    self.stillImageView = [[UIImageView alloc] initWithImage:image];
+    // Use trilinear filters for better scaling quality at
+    // some performance cost.
+    self.stillImageView.layer.minificationFilter = kCAFilterTrilinear;
+    self.stillImageView.layer.magnificationFilter = kCAFilterTrilinear;
+    [self replaceBubbleWithView:self.stillImageView];
+
+    UIImage *videoPlayIcon = [UIImage imageNamed:@"play_button"];
+    UIImageView *videoPlayButton = [[UIImageView alloc] initWithImage:videoPlayIcon];
+    [self.stillImageView addSubview:videoPlayButton];
+    [videoPlayButton autoCenterInSuperview];
+    
+//    if (!_incoming) {
+//        self.attachmentUploadView = [[AttachmentUploadView alloc] initWithAttachment:self.attachment
+//                                                                           superview:imageView
+//                                                             attachmentStateCallback:^(BOOL isAttachmentReady) {
+//                                                                 videoPlayButton.hidden = !isAttachmentReady;
+//                                                             }];
+//    }
+//    
+//    return imageView;
+}
+
+- (void)loadForDownloadingAttachment {
+    OWSAssert(self.attachmentPointer);
+    
+    self.customView = [UIView new];
+    switch (self.attachmentPointer.state) {
+        case TSAttachmentPointerStateEnqueued:
+            self.customView.backgroundColor = (self.isIncoming
+                                               ? [UIColor jsq_messageBubbleLightGrayColor]
+                                               : [UIColor ows_fadedBlueColor]);
+            break;
+        case TSAttachmentPointerStateDownloading:
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(attachmentDownloadProgress:)
+                                                         name:kAttachmentDownloadProgressNotification
+                                                       object:nil];
+            self.customView.backgroundColor = (self.isIncoming
+                                               ? [UIColor jsq_messageBubbleLightGrayColor]
+                                               : [UIColor ows_fadedBlueColor]);
+            break;
+        case TSAttachmentPointerStateFailed:
+            self.customView.backgroundColor = [UIColor grayColor];
+            break;
+    }
+    [self replaceBubbleWithView:self.customView];
+    
+    self.attachmentPointerView = [[AttachmentPointerView alloc] initWithAttachmentPointer:self.attachmentPointer
+                                                                               isIncoming:self.isIncoming];
+    [self.customView addSubview:self.attachmentPointerView];
+    [self.attachmentPointerView autoPinWidthToSuperviewWithMargin:20.f];
+    [self.attachmentPointerView autoVCenterInSuperview];
+}
+
+- (void)replaceBubbleWithView:(UIView *)view {
+    OWSAssert(view);
+    
+    view.userInteractionEnabled = NO;
+    [self.contentView addSubview:view];
+    self.contentConstraints = [view autoPinToSuperviewEdges];
+    [self cropViewToBubbbleShape:view];
 }
 
 - (void)cropViewToBubbbleShape:(UIView *)view
@@ -406,6 +457,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     // TODO: We could do a better job of indicating that the image could not be loaded.
     self.customView = [UIView new];
     self.customView.backgroundColor = [UIColor colorWithWhite:0.85f alpha:1.f];
+    self.customView.userInteractionEnabled = NO;
     [self.contentView addSubview:self.customView];
     self.contentConstraints = [self.customView autoPinToSuperviewEdges];
     [self cropViewToBubbbleShape:self.customView];
@@ -417,28 +469,30 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     OWSAssert(self.viewItem);
     OWSAssert([self.viewItem.interaction isKindOfClass:[TSMessage class]]);
     
-    [self ensureCellMode];
+    [self ensureCellType];
 
-    switch(self.cellMode) {
-        case OWSMessageCellMode_TextMessage: {
+    switch(self.cellType) {
+        case OWSMessageCellType_TextMessage: {
             BOOL isRTL = self.isRTL;
-            CGFloat leftMargin = isRTL ? self.trailingMargin : self.leadingMargin;
-            CGFloat rightMargin = isRTL ? self.leadingMargin : self.trailingMargin;
-            CGFloat vMargin = self.vMargin;
+            CGFloat leftMargin = isRTL ? self.textTrailingMargin : self.textLeadingMargin;
+            CGFloat rightMargin = isRTL ? self.textLeadingMargin : self.textTrailingMargin;
+            CGFloat textVMargin = self.textVMargin;
             CGFloat maxTextWidth = maxMessageWidth - (leftMargin + rightMargin);
             
             self.textLabel.text = self.textMessage;
             CGSize textSize = [self.textLabel sizeThatFits:CGSizeMake(maxTextWidth, CGFLOAT_MAX)];
             CGSize result = CGSizeMake((CGFloat) ceil(textSize.width + leftMargin + rightMargin),
-                                       (CGFloat) ceil(textSize.height + vMargin * 2));
+                                       (CGFloat) ceil(textSize.height + textVMargin * 2));
             //        NSLog(@"???? %@", self.viewItem.interaction.debugDescription);
             //        NSLog(@"\t %@", messageBody);
             //        NSLog(@"textSize: %@", NSStringFromCGSize(textSize));
             //        NSLog(@"result: %@", NSStringFromCGSize(result));
             return result;
         }
-        case OWSMessageCellMode_StillImage:
-        case OWSMessageCellMode_AnimatedImage: {
+        case OWSMessageCellType_StillImage:
+        case OWSMessageCellType_AnimatedImage:
+        case OWSMessageCellType_Video:
+        {
             OWSAssert(self.contentSize.width > 0);
             OWSAssert(self.contentSize.height > 0);
             
@@ -457,13 +511,11 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 //            DDLogError(@"\t result: %@", NSStringFromCGSize(result));
             return result;
         }
-        case OWSMessageCellMode_Audio:
-            break;
-        case OWSMessageCellMode_Video:
-            break;
-        case OWSMessageCellMode_GenericAttachment:
-            break;
-        case OWSMessageCellMode_DownloadingAttachment:
+        case OWSMessageCellType_Audio:
+            return CGSizeMake(maxMessageWidth, self.audioBubbleHeight);
+        case OWSMessageCellType_GenericAttachment:
+            return CGSizeMake(maxMessageWidth, [OWSGenericAttachmentView bubbleHeight]);
+        case OWSMessageCellType_DownloadingAttachment:
             return CGSizeMake(200, 90);
     }
     
@@ -474,21 +526,56 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     return YES;
 }
 
-- (CGFloat)leadingMargin {
+- (CGFloat)textLeadingMargin {
     return self.isIncoming ? 15 : 10;
 }
 
-- (CGFloat)trailingMargin {
+- (CGFloat)textTrailingMargin {
     return self.isIncoming ? 10 : 15;
 }
 
-- (CGFloat)vMargin {
+- (CGFloat)textVMargin {
     return 10;
 }
 
 - (UIColor *)textColor {
     return self.isIncoming ? [UIColor blackColor] : [UIColor whiteColor];
 }
+
+- (CGFloat)audioIconHMargin
+{
+    return 12.f;
+}
+
+- (CGFloat)audioIconHSpacing
+{
+    return 10.f;
+}
+
+- (CGFloat)audioIconVMargin
+{
+    return 12.f;
+}
+
+- (CGFloat)audioBubbleHeight
+{
+    return self.audioIconSize + self.audioIconVMargin * 2;
+}
+
+- (CGFloat)audioIconSize
+{
+    return 40.f;
+}
+
+//- (UIColor *)audioTextColor
+//{
+//    return (self.incoming ? [UIColor colorWithWhite:0.2f alpha:1.f] : [UIColor whiteColor]);
+//}
+//
+//- (UIColor *)audioColorWithOpacity:(CGFloat)alpha
+//{
+//    return [self.audioTextColor blendWithColor:self.bubbleBackgroundColor alpha:alpha];
+//}
 
 - (OWSMessagesBubbleImageFactory *)bubbleFactory
 {
@@ -527,14 +614,14 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     self.customView = nil;
     [self.attachmentPointerView removeFromSuperview];
     self.attachmentPointerView = nil;
-    
-//    [self.textLabel removeFromSuperview];
-//    self.textLabel = nil;
-//    [self.bubbleImageView removeFromSuperview];
-//    self.bubbleImageView = nil;
+    [self.attachmentView removeFromSuperview];
+    self.attachmentView = nil;
+    [self.audioMessageView removeFromSuperview];
+    self.audioMessageView = nil;
+
 //    [self.attachmentUploadView removeFromSuperview];
     self.attachmentUploadView = nil;
-    self.cellMode = OWSMessageCellMode_Unknown;
+    self.cellType = OWSMessageCellType_Unknown;
     
     self.contentView.backgroundColor = [UIColor whiteColor];
 }
@@ -550,8 +637,8 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
 //
 //let bubbleImageData = isIncoming ? bubbleFactory.incoming : bubbleFactory.outgoing
 //
-//let leadingMargin: CGFloat = isIncoming ? 15 : 10
-//let trailingMargin: CGFloat = isIncoming ? 10 : 15
+//let textLeadingMargin: CGFloat = isIncoming ? 15 : 10
+//let textTrailingMargin: CGFloat = isIncoming ? 10 : 15
 //
 //let bubbleView = UIImageView(image: bubbleImageData.messageBubbleImage)
 //
@@ -639,7 +726,27 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     OWSAssert(self.delegate);
     
     if (sender.state == UIGestureRecognizerStateRecognized) {
-        [self.delegate didTapViewItem:self.viewItem];
+        switch(self.cellType) {
+            case OWSMessageCellType_TextMessage:
+                break;
+            case OWSMessageCellType_StillImage:
+                break;
+            case OWSMessageCellType_AnimatedImage:
+                break;
+            case OWSMessageCellType_Audio:
+                [self.delegate didTapAudioViewItem:self.viewItem attachmentStream:self.attachmentStream];
+                return;
+            case OWSMessageCellType_Video:
+                [self.delegate didTapVideoViewItem:self.viewItem attachmentStream:self.attachmentStream];
+                return;
+            case OWSMessageCellType_GenericAttachment:
+                break;
+            case OWSMessageCellType_DownloadingAttachment: {
+                break;
+            }
+        }
+        
+        [self.delegate didTapViewItem:self.viewItem cellType:self.cellType];
     }
 }
 
@@ -648,7 +755,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellMode) {
     OWSAssert(self.delegate);
     
     if (longPress.state == UIGestureRecognizerStateBegan) {
-        [self.delegate didLongPressViewItem:self.viewItem];
+        [self.delegate didLongPressViewItem:self.viewItem cellType:self.cellType];
     }
 }
 
