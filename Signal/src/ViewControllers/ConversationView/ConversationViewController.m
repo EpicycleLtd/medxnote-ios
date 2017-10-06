@@ -219,6 +219,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic) BOOL isUserScrolling;
 
 @property (nonatomic) UIView *scrollDownButton;
+#ifdef DEBUG
+@property (nonatomic) UIView *scrollUpButton;
+#endif
 
 @property (nonatomic) BOOL isViewVisible;
 @property (nonatomic) BOOL isAppInBackground;
@@ -473,15 +476,12 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [JSQMessagesCollectionViewCell registerMenuAction:shareSelector];
     [JSQMessagesCollectionViewCell registerMenuAction:[TSMessageAdapter messageMetadataSelector]];
     
-    [self registerCustomMessageNibs];
+    [self registerCellClasses];
     
-//    self.senderId = ME_MESSAGE_IDENTIFIER;
-//    self.senderDisplayName = ME_MESSAGE_IDENTIFIER;
-//    self.automaticallyScrollsToMostRecentMessage = NO;
-    
-    [self createScrollDownButton];
+    [self createScrollButtons];
     [self createHeaderViews];
     [self addNotificationListeners];
+    // [self updateLoadEarlierVisible];
 }
 
 - (void)createContents
@@ -516,94 +516,20 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     [self.collectionView addRedBorder];
     [self.inputToolbar addBorderWithColor:[UIColor blueColor]];
-    
-//    self.collectionView.layoutDelegate = self;
-    
-//                           - (void)initializeToolbars
-//                           {
-//                               // HACK JSQMessagesViewController doesn't yet support dynamic type in the inputToolbar.
-//                               // See: https://github.com/jessesquires/JSQMessagesViewController/pull/1169/files
-//                               [self.inputToolbar.inputTextView sizeToFit];
-//                               self.inputToolbar.preferredDefaultHeight = self.inputToolbar.inputTextView.frame.size.height + 16;
-//                               
-//                               // prevent draft from obscuring message history in case user wants to scroll back to refer to something
-//                               // while composing a long message.
-//                               self.inputToolbar.maximumHeight = 300;
-//                               
-//                               OWSAssert(self.inputToolbar.contentView);
-//                               OWSAssert(self.inputToolbar.inputTextView);
-//                               self.inputToolbar.inputTextView.jsqPasteDelegate = self;
-//                               ((ConversationInputTextView *)self.inputToolbar.inputTextView).inputTextViewDelegate = self;
-//                               ((OWSMessagesToolbarContentView *)self.inputToolbar.contentView).voiceMemoGestureDelegate = self;
-//                           }
-//                           
-//                           // Overiding JSQMVC layout defaults
-//                           - (void)initializeCollectionViewLayout
-//                           {
-//                               CGRect screenBounds = [UIScreen mainScreen].bounds;
-//                               CGRect viewFrame = CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height);
-//                               self.view.frame = viewFrame;
-//                               self.collectionView.frame = viewFrame;
-//                               
-//                               [self.collectionView.collectionViewLayout setMessageBubbleFont:[UIFont ows_dynamicTypeBodyFont]];
-//                               
-//                               self.collectionView.showsVerticalScrollIndicator = NO;
-//                               self.collectionView.showsHorizontalScrollIndicator = NO;
-//
-//                               [self updateLoadEarlierVisible];
-//                               
-//                               self.collectionView.collectionViewLayout.incomingAvatarViewSize = CGSizeZero;
-//                               self.collectionView.collectionViewLayout.outgoingAvatarViewSize = CGSizeZero;
-//                               
-//                               if ([UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPad) {
-//                                   // Narrow the bubbles a bit to create more white space in the messages view
-//                                   // Since we're not using avatars it gets a bit crowded otherwise.
-//                                   self.collectionView.collectionViewLayout.messageBubbleLeftRightMargin = 80.0f;
-//                               }
-//                               
-//                               // Bubbles
-//                               self.collectionView.collectionViewLayout.bubbleSizeCalculator = [OWSMessagesBubblesSizeCalculator new];
-//                               OWSMessagesBubbleImageFactory *bubbleFactory = [OWSMessagesBubbleImageFactory new];
-//                               self.incomingBubbleImageData = bubbleFactory.incoming;
-//                               self.outgoingBubbleImageData = bubbleFactory.outgoing;
-//                               self.currentlyOutgoingBubbleImageData = bubbleFactory.currentlyOutgoing;
-//                               self.outgoingMessageFailedImageData = bubbleFactory.outgoingFailed;
-//                           }
 }
 
-- (void)registerCustomMessageNibs
+- (void)registerCellClasses
 {
     [self.collectionView registerClass:[OWSSystemMessageCell class]
             forCellWithReuseIdentifier:[OWSSystemMessageCell cellReuseIdentifier]];
-
     [self.collectionView registerClass:[OWSUnreadIndicatorCell class]
             forCellWithReuseIdentifier:[OWSUnreadIndicatorCell cellReuseIdentifier]];
-    
     [self.collectionView registerClass:[OWSContactOffersCell class]
             forCellWithReuseIdentifier:[OWSContactOffersCell cellReuseIdentifier]];
-    
     [self.collectionView registerClass:[OWSOutgoingMessageCell class]
             forCellWithReuseIdentifier:[OWSOutgoingMessageCell cellReuseIdentifier]];
-    
     [self.collectionView registerClass:[OWSIncomingMessageCell class]
             forCellWithReuseIdentifier:[OWSIncomingMessageCell cellReuseIdentifier]];
-
-    // TODO:
-////    self.outgoingCellIdentifier = [OWSOutgoingMessageCell cellReuseIdentifier];
-//    [self.collectionView registerNib:[OWSOutgoingMessageCell nib]
-//          forCellWithReuseIdentifier:[OWSOutgoingMessageCell cellReuseIdentifier]];
-//
-////    self.outgoingMediaCellIdentifier = [OWSOutgoingMessageCell mediaCellReuseIdentifier];
-//    [self.collectionView registerNib:[OWSOutgoingMessageCell nib]
-//          forCellWithReuseIdentifier:[OWSOutgoingMessageCell mediaCellReuseIdentifier]];
-//
-////    self.incomingCellIdentifier = [OWSIncomingMessageCell cellReuseIdentifier];
-//    [self.collectionView registerNib:[OWSIncomingMessageCell nib]
-//          forCellWithReuseIdentifier:[OWSIncomingMessageCell cellReuseIdentifier]];
-//
-////    self.incomingMediaCellIdentifier = [OWSIncomingMessageCell mediaCellReuseIdentifier];
-//    [self.collectionView registerNib:[OWSIncomingMessageCell nib]
-//          forCellWithReuseIdentifier:[OWSIncomingMessageCell mediaCellReuseIdentifier]];
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification
@@ -639,8 +565,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     // In case we're dismissing a CNContactViewController which requires default system appearance
     [UIUtil applySignalAppearence];
 
-//    [self addVisibleListeners];
-
     // We need to recheck on every appearance, since the user may have left the group in the settings VC,
     // or on another device.
     [self hideInputIfNeeded];
@@ -675,9 +599,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                    action:[TSMessageAdapter messageMetadataSelector]],
     ];
 
-//    [((OWSMessagesToolbarContentView *)self.inputToolbar.contentView)ensureSubviews];
-
-    [self.view layoutSubviews];
+//    [self.view layoutSubviews];
 
     // We want to set the initial scroll state the first time we enter the view.
     if (!self.viewHasEverAppeared) {
@@ -696,35 +618,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         row++;
     }
     return nil;
-    
-//    __block TSUnreadIndicatorInteraction *_Nullable unreadIndicator = nil;
-//    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-//        [[TSDatabaseView threadSpecialMessagesDatabaseView:transaction]
-//            enumerateRowsInGroup:self.thread.uniqueId
-//                      usingBlock:^(
-//                          NSString *collection, NSString *key, id object, id metadata, NSUInteger index, BOOL *stop) {
-//
-//                          if ([object isKindOfClass:[TSUnreadIndicatorInteraction class]]) {
-//                              unreadIndicator = (TSUnreadIndicatorInteraction *)object;
-//                              *stop = YES;
-//                          }
-//                      }];
-//    }];
-//
-//    if (!unreadIndicator) {
-//        return nil;
-//    }
-//
-//    // TODO: We could do binary search.
-//    int numberOfMessages = (int)[self.messageMappings numberOfItemsInGroup:self.thread.uniqueId];
-//    for (int i = 0; i < numberOfMessages; i++) {
-//        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
-//        id<OWSMessageData> message = [self messageAtIndexPath:indexPath];
-//        if (message.messageType == TSUnreadIndicatorAdapter) {
-//            return indexPath;
-//        }
-//    }
-//    return nil;
 }
 
 - (void)scrollToDefaultPosition
@@ -769,6 +662,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self updateLastVisibleTimestamp];
 }
 
+// TODO: We need to audit every usage of this method.
 - (void)resetContentAndLayout
 {
     // Avoid layout corrupt issues and out-of-date message subtitles.
@@ -1024,7 +918,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
 }
 
-- (void)showUnblockContactUI:(BlockActionCompletionBlock)completionBlock
+- (void)showUnblockContactUI:(BlockActionCompletionBlock _Nullable)completionBlock
 {
     OWSAssert([self.thread isKindOfClass:[TSContactThread class]]);
 
@@ -1101,13 +995,12 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     [self.inputToolbar endEditing:YES];
 
-//    self.inputToolbar.inputTextView.editable = YES;
     if (_composeOnOpen && !self.inputToolbar.hidden) {
         [self popKeyBoard];
         _composeOnOpen = NO;
     }
     if (_callOnOpen) {
-        [self callAction:nil];
+        [self callAction];
         _callOnOpen = NO;
     }
     [self updateNavigationBarSubtitleLabel];
@@ -1132,9 +1025,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self cancelReadTimer];
     [self saveDraft];
     [self markVisibleMessagesAsRead];
-
     [self cancelVoiceMemo];
-//    [self removeVisibleListeners];
 
     self.isUserScrolling = NO;
 }
@@ -1330,7 +1221,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         imageEdgeInsets.bottom = round(kBarButtonSize - (image.size.height + imageEdgeInsets.top));
         callButton.imageEdgeInsets = imageEdgeInsets;
         callButton.accessibilityLabel = NSLocalizedString(@"CALL_LABEL", "Accessibilty label for placing call button");
-        [callButton addTarget:self action:@selector(callAction:) forControlEvents:UIControlEventTouchUpInside];
+        [callButton addTarget:self action:@selector(callAction) forControlEvents:UIControlEventTouchUpInside];
         callButton.frame = CGRectMake(0,
             0,
             round(image.size.width + imageEdgeInsets.left + imageEdgeInsets.right),
@@ -1459,7 +1350,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark - Calls
 
-- (void)callAction:(id)sender
+- (void)callAction
 {
     OWSAssert([self.thread isKindOfClass:[TSContactThread class]]);
 
@@ -1472,7 +1363,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     if ([self isBlockedContactConversation]) {
         [self showUnblockContactUI:^(BOOL isBlocked) {
             if (!isBlocked) {
-                [weakSelf callAction:nil];
+                [weakSelf callAction];
             }
         }];
         return;
@@ -1482,7 +1373,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         [self showSafetyNumberConfirmationIfNecessaryWithConfirmationText:[CallStrings confirmAndCallButtonTitle]
                                                                completion:^(BOOL didConfirmIdentity) {
                                                                    if (didConfirmIdentity) {
-                                                                       [weakSelf callAction:sender];
+                                                                       [weakSelf callAction];
                                                                    }
                                                                }];
     if (didShowSNAlert) {
@@ -1500,6 +1391,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark - JSQMessagesViewController method overrides
 
+// TODO:
 - (void)toggleDefaultKeyboard
 {
 //    // Primary language is nil for the emoji keyboard & we want to stay on it after sending
@@ -1516,6 +1408,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark - Loading message cells
 
+// TODO:
 //- (JSQMessagesCollectionViewCell *)loadIncomingMessageCellForMessage:(id<OWSMessageData>)message
 //                                                         atIndexPath:(NSIndexPath *)indexPath
 //{
@@ -1563,39 +1456,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 //    }
 //
 //    return cell;
-//}
-
-#pragma mark - Adjusting cell label heights
-
-///**
-// Due to the usage of JSQMessagesViewController, and it non-conformity to Dynamyc Type
-// we're left to our own devices to make this as usable as possible.
-// JSQMessagesVC also does not expose the constraint for the input toolbar height nor does it seem to
-// give us a method to tell it to re-adjust (I think it should observe the preferredDefaultHeight property).
-//
-// With that in mind, we use magical runtime to get that property, and if it doesn't exist, we just don't apply the
-// dynamic type change. If it does exist, than we apply the font changes and adjust the views to contain them properly.
-//
-// This is not the prettiest code, but it's working code. We should tag this code for deletion as soon as JSQMessagesVC
-// adops Dynamic type.
-// */
-//- (void)reloadInputToolbarSizeIfNeeded
-//{
-//    NSLayoutConstraint *heightConstraint = ((NSLayoutConstraint *)[self valueForKeyPath:@"toolbarHeightConstraint"]);
-//    if (heightConstraint == nil) {
-//        return;
-//    }
-//
-//    [self.inputToolbar.inputTextView setFont:[UIFont ows_dynamicTypeBodyFont]];
-//
-//    CGRect f = self.inputToolbar.inputTextView.frame;
-//    f.size.height =
-//        [self.inputToolbar.inputTextView sizeThatFits:self.inputToolbar.inputTextView.frame.size].height;
-//    self.inputToolbar.inputTextView.frame = f;
-//
-//    self.inputToolbar.preferredDefaultHeight = self.inputToolbar.inputTextView.frame.size.height + 16;
-//    heightConstraint.constant = self.inputToolbar.preferredDefaultHeight;
-//    [self.inputToolbar setNeedsLayout];
 //}
 
 /**
@@ -2154,7 +2014,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
 
-
 - (void)handleUnsentMessageTap:(TSOutgoingMessage *)message
 {
     UIAlertController *actionSheetController =
@@ -2377,7 +2236,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     UIAlertAction *callAction = [UIAlertAction actionWithTitle:[CallStrings callBackAlertCallButton]
                                                          style:UIAlertActionStyleDefault
                                                        handler:^(UIAlertAction *_Nonnull action) {
-                                                           [weakSelf callAction:nil];
+                                                           [weakSelf callAction];
                                                        }];
     [alertController addAction:callAction];
     [alertController addAction:[OWSAlerts cancelAction]];
@@ -2484,6 +2343,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     OWSAssert([NSThread isMainThread]);
     OWSAssert(viewItem.interaction.interactionType == OWSInteractionType_IncomingMessage ||
               viewItem.interaction.interactionType == OWSInteractionType_OutgoingMessage);
+    
+    // TODO:
 }
 
 - (void)didLongPressViewItem:(ConversationViewItem *)viewItem
@@ -2491,6 +2352,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     OWSAssert([NSThread isMainThread]);
     OWSAssert(viewItem.interaction.interactionType == OWSInteractionType_IncomingMessage ||
               viewItem.interaction.interactionType == OWSInteractionType_OutgoingMessage);
+    
+    // TODO:
 }
 
 #pragma mark - System Messages
@@ -2611,20 +2474,33 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self updateLastVisibleTimestamp];
 }
 
-- (void)createScrollDownButton
+- (void)createScrollButtons
+{
+    self.scrollDownButton = [self createScrollButton:@"\uf103"
+                                            selector:@selector(scrollDownButtonTapped)];
+#ifdef DEBUG
+    self.scrollUpButton = [self createScrollButton:@"\uf102"
+                                          selector:@selector(scrollUpButtonTapped)];
+#endif
+    
+    [self updateLastVisibleTimestamp];
+}
+
+- (UIView *)createScrollButton:(NSString *)label
+                      selector:(SEL)selector
 {
     const CGFloat kCircleSize = ScaleFromIPhone5To7Plus(35.f, 40.f);
-
+    
     UILabel *iconLabel = [UILabel new];
     iconLabel.attributedText =
-        [[NSAttributedString alloc] initWithString:@"\uf103"
-                                        attributes:@{
-                                            NSFontAttributeName : [UIFont ows_fontAwesomeFont:kCircleSize * 0.8f],
-                                            NSForegroundColorAttributeName : [UIColor ows_materialBlueColor],
-                                            NSBaselineOffsetAttributeName : @(-0.5f),
-                                        }];
+    [[NSAttributedString alloc] initWithString:label
+                                    attributes:@{
+                                                 NSFontAttributeName : [UIFont ows_fontAwesomeFont:kCircleSize * 0.8f],
+                                                 NSForegroundColorAttributeName : [UIColor ows_materialBlueColor],
+                                                 NSBaselineOffsetAttributeName : @(-0.5f),
+                                                 }];
     iconLabel.userInteractionEnabled = NO;
-
+    
     UIView *circleView = [UIView new];
     circleView.backgroundColor = [UIColor colorWithWhite:0.95f alpha:1.f];
     circleView.userInteractionEnabled = NO;
@@ -2635,28 +2511,34 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     circleView.layer.shadowOpacity = 0.35f;
     [circleView autoSetDimension:ALDimensionWidth toSize:kCircleSize];
     [circleView autoSetDimension:ALDimensionHeight toSize:kCircleSize];
-
+    
     const CGFloat kButtonSize = kCircleSize + 2 * 15.f;
-    UIButton *scrollDownButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.scrollDownButton = scrollDownButton;
-    [scrollDownButton addTarget:self
-                         action:@selector(scrollDownButtonTapped)
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button addTarget:self
+                         action:selector
                forControlEvents:UIControlEventTouchUpInside];
-    scrollDownButton.frame = CGRectMake(0, 0, kButtonSize, kButtonSize);
-    [self.view addSubview:self.scrollDownButton];
-
-    [scrollDownButton addSubview:circleView];
-    [scrollDownButton addSubview:iconLabel];
+    button.frame = CGRectMake(0, 0, kButtonSize, kButtonSize);
+    [self.view addSubview:button];
+    
+    [button addSubview:circleView];
+    [button addSubview:iconLabel];
     [circleView autoCenterInSuperview];
     [iconLabel autoCenterInSuperview];
-
-    [self updateLastVisibleTimestamp];
+    
+    return button;
 }
 
 - (void)scrollDownButtonTapped
 {
     [self scrollToBottomAnimated:YES];
 }
+
+#ifdef DEBUG
+- (void)scrollUpButtonTapped
+{
+    [self.collectionView setContentOffset:CGPointZero animated:YES];
+}
+#endif
 
 - (void)ensureScrollDownButton
 {
@@ -2694,6 +2576,19 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     } else {
         self.scrollDownButton.hidden = YES;
     }
+    
+#ifdef DEBUG
+    BOOL shouldShowScrollUpButton = self.collectionView.contentOffset.y > 0;
+    if (shouldShowScrollUpButton) {
+        self.scrollUpButton.hidden = NO;
+        self.scrollUpButton.frame = CGRectMake(self.scrollUpButton.superview.width - self.scrollUpButton.width,
+                                               0,
+                                               self.scrollUpButton.width,
+                                               self.scrollUpButton.height);
+    } else {
+        self.scrollUpButton.hidden = YES;
+    }
+#endif
 }
 
 #pragma mark - Attachment Picking: Documents
