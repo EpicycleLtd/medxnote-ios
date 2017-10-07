@@ -168,7 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
                 self.attachmentStream = (TSAttachmentStream *)attachment;
                 
                 if ([attachment.contentType isEqualToString:OWSMimeTypeOversizeTextMessage]) {
-                    self.cellType = OWSMessageCellType_TextMessage;
+                    self.cellType = OWSMessageCellType_OversizeTextMessage;
                     // TODO: This can be expensive.  Should we cache it on the view item?
                     self.textMessage = [self displayableTextForAttachmentStream:self.attachmentStream
                                                                   interactionId:interaction.uniqueId];
@@ -245,6 +245,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     switch(self.cellType) {
         case OWSMessageCellType_TextMessage:
+        case OWSMessageCellType_OversizeTextMessage:
             [self loadForTextDisplay];
             return;
         case OWSMessageCellType_StillImage:
@@ -472,7 +473,8 @@ NS_ASSUME_NONNULL_BEGIN
     [self ensureCellType];
 
     switch(self.cellType) {
-        case OWSMessageCellType_TextMessage: {
+        case OWSMessageCellType_TextMessage:
+        case OWSMessageCellType_OversizeTextMessage: {
             BOOL isRTL = self.isRTL;
             CGFloat leftMargin = isRTL ? self.textTrailingMargin : self.textLeadingMargin;
             CGFloat rightMargin = isRTL ? self.textLeadingMargin : self.textTrailingMargin;
@@ -726,12 +728,34 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(self.delegate);
     
     if (sender.state == UIGestureRecognizerStateRecognized) {
+        
+        if (self.viewItem.interaction.interactionType == OWSInteractionType_OutgoingMessage) {
+            TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)self.viewItem.interaction;
+            if (outgoingMessage.messageState == TSOutgoingMessageStateUnsent) {
+                [self.delegate didTapFailedOutgoingMessage:outgoingMessage];
+                return;
+            } else if (outgoingMessage.messageState == TSOutgoingMessageStateAttemptingOut) {
+                // Ignore taps on outgoing messages being sent.
+                return;
+            }
+        }
+        
         switch(self.cellType) {
             case OWSMessageCellType_TextMessage:
                 break;
+            case OWSMessageCellType_OversizeTextMessage:
+                [self.delegate didTapOversizeTextMessage:self.textMessage
+                                        attachmentStream:self.attachmentStream];
+                break;
             case OWSMessageCellType_StillImage:
+                [self.delegate didTapImageViewItem:self.viewItem
+                                  attachmentStream:self.attachmentStream
+                                         imageView:self.stillImageView];
                 break;
             case OWSMessageCellType_AnimatedImage:
+                [self.delegate didTapImageViewItem:self.viewItem
+                                  attachmentStream:self.attachmentStream
+                                         imageView:self.animatedImageView];
                 break;
             case OWSMessageCellType_Audio:
                 [self.delegate didTapAudioViewItem:self.viewItem attachmentStream:self.attachmentStream];
@@ -740,8 +764,13 @@ NS_ASSUME_NONNULL_BEGIN
                 [self.delegate didTapVideoViewItem:self.viewItem attachmentStream:self.attachmentStream];
                 return;
             case OWSMessageCellType_GenericAttachment:
+                [self.delegate didTapGenericAttachment:self.viewItem attachmentStream:self.attachmentStream];
                 break;
             case OWSMessageCellType_DownloadingAttachment: {
+                OWSAssert(self.attachmentPointer);
+                if (self.attachmentPointer.state == TSAttachmentPointerStateFailed) {
+                    [self.delegate didTapFailedIncomingAttachment:self.viewItem attachmentPointer:self.attachmentPointer];
+                }
                 break;
             }
         }

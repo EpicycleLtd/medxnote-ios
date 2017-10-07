@@ -35,6 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (CGFloat)audioProgressSeconds;
 
+#pragma mark - Menu Actions
+
+- (BOOL)canPerformEditingAction:(SEL)selector;
+- (void)performEditingAction:(SEL)selector;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -12,6 +12,9 @@
 #import "UIView+OWS.h"
 #import <SignalServiceKit/NSData+Image.h>
 #import <YYImage/YYImage.h>
+#import "TSAttachmentStream.h"
+#import "TSInteraction.h"
+#import "ConversationViewItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,12 +57,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) CGRect originRect;
 @property (nonatomic) BOOL isPresenting;
-@property (nonatomic) BOOL isAnimated;
 @property (nonatomic) NSData *fileData;
 
-@property (nonatomic) TSAttachmentStream *attachment;
-@property (nonatomic) TSInteraction *interaction;
-@property (nonatomic) id<OWSMessageData> messageItem;
+@property (nonatomic) TSAttachmentStream *attachmentStream;
+@property (nonatomic) ConversationViewItem *viewItem;
 
 @property (nonatomic) UIToolbar *footerBar;
 @property (nonatomic) NSArray *oldMenuItems;
@@ -69,27 +70,24 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FullImageViewController
 
 
-- (instancetype)initWithAttachment:(TSAttachmentStream *)attachment
+- (instancetype)initWithAttachment:(TSAttachmentStream *)attachmentStream
                           fromRect:(CGRect)rect
-                    forInteraction:(TSInteraction *)interaction
-                       messageItem:(id<OWSMessageData>)messageItem
-                        isAnimated:(BOOL)animated {
+                          viewItem:(ConversationViewItem *)viewItem {
+    
     self = [super initWithNibName:nil bundle:nil];
 
     if (self) {
-        self.attachment  = attachment;
+        self.attachmentStream  = attachmentStream;
         self.originRect  = rect;
-        self.interaction = interaction;
-        self.messageItem = messageItem;
-        self.isAnimated  = animated;
-        self.fileData    = [NSData dataWithContentsOfURL:[attachment mediaURL]];
+        self.viewItem = viewItem;
+        self.fileData = [NSData dataWithContentsOfURL:[attachmentStream mediaURL]];
     }
 
     return self;
 }
 
 - (UIImage *)image {
-    return self.attachment.image;
+    return self.attachmentStream.image;
 }
 
 - (void)loadView {
@@ -155,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shareWasPressed:(id)sender {
     DDLogInfo(@"%@: sharing image.", self.tag);
 
-    [AttachmentSharing showShareUIForURL:[self.attachment mediaURL]];
+    [AttachmentSharing showShareUIForURL:[self.attachmentStream mediaURL]];
 }
 
 - (void)initializeScrollView {
@@ -165,6 +163,12 @@ NS_ASSUME_NONNULL_BEGIN
     self.scrollView.maximumZoomScale = kMaxZoomScale;
     self.scrollView.scrollEnabled    = NO;
     [self.contentView addSubview:self.scrollView];
+}
+
+- (BOOL)isAnimated {
+    OWSAssert(self.attachmentStream);
+    
+    return self.attachmentStream.isAnimated;
 }
 
 - (void)initializeImageView {
@@ -279,16 +283,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)performEditingActionWithSelector:(SEL)selector {
-    OWSAssert(self.messageItem.messageType == TSIncomingMessageAdapter ||
-              self.messageItem.messageType == TSOutgoingMessageAdapter);
-    OWSAssert([self.messageItem isMediaMessage]);
-    OWSAssert([self.messageItem isKindOfClass:[TSMessageAdapter class]]);
-    OWSAssert([self.messageItem conformsToProtocol:@protocol(OWSMessageEditing)]);
-    OWSAssert([[self.messageItem media] isKindOfClass:[TSPhotoAdapter class]] ||
-              [[self.messageItem media] isKindOfClass:[TSAnimatedAdapter class]]);
+    OWSAssert(self.viewItem.interaction.interactionType == OWSInteractionType_IncomingMessage ||
+              self.viewItem.interaction.interactionType == OWSInteractionType_OutgoingMessage);
+    OWSAssert(self.attachmentStream.isImage ||
+              self.attachmentStream.isAnimated);
     
-    OWSAssert([self.messageItem canPerformEditingAction:selector]);
-    [self.messageItem performEditingAction:selector];
+    OWSAssert([self.viewItem canPerformEditingAction:selector]);
+    [self.viewItem performEditingAction:selector];
 }
 
 - (void)copyAttachment:(id)sender {

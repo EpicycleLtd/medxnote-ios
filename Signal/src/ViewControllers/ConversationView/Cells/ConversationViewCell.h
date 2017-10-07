@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, OWSMessageCellType) {
     OWSMessageCellType_TextMessage,
+    OWSMessageCellType_OversizeTextMessage,
     OWSMessageCellType_StillImage,
     OWSMessageCellType_AnimatedImage,
     OWSMessageCellType_Audio,
@@ -21,6 +22,8 @@ typedef NS_ENUM(NSInteger, OWSMessageCellType) {
 @class ConversationViewCell;
 @class OWSContactOffersInteraction;
 @class TSAttachmentStream;
+@class TSAttachmentPointer;
+@class TSOutgoingMessage;
 
 // TODO: Rework these delegate methods.
 @protocol ConversationViewCellDelegate <NSObject>
@@ -30,10 +33,20 @@ typedef NS_ENUM(NSInteger, OWSMessageCellType) {
 - (void)didLongPressViewItem:(ConversationViewItem *)viewItem
                     cellType:(OWSMessageCellType)cellType;
 
+- (void)didTapImageViewItem:(ConversationViewItem *)viewItem
+           attachmentStream:(TSAttachmentStream *)attachmentStream
+                  imageView:(UIView *)imageView;
 - (void)didTapVideoViewItem:(ConversationViewItem *)viewItem
            attachmentStream:(TSAttachmentStream *)attachmentStream;
 - (void)didTapAudioViewItem:(ConversationViewItem *)viewItem
            attachmentStream:(TSAttachmentStream *)attachmentStream;
+- (void)didTapGenericAttachment:(ConversationViewItem *)viewItem
+               attachmentStream:(TSAttachmentStream *)attachmentStream;
+- (void)didTapOversizeTextMessage:(NSString *)displayableText
+                 attachmentStream:(TSAttachmentStream *)attachmentStream;
+- (void)didTapFailedIncomingAttachment:(ConversationViewItem *)viewItem
+                     attachmentPointer:(TSAttachmentPointer *)attachmentPointer;
+- (void)didTapFailedOutgoingMessage:(TSOutgoingMessage *)message;
 
 #pragma mark - System Cell
 

@@ -200,6 +200,21 @@ NS_ASSUME_NONNULL_BEGIN
     [self.lastAudioMessageView updateContents];
 }
 
+#pragma mark - Menu Actions
+
+- (BOOL)canPerformEditingAction:(SEL)selector
+{
+    // TODO:
+    OWSFail(@"%@", self.tag);
+    return NO;
+}
+
+- (void)performEditingAction:(SEL)selector
+{
+    // TODO:
+    OWSFail(@"%@", self.tag);
+}
+
 #pragma mark - Logging
 
 + (NSString *)tag

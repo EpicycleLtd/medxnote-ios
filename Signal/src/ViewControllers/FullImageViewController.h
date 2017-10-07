@@ -2,21 +2,22 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "OWSMessageData.h"
+//#import "OWSMessageData.h"
 #import "OWSViewController.h"
-#import "TSAttachmentStream.h"
-#import "TSInteraction.h"
-#import <UIKit/UIKit.h>
+//#import "TSAttachmentStream.h"
+//#import "TSInteraction.h"
+//#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class TSAttachmentStream;
+@class ConversationViewItem;
+
 @interface FullImageViewController : OWSViewController
 
-- (instancetype)initWithAttachment:(TSAttachmentStream *)attachment
+- (instancetype)initWithAttachment:(TSAttachmentStream *)attachmentStream
                           fromRect:(CGRect)rect
-                    forInteraction:(TSInteraction *)interaction
-                       messageItem:(id<OWSMessageData>)messageItem
-                        isAnimated:(BOOL)animated;
+                          viewItem:(ConversationViewItem *)viewItem;
 
 - (void)presentFromViewController:(UIViewController *)viewController;
 

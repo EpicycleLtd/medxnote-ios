@@ -2097,6 +2097,23 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     // TODO:
 }
 
+- (void)didTapImageViewItem:(ConversationViewItem *)viewItem
+           attachmentStream:(TSAttachmentStream *)attachmentStream
+                  imageView:(UIView *)imageView
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem);
+    OWSAssert(attachmentStream);
+    OWSAssert(imageView);
+    
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    CGRect convertedRect = [imageView convertRect:imageView.bounds toView:window];
+    FullImageViewController *vc = [[FullImageViewController alloc] initWithAttachment:attachmentStream
+                                                                             fromRect:convertedRect
+                                                                             viewItem:viewItem];
+    [vc presentFromViewController:self];
+}
+
 - (void)didTapVideoViewItem:(ConversationViewItem *)viewItem
            attachmentStream:(TSAttachmentStream *)attachmentStream
 {
@@ -2167,161 +2184,49 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self.audioAttachmentPlayer play];
 }
 
-//- (void)collectionView:(JSQMessagesCollectionView *)collectionView
-//    didTapMessageBubbleAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    id<OWSMessageData> messageItem = [self messageAtIndexPath:indexPath];
-//    TSInteraction *interaction = [self interactionAtIndexPath:indexPath];
-//
-//    switch (messageItem.messageType) {
-//        case TSOutgoingMessageAdapter: {
-//            TSOutgoingMessage *outgoingMessage = (TSOutgoingMessage *)interaction;
-//            if (outgoingMessage.messageState == TSOutgoingMessageStateUnsent) {
-//                [self handleUnsentMessageTap:outgoingMessage];
-//
-//                // This `break` is intentionally within the if.
-//                // We want to activate fullscreen media view for sent items
-//                // but not those which failed-to-send
-//                break;
-//            } else if (outgoingMessage.messageState == TSOutgoingMessageStateAttemptingOut) {
-//                // Ignore taps on outgoing messages being sent.
-//                break;
-//            }
-//
-//            // No `break` as we want to fall through to capture tapping on Outgoing media items too
-//        }
-//        case TSIncomingMessageAdapter: {
-//            BOOL isMediaMessage = [messageItem isMediaMessage];
-//
-//            if (isMediaMessage) {
-//                if ([[messageItem media] isKindOfClass:[TSPhotoAdapter class]]) {
-//                    TSPhotoAdapter *messageMedia = (TSPhotoAdapter *)[messageItem media];
-//
-//                    UIView *mediaView = [messageMedia mediaView];
-//                    if (![mediaView isKindOfClass:[UIImageView class]]) {
-//                        OWSFail(@"unexpected mediaView of type: %@", [mediaView class]);
-//                        return;
-//                    }
-//                    UIImageView *imageView = (UIImageView *)mediaView;
-//                    UIImage *tappedImage = imageView.image;
-//                    if (tappedImage == nil) {
-//                        DDLogWarn(@"tapped TSPhotoAdapter with nil image");
-//                        return;
-//                    }
-//                    UIWindow *window = [UIApplication sharedApplication].keyWindow;
-//                    JSQMessagesCollectionViewCell *cell
-//                        = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-//                    OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
-//                    CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
-//
-//                    __block TSAttachment *attachment = nil;
-//                    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-//                        attachment =
-//                            [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId transaction:transaction];
-//                    }];
-//
-//                    if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-//                        TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
-//                        FullImageViewController *vc = [[FullImageViewController alloc] initWithAttachment:attStream
-//                                                                                                 fromRect:convertedRect
-//                                                                                           forInteraction:interaction
-//                                                                                              messageItem:messageItem
-//                                                                                               isAnimated:NO];
-//
-//                        [vc presentFromViewController:self];
-//                    }
-//                } else if ([[messageItem media] isKindOfClass:[TSAnimatedAdapter class]]) {
-//                    // Show animated image full-screen
-//                    TSAnimatedAdapter *messageMedia = (TSAnimatedAdapter *)[messageItem media];
-//                    UIImage *tappedImage = ((UIImageView *)[messageMedia mediaView]).image;
-//                    if (tappedImage == nil) {
-//                        DDLogWarn(@"tapped TSAnimatedAdapter with nil image");
-//                    } else {
-//                        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-//                        JSQMessagesCollectionViewCell *cell
-//                            = (JSQMessagesCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-//                        OWSAssert([cell isKindOfClass:[JSQMessagesCollectionViewCell class]]);
-//                        CGRect convertedRect = [cell.mediaView convertRect:cell.mediaView.bounds toView:window];
-//
-//                        __block TSAttachment *attachment = nil;
-//                        [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-//                            attachment = [TSAttachment fetchObjectWithUniqueID:messageMedia.attachmentId
-//                                                                   transaction:transaction];
-//                        }];
-//                        if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-//                            TSAttachmentStream *attStream = (TSAttachmentStream *)attachment;
-//                            FullImageViewController *vc =
-//                                [[FullImageViewController alloc] initWithAttachment:attStream
-//                                                                           fromRect:convertedRect
-//                                                                     forInteraction:interaction
-//                                                                        messageItem:messageItem
-//                                                                         isAnimated:YES];
-//                            [vc presentFromViewController:self];
-//                        }
-//                    }
-//      //                        }
-//                    }
-//                } else if ([messageItem.media isKindOfClass:[AttachmentPointerAdapter class]]) {
-//                    AttachmentPointerAdapter *attachmentPointerAdadpter = (AttachmentPointerAdapter *)messageItem.media;
-//                    TSAttachmentPointer *attachmentPointer = attachmentPointerAdadpter.attachmentPointer;
-//                    // Restart failed downloads
-//                    if (attachmentPointer.state == TSAttachmentPointerStateFailed) {
-//                        if (![interaction isKindOfClass:[TSMessage class]]) {
-//                            OWSFail(@"%@ Expected attachment downloads from an instance of message, but found: %@",
-//                                self.tag,
-//                                interaction);
-//                            return;
-//                        }
-//                        TSMessage *message = (TSMessage *)interaction;
-//                        [self handleFailedDownloadTapForMessage:message attachmentPointer:attachmentPointer];
-//                    } else {
-//                        DDLogVerbose(@"%@ Ignoring tap for attachment pointer %@ with state %lu",
-//                            self.tag,
-//                            attachmentPointer,
-//                            (unsigned long)attachmentPointer.state);
-//                    }
-//                } else {
-//                    DDLogDebug(@"%@ Unhandled tap on 'media item' with media: %@", self.tag, messageItem.media);
-//                }
-//            }
-//        } break;
-//        case TSErrorMessageAdapter:
-//        case TSInfoMessageAdapter:
-//        case TSCallAdapter:
-//        case TSUnreadIndicatorAdapter:
-//            OWSFail(@"Unexpected tap for system message.");
-//            break;
-//        case OWSContactOffersAdapter:
-//            OWSFail(@"Unexpected tap for contacts offer.");
-//            break;
-//        default:
-//            DDLogDebug(@"Unhandled bubble touch for interaction: %@.", interaction);
-//            break;
-//    }
-//
-//    if (messageItem.messageType == TSOutgoingMessageAdapter || messageItem.messageType == TSIncomingMessageAdapter) {
-//        TSMessage *message = (TSMessage *)interaction;
-//        if ([message hasAttachments]) {
-//            NSString *attachmentID = message.attachmentIds[0];
-//            TSAttachment *attachment = [TSAttachment fetchObjectWithUniqueID:attachmentID];
-//            if ([attachment isKindOfClass:[TSAttachmentStream class]]) {
-//                TSAttachmentStream *stream = (TSAttachmentStream *)attachment;
-//                // Tapping on incoming and outgoing unknown extensions should show the
-//                // sharing UI.
-//                if ([[messageItem media] isKindOfClass:[TSGenericAttachmentAdapter class]]) {
-//                    [AttachmentSharing showShareUIForAttachment:stream];
-//                }
-//                // Tapping on incoming and outgoing "oversize text messages" should show the
-//                // "oversize text message" view.
-//                if ([attachment.contentType isEqualToString:OWSMimeTypeOversizeTextMessage]) {
-//                    OversizeTextMessageViewController *messageVC =
-//                        [[OversizeTextMessageViewController alloc] initWithMessage:message];
-//                    [self.navigationController pushViewController:messageVC animated:YES];
-//                }
-//            }
-//        }
-//    }
-//}
+- (void)didTapGenericAttachment:(ConversationViewItem *)viewItem
+               attachmentStream:(TSAttachmentStream *)attachmentStream
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem);
+    OWSAssert(attachmentStream);
+
+    [AttachmentSharing showShareUIForAttachment:attachmentStream];
+}
+
+- (void)didTapOversizeTextMessage:(NSString *)displayableText
+                 attachmentStream:(TSAttachmentStream *)attachmentStream
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(displayableText);
+    OWSAssert(attachmentStream);
+
+    // Tapping on incoming and outgoing "oversize text messages" should show the
+    // "oversize text message" view.
+    OversizeTextMessageViewController *messageVC =
+    [[OversizeTextMessageViewController alloc] initWithDisplayableText:displayableText attachmentStream:attachmentStream];
+    [self.navigationController pushViewController:messageVC animated:YES];
+}
+
+- (void)didTapFailedIncomingAttachment:(ConversationViewItem *)viewItem
+                     attachmentPointer:(TSAttachmentPointer *)attachmentPointer
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem);
+    OWSAssert(attachmentPointer);
+    
+    // Restart failed downloads
+    TSMessage *message = (TSMessage *)viewItem.interaction;
+    [self handleFailedDownloadTapForMessage:message attachmentPointer:attachmentPointer];
+}
+
+- (void)didTapFailedOutgoingMessage:(TSOutgoingMessage *)message
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(message);
+    
+    [self handleUnsentMessageTap:message];
+}
 
 - (void)didLongPressViewItem:(ConversationViewItem *)viewItem
                     cellType:(OWSMessageCellType)cellType
