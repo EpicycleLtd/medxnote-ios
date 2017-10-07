@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (ConversationViewCell *)dequeueCellForCollectionView:(UICollectionView *)collectionView
                                              indexPath:(NSIndexPath *)indexPath;
 
+- (void)replaceInteraction:(TSInteraction*)interaction;
+
 - (void)clearCachedLayoutState;
 
 #pragma mark - Audio Playback

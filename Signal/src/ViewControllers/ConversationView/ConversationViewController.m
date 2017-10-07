@@ -3046,9 +3046,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
                     OWSAssert(collectionKey.key.length > 0);
-                    if (collectionKey.key) {
-                        [self.viewItemMap removeObjectForKey:collectionKey.key];
-                    }
                     reloadNeighbors(rowChange.indexPath);
                     break;
                 }
@@ -3080,7 +3077,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
                     OWSAssert(collectionKey.key.length > 0);
                     if (collectionKey.key) {
-                        [self.viewItemMap[collectionKey.key] clearCachedLayoutState];
+                        ConversationViewItem *viewItem = self.viewItemMap[collectionKey.key];
+                        [self reloadViewItem:viewItem];
                     }
                     [self.collectionView reloadItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     reloadNeighbors(rowChange.indexPath);
@@ -4094,7 +4092,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 - (void)reloadViewItems {
     NSMutableArray<ConversationViewItem * > *viewItems = [NSMutableArray new];
     NSMutableDictionary<NSString *, ConversationViewItem * > *viewItemMap = [NSMutableDictionary new];
-
+    
     NSUInteger count = [self.messageMappings numberOfItemsInSection:0];
     
     // TODO: Recycle view items where possible.
@@ -4147,9 +4145,30 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         previousViewItemTimestamp = viewItem.interaction.timestampForSorting;
         row++;
     }
-
+    
     self.viewItems = viewItems;
     self.viewItemMap = viewItemMap;
+}
+
+- (void)reloadViewItem:(ConversationViewItem *)viewItem {
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(viewItem);
+    
+    // This should never happen, but don't crash in production if we have a bug.
+    if (!viewItem) {
+        return;
+    }
+    
+    // TODO: Recycle view items where possible.
+    // TODO: Distinguish interaction types through some enum.
+    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        TSInteraction *_Nullable interaction = [TSInteraction fetchObjectWithUniqueID:viewItem.interaction.uniqueId];
+        if (!interaction) {
+            OWSFail(@"%@ could not reload interaction", self.tag);
+        } else {
+            [viewItem replaceInteraction:interaction];
+        }
+    }];
 }
 
 - (nullable ConversationViewItem *)viewItemForIndex:(NSUInteger)index

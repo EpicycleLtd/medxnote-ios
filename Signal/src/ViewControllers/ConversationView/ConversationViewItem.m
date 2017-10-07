@@ -41,6 +41,15 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (void)replaceInteraction:(TSInteraction*)interaction
+{
+    OWSAssert(interaction);
+    
+    _interaction = interaction;
+
+    [self clearCachedLayoutState];
+}
+
 - (void)setShouldShowDate:(BOOL)shouldShowDate {
     if (_shouldShowDate == shouldShowDate) {
         return;

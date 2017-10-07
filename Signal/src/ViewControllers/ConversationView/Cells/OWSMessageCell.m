@@ -3,16 +3,17 @@
 //
 
 #import "OWSMessageCell.h"
+#import "AttachmentUploadView.h"
+#import "ConversationViewItem.h"
+#import "OWSAudioMessageView.h"
+#import "OWSGenericAttachmentView.h"
+#import "Signal-Swift.h"
+#import "UIColor+OWS.h"
+#import <JSQMessagesViewController/UIColor+JSQMessages.h>
+
 //#import "OWSExpirationTimerView.h"
 //#import "UIView+OWS.h"
 //#import <JSQMessagesViewController/JSQMediaItem.h>
-#import <JSQMessagesViewController/UIColor+JSQMessages.h>
-#import "ConversationViewItem.h"
-#import "Signal-Swift.h"
-#import "UIColor+OWS.h"
-#import "AttachmentUploadView.h"
-#import "OWSGenericAttachmentView.h"
-#import "OWSAudioMessageView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,6 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
     
 //    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
     self.layoutMargins = UIEdgeInsetsZero;
+    
+    self.contentView.backgroundColor = [UIColor whiteColor];
 
     self.bubbleImageView = [UIImageView new];
     self.bubbleImageView.layoutMargins = UIEdgeInsetsZero;
@@ -247,38 +250,46 @@ NS_ASSUME_NONNULL_BEGIN
         case OWSMessageCellType_TextMessage:
         case OWSMessageCellType_OversizeTextMessage:
             [self loadForTextDisplay];
-            return;
+            break;
         case OWSMessageCellType_StillImage:
             [self loadForStillImageDisplay];
-            return;
+            break;
         case OWSMessageCellType_AnimatedImage:
             [self loadForAnimatedImageDisplay];
-            return;
+            break;
         case OWSMessageCellType_Audio:
-            self.audioMessageView = [[OWSAudioMessageView alloc] initWithAttachment:self.attachmentStream
-                                                                         isIncoming:self.isIncoming
-                                                                           viewItem:self.viewItem];
-            self.viewItem.lastAudioMessageView = self.audioMessageView;
-            [self.audioMessageView createContentsForSize:self.bounds.size];
-            [self replaceBubbleWithView:self.audioMessageView];
-            return;
+            [self loadForAudioDisplay];
+            break;
         case OWSMessageCellType_Video:
             [self loadForVideoDisplay];
-            return;
+            break;
         case OWSMessageCellType_GenericAttachment: {
             self.attachmentView = [[OWSGenericAttachmentView alloc] initWithAttachment:self.attachmentStream
                                                                                                  isIncoming:self.isIncoming];
             [self.attachmentView createContentsForSize:self.bounds.size];
             [self replaceBubbleWithView:self.attachmentView];
-            return;
+            [self addAttachmentUploadViewIfNecessary:self.attachmentView];
+            break;
         }
         case OWSMessageCellType_DownloadingAttachment: {
             [self loadForDownloadingAttachment];
-            return;
+            break;
         }
     }
-    
-    self.contentView.backgroundColor = [UIColor redColor];
+
+    // If we have an outgoing attachment and we haven't created a
+    // AttachmentUploadView yet, do so now.
+    //
+    // For some attachment types, we may create this view earlier
+    // so that we can take advantage of its callback.
+//    if (self.attachmentStream &&
+//        !self.isIncoming &&
+//        !self.attachmentUploadView) {
+//        self.attachmentUploadView = [[AttachmentUploadView alloc] initWithAttachment:self.attachmentStream
+//                                                                           superview:imageView
+//                                                             attachmentStateCallback:^(BOOL isAttachmentReady) {
+//                                                             }];
+//    }
 
 //    [self.textLabel addBorderWithColor:[UIColor blueColor]];
 //    [self.bubbleImageView addBorderWithColor:[UIColor greenColor]];
@@ -324,6 +335,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.stillImageView.layer.minificationFilter = kCAFilterTrilinear;
     self.stillImageView.layer.magnificationFilter = kCAFilterTrilinear;
     [self replaceBubbleWithView:self.stillImageView];
+    [self addAttachmentUploadViewIfNecessary:self.stillImageView];
 }
 
 - (void)loadForAnimatedImageDisplay {
@@ -344,6 +356,20 @@ NS_ASSUME_NONNULL_BEGIN
     self.animatedImageView = [[YYAnimatedImageView alloc] init];
     self.animatedImageView.image = animatedImage;
     [self replaceBubbleWithView:self.animatedImageView];
+    [self addAttachmentUploadViewIfNecessary:self.animatedImageView];
+}
+
+- (void)loadForAudioDisplay {
+    OWSAssert(self.attachmentStream);
+    OWSAssert([self.attachmentStream isAudio]);
+    
+    self.audioMessageView = [[OWSAudioMessageView alloc] initWithAttachment:self.attachmentStream
+                                                                 isIncoming:self.isIncoming
+                                                                   viewItem:self.viewItem];
+    self.viewItem.lastAudioMessageView = self.audioMessageView;
+    [self.audioMessageView createContentsForSize:self.bounds.size];
+    [self replaceBubbleWithView:self.audioMessageView];
+    [self addAttachmentUploadViewIfNecessary:self.audioMessageView];
 }
 
 - (void)loadForVideoDisplay {
@@ -370,16 +396,10 @@ NS_ASSUME_NONNULL_BEGIN
     UIImageView *videoPlayButton = [[UIImageView alloc] initWithImage:videoPlayIcon];
     [self.stillImageView addSubview:videoPlayButton];
     [videoPlayButton autoCenterInSuperview];
-    
-//    if (!_incoming) {
-//        self.attachmentUploadView = [[AttachmentUploadView alloc] initWithAttachment:self.attachment
-//                                                                           superview:imageView
-//                                                             attachmentStateCallback:^(BOOL isAttachmentReady) {
-//                                                                 videoPlayButton.hidden = !isAttachmentReady;
-//                                                             }];
-//    }
-//    
-//    return imageView;
+    [self addAttachmentUploadViewIfNecessary:self.stillImageView
+                     attachmentStateCallback:^(BOOL isAttachmentReady) {
+                         videoPlayButton.hidden = !isAttachmentReady;
+                     }];
 }
 
 - (void)loadForDownloadingAttachment {
@@ -421,6 +441,25 @@ NS_ASSUME_NONNULL_BEGIN
     [self.contentView addSubview:view];
     self.contentConstraints = [view autoPinToSuperviewEdges];
     [self cropViewToBubbbleShape:view];
+}
+
+- (void)addAttachmentUploadViewIfNecessary:(UIView *)attachmentView {
+    [self addAttachmentUploadViewIfNecessary:attachmentView
+                     attachmentStateCallback:^(BOOL isAttachmentReady) {
+                     }];
+}
+
+- (void)addAttachmentUploadViewIfNecessary:(UIView *)attachmentView
+                   attachmentStateCallback:(AttachmentStateBlock)attachmentStateCallback
+{
+    OWSAssert(attachmentView);
+    OWSAssert(attachmentStateCallback);
+    
+    if (!self.isIncoming) {
+        self.attachmentUploadView = [[AttachmentUploadView alloc] initWithAttachment:self.attachmentStream
+                                                                           superview:attachmentView
+                                                             attachmentStateCallback:attachmentStateCallback];
+    }
 }
 
 - (void)cropViewToBubbbleShape:(UIView *)view
@@ -620,12 +659,8 @@ NS_ASSUME_NONNULL_BEGIN
     self.attachmentView = nil;
     [self.audioMessageView removeFromSuperview];
     self.audioMessageView = nil;
-
-//    [self.attachmentUploadView removeFromSuperview];
     self.attachmentUploadView = nil;
     self.cellType = OWSMessageCellType_Unknown;
-    
-    self.contentView.backgroundColor = [UIColor whiteColor];
 }
 
 //let bubbleFactory = OWSMessagesBubbleImageFactory()
