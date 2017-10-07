@@ -4,7 +4,7 @@
 
 #import "ConversationViewController.h"
 #import "AppDelegate.h"
-#import "AttachmentSharing.h"
+//#import "AttachmentSharing.h"
 #import "BlockListUIUtils.h"
 #import "ConversationCollectionView.h"
 #import "BlockListViewController.h"
@@ -464,12 +464,12 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     
     [self.navigationController.navigationBar setTranslucent:NO];
     
-    [JSQMessagesCollectionViewCell registerMenuAction:@selector(delete:)];
-    SEL saveSelector = NSSelectorFromString(@"save:");
-    [JSQMessagesCollectionViewCell registerMenuAction:saveSelector];
-    SEL shareSelector = NSSelectorFromString(@"share:");
-    [JSQMessagesCollectionViewCell registerMenuAction:shareSelector];
-    [JSQMessagesCollectionViewCell registerMenuAction:[TSMessageAdapter messageMetadataSelector]];
+//    [JSQMessagesCollectionViewCell registerMenuAction:@selector(delete:)];
+//    SEL saveSelector = NSSelectorFromString(@"save:");
+//    [JSQMessagesCollectionViewCell registerMenuAction:saveSelector];
+//    SEL shareSelector = NSSelectorFromString(@"share:");
+//    [JSQMessagesCollectionViewCell registerMenuAction:shareSelector];
+//    [JSQMessagesCollectionViewCell registerMenuAction:[TSMessageAdapter messageMetadataSelector]];
     
     [self registerCellClasses];
     
@@ -580,19 +580,19 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     // Other views might change these custom menu items, so we
     // need to set them every time we enter this view.
-    SEL saveSelector = NSSelectorFromString(@"save:");
-    SEL shareSelector = NSSelectorFromString(@"share:");
-    [UIMenuController sharedMenuController].menuItems = @[
-        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SAVE_ACTION",
-                                              @"Short name for edit menu item to save contents of media message.")
-                                   action:saveSelector],
-        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SHARE_ACTION",
-                                              @"Short name for edit menu item to share contents of media message.")
-                                   action:shareSelector],
-        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_MESSAGE_METADATA_ACTION",
-                                              @"Short name for edit menu item to show message metadata.")
-                                   action:[TSMessageAdapter messageMetadataSelector]],
-    ];
+//    SEL saveSelector = NSSelectorFromString(@"save:");
+//    SEL shareSelector = NSSelectorFromString(@"share:");
+//    [UIMenuController sharedMenuController].menuItems = @[
+//        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SAVE_ACTION",
+//                                              @"Short name for edit menu item to save contents of media message.")
+//                                   action:saveSelector],
+//        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SHARE_ACTION",
+//                                              @"Short name for edit menu item to share contents of media message.")
+//                                   action:shareSelector],
+//        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_MESSAGE_METADATA_ACTION",
+//                                              @"Short name for edit menu item to show message metadata.")
+//                                   action:[TSMessageAdapter messageMetadataSelector]],
+//    ];
 
 //    [self.view layoutSubviews];
 
@@ -2184,15 +2184,15 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self.audioAttachmentPlayer play];
 }
 
-- (void)didTapGenericAttachment:(ConversationViewItem *)viewItem
-               attachmentStream:(TSAttachmentStream *)attachmentStream
-{
-    OWSAssert([NSThread isMainThread]);
-    OWSAssert(viewItem);
-    OWSAssert(attachmentStream);
-
-    [AttachmentSharing showShareUIForAttachment:attachmentStream];
-}
+//- (void)didTapGenericAttachment:(ConversationViewItem *)viewItem
+//               attachmentStream:(TSAttachmentStream *)attachmentStream
+//{
+//    OWSAssert([NSThread isMainThread]);
+//    OWSAssert(viewItem);
+//    OWSAssert(attachmentStream);
+//
+//    [AttachmentSharing showShareUIForAttachment:attachmentStream];
+//}
 
 - (void)didTapOversizeTextMessage:(NSString *)displayableText
                  attachmentStream:(TSAttachmentStream *)attachmentStream
@@ -2238,6 +2238,25 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     
     // TODO:
 }
+
+- (void)showMetadataViewForMessage:(TSMessage *)message
+{
+    OWSAssert([NSThread isMainThread]);
+    OWSAssert(message);
+    
+    MessageMetadataViewController *view = [[MessageMetadataViewController alloc] initWithMessage:message];
+    [self.navigationController pushViewController:view animated:YES];
+}
+
+//- (void)showShareUIForAttachment:(ConversationViewItem *)viewItem
+//                attachmentStream:(TSAttachmentStream *)attachmentStream
+//{
+//    OWSAssert([NSThread isMainThread]);
+//    OWSAssert(viewItem);
+//    OWSAssert(attachmentStream);
+//    
+//    [AttachmentSharing showShareUIForAttachment:attachmentStream];
+//}
 
 #pragma mark - Video Playback
 
@@ -2304,6 +2323,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     [systemMessageCell becomeFirstResponder];
 
+    // TODO: Update menu controller actions.
     UIMenuController *theMenu = [UIMenuController sharedMenuController];
     CGRect targetRect = [fromView.superview convertRect:fromView.frame
                                                                      toView:systemMessageCell];

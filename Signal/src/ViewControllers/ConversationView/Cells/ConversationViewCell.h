@@ -4,6 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: Move this back to OWSMessageCell.
 typedef NS_ENUM(NSInteger, OWSMessageCellType) {
     OWSMessageCellType_TextMessage,
     OWSMessageCellType_OversizeTextMessage,
@@ -24,12 +25,14 @@ typedef NS_ENUM(NSInteger, OWSMessageCellType) {
 @class TSAttachmentStream;
 @class TSAttachmentPointer;
 @class TSOutgoingMessage;
+@class TSMessage;
 
-// TODO: Rework these delegate methods.
 @protocol ConversationViewCellDelegate <NSObject>
 
+// TODO: Consider removing this method.
 - (void)didTapViewItem:(ConversationViewItem *)viewItem
               cellType:(OWSMessageCellType)cellType;
+// TODO: Consider removing this method.
 - (void)didLongPressViewItem:(ConversationViewItem *)viewItem
                     cellType:(OWSMessageCellType)cellType;
 
@@ -40,16 +43,22 @@ typedef NS_ENUM(NSInteger, OWSMessageCellType) {
            attachmentStream:(TSAttachmentStream *)attachmentStream;
 - (void)didTapAudioViewItem:(ConversationViewItem *)viewItem
            attachmentStream:(TSAttachmentStream *)attachmentStream;
-- (void)didTapGenericAttachment:(ConversationViewItem *)viewItem
-               attachmentStream:(TSAttachmentStream *)attachmentStream;
+//- (void)didTapGenericAttachment:(ConversationViewItem *)viewItem
+//               attachmentStream:(TSAttachmentStream *)attachmentStream;
 - (void)didTapOversizeTextMessage:(NSString *)displayableText
                  attachmentStream:(TSAttachmentStream *)attachmentStream;
 - (void)didTapFailedIncomingAttachment:(ConversationViewItem *)viewItem
                      attachmentPointer:(TSAttachmentPointer *)attachmentPointer;
 - (void)didTapFailedOutgoingMessage:(TSOutgoingMessage *)message;
 
+- (void)showMetadataViewForMessage:(TSMessage *)message;
+
+//- (void)showShareUIForAttachment:(ConversationViewItem *)viewItem
+//                attachmentStream:(TSAttachmentStream *)attachmentStream;
+
 #pragma mark - System Cell
 
+// TODO: We might want to decompose this method.
 - (void)didTapSystemMessageWithInteraction:(TSInteraction *)interaction;
 - (void)didLongPressSystemMessageCell:(ConversationViewCell *)systemMessageCell
                              fromView:(UIView *)fromView;
@@ -64,12 +73,11 @@ typedef NS_ENUM(NSInteger, OWSMessageCellType) {
 
 #pragma mark -
 
-// TODO: We should use a custom subclass for each interaction type.
 @interface ConversationViewCell : UICollectionViewCell
 
-@property (nonatomic, weak) id<ConversationViewCellDelegate> delegate;
+@property (nonatomic, nullable, weak) id<ConversationViewCellDelegate> delegate;
 
-@property (nonatomic) ConversationViewItem * viewItem;
+@property (nonatomic, nullable) ConversationViewItem * viewItem;
 
 @property (nonatomic) BOOL isCellVisible;
 

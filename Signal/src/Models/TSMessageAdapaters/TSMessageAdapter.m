@@ -262,10 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SEL)messageMetadataSelector
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    return @selector(showMessageMetadata:);
-#pragma clang diagnostic pop
+    return NSSelectorFromString(@"showMessageMetadata:");
 }
 
 - (BOOL)canPerformEditingAction:(SEL)action

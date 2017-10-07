@@ -10,6 +10,7 @@
 #import "Signal-Swift.h"
 #import "UIColor+OWS.h"
 #import <JSQMessagesViewController/UIColor+JSQMessages.h>
+#import "AttachmentSharing.h"
 
 //#import "OWSExpirationTimerView.h"
 //#import "UIView+OWS.h"
@@ -663,25 +664,6 @@ NS_ASSUME_NONNULL_BEGIN
     self.cellType = OWSMessageCellType_Unknown;
 }
 
-//let bubbleFactory = OWSMessagesBubbleImageFactory()
-//let bodyLabel = UILabel()
-//bodyLabel.textColor = isIncoming ? UIColor.black : UIColor.white
-//bodyLabel.font = UIFont.ows_regularFont(withSize:16)
-//bodyLabel.text = messageBody
-//// Only show the first N lines.
-//bodyLabel.numberOfLines = 10
-//bodyLabel.lineBreakMode = .byWordWrapping
-//
-//let bubbleImageData = isIncoming ? bubbleFactory.incoming : bubbleFactory.outgoing
-//
-//let textLeadingMargin: CGFloat = isIncoming ? 15 : 10
-//let textTrailingMargin: CGFloat = isIncoming ? 10 : 15
-//
-//let bubbleView = UIImageView(image: bubbleImageData.messageBubbleImage)
-//
-//bubbleView.layer.cornerRadius = 10
-//bubbleView.addSubview(bodyLabel)
-
 //- (void)awakeFromNib
 //{
 //    [super awakeFromNib];
@@ -799,7 +781,8 @@ NS_ASSUME_NONNULL_BEGIN
                 [self.delegate didTapVideoViewItem:self.viewItem attachmentStream:self.attachmentStream];
                 return;
             case OWSMessageCellType_GenericAttachment:
-                [self.delegate didTapGenericAttachment:self.viewItem attachmentStream:self.attachmentStream];
+                [AttachmentSharing showShareUIForAttachment:self.attachmentStream];
+//                [self.delegate didTapGenericAttachment:self.viewItem attachmentStream:self.attachmentStream];
                 break;
             case OWSMessageCellType_DownloadingAttachment: {
                 OWSAssert(self.attachmentPointer);
@@ -814,12 +797,187 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)handleLongPressGesture:(UILongPressGestureRecognizer *)longPress
+- (void)handleLongPressGesture:(UILongPressGestureRecognizer *)sender
 {
     OWSAssert(self.delegate);
     
-    if (longPress.state == UIGestureRecognizerStateBegan) {
-        [self.delegate didLongPressViewItem:self.viewItem cellType:self.cellType];
+    // We "eagerly" respond when the long press begins, not when it ends.
+    if (sender.state == UIGestureRecognizerStateBegan) {
+//        [self.delegate didLongPressViewItem:self.viewItem cellType:self.cellType];
+        
+        CGPoint location = [sender locationInView:self];
+        [self showMenuController:location];
+    }
+}
+
+#pragma mark - UIMenuController
+
+- (void)showMenuController:(CGPoint)fromLocation
+{
+    [self becomeFirstResponder];
+    
+    if ([UIMenuController sharedMenuController].isMenuVisible) {
+        [[UIMenuController sharedMenuController] setMenuVisible:NO
+                                                       animated:NO];
+    }
+    
+    // We use custom action selectors so that we can control
+    // the ordering of the actions in the menu.
+    //
+    // TODO: Should we offer "save" as well?
+    NSArray *menuItems = @[
+                           [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SHARE_ACTION",
+                                                                               @"Short name for edit menu item to share contents of media message.")
+                                                      action:self.shareActionSelector],
+                           [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_MESSAGE_METADATA_ACTION",
+                                                                               @"Short name for edit menu item to show message metadata.")
+                                                      action:self.metadataActionSelector],
+                           [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_COPY_ACTION", @"Short name for edit menu item to copy contents of media message.")
+                                                      action:self.copyActionSelector],
+//                           [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SAVE_ACTION",
+//                                                                               @"Short name for edit menu item to save contents of media message.")
+//                                                      action:self.saveActionSelector],
+                           [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_DELETE_ACTION", @"Short name for edit menu item to delete contents of media message.")
+                                                      action:self.deleteActionSelector],
+                           ];
+    [UIMenuController sharedMenuController].menuItems = menuItems;
+    CGRect targetRect = CGRectMake(fromLocation.x,
+                                   fromLocation.y,
+                                   1, 1);
+    [[UIMenuController sharedMenuController] setTargetRect:targetRect
+                                                    inView:self];
+    [[UIMenuController sharedMenuController] setMenuVisible:YES
+                                                   animated:YES];
+}
+
+- (SEL)copyActionSelector
+{
+    return NSSelectorFromString(@"copyAction:");
+}
+
+//- (SEL)saveActionSelector
+//{
+//    return NSSelectorFromString(@"save:");
+//}
+
+- (SEL)shareActionSelector
+{
+    return NSSelectorFromString(@"shareAction:");
+}
+
+- (SEL)deleteActionSelector
+{
+    return NSSelectorFromString(@"deleteAction:");
+}
+
+- (SEL)metadataActionSelector
+{
+    return NSSelectorFromString(@"metadataAction:");
+}
+
+- (BOOL)canBecomeFirstResponder {
+    return YES;
+}
+
+// We only use custom actions in UIMenuController.
+- (BOOL)canPerformAction:(SEL)action withSender:(nullable id)sender
+{
+    DDLogVerbose(@"%@ canPerformAction: %@", self.logTag, NSStringFromSelector(action));
+
+    if (action == self.copyActionSelector) {
+        return [self hasActionContent];
+//    } else if (action == self.saveActionSelector) {
+//        return YES;
+    } else if (action == self.shareActionSelector) {
+        return [self hasActionContent];
+    } else if (action == self.deleteActionSelector) {
+        return YES;
+    } else if (action == self.metadataActionSelector) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (void)copyAction:(nullable id)sender
+{
+    switch(self.cellType) {
+        case OWSMessageCellType_TextMessage:
+        case OWSMessageCellType_OversizeTextMessage:
+            [UIPasteboard.generalPasteboard setString:self.textMessage];
+            break;
+        case OWSMessageCellType_StillImage:
+        case OWSMessageCellType_AnimatedImage:
+        case OWSMessageCellType_Audio:
+        case OWSMessageCellType_Video:
+        case OWSMessageCellType_GenericAttachment: {
+            NSString *utiType = [MIMETypeUtil utiTypeForMIMEType:self.attachmentStream.contentType];
+            if (!utiType) {
+                OWSFail(@"%@ Unknown MIME type: %@", self.logTag, self.attachmentStream.contentType);
+                utiType = (NSString *)kUTTypeGIF;
+            }
+            NSData *data = [NSData dataWithContentsOfURL:[self.attachmentStream mediaURL]];
+            if (!data) {
+                OWSFail(@"%@ Could not load attachment data: %@", self.logTag, [self.attachmentStream mediaURL]);
+                return;
+            }
+            [UIPasteboard.generalPasteboard setData:data forPasteboardType:utiType];
+            break;
+        }
+        case OWSMessageCellType_DownloadingAttachment: {
+            OWSFail(@"%@ Can't copy not-yet-downloaded attachment", self.logTag);
+            break;
+        }
+    }
+}
+
+- (void)shareAction:(nullable id)sender
+{
+    switch(self.cellType) {
+        case OWSMessageCellType_TextMessage:
+        case OWSMessageCellType_OversizeTextMessage:
+            [AttachmentSharing showShareUIForText:self.textMessage];
+            break;
+        case OWSMessageCellType_StillImage:
+        case OWSMessageCellType_AnimatedImage:
+        case OWSMessageCellType_Audio:
+        case OWSMessageCellType_Video:
+        case OWSMessageCellType_GenericAttachment:
+            [AttachmentSharing showShareUIForAttachment:self.attachmentStream];
+            break;
+        case OWSMessageCellType_DownloadingAttachment: {
+            OWSFail(@"%@ Can't share not-yet-downloaded attachment", self.logTag);
+            break;
+        }
+    }
+}
+
+- (void)deleteAction:(nullable id)sender
+{
+    [self.viewItem.interaction remove];
+}
+
+- (void)metadataAction:(nullable id)sender
+{
+    TSMessage *message = (TSMessage *)self.viewItem.interaction;
+    [self.delegate showMetadataViewForMessage:message];
+}
+
+- (BOOL)hasActionContent
+{
+    switch(self.cellType) {
+        case OWSMessageCellType_TextMessage:
+        case OWSMessageCellType_OversizeTextMessage:
+            return self.textMessage.length > 0;
+        case OWSMessageCellType_StillImage:
+        case OWSMessageCellType_AnimatedImage:
+        case OWSMessageCellType_Audio:
+        case OWSMessageCellType_Video:
+        case OWSMessageCellType_GenericAttachment:
+            return self.attachmentStream != nil;
+        case OWSMessageCellType_DownloadingAttachment: {
+            return NO;
+        }
     }
 }
 
