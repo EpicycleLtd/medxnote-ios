@@ -272,6 +272,11 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     }
 
     [self updateBarButtonItems];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TSThread *thread = [self threadForIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+        [self presentThread:thread keyboardOnViewAppearing:NO callOnViewAppearing:NO];
+    });
 }
 
 - (void)updateBarButtonItems
@@ -753,8 +758,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 
     // We do this synchronously if we're already on the main thread.
     DispatchMainThreadSafe(^{
-        ConversationViewController *mvc =
-            [[ConversationViewController alloc] initWithNibName:@"ConversationViewController" bundle:nil];
+        ConversationViewController *mvc = [ConversationViewController new];
         [mvc configureForThread:thread
             keyboardOnViewAppearing:keyboardOnViewAppearing
                 callOnViewAppearing:callOnViewAppearing];
