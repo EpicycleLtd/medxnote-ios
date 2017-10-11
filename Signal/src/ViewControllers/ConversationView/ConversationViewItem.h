@@ -39,6 +39,9 @@ typedef NS_ENUM(NSInteger, OWSMessageCellType) {
 
 @property (nonatomic) BOOL shouldShowDate;
 
+@property (nonatomic) NSInteger row;
+@property (nonatomic) NSInteger lastRow;
+
 //@property (nonatomic, weak) ConversationViewCell *lastCell;
 
 - (instancetype)init NS_UNAVAILABLE;

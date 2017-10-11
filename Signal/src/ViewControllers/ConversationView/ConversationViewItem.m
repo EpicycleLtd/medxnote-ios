@@ -48,6 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     _interaction = interaction;
+    self.row = NSNotFound;
+    self.lastRow = NSNotFound;
 
     return self;
 }
@@ -240,13 +242,14 @@ NS_ASSUME_NONNULL_BEGIN
     if (!displayableText) {
         // Only show up to 2kb of text.
         const NSUInteger kMaxTextDisplayLength = 2 * 1024;
+        text = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         displayableText = [[DisplayableTextFilter new] displayableText:text];
         if (displayableText.length > kMaxTextDisplayLength) {
             // Trim whitespace before _AND_ after slicing the snipper from the string.
             NSString *snippet =
-                [[[displayableText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                [[[displayableText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
                     substringWithRange:NSMakeRange(0, kMaxTextDisplayLength)]
-                    stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                    stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
             displayableText = [NSString stringWithFormat:NSLocalizedString(@"OVERSIZE_TEXT_DISPLAY_FORMAT",
                                                              @"A display format for oversize text messages."),
                                         snippet];
