@@ -22,7 +22,6 @@
 #import "NSAttributedString+OWS.h"
 #import "NewGroupViewController.h"
 #import "OWSAudioAttachmentPlayer.h"
-#import "OWSCall.h"
 #import "OWSContactOffersCell.h"
 #import "OWSContactOffersInteraction.h"
 #import "OWSContactsManager.h"
@@ -30,7 +29,6 @@
 #import "OWSConversationSettingsViewDelegate.h"
 #import "OWSDisappearingMessagesJob.h"
 #import "OWSIncomingMessageCell.h"
-#import "OWSMessagesToolbarContentView.h"
 #import "OWSOutgoingMessageCell.h"
 #import "OWSSystemMessageCell.h"
 #import "OWSUnreadIndicatorCell.h"
@@ -123,7 +121,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     ContactsViewHelperDelegate,
     ContactEditingDelegate,
     CNContactViewControllerDelegate,
-    JSQMessagesComposerTextViewPasteDelegate,
     OWSConversationSettingsViewDelegate,
     ConversationViewLayoutDelegate,
     ConversationViewCellDelegate,
@@ -1413,35 +1410,35 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self showConversationSettings];
 }
 
-- (void)collectionView:(JSQMessagesCollectionView *)collectionView
-                             header:(JSQMessagesLoadEarlierHeaderView *)headerView
-    didTapLoadEarlierMessagesButton:(UIButton *)sender
-{
-    OWSAssert(!self.isUserScrolling);
-
-    BOOL hasEarlierUnseenMessages = self.dynamicInteractions.hasMoreUnseenMessages;
-
-    // We want to restore the current scroll state after we update the range, update
-    // the dynamic interactions and re-layout.  Here we take a "before" snapshot.
-    CGFloat scrollDistanceToBottom = self.safeContentHeight - self.collectionView.contentOffset.y;
-
-    self.page = MIN(self.page + 1, (NSUInteger)kYapDatabaseMaxPageCount - 1);
-
-    [self resetMappings];
-
-    [self.collectionView layoutSubviews];
-
-    self.collectionView.contentOffset = CGPointMake(0, self.safeContentHeight - scrollDistanceToBottom);
-
-    // Don’t auto-scroll after “loading more messages” unless we have “more unseen messages”.
-    //
-    // Otherwise, tapping on "load more messages" autoscrolls you downward which is completely wrong.
-    if (hasEarlierUnseenMessages) {
-        [self scrollToUnreadIndicatorAnimated];
-    }
-
-    [self updateLoadEarlierVisible];
-}
+//- (void)collectionView:(JSQMessagesCollectionView *)collectionView
+//                             header:(JSQMessagesLoadEarlierHeaderView *)headerView
+//    didTapLoadEarlierMessagesButton:(UIButton *)sender
+//{
+//    OWSAssert(!self.isUserScrolling);
+//
+//    BOOL hasEarlierUnseenMessages = self.dynamicInteractions.hasMoreUnseenMessages;
+//
+//    // We want to restore the current scroll state after we update the range, update
+//    // the dynamic interactions and re-layout.  Here we take a "before" snapshot.
+//    CGFloat scrollDistanceToBottom = self.safeContentHeight - self.collectionView.contentOffset.y;
+//
+//    self.page = MIN(self.page + 1, (NSUInteger)kYapDatabaseMaxPageCount - 1);
+//
+//    [self resetMappings];
+//
+//    [self.collectionView layoutSubviews];
+//
+//    self.collectionView.contentOffset = CGPointMake(0, self.safeContentHeight - scrollDistanceToBottom);
+//
+//    // Don’t auto-scroll after “loading more messages” unless we have “more unseen messages”.
+//    //
+//    // Otherwise, tapping on "load more messages" autoscrolls you downward which is completely wrong.
+//    if (hasEarlierUnseenMessages) {
+//        [self scrollToUnreadIndicatorAnimated];
+//    }
+//
+//    [self updateLoadEarlierVisible];
+//}
 
 - (BOOL)shouldShowLoadEarlierMessages
 {
@@ -3382,13 +3379,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 }
 #endif
 
-#pragma mark - JSQMessagesComposerTextViewPasteDelegate
-
-- (BOOL)composerTextView:(JSQMessagesComposerTextView *)textView shouldPasteWithSender:(id)sender
-{
-    return YES;
-}
-
 #pragma mark - ConversationInputTextViewDelegate
 
 - (void)inputTextViewDidBecomeFirstResponder
@@ -3837,6 +3827,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 #pragma mark - View Items
 
+// This is a key method.  It builds or rebuilds the list of
+// cell view models.
 - (void)reloadViewItems
 {
     NSMutableArray<ConversationViewItem *> *viewItems = [NSMutableArray new];
@@ -3898,6 +3890,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     self.viewItemMap = viewItemMap;
 }
 
+// Whenever an interaction is modified, we need to reload it from the DB
+// and update the corresponding view item.
 - (void)reloadViewItem:(ConversationViewItem *)viewItem
 {
     OWSAssert([NSThread isMainThread]);
@@ -3935,7 +3929,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     return (NSInteger)self.viewItems.count;
 }
 
-- (UICollectionViewCell *)collectionView:(JSQMessagesCollectionView *)collectionView
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView
                   cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ConversationViewItem *_Nullable viewItem = [self viewItemForIndex:(NSUInteger)indexPath.row];

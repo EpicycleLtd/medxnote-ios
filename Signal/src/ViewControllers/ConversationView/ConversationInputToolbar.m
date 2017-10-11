@@ -4,7 +4,6 @@
 
 #import "ConversationInputToolbar.h"
 #import "ConversationInputTextView.h"
-#import "OWSMessagesToolbarContentView.h"
 #import "UIColor+OWS.h"
 #import "UIFont+OWS.h"
 #import "UIView+OWS.h"
