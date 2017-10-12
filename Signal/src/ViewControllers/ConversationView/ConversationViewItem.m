@@ -75,6 +75,17 @@ NS_ASSUME_NONNULL_BEGIN
     [self clearCachedLayoutState];
 }
 
+- (void)setShouldHideRecipientStatus:(BOOL)shouldHideRecipientStatus
+{
+    if (_shouldHideRecipientStatus == shouldHideRecipientStatus) {
+        return;
+    }
+
+    _shouldHideRecipientStatus = shouldHideRecipientStatus;
+
+    [self clearCachedLayoutState];
+}
+
 - (void)clearCachedLayoutState
 {
     self.cachedCellSize = nil;
