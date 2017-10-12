@@ -37,6 +37,8 @@ typedef NS_ENUM(NSInteger, OWSMessageCellType) {
 
 @property (nonatomic, readonly) TSInteraction *interaction;
 
+@property (nonatomic, readonly) BOOL isGroupThread;
+
 @property (nonatomic) BOOL shouldShowDate;
 
 @property (nonatomic) NSInteger row;
@@ -45,7 +47,7 @@ typedef NS_ENUM(NSInteger, OWSMessageCellType) {
 //@property (nonatomic, weak) ConversationViewCell *lastCell;
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithTSInteraction:(TSInteraction *)interaction;
+- (instancetype)initWithTSInteraction:(TSInteraction *)interaction isGroupThread:(BOOL)isGroupThread;
 
 - (ConversationViewCell *)dequeueCellForCollectionView:(UICollectionView *)collectionView
                                              indexPath:(NSIndexPath *)indexPath;
