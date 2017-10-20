@@ -184,9 +184,20 @@ extension URLSessionTask {
         // TODO: We need to verify that this session configuration properly
         //       proxies all requests.
         let configuration = URLSessionConfiguration.ephemeral
+        let proxyHost = "giphy-proxy-production.whispersystems.orgfff"
+        let proxyPort = "80"
         configuration.connectionProxyDictionary = [
-            kCFProxyHostNameKey as String: "giphy-proxy-production.whispersystems.org",
-            kCFProxyPortNumberKey as String: "80",
+            "HTTPEnable" : true,
+            "HTTPSEnable" : true,
+            kCFStreamPropertyHTTPProxyHost as String: proxyHost,
+            kCFStreamPropertyHTTPProxyPort as String: proxyPort,
+            kCFStreamPropertyHTTPSProxyHost as String: proxyHost,
+            kCFStreamPropertyHTTPSProxyPort as String: proxyPort,
+            kCFProxyHostNameKey as String: proxyHost,
+            kCFProxyPortNumberKey as String: proxyPort,
+            kCFNetworkProxiesHTTPEnable as AnyHashable: true,
+            kCFNetworkProxiesHTTPPort as AnyHashable: proxyPort,
+            kCFNetworkProxiesHTTPProxy as AnyHashable: proxyHost,
             kCFProxyTypeKey as String: kCFProxyTypeHTTPS
         ]
         configuration.urlCache = nil

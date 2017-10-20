@@ -229,15 +229,36 @@ enum GiphyFormat {
         }
         // TODO: We need to verify that this session configuration properly
         //       proxies all requests.
-        let sessionConf = URLSessionConfiguration.ephemeral
-        sessionConf.connectionProxyDictionary = [
-            kCFProxyHostNameKey as String: "giphy-proxy-production.whispersystems.org",
-            kCFProxyPortNumberKey as String: "80",
+        let configuration = URLSessionConfiguration.ephemeral
+        let proxyHost = "giphy-proxy-production.whispersystems.orgfff"
+        let proxyPort = "80"
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFStreamPropertyHTTPProxyHost: \(kCFStreamPropertyHTTPProxyHost)")
+        Logger.error("kCFProxyTypeKey: \(kCFProxyTypeKey)")
+        configuration.connectionProxyDictionary = [
+            "HTTPEnable" : true,
+            "HTTPSEnable" : true,
+            kCFStreamPropertyHTTPProxyHost as String: proxyHost,
+            kCFStreamPropertyHTTPProxyPort as String: proxyPort,
+            kCFStreamPropertyHTTPSProxyHost as String: proxyHost,
+            kCFStreamPropertyHTTPSProxyPort as String: proxyPort,
+            kCFProxyHostNameKey as String: proxyHost,
+            kCFProxyPortNumberKey as String: proxyPort,
+            kCFNetworkProxiesHTTPEnable as AnyHashable: true,
+            kCFNetworkProxiesHTTPPort as AnyHashable: proxyPort,
+            kCFNetworkProxiesHTTPProxy as AnyHashable: proxyHost,
             kCFProxyTypeKey as String: kCFProxyTypeHTTPS
         ]
 
         let sessionManager = AFHTTPSessionManager(baseURL:baseUrl as URL,
-                                                  sessionConfiguration:sessionConf)
+                                                  sessionConfiguration:configuration)
         sessionManager.requestSerializer = AFJSONRequestSerializer()
         sessionManager.responseSerializer = AFJSONResponseSerializer()
 
