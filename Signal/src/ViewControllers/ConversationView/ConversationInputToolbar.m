@@ -633,11 +633,6 @@ static void *kConversationInputTextViewObservingContext = &kConversationInputTex
     [self ensureShouldShowVoiceMemoButton];
 }
 
-- (void)textViewReturnPressed
-{
-    [self sendButtonPressed];
-}
-
 #pragma mark - Text Input Sizing
 
 - (void)addKVOObservers
