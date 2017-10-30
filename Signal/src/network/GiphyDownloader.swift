@@ -617,6 +617,13 @@ extension URLSessionTask {
     }
 
     private func handleAssetSizeResponse(assetRequest: GiphyAssetRequest, response: URLResponse?, error: Error?) {
+        guard error == nil else {
+            Logger.error("\(TAG) asset size request failed with error: \(error!)")
+            assetRequest.state = .failed
+            self.assetRequestDidFail(assetRequest:assetRequest)
+            return
+        }
+
         guard let httpResponse = response as? HTTPURLResponse else {
             owsFail("\(self.TAG) Asset size response is invalid.")
             assetRequest.state = .failed
