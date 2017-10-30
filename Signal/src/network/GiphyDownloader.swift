@@ -549,14 +549,16 @@ extension URLSessionTask {
             }
             guard !assetRequest.wasCancelled else {
                 // Discard the cancelled asset request and try again.
-                self.processRequestQueue()
+                // TODO: dataTask.cancel()
+                assetRequest.state = .failed
+                self.assetRequestDidFail(assetRequest: assetRequest)
+
                 return
             }
             guard UIApplication.shared.applicationState == .active else {
                 // If app is not active, fail the asset request.
                 assetRequest.state = .failed
                 self.assetRequestDidFail(assetRequest:assetRequest)
-                self.processRequestQueue()
                 return
             }
 
@@ -589,6 +591,7 @@ extension URLSessionTask {
                 })
 
                 task.resume()
+                self.processRequestQueue()
                 return
             }
 
@@ -596,6 +599,7 @@ extension URLSessionTask {
 
             guard let assetSegment = assetRequest.firstWaitingSegment() else {
                 owsFail("\(self.TAG) queued asset request does not have a waiting segment.")
+                self.processRequestQueue()
                 return
             }
             assetSegment.state = .active
@@ -608,6 +612,7 @@ extension URLSessionTask {
             task.assetRequest = assetRequest
             task.assetSegment = assetSegment
             task.resume()
+            self.processRequestQueue()
         }
     }
 
