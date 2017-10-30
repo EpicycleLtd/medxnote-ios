@@ -434,6 +434,7 @@ extension URLSessionTask {
                                              success:success,
                                              failure:failure)
         assetRequestQueue.append(assetRequest)
+        Logger.verbose("\(TAG) adding request. queue length: \(assetRequestQueue.count)")
         processRequestQueue()
         return assetRequest
     }
@@ -445,7 +446,30 @@ extension URLSessionTask {
         self.assetRequestQueue = []
     }
 
+    private var animatedDataCount = [GiphyAssetRequest: UInt]()
+    private var stillDataCount = [GiphyAssetRequest: UInt]()
+    private var totalDataCount = [GiphyAssetRequest: UInt]()
+
     private func segmentRequestDidSucceed(assetRequest: GiphyAssetRequest, assetSegment: GiphyAssetSegment) {
+
+        Logger.verbose("\(TAG) in \(#function) with request: \(assetRequest), segment: \(assetSegment.index)")
+        // Log accumulated data usage in debug
+        if _isDebugAssertConfiguration() {
+            totalDataCount[assetRequest] = totalDataCount[assetRequest] ?? 0 + assetSegment.segmentLength
+            if assetRequest.rendition.isStill {
+                stillDataCount[assetRequest] = stillDataCount[assetRequest] ?? 0 + assetSegment.segmentLength
+            } else {
+                animatedDataCount[assetRequest] = animatedDataCount[assetRequest] ?? 0 + assetSegment.segmentLength
+            }
+            let megabyteCount = { (dataCountMap: [GiphyAssetRequest: UInt]) -> String in
+                let sum = dataCountMap.values.reduce(0, +)
+                let megabyteCount = Float(sum) / 1000 / 1000
+                return String(format: "%06.2f MB", megabyteCount)
+            }
+            Logger.verbose("\(TAG) Still bytes written:    \(megabyteCount(stillDataCount))")
+            Logger.verbose("\(TAG) Animated bytes written: \(megabyteCount(animatedDataCount))")
+            Logger.verbose("\(TAG) Total bytes written:    \(megabyteCount(totalDataCount))")
+        }
 
         DispatchQueue.main.async {
             assetSegment.state = .complete
@@ -510,14 +534,17 @@ extension URLSessionTask {
         }
 
         assetRequestQueue = assetRequestQueue.filter { $0 != assetRequest }
+        Logger.verbose("\(TAG) removing request. queue length: \(assetRequestQueue.count)")
     }
 
     // Start a request if necessary, complete asset requests if possible.
     private func processRequestQueue() {
         AssertIsOnMainThread()
+        Logger.verbose("\(TAG) in \(#function) with operationCount: \(operationQueue.operationCount)")
 
         DispatchQueue.main.async {
             guard let assetRequest = self.popNextAssetRequest() else {
+                Logger.verbose("\(self.TAG) in \(#function) no asset request ready.")
                 return
             }
             guard !assetRequest.wasCancelled else {
@@ -651,6 +678,13 @@ extension URLSessionTask {
                 return assetRequest
             }
         }
+
+        let stateCounts = assetRequestQueue.reduce([GiphyAssetRequestState: UInt]()) { (result, assetRequest) -> [GiphyAssetRequestState: UInt] in
+            var mutResult = result
+            mutResult[assetRequest.state] = (result[assetRequest.state] ?? 0) + 1
+            return mutResult
+        }
+        Logger.info("\(TAG) stateCount: \(stateCounts)")
 
         return nil
     }
