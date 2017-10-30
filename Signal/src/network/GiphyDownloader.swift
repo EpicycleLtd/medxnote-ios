@@ -668,7 +668,8 @@ extension URLSessionTask {
                 case .waiting:
                     break
                 case .requestingSize:
-                    activeAssetRequestsCount += 1
+                    // if we count these, we may stall out, since assets will stay in this state.
+                    // activeAssetRequestsCount += 1
                     continue
                 case .active:
                     break
@@ -681,7 +682,7 @@ extension URLSessionTask {
                 guard assetRequest.firstActiveSegment() == nil else {
                     activeAssetRequestsCount += 1
                     // Ensure that only N requests are active at a time.
-                    guard activeAssetRequestsCount < self.kMaxAssetRequestCount else {
+                    guard activeAssetRequestsCount <= self.kMaxAssetRequestCount else {
                         return nil
                     }
 
