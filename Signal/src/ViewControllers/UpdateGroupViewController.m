@@ -18,7 +18,6 @@
 #import "TSOutgoingMessage.h"
 #import "UIUtil.h"
 #import "UIView+OWS.h"
-#import "UIViewController+OWS.h"
 #import "ViewControllerUtils.h"
 #import <SignalServiceKit/NSDate+OWS.h>
 #import <SignalServiceKit/OWSMessageSender.h>

@@ -48,7 +48,6 @@
 #import "ThreadUtil.h"
 #import "UIFont+OWS.h"
 #import "UIUtil.h"
-#import "UIViewController+OWS.h"
 #import "UIViewController+Permissions.h"
 #import "ViewControllerUtils.h"
 #import <AVFoundation/AVFoundation.h>
@@ -182,11 +181,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic, nullable) UIView *bannerView;
 @property (nonatomic, nullable) OWSDisappearingMessagesConfiguration *disappearingMessagesConfiguration;
 
-// Back Button Unread Count
-@property (nonatomic, readonly) UIView *backButtonUnreadCountView;
-@property (nonatomic, readonly) UILabel *backButtonUnreadCountLabel;
 @property (nonatomic, readonly) NSUInteger backButtonUnreadCount;
-
 @property (nonatomic) NSUInteger page;
 @property (nonatomic) BOOL composeOnOpen;
 @property (nonatomic) BOOL callOnOpen;
@@ -474,7 +469,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     [self createScrollButtons];
     [self createHeaderViews];
-    [self createBackButton];
+    [self updateBackButton];
     [self addNotificationListeners];
     [self loadDraftInCompose];
 }
@@ -1055,18 +1050,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)createHeaderViews
 {
-    _backButtonUnreadCountView = [UIView new];
-    _backButtonUnreadCountView.layer.cornerRadius = self.unreadCountViewDiameter / 2;
-    _backButtonUnreadCountView.backgroundColor = [UIColor redColor];
-    _backButtonUnreadCountView.hidden = YES;
-    _backButtonUnreadCountView.userInteractionEnabled = NO;
-
-    _backButtonUnreadCountLabel = [UILabel new];
-    _backButtonUnreadCountLabel.backgroundColor = [UIColor clearColor];
-    _backButtonUnreadCountLabel.textColor = [UIColor whiteColor];
-    _backButtonUnreadCountLabel.font = [UIFont systemFontOfSize:11];
-    _backButtonUnreadCountLabel.textAlignment = NSTextAlignmentCenter;
-
     self.navigationBarTitleView = [ConversationHeaderView new];
     self.navigationBarTitleView.userInteractionEnabled = YES;
     [self.navigationBarTitleView
@@ -1099,36 +1082,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 - (CGFloat)unreadCountViewDiameter
 {
     return 16;
-}
-
-- (void)createBackButton
-{
-    UIBarButtonItem *backItem = [self createOWSBackButton];
-    if (backItem.customView) {
-        // This method gets called multiple times, so it's important we re-layout the unread badge
-        // with respect to the new backItem.
-        [backItem.customView addSubview:_backButtonUnreadCountView];
-        // TODO: The back button assets are assymetrical.  There are strong reasons
-        // to use spacing in the assets to manipulate the size and positioning of
-        // bar button items, but it means we'll probably need separate RTL and LTR
-        // flavors of these assets.
-        [_backButtonUnreadCountView autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:-6];
-        [_backButtonUnreadCountView autoPinLeadingToSuperviewWithMargin:1];
-        [_backButtonUnreadCountView autoSetDimension:ALDimensionHeight toSize:self.unreadCountViewDiameter];
-        // We set a min width, but we will also pin to our subview label, so we can grow to accommodate multiple digits.
-        [_backButtonUnreadCountView autoSetDimension:ALDimensionWidth
-                                              toSize:self.unreadCountViewDiameter
-                                            relation:NSLayoutRelationGreaterThanOrEqual];
-
-        [_backButtonUnreadCountView addSubview:_backButtonUnreadCountLabel];
-        [_backButtonUnreadCountLabel autoPinWidthToSuperviewWithMargin:4];
-        [_backButtonUnreadCountLabel autoPinHeightToSuperview];
-
-        // Initialize newly created unread count badge to accurately reflect the current unread count.
-        [self updateBackButtonUnreadCount];
-    }
-
-    self.navigationItem.leftBarButtonItem = backItem;
 }
 
 - (void)updateBarButtonItems
@@ -3475,14 +3428,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
     _backButtonUnreadCount = unreadCount;
 
-    OWSAssert(_backButtonUnreadCountView != nil);
-    _backButtonUnreadCountView.hidden = unreadCount <= 0;
-
-    OWSAssert(_backButtonUnreadCountLabel != nil);
-
-    // Max out the unread count at 99+.
-    const NSUInteger kMaxUnreadCount = 99;
-    _backButtonUnreadCountLabel.text = [ViewControllerUtils formatInt:(int)MIN(kMaxUnreadCount, unreadCount)];
+    [self updateBackButton];
 }
 
 #pragma mark 3D Touch Preview Actions
@@ -4269,6 +4215,106 @@ interactionControllerForAnimationController:(id<UIViewControllerAnimatedTransiti
 
     ConversationViewCell *conversationViewCell = (ConversationViewCell *)cell;
     conversationViewCell.isCellVisible = NO;
+}
+
+#pragma mark - Back Button
+
+- (void)updateBackButton
+{
+    self.navigationItem.leftBarButtonItem =
+        [self createBackButtonWithTarget:self selector:@selector(backButtonPressed:)];
+}
+
+- (UIBarButtonItem *)createBackButtonWithTarget:(id)target selector:(SEL)selector
+{
+    OWSAssert(target);
+    OWSAssert(selector);
+
+    // Max out the unread count at 99+.
+    const NSUInteger kMaxUnreadCount = 99;
+    NSString *_Nullable badgeText = (self.backButtonUnreadCount > 0
+            ? [ViewControllerUtils formatInt:(int)MIN(kMaxUnreadCount, self.backButtonUnreadCount)]
+            : nil);
+
+    UIImage *backImage = [self createBackButtonWithText:badgeText];
+    OWSAssert(backImage);
+
+    UIButton *backButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [backButton addTarget:target action:selector forControlEvents:UIControlEventTouchUpInside];
+    [backButton setImage:backImage forState:UIControlStateNormal];
+    CGRect buttonFrame = CGRectMake(0, 0, backImage.size.width, backImage.size.height);
+    backButton.frame = buttonFrame;
+    UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
+    backItem.width = buttonFrame.size.width;
+    return backItem;
+}
+
+- (UIImage *)createBackButtonWithText:(NSString *_Nullable)badgeText
+{
+    BOOL isRTL = self.view.isRTL;
+    UIImage *iconImage = [UIImage imageNamed:(isRTL ? @"NavBarBackRTL" : @"NavBarBack")];
+    OWSAssert(iconImage);
+
+    UIFont *font = [UIFont systemFontOfSize:12.f];
+    CGFloat badgeSize = ceil(font.lineHeight + 0.f);
+    CGFloat hSpacing = badgeSize * -0.2f;
+    CGFloat badgeHMargin = badgeSize * +0.2f;
+    // The distance from the top to the top of the icon.
+    CGFloat topMargin = badgeSize * +0.5f;
+    // The distance from the bottom to the bottom of the icon.
+    CGFloat bottomMargin = badgeSize * +0.5f;
+
+    CGFloat width = ceil(iconImage.size.width + badgeSize + hSpacing + badgeHMargin);
+    CGFloat height = round(iconImage.size.height + topMargin + bottomMargin);
+
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(width, height), NO, 0.f);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+
+    CGRect iconImageRect = CGRectZero;
+    iconImageRect.size = iconImage.size;
+    if (isRTL) {
+        iconImageRect.origin.x = width - iconImageRect.size.width;
+    } else {
+        iconImageRect.origin.x = 0;
+    }
+    iconImageRect.origin.y = height - (iconImageRect.size.height + bottomMargin);
+    [iconImage drawInRect:iconImageRect];
+
+    if (badgeText.length > 0) {
+        CGRect badgeRect = CGRectZero;
+        badgeRect.size.width = badgeSize;
+        badgeRect.size.height = badgeSize;
+        if (isRTL) {
+            badgeRect.origin.x = badgeHMargin;
+        } else {
+            badgeRect.origin.x = width - (badgeHMargin + badgeRect.size.width);
+        }
+        badgeRect.origin.y = 0.f;
+        [UIColor.redColor setFill];
+        CGContextFillEllipseInRect(context, badgeRect);
+
+        NSDictionary<NSAttributedStringKey, id> *textAttributes = @{
+            NSFontAttributeName : font,
+            NSForegroundColorAttributeName : [UIColor whiteColor],
+        };
+        CGRect textRect = CGRectZero;
+        textRect.size = [badgeText sizeWithAttributes:textAttributes];
+        // Center the text inside the badge.
+        textRect.origin.x = badgeRect.origin.x + (badgeRect.size.width - textRect.size.width) * 0.5f;
+        textRect.origin.y = badgeRect.origin.y + (badgeRect.size.height - textRect.size.height) * 0.5f;
+        [badgeText drawInRect:textRect withAttributes:textAttributes];
+    }
+
+    UIImage *dstImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return dstImage;
+}
+
+- (void)backButtonPressed:(id)sender
+{
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 @end

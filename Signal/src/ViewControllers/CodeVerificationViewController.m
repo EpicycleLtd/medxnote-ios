@@ -6,7 +6,6 @@
 #import "ProfileViewController.h"
 #import "Signal-Swift.h"
 #import "StringUtil.h"
-#import "UIViewController+OWS.h"
 #import <PromiseKit/AnyPromise.h>
 #import <SignalServiceKit/OWSError.h>
 #import <SignalServiceKit/TSAccountManager.h>

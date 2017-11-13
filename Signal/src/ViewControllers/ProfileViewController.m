@@ -14,7 +14,6 @@
 #import "UIColor+OWS.h"
 #import "UIFont+OWS.h"
 #import "UIView+OWS.h"
-#import "UIViewController+OWS.h"
 #import <SignalServiceKit/NSDate+OWS.h>
 #import <SignalServiceKit/TSStorageManager.h>
 
