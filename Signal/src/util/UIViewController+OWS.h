@@ -17,6 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (UIBarButtonItem *)createOWSBackButton;
 
+//- (UIImage *)createBackButtonWithText:(NSString *_Nullable)badgeText
+//                            iconImage:(UIImage *)iconImage
+//                                isRTL:(BOOL)isRTL;
+
 @end
 
 NS_ASSUME_NONNULL_END
