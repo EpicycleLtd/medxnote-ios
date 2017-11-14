@@ -92,7 +92,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
     // Specified at Product -> Scheme -> Edit Scheme -> Test -> Arguments -> Environment to avoid things like
     // the phone directory being looked up during tests.
     loggingIsEnabled = TRUE;
-    //    [DebugLogger.sharedLogger enableTTYLogging];
+//    [DebugLogger.sharedLogger enableTTYLogging];
     //#elif RELEASE
     //    loggingIsEnabled = OWSPreferences.loggingIsEnabled;
     //#endif
