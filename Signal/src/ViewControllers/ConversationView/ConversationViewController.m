@@ -3039,17 +3039,20 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         }
     }
     if (hasMoves) {
+        // "Move" changes cannot be safely performed using
+        // [UICollectionView performBatchUpdates:].  This appears to be a
+        // bug in YapDatabase.
         return YES;
     }
-    if (hasDeletes && hasInserts) {
-        return YES;
-    }
-    if (hasDeletes && hasUpdates) {
-        return YES;
-    }
-    if (hasInserts && hasUpdates) {
-        return YES;
-    }
+    //    if (hasDeletes && hasInserts) {
+    //        return YES;
+    //    }
+    //    if (hasDeletes && hasUpdates) {
+    //        return YES;
+    //    }
+    //    if (hasInserts && hasUpdates) {
+    //        return YES;
+    //    }
     return NO;
 }
 
