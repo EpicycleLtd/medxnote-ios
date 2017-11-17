@@ -40,6 +40,14 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(thread);
 
     NSMutableArray<OWSTableItem *> *items = [@[
+        [OWSTableItem itemWithTitle:@"Perform 100 random actions"
+                        actionBlock:^{
+                            [DebugUIMessages performRandomActions:100 thread:thread];
+                        }],
+        [OWSTableItem itemWithTitle:@"Perform 1,000 random actions"
+                        actionBlock:^{
+                            [DebugUIMessages performRandomActions:1000 thread:thread];
+                        }],
         [OWSTableItem itemWithTitle:@"Send 10 messages (1/sec.)"
                         actionBlock:^{
                             [DebugUIMessages sendTextMessages:10 thread:thread];
@@ -240,14 +248,6 @@ NS_ASSUME_NONNULL_BEGIN
         [OWSTableItem itemWithTitle:@"Inject 1,000 fake incoming messages"
                         actionBlock:^{
                             [DebugUIMessages injectFakeIncomingMessages:1000 thread:thread];
-                        }],
-        [OWSTableItem itemWithTitle:@"Perform 100 random actions"
-                        actionBlock:^{
-                            [DebugUIMessages performRandomActions:100 thread:thread];
-                        }],
-        [OWSTableItem itemWithTitle:@"Perform 1,000 random actions"
-                        actionBlock:^{
-                            [DebugUIMessages performRandomActions:1000 thread:thread];
                         }],
     ] mutableCopy];
     if ([thread isKindOfClass:[TSContactThread class]]) {
