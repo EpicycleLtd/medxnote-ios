@@ -2894,6 +2894,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                         rowChange.collectionKey,
                         rowChange.indexPath,
                         rowChange.finalIndex);
+                    [DDLog flushLog];
                     [self.collectionView deleteItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
                     OWSAssert(collectionKey.key.length > 0);
@@ -2904,6 +2905,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                         rowChange.collectionKey,
                         rowChange.newIndexPath,
                         rowChange.finalIndex);
+                    [DDLog flushLog];
                     [self.collectionView insertItemsAtIndexPaths:@[ rowChange.newIndexPath ]];
                     // We don't want to reload a row that we just inserted.
                     [rowsThatChangedSize removeObject:@(rowChange.finalIndex)];
@@ -2924,6 +2926,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                         rowChange.indexPath,
                         rowChange.newIndexPath,
                         rowChange.finalIndex);
+                    [DDLog flushLog];
                     [self.collectionView moveItemAtIndexPath:rowChange.indexPath toIndexPath:rowChange.newIndexPath];
                     // We don't want to reload a row that we just moved.
                     [rowsThatChangedSize removeObject:@(rowChange.finalIndex)];
@@ -2934,6 +2937,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                         rowChange.collectionKey,
                         rowChange.indexPath,
                         rowChange.finalIndex);
+                    [DDLog flushLog];
                     [self.collectionView reloadItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     // We don't want to reload a row that we've already reloaded.
                     [rowsThatChangedSize removeObject:@(rowChange.finalIndex)];
@@ -2950,11 +2954,13 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
             [rowsToReload addObject:[NSIndexPath indexPathForRow:row.integerValue inSection:0]];
         }
         if (rowsToReload.count > 0) {
+            [DDLog flushLog];
             [self.collectionView reloadItemsAtIndexPaths:rowsToReload];
         }
     };
 
     DDLogVerbose(@"self.viewItems.count: %zd -> %zd", oldViewItemCount, self.viewItems.count);
+    [DDLog flushLog];
 
     BOOL shouldReloadCollection = [self shouldReloadCollection:rowChanges];
     if (shouldReloadCollection) {
@@ -2993,16 +2999,51 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     for (YapDatabaseViewRowChange *rowChange in rowChanges) {
         switch (rowChange.type) {
+            case YapDatabaseViewChangeDelete:
+                DDLogVerbose(@"? YapDatabaseViewChangeDelete: %@, %@, %zd",
+                             rowChange.collectionKey,
+                             rowChange.indexPath,
+                             rowChange.finalIndex);
+                [DDLog flushLog];
+                break;
+            case YapDatabaseViewChangeInsert:
+                DDLogVerbose(@"? YapDatabaseViewChangeInsert: %@, %@, %zd",
+                             rowChange.collectionKey,
+                             rowChange.newIndexPath,
+                             rowChange.finalIndex);
+                [DDLog flushLog];
+                break;
             case YapDatabaseViewChangeMove:
-                // "Move" changes cannot be safely performed using
-                // [UICollectionView performBatchUpdates:].  This appears to be a
-                // bug in YapDatabase.
-                return YES;
-            default:
+                DDLogVerbose(@"? YapDatabaseViewChangeMove: %@, %@, %@, %zd",
+                             rowChange.collectionKey,
+                             rowChange.indexPath,
+                             rowChange.newIndexPath,
+                             rowChange.finalIndex);
+                [DDLog flushLog];
+                break;
+            case YapDatabaseViewChangeUpdate:
+                DDLogVerbose(@"? YapDatabaseViewChangeUpdate: %@, %@, %zd",
+                             rowChange.collectionKey,
+                             rowChange.indexPath,
+                             rowChange.finalIndex);
+                [DDLog flushLog];
                 break;
         }
     }
     return NO;
+    
+//    for (YapDatabaseViewRowChange *rowChange in rowChanges) {
+//        switch (rowChange.type) {
+//            case YapDatabaseViewChangeMove:
+//                // "Move" changes cannot be safely performed using
+//                // [UICollectionView performBatchUpdates:].  This appears to be a
+//                // bug in YapDatabase.
+//                return YES;
+//            default:
+//                break;
+//        }
+//    }
+//    return NO;
 }
 
 - (BOOL)shouldAnimateRowUpdates:(NSArray<YapDatabaseViewRowChange *> *)rowChanges
@@ -4030,9 +4071,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
             OWSAssert(interaction);
 
             ConversationViewItem *_Nullable viewItem = self.viewItemMap[interaction.uniqueId];
-            if (viewItem) {
-                viewItem.previousRow = viewItem.row;
-            } else {
+            if (!viewItem) {
                 viewItem = [[ConversationViewItem alloc] initWithInteraction:interaction
                                                                isGroupThread:isGroupThread
                                                                  transaction:transaction];
@@ -4088,8 +4127,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         // If this is an existing view item and it has changed size,
         // note that so that we can reload this cell while doing
         // incremental updates.
-        if (viewItem.shouldShowDate != shouldShowDate && viewItem.previousRow != NSNotFound) {
-            [rowsThatChangedSize addObject:@(viewItem.previousRow)];
+        if (viewItem.shouldShowDate != shouldShowDate) {
+            [rowsThatChangedSize addObject:@(viewItem.row)];
         }
         viewItem.shouldShowDate = shouldShowDate;
 
@@ -4123,8 +4162,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         // If this is an existing view item and it has changed size,
         // note that so that we can reload this cell while doing
         // incremental updates.
-        if (viewItem.shouldHideRecipientStatus != shouldHideRecipientStatus && viewItem.previousRow != NSNotFound) {
-            [rowsThatChangedSize addObject:@(viewItem.previousRow)];
+        if (viewItem.shouldHideRecipientStatus != shouldHideRecipientStatus) {
+            [rowsThatChangedSize addObject:@(viewItem.row)];
         }
         viewItem.shouldHideRecipientStatus = shouldHideRecipientStatus;
     }

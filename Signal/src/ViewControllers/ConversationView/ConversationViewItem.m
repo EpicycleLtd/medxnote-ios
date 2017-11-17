@@ -77,7 +77,6 @@ NSString *NSStringForOWSMessageCellType(OWSMessageCellType cellType)
     _interaction = interaction;
     _isGroupThread = isGroupThread;
     self.row = NSNotFound;
-    self.previousRow = NSNotFound;
 
     [self ensureViewState:transaction];
 
