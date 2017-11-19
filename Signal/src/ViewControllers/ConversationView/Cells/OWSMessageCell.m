@@ -17,6 +17,126 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface BubbleFillView : UIView
+
+@property (nonatomic) BOOL isOutgoing;
+@property (nonatomic) CAShapeLayer *shapeLayer;
+@property (nonatomic) UIColor *bubbleColor;
+
+@end
+
+#pragma mark -
+
+@implementation BubbleFillView
+
+- (void)setFrame:(CGRect)frame
+{
+    BOOL didSizeChange = !CGSizeEqualToSize(self.frame.size, frame.size);
+    
+    [super setFrame:frame];
+    
+    if (didSizeChange || !self.shapeLayer) {
+        [self updateMask];
+    }
+}
+
+- (void)setBounds:(CGRect)bounds
+{
+    BOOL didSizeChange = !CGSizeEqualToSize(self.bounds.size, bounds.size);
+    
+    [super setBounds:bounds];
+    
+    if (didSizeChange || !self.shapeLayer) {
+        [self updateMask];
+    }
+}
+
+- (void)updateMask
+{
+    if (!self.shapeLayer) {
+        self.shapeLayer = [CAShapeLayer new];
+        [self.layer addSublayer:self.shapeLayer];
+    }
+    
+//    [self addRedBorder];
+    
+    // TODO: We could make the bubble shape respond to dynamic text.
+    //static const CGFloat kBubbleVRounding = 3.f;
+    //static const CGFloat kBubbleHRounding = 5.f;
+    static const CGFloat kBubbleVRounding =  10.f;
+    static const CGFloat kBubbleHRounding = 10.f;
+    static const CGFloat kBubbleThornSideInset = 5.f;
+    static const CGFloat kBubbleVInset = 3.f;
+
+    UIBezierPath *bezierPath = [UIBezierPath new];
+//    [bezierPath appendPath:[UIBezierPath bezierPathWithOvalInRect:self.bounds]];
+    
+    CGFloat bubbleLeft = 0.f;
+    CGFloat bubbleRight = self.width - kBubbleThornSideInset;
+    CGFloat bubbleTop = 0.f + kBubbleVInset;
+    CGFloat bubbleBottom = self.height - kBubbleVInset;
+
+    [bezierPath moveToPoint:CGPointMake(bubbleLeft + kBubbleHRounding, bubbleTop)];
+    [bezierPath addLineToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleTop)];
+    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight, bubbleTop + kBubbleVRounding)
+                       controlPoint:CGPointMake(bubbleRight, bubbleTop)];
+    [bezierPath addLineToPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding)];
+    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom)
+                       controlPoint:CGPointMake(bubbleRight, bubbleBottom)];
+    [bezierPath addLineToPoint:CGPointMake(bubbleLeft + kBubbleHRounding, bubbleBottom)];
+    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleLeft, bubbleBottom - kBubbleVRounding)
+                       controlPoint:CGPointMake(bubbleLeft, bubbleBottom)];
+    [bezierPath addLineToPoint:CGPointMake(bubbleLeft, bubbleTop + kBubbleVRounding)];
+    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleLeft + kBubbleHRounding, bubbleTop)
+                       controlPoint:CGPointMake(bubbleLeft, bubbleTop)];
+    
+    // Thorn Tip
+    CGPoint thornTip = CGPointMake(self.width, self.height);
+    [bezierPath moveToPoint:thornTip];
+    [bezierPath addLineToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom)];
+    [bezierPath addLineToPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding)];
+
+//    CGFloat thorn = 0.f;
+//    CGFloat bubbleRight = self.width - kBubbleThornSideInset;
+//    CGFloat bubbleTop = 0.f + kBubbleVInset;
+//    CGFloat bubbleBottom = self.height - kBubbleVInset;
+
+//    static const CGFloat kBubbleThornSideInset = 10.f;
+
+//    if (self.width >=
+    
+    
+    // TODO:
+    // Horizontal Flip If Necessary
+    if (!self.isOutgoing) {
+        CGAffineTransform flipTransform = CGAffineTransformMakeTranslation(self.width, 0.0);
+        flipTransform = CGAffineTransformScale(flipTransform, -1.0, 1.0);
+        [bezierPath applyTransform:flipTransform];
+    }
+
+    self.shapeLayer.fillColor = self.bubbleColor.CGColor;
+    self.shapeLayer.path = bezierPath.CGPath;
+//    UIView *_Nullable maskedSubview = self.maskedSubview;
+//    if (!maskedSubview) {
+//        return;
+//    }
+//    maskedSubview.frame = self.bounds;
+//    // The JSQ masks are not RTL-safe, so we need to invert the
+//    // mask orientation manually.
+//    BOOL hasOutgoingMask = self.isOutgoing ^ self.isRTL;
+//    [JSQMessagesMediaViewBubbleImageMasker applyBubbleImageMaskToMediaView:maskedSubview isOutgoing:hasOutgoingMask];
+}
+
+- (void)setBubbleColor:(UIColor *)bubbleColor {
+    _bubbleColor = bubbleColor;
+    
+    self.shapeLayer.fillColor = bubbleColor.CGColor;
+}
+
+@end
+
+#pragma mark -
+
 @interface BubbleMaskingView : UIView
 
 @property (nonatomic) BOOL isOutgoing;
@@ -31,9 +151,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setFrame:(CGRect)frame
 {
     BOOL didSizeChange = !CGSizeEqualToSize(self.frame.size, frame.size);
-
+    
     [super setFrame:frame];
-
+    
     if (didSizeChange) {
         [self updateMask];
     }
@@ -42,9 +162,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setBounds:(CGRect)bounds
 {
     BOOL didSizeChange = !CGSizeEqualToSize(self.bounds.size, bounds.size);
-
+    
     [super setBounds:bounds];
-
+    
     if (didSizeChange) {
         [self updateMask];
     }
@@ -143,6 +263,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) OWSMessageTextView *textView;
 @property (nonatomic, nullable) UIImageView *failedSendBadgeView;
 @property (nonatomic, nullable) UILabel *tapForMoreLabel;
+@property (nonatomic, nullable) BubbleFillView *bubbleFillView;
 @property (nonatomic, nullable) UIImageView *bubbleImageView;
 @property (nonatomic, nullable) AttachmentUploadView *attachmentUploadView;
 @property (nonatomic, nullable) UIImageView *stillImageView;
@@ -194,13 +315,21 @@ NS_ASSUME_NONNULL_BEGIN
     self.dateHeaderLabel.textColor = [UIColor lightGrayColor];
     [self.contentView addSubview:self.dateHeaderLabel];
 
+    self.bubbleFillView = [BubbleFillView new];
+    self.bubbleFillView.layoutMargins = UIEdgeInsetsZero;
+    // TODO:
+//    // Enable userInteractionEnabled so that links in textView work.
+//    self.bubbleFillView.userInteractionEnabled = YES;
+    [self.payloadView addSubview:self.bubbleFillView];
+    [self.bubbleFillView autoPinToSuperviewEdges];
+    
     self.bubbleImageView = [UIImageView new];
     self.bubbleImageView.layoutMargins = UIEdgeInsetsZero;
     // Enable userInteractionEnabled so that links in textView work.
     self.bubbleImageView.userInteractionEnabled = YES;
     [self.payloadView addSubview:self.bubbleImageView];
     [self.bubbleImageView autoPinToSuperviewEdges];
-
+    
     self.textView = [OWSMessageTextView new];
     self.textView.backgroundColor = [UIColor clearColor];
     self.textView.opaque = NO;
@@ -218,6 +347,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.footerView addSubview:self.footerLabel];
 
     // Hide these views by default.
+    self.bubbleFillView.hidden = YES;
     self.bubbleImageView.hidden = YES;
     self.textView.hidden = YES;
     self.dateHeaderLabel.hidden = YES;
@@ -377,9 +507,13 @@ NS_ASSUME_NONNULL_BEGIN
     if ([self.viewItem.interaction isKindOfClass:[TSMessage class]]) {
         TSMessage *message = (TSMessage *)self.viewItem.interaction;
         bubbleImageData = [self.bubbleFactory bubbleWithMessage:message];
+        // TODO:
+        self.bubbleFillView.bubbleColor = [self.bubbleFactory bubbleColorWithMessage:message];
     }
 
-    self.bubbleImageView.image = bubbleImageData.messageBubbleImage;
+    // TODO:
+//    self.bubbleImageView.image = bubbleImageData.messageBubbleImage;
+    self.bubbleFillView.isOutgoing = self.isOutgoing;
 
     [self updateDateHeader];
     [self updateFooter];
@@ -703,6 +837,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)loadForTextDisplay
 {
+    self.bubbleFillView.hidden = NO;
     self.bubbleImageView.hidden = NO;
     self.textView.hidden = NO;
     self.textView.text = self.displayableText.displayText;
@@ -1080,6 +1215,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.tapForMoreLabel = nil;
     self.footerLabel.text = nil;
     self.footerLabel.hidden = YES;
+    self.bubbleImageView.hidden = YES;
     self.bubbleImageView.image = nil;
     self.bubbleImageView.hidden = YES;
     self.payloadView.maskedSubview = nil;
