@@ -17,6 +17,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: We could make the bubble shape respond to dynamic text.
+//static const CGFloat kBubbleVRounding = 3.f;
+//static const CGFloat kBubbleHRounding = 5.f;
+static const CGFloat kBubbleVRounding =  8.f;
+static const CGFloat kBubbleHRounding = 10.f;
+static const CGFloat kBubbleThornSideInset = 3.f;
+static const CGFloat kBubbleThornVInset = 3.f;
+static const CGFloat kBubbleTextHInset = 6.f;
+static const CGFloat kBubbleTextVInset = 6.f;
+//static const CGFloat kBubbleTextTopInset = kBubbleTextVInset;
+//static const CGFloat kBubbleTextBottomInset = kBubbleThornVInset + kBubbleTextVInset;
+
 @interface BubbleFillView : UIView
 
 @property (nonatomic) BOOL isOutgoing;
@@ -59,22 +71,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
 //    [self addRedBorder];
-    
-    // TODO: We could make the bubble shape respond to dynamic text.
-    //static const CGFloat kBubbleVRounding = 3.f;
-    //static const CGFloat kBubbleHRounding = 5.f;
-    static const CGFloat kBubbleVRounding =  10.f;
-    static const CGFloat kBubbleHRounding = 10.f;
-    static const CGFloat kBubbleThornSideInset = 5.f;
-    static const CGFloat kBubbleVInset = 3.f;
 
     UIBezierPath *bezierPath = [UIBezierPath new];
 //    [bezierPath appendPath:[UIBezierPath bezierPathWithOvalInRect:self.bounds]];
     
     CGFloat bubbleLeft = 0.f;
     CGFloat bubbleRight = self.width - kBubbleThornSideInset;
-    CGFloat bubbleTop = 0.f + kBubbleVInset;
-    CGFloat bubbleBottom = self.height - kBubbleVInset;
+    CGFloat bubbleTop = 0.f;
+    CGFloat bubbleBottom = self.height - kBubbleThornVInset;
 
     [bezierPath moveToPoint:CGPointMake(bubbleLeft + kBubbleHRounding, bubbleTop)];
     [bezierPath addLineToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleTop)];
@@ -91,10 +95,18 @@ NS_ASSUME_NONNULL_BEGIN
                        controlPoint:CGPointMake(bubbleLeft, bubbleTop)];
     
     // Thorn Tip
-    CGPoint thornTip = CGPointMake(self.width, self.height);
+    CGPoint thornTip = CGPointMake(self.width,
+                                   self.height);
+    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom);
+    CGPoint thornB = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding);
     [bezierPath moveToPoint:thornTip];
-    [bezierPath addLineToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom)];
-    [bezierPath addLineToPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding)];
+//    [bezierPath addLineToPoint:thornA];
+    [bezierPath addQuadCurveToPoint:thornA
+                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.4f, bubbleBottom)];
+//    [bezierPath addLineToPoint:thornA];
+    [bezierPath addLineToPoint:thornB];
+    [bezierPath addQuadCurveToPoint:thornTip
+                       controlPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 0.1f)];
 
 //    CGFloat thorn = 0.f;
 //    CGFloat bubbleRight = self.width - kBubbleThornSideInset;
@@ -873,20 +885,20 @@ NS_ASSUME_NONNULL_BEGIN
         self.contentConstraints = @[
             [self.textView autoPinLeadingToSuperviewWithMargin:self.textLeadingMargin],
             [self.textView autoPinTrailingToSuperviewWithMargin:self.textTrailingMargin],
-            [self.textView autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:self.textVMargin],
+            [self.textView autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:self.textTopMargin],
 
             [self.tapForMoreLabel autoPinLeadingToSuperviewWithMargin:self.textLeadingMargin],
             [self.tapForMoreLabel autoPinTrailingToSuperviewWithMargin:self.textTrailingMargin],
             [self.tapForMoreLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:self.textView],
-            [self.tapForMoreLabel autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:self.textVMargin],
+            [self.tapForMoreLabel autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:self.textBottomMargin],
             [self.tapForMoreLabel autoSetDimension:ALDimensionHeight toSize:self.tapForMoreHeight],
         ];
     } else {
         self.contentConstraints = @[
             [self.textView autoPinLeadingToSuperviewWithMargin:self.textLeadingMargin],
             [self.textView autoPinTrailingToSuperviewWithMargin:self.textTrailingMargin],
-            [self.textView autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:self.textVMargin],
-            [self.textView autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:self.textVMargin],
+            [self.textView autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:self.textTopMargin],
+            [self.textView autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:self.textBottomMargin],
         ];
     }
 }
@@ -1060,7 +1072,7 @@ NS_ASSUME_NONNULL_BEGIN
             BOOL isRTL = self.isRTL;
             CGFloat leftMargin = isRTL ? self.textTrailingMargin : self.textLeadingMargin;
             CGFloat rightMargin = isRTL ? self.textLeadingMargin : self.textTrailingMargin;
-            CGFloat textVMargin = self.textVMargin;
+//            CGFloat textVMargin = self.textVMargin;
             const int maxTextWidth = (int)floor(maxMessageWidth - (leftMargin + rightMargin));
 
             self.textView.text = self.displayableText.displayText;
@@ -1069,7 +1081,7 @@ NS_ASSUME_NONNULL_BEGIN
             CGSize textSize = [self.textView sizeThatFits:CGSizeMake(maxTextWidth, CGFLOAT_MAX)];
             CGFloat tapForMoreHeight = (self.displayableText.isTextTruncated ? [self tapForMoreHeight] : 0.f);
             cellSize = CGSizeMake((CGFloat)ceil(textSize.width + leftMargin + rightMargin),
-                (CGFloat)ceil(textSize.height + textVMargin * 2 + tapForMoreHeight));
+                (CGFloat)ceil(textSize.height + self.textTopMargin + self.textBottomMargin + tapForMoreHeight));
             break;
         }
         case OWSMessageCellType_StillImage:
@@ -1148,18 +1160,40 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (CGFloat)textLeadingMargin
 {
+    return (self.isIncoming ? kBubbleTextHInset + kBubbleThornSideInset : kBubbleTextHInset);
+    
+//    static const CGFloat kBubbleVRounding =  8.f;
+//    static const CGFloat kBubbleHRounding = 10.f;
+//    static const CGFloat kBubbleThornSideInset = 3.f;
+//    static const CGFloat kBubbleThornVInset = 3.f;
+//    static const CGFloat kBubbleTextHInset = 10.f;
+//    static const CGFloat kBubbleTextVInset = 10.f;
+//    static const CGFloat kBubbleTextTopInset = kBubbleTextVInset;
+//    static const CGFloat kBubbleTextBottomInset = kBubbleThornVInset + kBubbleTextVInset;
+
     return self.isIncoming ? 15 : 10;
 }
 
 - (CGFloat)textTrailingMargin
 {
-    return self.isIncoming ? 10 : 15;
+    return (self.isIncoming ? kBubbleTextHInset : kBubbleTextHInset + kBubbleThornSideInset);
+//    return self.isIncoming ? 10 : 15;
 }
 
-- (CGFloat)textVMargin
+- (CGFloat)textTopMargin
 {
-    return 10;
+    return kBubbleTextVInset;
 }
+
+- (CGFloat)textBottomMargin
+{
+    return kBubbleTextVInset + kBubbleThornVInset;
+}
+
+//- (CGFloat)textVMargin
+//{
+//    return 10;
+//}
 
 - (UIColor *)textColor
 {
