@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO: We could make the bubble shape respond to dynamic text.
 //static const CGFloat kBubbleVRounding = 3.f;
 //static const CGFloat kBubbleHRounding = 5.f;
-static const CGFloat kBubbleVRounding =  8.f;
+static const CGFloat kBubbleVRounding =  8.5f;
 static const CGFloat kBubbleHRounding = 10.f;
 static const CGFloat kBubbleThornSideInset = 3.f;
 static const CGFloat kBubbleThornVInset = 3.f;
@@ -95,15 +95,15 @@ static const CGFloat kBubbleTextVInset = 6.f;
                        controlPoint:CGPointMake(bubbleLeft, bubbleTop)];
     
     // Thorn Tip
-    CGFloat kThornPinchingA = 1.5f;
-    CGFloat kThornPinchingB = 0.f;
+    CGFloat kThornPinchingA = 0.f;
+    CGFloat kThornPinchingB = 3.5f;
     CGPoint thornTip = CGPointMake(self.width,
                                    self.height);
     CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA);
     CGPoint thornB = CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding);
     [bezierPath moveToPoint:thornTip];
     [bezierPath addQuadCurveToPoint:thornA
-                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.4f, bubbleBottom - kThornPinchingA)];
+                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA)];
     [bezierPath addLineToPoint:thornB];
     [bezierPath addQuadCurveToPoint:thornTip
                        controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
