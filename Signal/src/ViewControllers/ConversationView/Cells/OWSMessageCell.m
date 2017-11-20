@@ -97,17 +97,27 @@ static const CGFloat kBubbleTextVInset = 6.f;
     // Thorn Tip
     CGPoint thornTip = CGPointMake(self.width,
                                    self.height);
-    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding * 1.3f, bubbleBottom);
-    CGPoint thornB = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 0.9);
+    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom);
+    CGPoint thornB = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding);
     [bezierPath moveToPoint:thornTip];
 //    [bezierPath addLineToPoint:thornA];
     [bezierPath addQuadCurveToPoint:thornA
-                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.3f, bubbleBottom)];
+                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.4f, bubbleBottom)];
 //    [bezierPath addLineToPoint:thornA];
     [bezierPath addLineToPoint:thornB];
     [bezierPath addQuadCurveToPoint:thornTip
-                       controlPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 0.f)];
+                       controlPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 0.1f)];
 
+//    CGFloat thorn = 0.f;
+//    CGFloat bubbleRight = self.width - kBubbleThornSideInset;
+//    CGFloat bubbleTop = 0.f + kBubbleVInset;
+//    CGFloat bubbleBottom = self.height - kBubbleVInset;
+
+//    static const CGFloat kBubbleThornSideInset = 10.f;
+
+//    if (self.width >=
+    
+    
     // TODO:
     // Horizontal Flip If Necessary
     if (!self.isOutgoing) {
