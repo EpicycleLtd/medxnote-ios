@@ -95,32 +95,19 @@ static const CGFloat kBubbleTextVInset = 6.f;
                        controlPoint:CGPointMake(bubbleLeft, bubbleTop)];
     
     // Thorn Tip
-    CGFloat kThornPinchingA = 0.f;
-    CGFloat kThornPinchingB = 1.5f;
+    CGFloat kThornPinchingA = 1.5f;
+    CGFloat kThornPinchingB = 0.f;
     CGPoint thornTip = CGPointMake(self.width,
                                    self.height);
     CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA);
     CGPoint thornB = CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding);
     [bezierPath moveToPoint:thornTip];
-//    [bezierPath addLineToPoint:thornA];
     [bezierPath addQuadCurveToPoint:thornA
                        controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.4f, bubbleBottom - kThornPinchingA)];
-//    [bezierPath addLineToPoint:thornA];
     [bezierPath addLineToPoint:thornB];
     [bezierPath addQuadCurveToPoint:thornTip
                        controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
 
-//    CGFloat thorn = 0.f;
-//    CGFloat bubbleRight = self.width - kBubbleThornSideInset;
-//    CGFloat bubbleTop = 0.f + kBubbleVInset;
-//    CGFloat bubbleBottom = self.height - kBubbleVInset;
-
-//    static const CGFloat kBubbleThornSideInset = 10.f;
-
-//    if (self.width >=
-    
-    
-    // TODO:
     // Horizontal Flip If Necessary
     if (!self.isOutgoing) {
         CGAffineTransform flipTransform = CGAffineTransformMakeTranslation(self.width, 0.0);
@@ -130,15 +117,6 @@ static const CGFloat kBubbleTextVInset = 6.f;
 
     self.shapeLayer.fillColor = self.bubbleColor.CGColor;
     self.shapeLayer.path = bezierPath.CGPath;
-//    UIView *_Nullable maskedSubview = self.maskedSubview;
-//    if (!maskedSubview) {
-//        return;
-//    }
-//    maskedSubview.frame = self.bounds;
-//    // The JSQ masks are not RTL-safe, so we need to invert the
-//    // mask orientation manually.
-//    BOOL hasOutgoingMask = self.isOutgoing ^ self.isRTL;
-//    [JSQMessagesMediaViewBubbleImageMasker applyBubbleImageMaskToMediaView:maskedSubview isOutgoing:hasOutgoingMask];
 }
 
 - (void)setBubbleColor:(UIColor *)bubbleColor {
