@@ -95,18 +95,20 @@ static const CGFloat kBubbleTextVInset = 6.f;
                        controlPoint:CGPointMake(bubbleLeft, bubbleTop)];
     
     // Thorn Tip
+    CGFloat kThornPinchingA = 0.f;
+    CGFloat kThornPinchingB = 1.5f;
     CGPoint thornTip = CGPointMake(self.width,
                                    self.height);
-    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom);
-    CGPoint thornB = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding);
+    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA);
+    CGPoint thornB = CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding);
     [bezierPath moveToPoint:thornTip];
 //    [bezierPath addLineToPoint:thornA];
     [bezierPath addQuadCurveToPoint:thornA
-                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.4f, bubbleBottom)];
+                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.4f, bubbleBottom - kThornPinchingA)];
 //    [bezierPath addLineToPoint:thornA];
     [bezierPath addLineToPoint:thornB];
     [bezierPath addQuadCurveToPoint:thornTip
-                       controlPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 0.1f)];
+                       controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
 
 //    CGFloat thorn = 0.f;
 //    CGFloat bubbleRight = self.width - kBubbleThornSideInset;
