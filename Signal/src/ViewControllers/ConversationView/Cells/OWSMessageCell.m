@@ -39,6 +39,14 @@ static const CGFloat kBubbleTextVInset = 6.f;
 
 @implementation BubbleFillView
 
+- (void)setIsOutgoing:(BOOL)isOutgoing {
+    if (_isOutgoing == isOutgoing) {
+        return;
+    }
+    _isOutgoing = isOutgoing;
+    [self updateMask];
+}
+
 - (void)setFrame:(CGRect)frame
 {
     BOOL didSizeChange = !CGSizeEqualToSize(self.frame.size, frame.size);
@@ -67,14 +75,26 @@ static const CGFloat kBubbleTextVInset = 6.f;
         self.shapeLayer = [CAShapeLayer new];
         [self.layer addSublayer:self.shapeLayer];
     }
+    
+    UIBezierPath *bezierPath = [self.class maskPathForSize:self.bounds.size
+                                                isOutgoing:self.isOutgoing
+                                                     isRTL:self.isRTL];
 
+    self.shapeLayer.fillColor = self.bubbleColor.CGColor;
+    self.shapeLayer.path = bezierPath.CGPath;
+}
+
++ (UIBezierPath *)maskPathForSize:(CGSize)size
+                       isOutgoing:(BOOL)isOutgoing
+                            isRTL:(BOOL)isRTL
+{
     UIBezierPath *bezierPath = [UIBezierPath new];
     
     CGFloat bubbleLeft = 0.f;
-    CGFloat bubbleRight = self.width - kBubbleThornSideInset;
+    CGFloat bubbleRight = size.width - kBubbleThornSideInset;
     CGFloat bubbleTop = 0.f;
-    CGFloat bubbleBottom = self.height - kBubbleThornVInset;
-
+    CGFloat bubbleBottom = size.height - kBubbleThornVInset;
+    
     [bezierPath moveToPoint:CGPointMake(bubbleLeft + kBubbleHRounding, bubbleTop)];
     [bezierPath addLineToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleTop)];
     [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight, bubbleTop + kBubbleVRounding)
@@ -94,56 +114,54 @@ static const CGFloat kBubbleTextVInset = 6.f;
     [bezierPath addLineToPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding)];
     [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom - 1.f)
                        controlPoint:CGPointMake(bubbleRight, bubbleBottom)];
-//    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset - 1.f, bubbleBottom - 0.5f)
-//                       controlPoint:CGPointMake(bubbleRight, bubbleBottom)];
-//    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom)
-//                       controlPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom - 0.5f)];
+    //    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset - 1.f, bubbleBottom - 0.5f)
+    //                       controlPoint:CGPointMake(bubbleRight, bubbleBottom)];
+    //    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom)
+    //                       controlPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom - 0.5f)];
     [bezierPath addLineToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom)];
-
-//    // Thorn Tip
-//    CGFloat kThornPinchingA = 0.f;
-//    CGFloat kThornPinchingB = 3.5f;
-//    CGPoint thornTip = CGPointMake(self.width,
-//                                   self.height);
-//    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA);
-//    CGPoint thornB = CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding);
-//    [bezierPath moveToPoint:thornTip];
-//    [bezierPath addQuadCurveToPoint:thornA
-//                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA)];
-//    [bezierPath addLineToPoint:thornB];
-//    [bezierPath addQuadCurveToPoint:thornTip
-//                       controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
-
+    
+    //    // Thorn Tip
+    //    CGFloat kThornPinchingA = 0.f;
+    //    CGFloat kThornPinchingB = 3.5f;
+    //    CGPoint thornTip = CGPointMake(self.width,
+    //                                   self.height);
+    //    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA);
+    //    CGPoint thornB = CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding);
+    //    [bezierPath moveToPoint:thornTip];
+    //    [bezierPath addQuadCurveToPoint:thornA
+    //                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA)];
+    //    [bezierPath addLineToPoint:thornB];
+    //    [bezierPath addQuadCurveToPoint:thornTip
+    //                       controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
+    
     // Thorn Tip
-//    CGFloat kThornPinchingA = 0.f;
-//    CGFloat kThornPinchingB = 3.5f;
-//    CGPoint thornA = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 1.65f);
-//    CGPoint thornB = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 1.f);
+    //    CGFloat kThornPinchingA = 0.f;
+    //    CGFloat kThornPinchingB = 3.5f;
+    //    CGPoint thornA = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 1.65f);
+    //    CGPoint thornB = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 1.f);
     
-//    CGPoint thornA = CGPointMake(bubbleRight, bubbleTop + kBubbleVRounding * 1.f);
-//    CGPoint thornB = CGPointMake(bubbleRight, bubbleTop + kBubbleVRounding * 1.65f);
-//    CGPoint thornTip = CGPointMake(bubbleRight + kBubbleThornSideInset * 0.85f,
-//                                   (thornA.y + thornB.y) * 0.5f);
-//    [bezierPath moveToPoint:thornTip];
-//    [bezierPath addLineToPoint:thornA];
-//    [bezierPath addLineToPoint:thornB];
+    //    CGPoint thornA = CGPointMake(bubbleRight, bubbleTop + kBubbleVRounding * 1.f);
+    //    CGPoint thornB = CGPointMake(bubbleRight, bubbleTop + kBubbleVRounding * 1.65f);
+    //    CGPoint thornTip = CGPointMake(bubbleRight + kBubbleThornSideInset * 0.85f,
+    //                                   (thornA.y + thornB.y) * 0.5f);
+    //    [bezierPath moveToPoint:thornTip];
+    //    [bezierPath addLineToPoint:thornA];
+    //    [bezierPath addLineToPoint:thornB];
     
-//    [bezierPath addQuadCurveToPoint:thornA
-//                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA)];
-//    [bezierPath addLineToPoint:thornB];
-//    [bezierPath addQuadCurveToPoint:thornTip
-//                       controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
-
+    //    [bezierPath addQuadCurveToPoint:thornA
+    //                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA)];
+    //    [bezierPath addLineToPoint:thornB];
+    //    [bezierPath addQuadCurveToPoint:thornTip
+    //                       controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
+    
     // Horizontal Flip If Necessary
-    BOOL shouldFlip = self.isOutgoing == self.isRTL;
+    BOOL shouldFlip = isOutgoing == isRTL;
     if (shouldFlip) {
-        CGAffineTransform flipTransform = CGAffineTransformMakeTranslation(self.width, 0.0);
+        CGAffineTransform flipTransform = CGAffineTransformMakeTranslation(size.width, 0.0);
         flipTransform = CGAffineTransformScale(flipTransform, -1.0, 1.0);
         [bezierPath applyTransform:flipTransform];
     }
-
-    self.shapeLayer.fillColor = self.bubbleColor.CGColor;
-    self.shapeLayer.path = bezierPath.CGPath;
+    return bezierPath;
 }
 
 - (void)setBubbleColor:(UIColor *)bubbleColor {
@@ -160,12 +178,29 @@ static const CGFloat kBubbleTextVInset = 6.f;
 
 @property (nonatomic) BOOL isOutgoing;
 @property (nonatomic, nullable, weak) UIView *maskedSubview;
+@property (nonatomic) CAShapeLayer *maskLayer;
 
 @end
 
 #pragma mark -
 
 @implementation BubbleMaskingView
+
+- (void)setMaskedSubview:(UIView * _Nullable)maskedSubview {
+    if (_maskedSubview == maskedSubview) {
+        return;
+    }
+    _maskedSubview = maskedSubview;
+    [self updateMask];
+}
+
+- (void)setIsOutgoing:(BOOL)isOutgoing {
+    if (_isOutgoing == isOutgoing) {
+        return;
+    }
+    _isOutgoing = isOutgoing;
+    [self updateMask];
+}
 
 - (void)setFrame:(CGRect)frame
 {
@@ -196,10 +231,16 @@ static const CGFloat kBubbleTextVInset = 6.f;
         return;
     }
     maskedSubview.frame = self.bounds;
-    // The JSQ masks are not RTL-safe, so we need to invert the
-    // mask orientation manually.
-    BOOL hasOutgoingMask = self.isOutgoing ^ self.isRTL;
-    [JSQMessagesMediaViewBubbleImageMasker applyBubbleImageMaskToMediaView:maskedSubview isOutgoing:hasOutgoingMask];
+    
+    if (!self.maskLayer) {
+        self.maskLayer = [CAShapeLayer new];
+    }
+    
+    UIBezierPath *bezierPath = [BubbleFillView maskPathForSize:self.bounds.size
+                                                isOutgoing:self.isOutgoing
+                                                     isRTL:self.isRTL];
+    self.maskLayer.path = bezierPath.CGPath;
+    maskedSubview.layer.mask = self.maskLayer;
 }
 
 @end
@@ -283,7 +324,7 @@ static const CGFloat kBubbleTextVInset = 6.f;
 @property (nonatomic, nullable) UIImageView *failedSendBadgeView;
 @property (nonatomic, nullable) UILabel *tapForMoreLabel;
 @property (nonatomic, nullable) BubbleFillView *bubbleFillView;
-@property (nonatomic, nullable) UIImageView *bubbleImageView;
+//@property (nonatomic, nullable) UIImageView *bubbleImageView;
 @property (nonatomic, nullable) AttachmentUploadView *attachmentUploadView;
 @property (nonatomic, nullable) UIImageView *stillImageView;
 @property (nonatomic, nullable) YYAnimatedImageView *animatedImageView;
@@ -338,16 +379,16 @@ static const CGFloat kBubbleTextVInset = 6.f;
     self.bubbleFillView.layoutMargins = UIEdgeInsetsZero;
     // TODO:
 //    // Enable userInteractionEnabled so that links in textView work.
-//    self.bubbleFillView.userInteractionEnabled = YES;
+    self.bubbleFillView.userInteractionEnabled = YES;
     [self.payloadView addSubview:self.bubbleFillView];
     [self.bubbleFillView autoPinToSuperviewEdges];
     
-    self.bubbleImageView = [UIImageView new];
-    self.bubbleImageView.layoutMargins = UIEdgeInsetsZero;
-    // Enable userInteractionEnabled so that links in textView work.
-    self.bubbleImageView.userInteractionEnabled = YES;
-    [self.payloadView addSubview:self.bubbleImageView];
-    [self.bubbleImageView autoPinToSuperviewEdges];
+//    self.bubbleImageView = [UIImageView new];
+//    self.bubbleImageView.layoutMargins = UIEdgeInsetsZero;
+//    // Enable userInteractionEnabled so that links in textView work.
+//    self.bubbleImageView.userInteractionEnabled = YES;
+//    [self.payloadView addSubview:self.bubbleImageView];
+//    [self.bubbleImageView autoPinToSuperviewEdges];
     
     self.textView = [OWSMessageTextView new];
     self.textView.backgroundColor = [UIColor clearColor];
@@ -357,7 +398,7 @@ static const CGFloat kBubbleTextVInset = 6.f;
     self.textView.textContainerInset = UIEdgeInsetsZero;
     self.textView.contentInset = UIEdgeInsetsZero;
     self.textView.scrollEnabled = NO;
-    [self.bubbleImageView addSubview:self.textView];
+    [self.bubbleFillView addSubview:self.textView];
     OWSAssert(self.textView.superview);
 
     self.footerLabel = [UILabel new];
@@ -367,7 +408,7 @@ static const CGFloat kBubbleTextVInset = 6.f;
 
     // Hide these views by default.
     self.bubbleFillView.hidden = YES;
-    self.bubbleImageView.hidden = YES;
+//    self.bubbleImageView.hidden = YES;
     self.textView.hidden = YES;
     self.dateHeaderLabel.hidden = YES;
     self.footerLabel.hidden = YES;
@@ -522,10 +563,10 @@ static const CGFloat kBubbleTextVInset = 6.f;
         self.payloadConstraints = [self.payloadView autoPinWidthToSuperview];
     }
 
-    JSQMessagesBubbleImage *_Nullable bubbleImageData;
+//    JSQMessagesBubbleImage *_Nullable bubbleImageData;
     if ([self.viewItem.interaction isKindOfClass:[TSMessage class]]) {
         TSMessage *message = (TSMessage *)self.viewItem.interaction;
-        bubbleImageData = [self.bubbleFactory bubbleWithMessage:message];
+//        bubbleImageData = [self.bubbleFactory bubbleWithMessage:message];
         // TODO:
         self.bubbleFillView.bubbleColor = [self.bubbleFactory bubbleColorWithMessage:message];
     }
@@ -857,7 +898,7 @@ static const CGFloat kBubbleTextVInset = 6.f;
 - (void)loadForTextDisplay
 {
     self.bubbleFillView.hidden = NO;
-    self.bubbleImageView.hidden = NO;
+//    self.bubbleImageView.hidden = NO;
     self.textView.hidden = NO;
     self.textView.text = self.displayableText.displayText;
     UIColor *textColor = [self textColor];
@@ -887,7 +928,7 @@ static const CGFloat kBubbleTextVInset = 6.f;
         self.tapForMoreLabel.font = [self tapForMoreFont];
         self.tapForMoreLabel.textColor = [textColor colorWithAlphaComponent:0.85];
         self.tapForMoreLabel.textAlignment = [self.tapForMoreLabel textAlignmentUnnatural];
-        [self.bubbleImageView addSubview:self.tapForMoreLabel];
+        [self.bubbleFillView addSubview:self.tapForMoreLabel];
 
         self.contentConstraints = @[
             [self.textView autoPinLeadingToSuperviewWithMargin:self.textLeadingMargin],
@@ -1256,9 +1297,9 @@ static const CGFloat kBubbleTextVInset = 6.f;
     self.tapForMoreLabel = nil;
     self.footerLabel.text = nil;
     self.footerLabel.hidden = YES;
-    self.bubbleImageView.hidden = YES;
-    self.bubbleImageView.image = nil;
-    self.bubbleImageView.hidden = YES;
+    self.bubbleFillView.hidden = YES;
+//    self.bubbleImageView.image = nil;
+//    self.bubbleImageView.hidden = YES;
     self.payloadView.maskedSubview = nil;
 
     [self.stillImageView removeFromSuperview];
