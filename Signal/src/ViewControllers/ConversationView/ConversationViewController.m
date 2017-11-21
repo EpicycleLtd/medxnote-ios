@@ -3943,7 +3943,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 - (void)voiceMemoGestureDidCancel
 {
     OWSAssert([NSThread isMainThread]);
-
+ 
     DDLogInfo(@"voiceMemoGestureDidCancel");
 
     [self.inputToolbar hideVoiceMemoUI:NO];

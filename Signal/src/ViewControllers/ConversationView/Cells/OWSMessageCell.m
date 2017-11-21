@@ -18,16 +18,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 // TODO: We could make the bubble shape respond to dynamic text.
-//static const CGFloat kBubbleVRounding = 3.f;
-//static const CGFloat kBubbleHRounding = 5.f;
 static const CGFloat kBubbleVRounding =  8.5f;
 static const CGFloat kBubbleHRounding = 10.f;
-static const CGFloat kBubbleThornSideInset = 3.f;
-static const CGFloat kBubbleThornVInset = 3.f;
+//static const CGFloat kBubbleThornSideInset = 3.f;
+//static const CGFloat kBubbleThornVInset = 3.f;
+static const CGFloat kBubbleThornSideInset = 6.f;
+static const CGFloat kBubbleThornVInset = 0.f;
 static const CGFloat kBubbleTextHInset = 6.f;
 static const CGFloat kBubbleTextVInset = 6.f;
-//static const CGFloat kBubbleTextTopInset = kBubbleTextVInset;
-//static const CGFloat kBubbleTextBottomInset = kBubbleThornVInset + kBubbleTextVInset;
 
 @interface BubbleFillView : UIView
 
@@ -69,11 +67,8 @@ static const CGFloat kBubbleTextVInset = 6.f;
         self.shapeLayer = [CAShapeLayer new];
         [self.layer addSublayer:self.shapeLayer];
     }
-    
-//    [self addRedBorder];
 
     UIBezierPath *bezierPath = [UIBezierPath new];
-//    [bezierPath appendPath:[UIBezierPath bezierPathWithOvalInRect:self.bounds]];
     
     CGFloat bubbleLeft = 0.f;
     CGFloat bubbleRight = self.width - kBubbleThornSideInset;
@@ -95,21 +90,48 @@ static const CGFloat kBubbleTextVInset = 6.f;
                        controlPoint:CGPointMake(bubbleLeft, bubbleTop)];
     
     // Thorn Tip
-    CGFloat kThornPinchingA = 0.f;
-    CGFloat kThornPinchingB = 3.5f;
-    CGPoint thornTip = CGPointMake(self.width,
-                                   self.height);
-    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA);
-    CGPoint thornB = CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding);
-    [bezierPath moveToPoint:thornTip];
-    [bezierPath addQuadCurveToPoint:thornA
-                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA)];
-    [bezierPath addLineToPoint:thornB];
-    [bezierPath addQuadCurveToPoint:thornTip
-                       controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
+    [bezierPath moveToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom)];
+    [bezierPath addLineToPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding)];
+    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom)
+                       controlPoint:CGPointMake(bubbleRight, bubbleBottom)];
+
+//    // Thorn Tip
+//    CGFloat kThornPinchingA = 0.f;
+//    CGFloat kThornPinchingB = 3.5f;
+//    CGPoint thornTip = CGPointMake(self.width,
+//                                   self.height);
+//    CGPoint thornA = CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA);
+//    CGPoint thornB = CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding);
+//    [bezierPath moveToPoint:thornTip];
+//    [bezierPath addQuadCurveToPoint:thornA
+//                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA)];
+//    [bezierPath addLineToPoint:thornB];
+//    [bezierPath addQuadCurveToPoint:thornTip
+//                       controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
+
+    // Thorn Tip
+//    CGFloat kThornPinchingA = 0.f;
+//    CGFloat kThornPinchingB = 3.5f;
+//    CGPoint thornA = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 1.65f);
+//    CGPoint thornB = CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 1.f);
+    
+//    CGPoint thornA = CGPointMake(bubbleRight, bubbleTop + kBubbleVRounding * 1.f);
+//    CGPoint thornB = CGPointMake(bubbleRight, bubbleTop + kBubbleVRounding * 1.65f);
+//    CGPoint thornTip = CGPointMake(bubbleRight + kBubbleThornSideInset * 0.85f,
+//                                   (thornA.y + thornB.y) * 0.5f);
+//    [bezierPath moveToPoint:thornTip];
+//    [bezierPath addLineToPoint:thornA];
+//    [bezierPath addLineToPoint:thornB];
+    
+//    [bezierPath addQuadCurveToPoint:thornA
+//                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom - kThornPinchingA)];
+//    [bezierPath addLineToPoint:thornB];
+//    [bezierPath addQuadCurveToPoint:thornTip
+//                       controlPoint:CGPointMake(bubbleRight - kThornPinchingB, bubbleBottom - kBubbleVRounding * 0.1f)];
 
     // Horizontal Flip If Necessary
-    if (!self.isOutgoing) {
+    BOOL shouldFlip = self.isOutgoing == self.isRTL;
+    if (shouldFlip) {
         CGAffineTransform flipTransform = CGAffineTransformMakeTranslation(self.width, 0.0);
         flipTransform = CGAffineTransformScale(flipTransform, -1.0, 1.0);
         [bezierPath applyTransform:flipTransform];
