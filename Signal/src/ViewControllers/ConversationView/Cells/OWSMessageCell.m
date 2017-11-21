@@ -92,8 +92,12 @@ static const CGFloat kBubbleTextVInset = 6.f;
     // Thorn Tip
     [bezierPath moveToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom)];
     [bezierPath addLineToPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding)];
-    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom - 2.f)
+    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom - 1.f)
                        controlPoint:CGPointMake(bubbleRight, bubbleBottom)];
+//    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset - 1.f, bubbleBottom - 0.5f)
+//                       controlPoint:CGPointMake(bubbleRight, bubbleBottom)];
+//    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom)
+//                       controlPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom - 0.5f)];
     [bezierPath addLineToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom)];
 
 //    // Thorn Tip
