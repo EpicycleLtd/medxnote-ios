@@ -24,8 +24,8 @@ static const CGFloat kBubbleHRounding = 10.f;
 //static const CGFloat kBubbleThornVInset = 3.f;
 //static const CGFloat kBubbleThornSideInset = 6.f;
 //static const CGFloat kBubbleThornVInset = 0.f;
-static const CGFloat kBubbleThornSideInset = kBubbleHRounding * 0.65f;
-static const CGFloat kBubbleThornVInset = kBubbleVRounding * 0.35f;
+static const CGFloat kBubbleThornSideInset = kBubbleHRounding * 0.6f;
+static const CGFloat kBubbleThornVInset = kBubbleVRounding * 0.4f;
 static const CGFloat kBubbleTextHInset = 6.f;
 static const CGFloat kBubbleTextVInset = 6.f;
 
@@ -123,7 +123,7 @@ static const CGFloat kBubbleTextVInset = 6.f;
 //    [bezierPath addLineToPoint:thornB];
 //    [bezierPath addLineToPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 0.5f)];
     [bezierPath addQuadCurveToPoint:thornA
-                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.4f, bubbleBottom)];
+                       controlPoint:CGPointMake(bubbleRight - kBubbleHRounding * 0.7f, bubbleBottom)];
     [bezierPath addLineToPoint:thornB];
     [bezierPath addQuadCurveToPoint:thornTip
                        controlPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding * 0.1f)];
