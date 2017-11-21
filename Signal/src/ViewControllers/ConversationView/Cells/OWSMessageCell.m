@@ -22,7 +22,7 @@ static const CGFloat kBubbleVRounding =  8.5f;
 static const CGFloat kBubbleHRounding = 10.f;
 //static const CGFloat kBubbleThornSideInset = 3.f;
 //static const CGFloat kBubbleThornVInset = 3.f;
-static const CGFloat kBubbleThornSideInset = kBubbleHRounding;
+static const CGFloat kBubbleThornSideInset = 6.f;
 static const CGFloat kBubbleThornVInset = 0.f;
 static const CGFloat kBubbleTextHInset = 6.f;
 static const CGFloat kBubbleTextVInset = 6.f;
@@ -92,8 +92,9 @@ static const CGFloat kBubbleTextVInset = 6.f;
     // Thorn Tip
     [bezierPath moveToPoint:CGPointMake(bubbleRight - kBubbleHRounding, bubbleBottom)];
     [bezierPath addLineToPoint:CGPointMake(bubbleRight, bubbleBottom - kBubbleVRounding)];
-    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom)
+    [bezierPath addQuadCurveToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom - 2.f)
                        controlPoint:CGPointMake(bubbleRight, bubbleBottom)];
+    [bezierPath addLineToPoint:CGPointMake(bubbleRight + kBubbleThornSideInset, bubbleBottom)];
 
 //    // Thorn Tip
 //    CGFloat kThornPinchingA = 0.f;
