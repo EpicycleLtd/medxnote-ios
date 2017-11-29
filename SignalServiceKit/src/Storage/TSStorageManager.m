@@ -302,6 +302,7 @@ void setDatabaseInitialized()
 - (void)setupDatabaseWithSafeBlockingMigrations:(void (^_Nonnull)())safeBlockingMigrationsBlock
 {
     // Synchronously register extensions which are essential for views.
+    [TSDatabaseView registerCrossProcessNotifier];
     [TSDatabaseView registerThreadInteractionsDatabaseView];
     [TSDatabaseView registerThreadDatabaseView];
     [TSDatabaseView registerUnreadDatabaseView];
