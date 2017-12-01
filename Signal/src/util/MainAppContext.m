@@ -56,6 +56,11 @@ NS_ASSUME_NONNULL_BEGIN
     ];
 }
 
+- (UIViewController *)frontmostViewController
+{
+    return UIApplication.sharedApplication.frontmostViewController;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
