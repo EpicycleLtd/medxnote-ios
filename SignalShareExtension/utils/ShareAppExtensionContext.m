@@ -40,6 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
     OWSFail(@"%@ called %s.", self.logTag, __PRETTY_FUNCTION__);
 }
 
+- (NSArray<OWSDatabaseMigration *> *)allMigrations
+{
+    return @[];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
