@@ -65,9 +65,7 @@
                                                            }];
         [alertController addAction:quitAction];
 
-        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController
-                                                                                     animated:YES
-                                                                                   completion:nil];
+        [CurrentAppContext().frontmostViewController presentViewController:alertController animated:YES completion:nil];
     }
 
     if ([self isVersion:previousVersion atLeast:@"2.0.0" andLessThan:@"2.1.70"] && [TSAccountManager isRegistered]) {

@@ -36,10 +36,9 @@
                                             message:nil
                                      preferredStyle:UIAlertControllerStyleAlert];
 
-    [[UIApplication sharedApplication].keyWindow.rootViewController
-        presentViewController:sharedController.alertController
-                     animated:YES
-                   completion:nil];
+    [CurrentAppContext().frontmostViewController presentViewController:sharedController.alertController
+                                                              animated:YES
+                                                            completion:nil];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         BOOL success = blockingOperation();
@@ -84,9 +83,7 @@
                                                          usesNetwork:YES];
                                              }]];
 
-        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:retryController
-                                                                                     animated:YES
-                                                                                   completion:nil];
+        [CurrentAppContext().frontmostViewController presentViewController:retryController animated:YES completion:nil];
     };
 
     return retryBlock;
