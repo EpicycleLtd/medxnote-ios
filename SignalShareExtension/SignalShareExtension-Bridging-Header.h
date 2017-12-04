@@ -8,6 +8,7 @@
 // Separate iOS Frameworks from other imports.
 #import "DebugLogger.h"
 #import "Environment.h"
+#import "OWSContactsManager.h"
 #import "OWSLogger.h"
 #import "OWSMath.h"
 #import "OWSPreferences.h"
@@ -20,3 +21,4 @@
 #import <SignalServiceKit/AppVersion.h>
 #import <SignalServiceKit/Asserts.h>
 #import <SignalServiceKit/NSObject+OWS.h>
+#import <SignalServiceKit/OWSMessageSender.h>

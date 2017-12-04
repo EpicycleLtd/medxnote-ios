@@ -119,24 +119,28 @@ class ShareViewController: UINavigationController, SAELoadViewDelegate {
     }
 
     func setupEnvironment() {
-        Environment.setCurrent(Release.releaseEnvironment())
+        let environment = Release.releaseEnvironment()
+        Environment.setCurrent(environment)
 
-        // TODO:
-//        // Encryption/Descryption mutates session state and must be synchronized on a serial queue.
-//        [SessionCipher setSessionCipherDispatchQueue:[OWSDispatch sessionStoreQueue]];
+        // Encryption/Decryption mutates session state and must be synchronized on a serial queue.
+        SessionCipher.setSessionCipherDispatchQueue(OWSDispatch.sessionStoreQueue())
+
+        let sharedEnv = TextSecureKitEnv(callMessageHandler:SAECallMessageHandler(),
+                contactsManager:Environment.current().contactsManager,
+                messageSender:Environment.current().messageSender,
+                notificationsManager:SAENotificationsManager(),
+                profileManager:OWSProfileManager.shared())
+        TextSecureKitEnv.setShared(sharedEnv)
+
+//        TSStorageManager.shared().setupDatabaseWithSafeBlockingMigrations() {
+////            #import <SignalServiceKit/OWSDatabaseMigrationRunner.h>
+//            [[[OWSDatabaseMigrationRunner alloc] initWithStorageManager:[TSStorageManager sharedManager]]
+//            runSafeBlockingMigrations];
 //
-//        TextSecureKitEnv *sharedEnv =
-//            [[TextSecureKitEnv alloc] initWithCallMessageHandler:SignalApp.sharedApp.callMessageHandler
-//                contactsManager:[Environment current].contactsManager
-//                messageSender:[Environment current].messageSender
-//                notificationsManager:SignalApp.sharedApp.notificationsManager
-//                profileManager:OWSProfileManager.sharedManager];
-//        [TextSecureKitEnv setSharedEnv:sharedEnv];
-//
-//        [[TSStorageManager sharedManager] setupDatabaseWithSafeBlockingMigrations:^{
-//            [VersionMigrations runSafeBlockingMigrations];
-//            }];
-//        [[Environment current].contactsManager startObserving];
+//            VersionMigrations.runSafeBlockingMigrations()
+//        }
+
+        Environment.current().contactsManager.startObserving()
     }
 
     // MARK: View Lifecycle
