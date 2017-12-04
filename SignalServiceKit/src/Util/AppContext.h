@@ -49,6 +49,8 @@ typedef void (^BackgroundTaskExpirationHandler)(void);
 // but should only be necessary to call if isMainApp is YES.
 - (void)doMultiDeviceUpdateWithProfileKey:(OWSAES256Key *)profileKey;
 
+- (BOOL)isRunningTests;
+
 @end
 
 id<AppContext> CurrentAppContext(void);

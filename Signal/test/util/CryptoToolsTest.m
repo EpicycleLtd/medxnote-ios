@@ -2,10 +2,9 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import <XCTest/XCTest.h>
-#import "Util.h"
 #import "CryptoTools.h"
 #import "TestUtil.h"
+#import <XCTest/XCTest.h>
 
 @interface CryptoToolsTest : XCTestCase
 

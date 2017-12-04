@@ -4,14 +4,6 @@
 
 #import "OWSFormat.h"
 
-//#import "Environment.h"
-//#import "HomeViewController.h"
-//#import "PhoneNumber.h"
-//#import "Signal-Swift.h"
-//#import "StringUtil.h"
-//#import <AVFoundation/AVFoundation.h>
-//#import <SignalServiceKit/PhoneNumberUtil.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation OWSFormat

@@ -89,6 +89,11 @@ NS_ASSUME_NONNULL_BEGIN
                                        profileManager:OWSProfileManager.sharedManager];
 }
 
+- (BOOL)isRunningTests
+{
+    return getenv("runningTests_dontStartApp");
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

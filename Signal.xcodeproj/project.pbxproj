@@ -78,7 +78,7 @@
 		346129B51FD1F7E800532771 /* OWSProfileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 346129B21FD1F7E800532771 /* OWSProfileManager.m */; };
 		346129B61FD1F7E800532771 /* ProfileFetcherJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346129B31FD1F7E800532771 /* ProfileFetcherJob.swift */; };
 		346129BF1FD2068600532771 /* ThreadUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 346129BE1FD2068600532771 /* ThreadUtil.m */; };
-		346129C71FD2072E00532771 /* NSString+OWS.h in Headers */ = {isa = PBXBuildFile; fileRef = 346129C01FD2072C00532771 /* NSString+OWS.h */; };
+		346129C71FD2072E00532771 /* NSString+OWS.h in Headers */ = {isa = PBXBuildFile; fileRef = 346129C01FD2072C00532771 /* NSString+OWS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		346129C81FD2072E00532771 /* NSAttributedString+OWS.m in Sources */ = {isa = PBXBuildFile; fileRef = 346129C11FD2072D00532771 /* NSAttributedString+OWS.m */; };
 		346129C91FD2072E00532771 /* NSString+OWS.m in Sources */ = {isa = PBXBuildFile; fileRef = 346129C21FD2072D00532771 /* NSString+OWS.m */; };
 		346129CA1FD2072E00532771 /* UIImage+OWS.h in Headers */ = {isa = PBXBuildFile; fileRef = 346129C31FD2072D00532771 /* UIImage+OWS.h */; };
@@ -323,8 +323,6 @@
 		76EB054018170B33006006FC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB03C318170B33006006FC /* AppDelegate.m */; };
 		76EB063A18170B33006006FC /* FunctionalUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB04EB18170B33006006FC /* FunctionalUtil.m */; };
 		76EB063C18170B33006006FC /* NumberUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB04ED18170B33006006FC /* NumberUtil.m */; };
-		76EB063E18170B33006006FC /* Operation.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB04EF18170B33006006FC /* Operation.m */; };
-		76EB064218170B33006006FC /* StringUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB04F618170B33006006FC /* StringUtil.m */; };
 		76EB068618170B34006006FC /* ContactTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB052F18170B33006006FC /* ContactTableViewCell.m */; };
 		954AEE6A1DF33E01002E5410 /* ContactsPickerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954AEE681DF33D32002E5410 /* ContactsPickerTest.swift */; };
 		A10FDF79184FB4BB007FF963 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 76C87F18181EFCE600C4ACAB /* MediaPlayer.framework */; };
@@ -374,7 +372,6 @@
 		B660F77F1C29988E00687D6E /* DateUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B90418E5183E9DD40038554A /* DateUtil.m */; };
 		B660F7811C29988E00687D6E /* FunctionalUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB04EB18170B33006006FC /* FunctionalUtil.m */; };
 		B660F7831C29988E00687D6E /* NumberUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB04ED18170B33006006FC /* NumberUtil.m */; };
-		B660F7871C29988E00687D6E /* StringUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB04F618170B33006006FC /* StringUtil.m */; };
 		B660F78A1C29988E00687D6E /* UIUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B97940261832BD2400BD66CB /* UIUtil.m */; };
 		B660F78C1C29988E00687D6E /* UIDevice+TSHardwareVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = FCC81A971A44558300DFEC7D /* UIDevice+TSHardwareVersion.m */; };
 		B66DBF4A19D5BBC8006EA940 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B66DBF4919D5BBC8006EA940 /* Images.xcassets */; };
@@ -917,11 +914,6 @@
 		76EB04EB18170B33006006FC /* FunctionalUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunctionalUtil.m; sourceTree = "<group>"; };
 		76EB04EC18170B33006006FC /* NumberUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NumberUtil.h; sourceTree = "<group>"; };
 		76EB04ED18170B33006006FC /* NumberUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NumberUtil.m; sourceTree = "<group>"; };
-		76EB04EE18170B33006006FC /* Operation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Operation.h; sourceTree = "<group>"; };
-		76EB04EF18170B33006006FC /* Operation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Operation.m; sourceTree = "<group>"; };
-		76EB04F518170B33006006FC /* StringUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringUtil.h; sourceTree = "<group>"; };
-		76EB04F618170B33006006FC /* StringUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringUtil.m; sourceTree = "<group>"; };
-		76EB04FB18170B33006006FC /* Util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util.h; sourceTree = "<group>"; };
 		76EB052E18170B33006006FC /* ContactTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactTableViewCell.h; sourceTree = "<group>"; };
 		76EB052F18170B33006006FC /* ContactTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactTableViewCell.m; sourceTree = "<group>"; };
 		8981C8F64D94D3C52EB67A2C /* Pods-SignalTests.test.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SignalTests.test.xcconfig"; path = "Pods/Target Support Files/Pods-SignalTests/Pods-SignalTests.test.xcconfig"; sourceTree = "<group>"; };
@@ -1765,8 +1757,6 @@
 				34B0796B1FCF46B000E248C2 /* MainAppContext.m */,
 				76EB04EC18170B33006006FC /* NumberUtil.h */,
 				76EB04ED18170B33006006FC /* NumberUtil.m */,
-				76EB04EE18170B33006006FC /* Operation.h */,
-				76EB04EF18170B33006006FC /* Operation.m */,
 				34D99C911F2937CC00D284D6 /* OWSAnalytics.swift */,
 				34D5CC941EA6AFAD005515DB /* OWSContactsSyncing.h */,
 				34D5CC951EA6AFAD005515DB /* OWSContactsSyncing.m */,
@@ -1774,8 +1764,6 @@
 				4579431D1E7C8CE9008ED0C0 /* Pastelog.m */,
 				450DF2041E0D74AC003D14BE /* Platform.swift */,
 				45360B8C1F9521F800FA666C /* Searcher.swift */,
-				76EB04F518170B33006006FC /* StringUtil.h */,
-				76EB04F618170B33006006FC /* StringUtil.m */,
 				4521C3BF1F59F3BA00B4C582 /* TextFieldHelper.swift */,
 				346129BD1FD2068600532771 /* ThreadUtil.h */,
 				346129BE1FD2068600532771 /* ThreadUtil.m */,
@@ -1784,7 +1772,6 @@
 				FCC81A971A44558300DFEC7D /* UIDevice+TSHardwareVersion.m */,
 				B97940251832BD2400BD66CB /* UIUtil.h */,
 				B97940261832BD2400BD66CB /* UIUtil.m */,
-				76EB04FB18170B33006006FC /* Util.h */,
 				45F170D51E315310003FC1F2 /* Weak.swift */,
 			);
 			path = util;
@@ -2792,7 +2779,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				34B3F8761E8DF1700035BE1A /* CodeVerificationViewController.m in Sources */,
-				76EB063E18170B33006006FC /* Operation.m in Sources */,
 				3461293E1FD1D72B00532771 /* ExperienceUpgradeFinder.swift in Sources */,
 				34D1F0BD1F8D108C0066283D /* AttachmentUploadView.m in Sources */,
 				34D1F0BA1F8800D90066283D /* OWSAudioMessageView.m in Sources */,
@@ -2850,7 +2836,6 @@
 				451686AB1F520CDA00AC3D4B /* MultiDeviceProfileKeyUpdateJob.swift in Sources */,
 				45D231771DC7E8F10034FA89 /* SessionResetJob.swift in Sources */,
 				34D9134D1F66DB7C00722898 /* ModalActivityIndicatorViewController.swift in Sources */,
-				76EB064218170B33006006FC /* StringUtil.m in Sources */,
 				452037D11EE84975004E4CDF /* DebugUISessionState.m in Sources */,
 				D221A09A169C9E5E00537ABF /* main.m in Sources */,
 				45843D1F1D2236B30013E85A /* OWSContactsSearcher.m in Sources */,
@@ -3016,7 +3001,6 @@
 				B660F77F1C29988E00687D6E /* DateUtil.m in Sources */,
 				B660F7811C29988E00687D6E /* FunctionalUtil.m in Sources */,
 				B660F7831C29988E00687D6E /* NumberUtil.m in Sources */,
-				B660F7871C29988E00687D6E /* StringUtil.m in Sources */,
 				45FBC5C91DF8575700E9B410 /* CallKitCallManager.swift in Sources */,
 				B660F78A1C29988E00687D6E /* UIUtil.m in Sources */,
 				B660F78C1C29988E00687D6E /* UIDevice+TSHardwareVersion.m in Sources */,

@@ -147,7 +147,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 
     [UIUtil applySignalAppearence];
 
-    if (getenv("runningTests_dontStartApp")) {
+    if (CurrentAppContext().isRunningTests) {
         return YES;
     }
 
@@ -503,7 +503,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     DDLogWarn(@"%@ applicationDidBecomeActive.", self.logTag);
 
-    if (getenv("runningTests_dontStartApp")) {
+    if (CurrentAppContext().isRunningTests) {
         return;
     }
     

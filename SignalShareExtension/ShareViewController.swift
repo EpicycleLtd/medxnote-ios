@@ -33,6 +33,7 @@ class ShareViewController: UINavigationController, SAELoadViewDelegate {
         // XXX - careful when moving this. It must happen before we initialize TSStorageManager.
         TSStorageManager.verifyDBKeysAvailableBeforeBackgroundLaunch()
 
+        // TODO:
 //        // Prevent the device from sleeping during database view async registration
 //        // (e.g. long database upgrades).
 //        //
@@ -41,19 +42,14 @@ class ShareViewController: UINavigationController, SAELoadViewDelegate {
 
         setupEnvironment()
 
+        // TODO:
 //        [UIUtil applySignalAppearence];
-//
-//        if (getenv("runningTests_dontStartApp")) {
-//            return YES;
-//        }
-//
-//        self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-//
-//        // Show the launch screen until the async database view registrations are complete.
-//        self.window.rootViewController = [self loadingRootViewController];
-//
-//        [self.window makeKeyAndVisible];
-//
+
+        if CurrentAppContext().isRunningTests() {
+            // TODO: Do we need to implement isRunningTests in the SAE context?
+            return
+        }
+
 //        // performUpdateCheck must be invoked after Environment has been initialized because
 //        // upgrade process may depend on Environment.
 //        [VersionMigrations performUpdateCheck];

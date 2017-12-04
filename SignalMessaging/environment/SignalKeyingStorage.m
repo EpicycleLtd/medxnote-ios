@@ -5,7 +5,6 @@
 #import "SignalKeyingStorage.h"
 #import "CryptoTools.h"
 #import "TSStorageManager.h"
-#import "Util.h"
 
 #define SignalKeyingCollection @"SignalKeyingCollection"
 
