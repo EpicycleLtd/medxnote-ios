@@ -51,6 +51,8 @@ typedef void (^BackgroundTaskExpirationHandler)(void);
 
 - (BOOL)isRunningTests;
 
+- (BOOL)isRTL;
+
 @end
 
 id<AppContext> CurrentAppContext(void);
