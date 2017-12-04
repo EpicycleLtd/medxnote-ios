@@ -71,6 +71,11 @@ NS_ASSUME_NONNULL_BEGIN
     return @[];
 }
 
+- (NSArray<OWSDatabaseMigration *> *)safeBlockingMigrations
+{
+    return @[];
+}
+
 - (nullable UIViewController *)frontmostViewController
 {
     OWSAssert(self.rootViewController);

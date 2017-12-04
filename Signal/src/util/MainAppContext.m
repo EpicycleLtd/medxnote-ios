@@ -6,6 +6,7 @@
 #import "OWS100RemoveTSRecipientsMigration.h"
 #import "OWS102MoveLoggingPreferenceToUserDefaults.h"
 #import "OWS103EnableVideoCalling.h"
+#import "OWS104CreateRecipientIdentities.h"
 #import "OWS105AttachmentFilePaths.h"
 #import "Signal-Swift.h"
 #import <SignalMessaging/Environment.h>
@@ -57,6 +58,14 @@ NS_ASSUME_NONNULL_BEGIN
         // OWS104CreateRecipientIdentities is run separately. See runSafeBlockingMigrations.
         [[OWS105AttachmentFilePaths alloc] initWithStorageManager:storageManager],
         [[OWS106EnsureProfileComplete alloc] initWithStorageManager:storageManager]
+    ];
+}
+
+- (NSArray<OWSDatabaseMigration *> *)safeBlockingMigrations
+{
+    TSStorageManager *storageManager = TSStorageManager.sharedManager;
+    return @[
+        [[OWS104CreateRecipientIdentities alloc] initWithStorageManager:storageManager],
     ];
 }
 

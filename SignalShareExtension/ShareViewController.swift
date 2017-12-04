@@ -132,13 +132,9 @@ class ShareViewController: UINavigationController, SAELoadViewDelegate {
                 profileManager:OWSProfileManager.shared())
         TextSecureKitEnv.setShared(sharedEnv)
 
-//        TSStorageManager.shared().setupDatabaseWithSafeBlockingMigrations() {
-////            #import <SignalServiceKit/OWSDatabaseMigrationRunner.h>
-//            [[[OWSDatabaseMigrationRunner alloc] initWithStorageManager:[TSStorageManager sharedManager]]
-//            runSafeBlockingMigrations];
-//
-//            VersionMigrations.runSafeBlockingMigrations()
-//        }
+        TSStorageManager.shared().setupDatabase(safeBlockingMigrations: {
+            VersionMigrations.runSafeBlockingMigrations()
+        })
 
         Environment.current().contactsManager.startObserving()
     }

@@ -3,9 +3,7 @@
 //
 
 #import "OWSDatabaseMigrationRunner.h"
-#import "OWS104CreateRecipientIdentities.h"
 #import "OWSDatabaseMigration.h"
-#import "Signal-Swift.h"
 #import <SignalServiceKit/AppContext.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -24,6 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (NSArray<OWSDatabaseMigration *> *)safeBlockingMigrations
+{
+    return CurrentAppContext().safeBlockingMigrations;
+}
+
 - (NSArray<OWSDatabaseMigration *> *)allMigrations
 {
     return CurrentAppContext().allMigrations;
@@ -39,14 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)runSafeBlockingMigrations
 {
-    // This should only include migrations which:
-    //
-    // a) Do read/write database transactions and therefore would block on the async database
-    //    view registration.
-    // b) Will not affect any of the data used by the async database views.
-    [self runMigrations:@[
-        [[OWS104CreateRecipientIdentities alloc] initWithStorageManager:self.storageManager],
-    ]];
+    [self runMigrations:self.safeBlockingMigrations];
 }
 
 - (void)runAllOutstanding
