@@ -8,10 +8,13 @@ import SignalMessaging
 import PureLayout
 import SignalServiceKit
 
-class ShareViewController: UINavigationController, SAELoadViewDelegate {
+@objc
+public class ShareViewController: UINavigationController, SAELoadViewDelegate {
 
-    override func loadView() {
+    override open func loadView() {
         super.loadView()
+
+        Logger.debug("\(self.logTag()) \(#function)")
 
         // This should be the first thing we do.
         SetCurrentAppContext(ShareAppExtensionContext(rootViewController:self))
@@ -50,44 +53,57 @@ class ShareViewController: UINavigationController, SAELoadViewDelegate {
             return
         }
 
-//        // performUpdateCheck must be invoked after Environment has been initialized because
-//        // upgrade process may depend on Environment.
-//        [VersionMigrations performUpdateCheck];
-//
-//        // Accept push notification when app is not open
-//        NSDictionary *remoteNotif = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
-//        if (remoteNotif) {
-//            DDLogInfo(@"Application was launched by tapping a push notification.");
-//            [self application:application didReceiveRemoteNotification:remoteNotif];
-//        }
-//
-//        [self prepareScreenProtection];
-//
-//        self.contactsSyncing = [[OWSContactsSyncing alloc] initWithContactsManager:[Environment current].contactsManager
-//            identityManager:[OWSIdentityManager sharedManager]
-//            messageSender:[Environment current].messageSender
-//            profileManager:[OWSProfileManager sharedManager]];
-//
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//            selector:@selector(databaseViewRegistrationComplete)
-//            name:kNSNotificationName_DatabaseViewRegistrationComplete
-//            object:nil];
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//            selector:@selector(registrationStateDidChange)
-//            name:kNSNotificationName_RegistrationStateDidChange
-//            object:nil];
-//
-//        DDLogInfo(@"%@ application: didFinishLaunchingWithOptions completed.", self.logTag);
-//
-//        [OWSAnalytics appLaunchDidBegin];
-//
-//        return YES;
-
-        Logger.debug("\(self.logTag()) \(#function)")
+        // performUpdateCheck must be invoked after Environment has been initialized because
+        // upgrade process may depend on Environment.
+        VersionMigrations.performUpdateCheck()
 
         let loadViewController = SAELoadViewController(delegate:self)
         self.pushViewController(loadViewController, animated: false)
         self.isNavigationBarHidden = false
+
+        // TODO:
+//        [self prepareScreenProtection];
+
+        // TODO:
+//        self.contactsSyncing = [[OWSContactsSyncing alloc] initWithContactsManager:[Environment current].contactsManager
+//            identityManager:[OWSIdentityManager sharedManager]
+//            messageSender:[Environment current].messageSender
+//            profileManager:[OWSProfileManager sharedManager]];
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(databaseViewRegistrationComplete),
+                                               name: .DatabaseViewRegistrationComplete,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(registrationStateDidChange),
+                                               name: .RegistrationStateDidChange,
+                                               object: nil)
+
+        Logger.info("\(self.logTag) application: didFinishLaunchingWithOptions completed.")
+
+        OWSAnalytics.appLaunchDidBegin()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc
+    func databaseViewRegistrationComplete() {
+        AssertIsOnMainThread()
+
+        Logger.debug("\(self.logTag()) \(#function)")
+
+        // TODO:
+    }
+
+    @objc
+    func registrationStateDidChange() {
+        AssertIsOnMainThread()
+
+        Logger.debug("\(self.logTag()) \(#function)")
+
+        // TODO:
     }
 
     func startupLogging() {
@@ -137,7 +153,7 @@ class ShareViewController: UINavigationController, SAELoadViewDelegate {
 
     // MARK: View Lifecycle
 
-    override func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
 
         let proofOfSharedFramework = StorageCoordinator.shared.path
@@ -152,13 +168,13 @@ class ShareViewController: UINavigationController, SAELoadViewDelegate {
         Logger.debug("\(self.logTag()) \(#function)")
     }
 
-    override func viewWillAppear(_ animated: Bool) {
+    override open func viewWillAppear(_ animated: Bool) {
         Logger.debug("\(self.logTag()) \(#function)")
 
         super.viewWillAppear(animated)
     }
 
-    override func viewDidAppear(_ animated: Bool) {
+    override open func viewDidAppear(_ animated: Bool) {
         Logger.debug("\(self.logTag()) \(#function)")
 
         super.viewDidAppear(animated)

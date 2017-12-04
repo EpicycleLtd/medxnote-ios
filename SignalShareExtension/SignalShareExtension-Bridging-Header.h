@@ -23,3 +23,4 @@
 #import <SignalServiceKit/Asserts.h>
 #import <SignalServiceKit/NSObject+OWS.h>
 #import <SignalServiceKit/OWSMessageSender.h>
+#import <SignalServiceKit/TSAccountManager.h>

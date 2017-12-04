@@ -178,11 +178,11 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(databaseViewRegistrationComplete)
-                                                 name:kNSNotificationName_DatabaseViewRegistrationComplete
+                                                 name:DatabaseViewRegistrationCompleteNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(registrationStateDidChange)
-                                                 name:kNSNotificationName_RegistrationStateDidChange
+                                                 name:RegistrationStateDidChangeNotification
                                                object:nil];
 
     DDLogInfo(@"%@ application: didFinishLaunchingWithOptions completed.", self.logTag);
