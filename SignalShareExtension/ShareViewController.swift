@@ -338,14 +338,17 @@ public class ShareViewController: UINavigationController, ShareViewDelegate, SAE
     // MARK: ShareViewDelegate, SAEFailedViewDelegate
 
     public func shareViewWasCompleted() {
+        self.dismiss(animated: true, completion: nil)
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
 
     public func shareViewWasCancelled() {
+        self.dismiss(animated: true, completion: nil)
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
 
     public func shareViewFailed(error: Error) {
+        self.dismiss(animated: true, completion: nil)
         self.extensionContext!.cancelRequest(withError: error)
     }
 
