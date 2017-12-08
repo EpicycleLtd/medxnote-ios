@@ -42,6 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSAssert([NSThread isMainThread]);
 
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
+
     NSString *grouping = TSInboxGroup;
 
     self.threadMappings =
@@ -73,18 +76,39 @@ NS_ASSUME_NONNULL_BEGIN
                                                      name:YapDatabaseModifiedNotification
                                                    object:database];
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(yapDatabaseModified:)
+                                                 selector:@selector(yapDatabaseModifiedExternally:)
                                                      name:YapDatabaseModifiedExternallyNotification
                                                    object:database];
     }
     return _uiDatabaseConnection;
 }
 
+- (void)yapDatabaseModifiedExternally:(NSNotification *)notification
+{
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
+
+    [self handleDatabaseUpdate];
+}
+
 - (void)yapDatabaseModified:(NSNotification *)notification
+{
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
+
+    [self handleDatabaseUpdate];
+}
+
+- (void)handleDatabaseUpdate
 {
     OWSAssert([NSThread isMainThread]);
 
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
+
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
+    [DDLog flushLog];
+
     NSArray *sectionChanges = nil;
     NSArray *rowChanges = nil;
     [[self.uiDatabaseConnection ext:TSThreadDatabaseViewExtensionName] getSectionChanges:&sectionChanges
@@ -104,6 +128,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateThreads
 {
     OWSAssert([NSThread isMainThread]);
+
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
 
     NSMutableArray<TSThread *> *threads = [NSMutableArray new];
     [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {

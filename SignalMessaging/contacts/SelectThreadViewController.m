@@ -42,6 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SelectThreadViewController
 
+- (void)dealloc
+{
+    [self.searchBar removeFromSuperview];
+}
+
 - (void)loadView
 {
     [super loadView];
