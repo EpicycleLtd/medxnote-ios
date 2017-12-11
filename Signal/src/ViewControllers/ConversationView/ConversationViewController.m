@@ -2798,6 +2798,14 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [DDLog flushLog];
     
     [self handleDatabaseUpdate];
+
+    [self.uiDatabaseConnection
+        flushTransactionsWithCompletionQueue:dispatch_get_main_queue()
+                             completionBlock:^{
+                                 DDLogWarn(@"%@ flushTransactionsWithCompletionQueue", self.logTag);
+
+                                 [self handleDatabaseUpdate];
+                             }];
 }
 
 - (void)yapDatabaseModified:(NSNotification *)notification
