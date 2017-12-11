@@ -51,15 +51,14 @@ NS_ASSUME_NONNULL_BEGIN
         [[YapDatabaseViewMappings alloc] initWithGroups:@[ grouping ] view:TSThreadDatabaseViewExtensionName];
     [self.threadMappings setIsReversed:YES forGroup:grouping];
 
-    __weak ThreadViewHelper *weakSelf = self;
-    [self.uiDatabaseConnection asyncReadWithBlock:^(YapDatabaseReadTransaction *transaction) {
+    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
         [self.threadMappings updateWithTransaction:transaction];
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf updateThreads];
-            [weakSelf.delegate threadListDidChange];
-        });
     }];
+    [self updateThreads];
+    [self.delegate threadListDidChange];
+
+    DDLogWarn(@"%@ %s %p %llu complete", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    [DDLog flushLog];
 }
 
 #pragma mark - Database
