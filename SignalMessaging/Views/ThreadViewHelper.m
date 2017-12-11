@@ -51,12 +51,22 @@ NS_ASSUME_NONNULL_BEGIN
         [[YapDatabaseViewMappings alloc] initWithGroups:@[ grouping ] view:TSThreadDatabaseViewExtensionName];
     [self.threadMappings setIsReversed:YES forGroup:grouping];
 
+    self.uiDatabaseConnection = [TSStorageManager.sharedManager newDatabaseConnection];
     [self.uiDatabaseConnection beginLongLivedReadTransaction];
     [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
         [self.threadMappings updateWithTransaction:transaction];
     }];
     [self updateThreads];
     [self.delegate threadListDidChange];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(yapDatabaseModified:)
+                                                 name:YapDatabaseModifiedNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(yapDatabaseModifiedExternally:)
+                                                 name:YapDatabaseModifiedExternallyNotification
+                                               object:nil];
 
     DDLogWarn(@"%@ %s %p %llu complete", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
     [DDLog flushLog];
@@ -67,39 +77,59 @@ NS_ASSUME_NONNULL_BEGIN
 - (YapDatabaseConnection *)uiDatabaseConnection
 {
     NSAssert([NSThread isMainThread], @"Must access uiDatabaseConnection on main thread!");
-    if (!_uiDatabaseConnection) {
-        YapDatabase *database = TSStorageManager.sharedManager.database;
-        _uiDatabaseConnection = [database newConnection];
-        [_uiDatabaseConnection beginLongLivedReadTransaction];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(yapDatabaseModified:)
-                                                     name:YapDatabaseModifiedNotification
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(yapDatabaseModifiedExternally:)
-                                                     name:YapDatabaseModifiedExternallyNotification
-                                                   object:nil];
-    }
+    //    if (!_uiDatabaseConnection) {
+    //        YapDatabase *database = TSStorageManager.sharedManager.database;
+    //        _uiDatabaseConnection = [database newConnection];
+    //        [_uiDatabaseConnection beginLongLivedReadTransaction];
+    //
+    //        [[NSNotificationCenter defaultCenter] addObserver:self
+    //                                                 selector:@selector(yapDatabaseModified:)
+    //                                                     name:YapDatabaseModifiedNotification
+    //                                                   object:nil];
+    //        [[NSNotificationCenter defaultCenter] addObserver:self
+    //                                                 selector:@selector(yapDatabaseModifiedExternally:)
+    //                                                     name:YapDatabaseModifiedExternallyNotification
+    //                                                   object:nil];
+    //    }
     return _uiDatabaseConnection;
 }
 
 - (void)yapDatabaseModifiedExternally:(NSNotification *)notification
 {
-    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu",
+        self.logTag,
+        __PRETTY_FUNCTION__,
+        self,
+        _threadMappings.snapshotOfLastUpdate,
+        self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.database.snapshot);
+    //    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
     DDLogWarn(@"\t %@", notification);
     DDLogWarn(@"\t %@", notification.userInfo);
     [DDLog flushLog];
 
+    [self.uiDatabaseConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *_Nonnull transaction){
+        // Do nothing.
+    }];
+
     [self handleDatabaseUpdate];
 
-    [self.uiDatabaseConnection
-        flushTransactionsWithCompletionQueue:dispatch_get_main_queue()
-                             completionBlock:^{
-                                 DDLogWarn(@"%@ flushTransactionsWithCompletionQueue", self.logTag);
+    //    self.uiDatabaseConnection = [TSStorageManager.sharedManager newDatabaseConnection];
+    //    [self.uiDatabaseConnection beginLongLivedReadTransaction];
+    //    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+    //        [self.threadMappings updateWithTransaction:transaction];
+    //    }];
+    //    [self updateThreads];
+    //    [self.delegate threadListDidChange];
 
-                                 [self handleDatabaseUpdate];
-                             }];
+
+    //    [self.uiDatabaseConnection
+    //        flushTransactionsWithCompletionQueue:dispatch_get_main_queue()
+    //                             completionBlock:^{
+    //                                 DDLogWarn(@"%@ flushTransactionsWithCompletionQueue", self.logTag);
+    //
+    //                                 [self handleDatabaseUpdate];
+    //                             }];
 }
 
 - (void)yapDatabaseModified:(NSNotification *)notification

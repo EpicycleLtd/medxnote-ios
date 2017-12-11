@@ -932,13 +932,13 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     
     [self handleDatabaseUpdate];
 
-    [self.uiDatabaseConnection
-        flushTransactionsWithCompletionQueue:dispatch_get_main_queue()
-                             completionBlock:^{
-                                 DDLogWarn(@"%@ flushTransactionsWithCompletionQueue", self.logTag);
-
-                                 [self handleDatabaseUpdate];
-                             }];
+    //    [self.uiDatabaseConnection
+    //        flushTransactionsWithCompletionQueue:dispatch_get_main_queue()
+    //                             completionBlock:^{
+    //                                 DDLogWarn(@"%@ flushTransactionsWithCompletionQueue", self.logTag);
+    //
+    //                                 [self handleDatabaseUpdate];
+    //                             }];
 }
 
 - (void)yapDatabaseModified:(NSNotification *)notification
