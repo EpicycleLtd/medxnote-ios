@@ -114,24 +114,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleDatabaseUpdate
 {
-    DDLogWarn(@"%@ %s %p %llu, %llu",
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu",
         self.logTag,
         __PRETTY_FUNCTION__,
         self,
         _threadMappings.snapshotOfLastUpdate,
-        self.uiDatabaseConnection.snapshot);
+        self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.database.snapshot);
     [DDLog flushLog];
     
     OWSAssert([NSThread isMainThread]);
 
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
 
-    DDLogWarn(@"%@ %s %p %llu, %llu updating",
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu updating",
         self.logTag,
         __PRETTY_FUNCTION__,
         self,
         _threadMappings.snapshotOfLastUpdate,
-        self.uiDatabaseConnection.snapshot);
+        self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.database.snapshot);
     DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
     [DDLog flushLog];
 
