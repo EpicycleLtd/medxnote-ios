@@ -51,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
         [[YapDatabaseViewMappings alloc] initWithGroups:@[ grouping ] view:TSThreadDatabaseViewExtensionName];
     [self.threadMappings setIsReversed:YES forGroup:grouping];
 
+    [self.uiDatabaseConnection beginLongLivedReadTransaction];
     [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
         [self.threadMappings updateWithTransaction:transaction];
     }];
@@ -113,14 +114,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleDatabaseUpdate
 {
-    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"%@ %s %p %llu, %llu",
+        self.logTag,
+        __PRETTY_FUNCTION__,
+        self,
+        _threadMappings.snapshotOfLastUpdate,
+        self.uiDatabaseConnection.snapshot);
     [DDLog flushLog];
     
     OWSAssert([NSThread isMainThread]);
 
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
 
-    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"%@ %s %p %llu, %llu updating",
+        self.logTag,
+        __PRETTY_FUNCTION__,
+        self,
+        _threadMappings.snapshotOfLastUpdate,
+        self.uiDatabaseConnection.snapshot);
     DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
     [DDLog flushLog];
 
@@ -130,6 +141,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                                               rowChanges:&rowChanges
                                                                         forNotifications:notifications
                                                                             withMappings:self.threadMappings];
+
+    DDLogWarn(
+        @"%@ %s %p %llu post update", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    [DDLog flushLog];
+
     if (sectionChanges.count == 0 && rowChanges.count == 0) {
         // Ignore irrelevant modifications.
         return;
