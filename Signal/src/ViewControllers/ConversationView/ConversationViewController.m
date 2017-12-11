@@ -294,7 +294,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                                  name:YapDatabaseModifiedNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModified:)
+                                             selector:@selector(yapDatabaseModifiedExternally:)
                                                  name:YapDatabaseModifiedExternallyNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -2790,7 +2790,23 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     return _editingDatabaseConnection;
 }
 
+- (void)yapDatabaseModifiedExternally:(NSNotification *)notification
+{
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
+    
+    [self handleDatabaseUpdate];
+}
+
 - (void)yapDatabaseModified:(NSNotification *)notification
+{
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
+    
+    [self handleDatabaseUpdate];
+}
+
+- (void)handleDatabaseUpdate
 {
     OWSAssert([NSThread isMainThread]);
 
