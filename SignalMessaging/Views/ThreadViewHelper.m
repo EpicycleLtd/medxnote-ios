@@ -108,20 +108,29 @@ NS_ASSUME_NONNULL_BEGIN
     DDLogWarn(@"\t %@", notification.userInfo);
     [DDLog flushLog];
 
-    [self.uiDatabaseConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *_Nonnull transaction){
-        // Do nothing.
-    }];
-
-    [self handleDatabaseUpdate];
-
-    //    self.uiDatabaseConnection = [TSStorageManager.sharedManager newDatabaseConnection];
-    //    [self.uiDatabaseConnection beginLongLivedReadTransaction];
-    //    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-    //        [self.threadMappings updateWithTransaction:transaction];
+    //    [self.uiDatabaseConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *_Nonnull transaction){
+    //        // Do nothing.
     //    }];
-    //    [self updateThreads];
-    //    [self.delegate threadListDidChange];
 
+    //    [self handleDatabaseUpdate];
+
+    self.uiDatabaseConnection = [TSStorageManager.sharedManager newDatabaseConnection];
+    [self.uiDatabaseConnection beginLongLivedReadTransaction];
+    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        [self.threadMappings updateWithTransaction:transaction];
+    }];
+    [self updateThreads];
+    [self.delegate threadListDidChange];
+
+
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu completed",
+        self.logTag,
+        __PRETTY_FUNCTION__,
+        self,
+        _threadMappings.snapshotOfLastUpdate,
+        self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.database.snapshot);
+    [DDLog flushLog];
 
     //    [self.uiDatabaseConnection
     //        flushTransactionsWithCompletionQueue:dispatch_get_main_queue()
