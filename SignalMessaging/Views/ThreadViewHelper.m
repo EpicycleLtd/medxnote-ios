@@ -3,6 +3,7 @@
 //
 
 #import "ThreadViewHelper.h"
+#import <SignalServiceKit/AppContext.h>
 #import <SignalServiceKit/TSDatabaseView.h>
 #import <SignalServiceKit/TSStorageManager.h>
 #import <SignalServiceKit/TSThread.h>
@@ -16,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) YapDatabaseConnection *uiDatabaseConnection;
 @property (nonatomic) YapDatabaseViewMappings *threadMappings;
+@property (nonatomic) BOOL shouldObserveDBModifications;
 
 @end
 
@@ -53,23 +55,73 @@ NS_ASSUME_NONNULL_BEGIN
 
     self.uiDatabaseConnection = [TSStorageManager.sharedManager newDatabaseConnection];
     [self.uiDatabaseConnection beginLongLivedReadTransaction];
-    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        [self.threadMappings updateWithTransaction:transaction];
-    }];
-    [self updateThreads];
-    [self.delegate threadListDidChange];
+//    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//        [self.threadMappings updateWithTransaction:transaction];
+//    }];
+//    [self updateThreads];
+//    [self.delegate threadListDidChange];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModified:)
-                                                 name:YapDatabaseModifiedNotification
+                                             selector:@selector(applicationWillEnterForeground:)
+                                                 name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModifiedExternally:)
-                                                 name:YapDatabaseModifiedExternallyNotification
+                                             selector:@selector(applicationDidEnterBackground:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
 
-    DDLogWarn(@"%@ %s %p %llu complete", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
-    [DDLog flushLog];
+//    DDLogWarn(@"%@ %s %p %llu complete", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+//    [DDLog flushLog];
+    
+    self.shouldObserveDBModifications = !(CurrentAppContext().isMainApp &&
+                                          CurrentAppContext().mainApplicationState == UIApplicationStateBackground);
+}
+
+- (void)applicationWillEnterForeground:(NSNotification *)notification
+{
+    self.shouldObserveDBModifications = YES;
+}
+
+- (void)applicationDidEnterBackground:(NSNotification *)notification
+{
+    self.shouldObserveDBModifications = NO;
+}
+
+- (void)setShouldObserveDBModifications:(BOOL)shouldObserveDBModifications
+{
+    if (_shouldObserveDBModifications == shouldObserveDBModifications) {
+        return;
+    }
+    
+    _shouldObserveDBModifications = shouldObserveDBModifications;
+    
+    if (shouldObserveDBModifications) {
+        [self.uiDatabaseConnection beginLongLivedReadTransaction];
+        [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+            [self.threadMappings updateWithTransaction:transaction];
+        }];
+        [self updateThreads];
+        [self.delegate threadListDidChange];
+
+        DDLogWarn(@"%@ %s %p %llu complete", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+        [DDLog flushLog];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(yapDatabaseModified:)
+                                                     name:YapDatabaseModifiedNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(yapDatabaseModifiedExternally:)
+                                                     name:YapDatabaseModifiedExternallyNotification
+                                                   object:nil];
+    } else {
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                     name:YapDatabaseModifiedNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                     name:YapDatabaseModifiedExternallyNotification
+                                                   object:nil];
+    }
 }
 
 #pragma mark - Database
@@ -108,6 +160,11 @@ NS_ASSUME_NONNULL_BEGIN
     DDLogWarn(@"\t %@", notification.userInfo);
     [DDLog flushLog];
 
+    if (!self.uiDatabaseConnection.database.options.enableMultiProcessSupport) {
+        OWSFail(@"%@ Missing enableMultiProcessSupport", self.logTag);
+    }
+    
+    
     //    [self.uiDatabaseConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *_Nonnull transaction){
     //        // Do nothing.
     //    }];
