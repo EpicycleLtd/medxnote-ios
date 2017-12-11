@@ -2792,7 +2792,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)yapDatabaseModifiedExternally:(NSNotification *)notification
 {
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _messageMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"\t %@", notification);
+    DDLogWarn(@"\t %@", notification.userInfo);
     [DDLog flushLog];
     
     [self handleDatabaseUpdate];
@@ -2800,7 +2802,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)yapDatabaseModified:(NSNotification *)notification
 {
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _messageMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"\t %@", notification);
+    DDLogWarn(@"\t %@", notification.userInfo);
     [DDLog flushLog];
     
     [self handleDatabaseUpdate];
@@ -2808,7 +2812,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)handleDatabaseUpdate
 {
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _messageMappings.snapshotOfLastUpdate);
     [DDLog flushLog];
     
     OWSAssert([NSThread isMainThread]);
@@ -2836,7 +2840,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     // models in order to jump to the most recent commit.
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
 
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _messageMappings.snapshotOfLastUpdate);
     DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
     [DDLog flushLog];
 

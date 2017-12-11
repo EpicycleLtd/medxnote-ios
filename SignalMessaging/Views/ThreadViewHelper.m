@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSAssert([NSThread isMainThread]);
 
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
     [DDLog flushLog];
 
     NSString *grouping = TSInboxGroup;
@@ -86,7 +86,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)yapDatabaseModifiedExternally:(NSNotification *)notification
 {
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"\t %@", notification);
+    DDLogWarn(@"\t %@", notification.userInfo);
     [DDLog flushLog];
 
     [self handleDatabaseUpdate];
@@ -94,7 +96,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)yapDatabaseModified:(NSNotification *)notification
 {
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"\t %@", notification);
+    DDLogWarn(@"\t %@", notification.userInfo);
     [DDLog flushLog];
 
     [self handleDatabaseUpdate];
@@ -102,14 +106,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleDatabaseUpdate
 {
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
     [DDLog flushLog];
     
     OWSAssert([NSThread isMainThread]);
 
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
 
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
     DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
     [DDLog flushLog];
 
@@ -133,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSAssert([NSThread isMainThread]);
 
-    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
     [DDLog flushLog];
 
     NSMutableArray<TSThread *> *threads = [NSMutableArray new];
