@@ -111,7 +111,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     _blockedPhoneNumberSet = [NSSet setWithArray:[_blockingManager blockedPhoneNumbers]];
 
     // Ensure ExperienceUpgradeFinder has been initialized.
-    ExperienceUpgradeFinder.sharedManager;
+    [ExperienceUpgradeFinder sharedManager];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(blockedPhoneNumbersDidChange:)
@@ -941,6 +941,9 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 
 - (void)handleDatabaseUpdate
 {
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
+    
     OWSAssert([NSThread isMainThread]);
     
     if (!self.shouldObserveDBModifications) {
@@ -948,6 +951,10 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     }
 
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
+
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
+    [DDLog flushLog];
 
     if (![[self.uiDatabaseConnection ext:TSThreadDatabaseViewExtensionName] hasChangesForGroup:self.currentGrouping
                                                                                inNotifications:notifications]) {

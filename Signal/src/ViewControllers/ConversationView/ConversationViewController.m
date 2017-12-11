@@ -2808,6 +2808,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)handleDatabaseUpdate
 {
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
+    
     OWSAssert([NSThread isMainThread]);
 
     // Currently, we update thread and message state every time
@@ -2832,6 +2835,10 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     // We need to `beginLongLivedReadTransaction` before we update our
     // models in order to jump to the most recent commit.
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
+
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
+    [DDLog flushLog];
 
     [self updateBackButtonUnreadCount];
     [self updateNavigationBarSubtitleLabel];

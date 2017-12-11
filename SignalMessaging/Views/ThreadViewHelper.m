@@ -102,6 +102,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleDatabaseUpdate
 {
+    DDLogWarn(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+    [DDLog flushLog];
+    
     OWSAssert([NSThread isMainThread]);
 
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
