@@ -13,6 +13,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface YapDatabaseConnection ()
+
+- (uint64_t)readSnapshotFromDatabase;
+
+@end
+
+#pragma mark -
+
 @interface ThreadViewHelper ()
 
 @property (nonatomic) YapDatabaseConnection *uiDatabaseConnection;
@@ -20,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL shouldObserveDBModifications;
 
 @end
+
+#pragma mark -
 
 @implementation ThreadViewHelper
 
@@ -147,12 +157,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)resetMapping
 {
-    DDLogWarn(@"%@ %s %p %llu, %llu, %llu",
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu",
         self.logTag,
         __PRETTY_FUNCTION__,
         self,
         _threadMappings.snapshotOfLastUpdate,
         self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.readSnapshotFromDatabase,
         self.uiDatabaseConnection.database.snapshot);
     [DDLog flushLog];
 
@@ -176,13 +187,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)yapDatabaseModifiedExternally:(NSNotification *)notification
 {
-    DDLogWarn(@"%@ %s %p %llu, %llu, %llu",
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu",
         self.logTag,
         __PRETTY_FUNCTION__,
         self,
         _threadMappings.snapshotOfLastUpdate,
         self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.readSnapshotFromDatabase,
         self.uiDatabaseConnection.database.snapshot);
+
     //    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
     DDLogWarn(@"\t %@", notification);
     DDLogWarn(@"\t %@", notification.userInfo);
@@ -230,12 +243,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleDatabaseUpdate
 {
-    DDLogWarn(@"%@ %s %p %llu, %llu, %llu",
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu",
         self.logTag,
         __PRETTY_FUNCTION__,
         self,
         _threadMappings.snapshotOfLastUpdate,
         self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.readSnapshotFromDatabase,
         self.uiDatabaseConnection.database.snapshot);
     [DDLog flushLog];
 
@@ -264,13 +278,15 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    DDLogWarn(@"%@ %s %p %llu, %llu, %llu updating",
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu updating",
         self.logTag,
         __PRETTY_FUNCTION__,
         self,
         _threadMappings.snapshotOfLastUpdate,
         self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.readSnapshotFromDatabase,
         self.uiDatabaseConnection.database.snapshot);
+
     DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
     DDLogWarn(@"%@ modifiedExternally: %d", self.logTag, modifiedExternally);
     [DDLog flushLog];
