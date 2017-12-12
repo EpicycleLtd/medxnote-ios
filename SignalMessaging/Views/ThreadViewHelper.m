@@ -155,35 +155,35 @@ NS_ASSUME_NONNULL_BEGIN
     return _uiDatabaseConnection;
 }
 
-- (void)resetMapping
-{
-    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu",
-        self.logTag,
-        __PRETTY_FUNCTION__,
-        self,
-        _threadMappings.snapshotOfLastUpdate,
-        self.uiDatabaseConnection.snapshot,
-        self.uiDatabaseConnection.readSnapshotFromDatabase,
-        self.uiDatabaseConnection.database.snapshot);
-    [DDLog flushLog];
-
-    self.uiDatabaseConnection = [TSStorageManager.sharedManager newDatabaseConnection];
-    [self.uiDatabaseConnection beginLongLivedReadTransaction];
-    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        [self.threadMappings updateWithTransaction:transaction];
-    }];
-    [self updateThreads];
-    [self.delegate threadListDidChange];
-
-    DDLogWarn(@"%@ %s %p %llu, %llu, %llu completed",
-        self.logTag,
-        __PRETTY_FUNCTION__,
-        self,
-        _threadMappings.snapshotOfLastUpdate,
-        self.uiDatabaseConnection.snapshot,
-        self.uiDatabaseConnection.database.snapshot);
-    [DDLog flushLog];
-}
+//- (void)resetMapping
+//{
+//    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu",
+//        self.logTag,
+//        __PRETTY_FUNCTION__,
+//        self,
+//        _threadMappings.snapshotOfLastUpdate,
+//        self.uiDatabaseConnection.snapshot,
+//        self.uiDatabaseConnection.readSnapshotFromDatabase,
+//        self.uiDatabaseConnection.database.snapshot);
+//    [DDLog flushLog];
+//
+//    self.uiDatabaseConnection = [TSStorageManager.sharedManager newDatabaseConnection];
+//    [self.uiDatabaseConnection beginLongLivedReadTransaction];
+//    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+//        [self.threadMappings updateWithTransaction:transaction];
+//    }];
+//    [self updateThreads];
+//    [self.delegate threadListDidChange];
+//
+//    DDLogWarn(@"%@ %s %p %llu, %llu, %llu completed",
+//        self.logTag,
+//        __PRETTY_FUNCTION__,
+//        self,
+//        _threadMappings.snapshotOfLastUpdate,
+//        self.uiDatabaseConnection.snapshot,
+//        self.uiDatabaseConnection.database.snapshot);
+//    [DDLog flushLog];
+//}
 
 - (void)yapDatabaseModifiedExternally:(NSNotification *)notification
 {
@@ -205,13 +205,13 @@ NS_ASSUME_NONNULL_BEGIN
         OWSFail(@"%@ Missing enableMultiProcessSupport", self.logTag);
     }
 
-    [self resetMapping];
+    //    [self resetMapping];
 
     //    [self.uiDatabaseConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *_Nonnull transaction){
     //        // Do nothing.
     //    }];
 
-    //    [self handleDatabaseUpdate];
+    //        [self handleDatabaseUpdate];
 
     //    DDLogWarn(@"%@ %s %p %llu, %llu, %llu completed",
     //              self.logTag,
@@ -229,6 +229,74 @@ NS_ASSUME_NONNULL_BEGIN
     //
     //                                 [self handleDatabaseUpdate];
     //                             }];
+
+
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu",
+        self.logTag,
+        __PRETTY_FUNCTION__,
+        self,
+        _threadMappings.snapshotOfLastUpdate,
+        self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.readSnapshotFromDatabase,
+        self.uiDatabaseConnection.database.snapshot);
+    [DDLog flushLog];
+
+    OWSAssert([NSThread isMainThread]);
+
+    //    NSArray *notifications =
+    [self.uiDatabaseConnection beginLongLivedReadTransaction];
+
+    //    BOOL modifiedExternally = NO;
+    //    for (NSNotification *notification in notifications) {
+    //        if (![notification isKindOfClass:[NSNotification class]]) {
+    //            OWSFail(@"%@ - notifications parameter contains non-NSNotification object", self.logTag);
+    //            continue;
+    //        }
+    //
+    //        NSDictionary *changeset = notification.userInfo;
+    //
+    //        BOOL changeset_modifiedExternally = [[changeset objectForKey:YapDatabaseModifiedExternallyKey] boolValue];
+    //        if (changeset_modifiedExternally) {
+    //            modifiedExternally = YES;
+    //            break;
+    //        }
+    //    }
+
+    //    if (modifiedExternally) {
+    //        [self resetMapping];
+    //        return;
+    //    }
+
+    //    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu updating",
+    //              self.logTag,
+    //              __PRETTY_FUNCTION__,
+    //              self,
+    //              _threadMappings.snapshotOfLastUpdate,
+    //              self.uiDatabaseConnection.snapshot,
+    //              self.uiDatabaseConnection.readSnapshotFromDatabase,
+    //              self.uiDatabaseConnection.database.snapshot);
+    //
+    //    DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
+    //    DDLogWarn(@"%@ modifiedExternally: %d", self.logTag, modifiedExternally);
+    //    [DDLog flushLog];
+    //
+    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        [self.threadMappings updateWithTransaction:transaction];
+    }];
+
+    [self updateThreads];
+    [self.delegate threadListDidChange];
+
+
+    DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu completed",
+        self.logTag,
+        __PRETTY_FUNCTION__,
+        self,
+        _threadMappings.snapshotOfLastUpdate,
+        self.uiDatabaseConnection.snapshot,
+        self.uiDatabaseConnection.readSnapshotFromDatabase,
+        self.uiDatabaseConnection.database.snapshot);
+    [DDLog flushLog];
 }
 
 - (void)yapDatabaseModified:(NSNotification *)notification
@@ -273,10 +341,10 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    if (modifiedExternally) {
-        [self resetMapping];
-        return;
-    }
+    //    if (modifiedExternally) {
+    //        [self resetMapping];
+    //        return;
+    //    }
 
     DDLogWarn(@"%@ %s %p %llu, %llu, %llu, %llu updating",
         self.logTag,
