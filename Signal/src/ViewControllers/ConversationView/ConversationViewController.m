@@ -2956,20 +2956,22 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         for (YapDatabaseViewRowChange *rowChange in rowChanges) {
             switch (rowChange.type) {
                 case YapDatabaseViewChangeDelete: {
-                    DDLogVerbose(@"YapDatabaseViewChangeDelete: %@, %@, %zd",
+                    DDLogInfo(@"YapDatabaseViewChangeDelete: %@, %@, %zd",
                         rowChange.collectionKey,
                         rowChange.indexPath,
                         rowChange.finalIndex);
+                    [DDLog flushLog];
                     [self.collectionView deleteItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     YapCollectionKey *collectionKey = rowChange.collectionKey;
                     OWSAssert(collectionKey.key.length > 0);
                     break;
                 }
                 case YapDatabaseViewChangeInsert: {
-                    DDLogVerbose(@"YapDatabaseViewChangeInsert: %@, %@, %zd",
+                    DDLogInfo(@"YapDatabaseViewChangeInsert: %@, %@, %zd",
                         rowChange.collectionKey,
                         rowChange.newIndexPath,
                         rowChange.finalIndex);
+                    [DDLog flushLog];
                     [self.collectionView insertItemsAtIndexPaths:@[ rowChange.newIndexPath ]];
                     // We don't want to reload a row that we just inserted.
                     [rowsThatChangedSize removeObject:@(rowChange.originalIndex)];
@@ -2985,21 +2987,23 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     break;
                 }
                 case YapDatabaseViewChangeMove: {
-                    DDLogVerbose(@"YapDatabaseViewChangeMove: %@, %@, %@, %zd",
+                    DDLogInfo(@"YapDatabaseViewChangeMove: %@, %@, %@, %zd",
                         rowChange.collectionKey,
                         rowChange.indexPath,
                         rowChange.newIndexPath,
                         rowChange.finalIndex);
+                    [DDLog flushLog];
                     [self.collectionView moveItemAtIndexPath:rowChange.indexPath toIndexPath:rowChange.newIndexPath];
                     // We don't want to reload a row that we just moved.
                     [rowsThatChangedSize removeObject:@(rowChange.originalIndex)];
                     break;
                 }
                 case YapDatabaseViewChangeUpdate: {
-                    DDLogVerbose(@"YapDatabaseViewChangeUpdate: %@, %@, %zd",
+                    DDLogInfo(@"YapDatabaseViewChangeUpdate: %@, %@, %zd",
                         rowChange.collectionKey,
                         rowChange.indexPath,
                         rowChange.finalIndex);
+                    [DDLog flushLog];
                     [self.collectionView reloadItemsAtIndexPaths:@[ rowChange.indexPath ]];
                     // We don't want to reload a row that we've already reloaded.
                     [rowsThatChangedSize removeObject:@(rowChange.originalIndex)];
@@ -3012,10 +3016,11 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         // as they may affect which cells show "date" headers or "status" footers.
         NSMutableArray<NSIndexPath *> *rowsToReload = [NSMutableArray new];
         for (NSNumber *row in rowsThatChangedSize) {
-            DDLogVerbose(@"rowsToReload: %@", row);
+            DDLogInfo(@"rowsToReload: %@", row);
             [rowsToReload addObject:[NSIndexPath indexPathForRow:row.integerValue inSection:0]];
         }
         if (rowsToReload.count > 0) {
+            [DDLog flushLog];
             [self.collectionView reloadItemsAtIndexPaths:rowsToReload];
         }
     };
