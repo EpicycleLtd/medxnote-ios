@@ -342,14 +342,20 @@ public class ShareViewController: UINavigationController, ShareViewDelegate, SAE
     // MARK: ShareViewDelegate, SAEFailedViewDelegate
 
     public func shareViewWasCompleted() {
+        Logger.info("\(self.logTag) \(#function)")
+
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
 
     public func shareViewWasCancelled() {
+        Logger.info("\(self.logTag) \(#function)")
+
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
 
     public func shareViewFailed(error: Error) {
+        Logger.info("\(self.logTag) \(#function)")
+
         self.extensionContext!.cancelRequest(withError: error)
     }
 

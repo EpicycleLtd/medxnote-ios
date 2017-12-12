@@ -111,7 +111,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     _blockedPhoneNumberSet = [NSSet setWithArray:[_blockingManager blockedPhoneNumbers]];
 
     // Ensure ExperienceUpgradeFinder has been initialized.
-    ExperienceUpgradeFinder.sharedManager;
+    [ExperienceUpgradeFinder sharedManager];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(blockedPhoneNumbersDidChange:)
@@ -138,7 +138,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
                                                  name:YapDatabaseModifiedNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModified:)
+                                             selector:@selector(yapDatabaseModifiedExternally:)
                                                  name:YapDatabaseModifiedExternallyNotification
                                                object:nil];
 }
@@ -923,13 +923,50 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     return _uiDatabaseConnection;
 }
 
+- (void)yapDatabaseModifiedExternally:(NSNotification *)notification
+{
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"\t %@", notification);
+    DDLogWarn(@"\t %@", notification.userInfo);
+    [DDLog flushLog];
+
+    [self handleDatabaseUpdate];
+
+    //    [self.uiDatabaseConnection
+    //        flushTransactionsWithCompletionQueue:dispatch_get_main_queue()
+    //                             completionBlock:^{
+    //                                 DDLogWarn(@"%@ flushTransactionsWithCompletionQueue", self.logTag);
+    //
+    //                                 [self handleDatabaseUpdate];
+    //                             }];
+}
+
 - (void)yapDatabaseModified:(NSNotification *)notification
 {
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"\t %@", notification);
+    DDLogWarn(@"\t %@", notification.userInfo);
+    [DDLog flushLog];
+
+    [self handleDatabaseUpdate];
+}
+
+- (void)handleDatabaseUpdate
+{
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    [DDLog flushLog];
+
+    OWSAssert([NSThread isMainThread]);
+
     if (!self.shouldObserveDBModifications) {
         return;
     }
 
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
+
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _threadMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
+    [DDLog flushLog];
 
     if (![[self.uiDatabaseConnection ext:TSThreadDatabaseViewExtensionName] hasChangesForGroup:self.currentGrouping
                                                                                inNotifications:notifications]) {

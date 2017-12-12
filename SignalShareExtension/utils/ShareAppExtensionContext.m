@@ -29,8 +29,32 @@ NS_ASSUME_NONNULL_BEGIN
 
     _rootViewController = rootViewController;
 
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(extensionHostDidBecomeActive:)
+                                                 name:NSExtensionHostDidBecomeActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(extensionHostWillResignActive:)
+                                                 name:NSExtensionHostWillResignActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(extensionHostDidEnterBackground:)
+                                                 name:NSExtensionHostDidEnterBackgroundNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(extensionHostWillEnterForeground:)
+                                                 name:NSExtensionHostWillEnterForegroundNotification
+                                               object:nil];
+
     return self;
 }
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - Notifications
 
 - (BOOL)isMainApp
 {
@@ -114,6 +138,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setNetworkActivityIndicatorVisible:(BOOL)value
 {
     OWSFail(@"%@ called %s.", self.logTag, __PRETTY_FUNCTION__);
+}
+
+#pragma mark - Notifications
+
+- (void)extensionHostDidBecomeActive:(NSNotification *)notification
+{
+    DDLogInfo(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+}
+
+- (void)extensionHostWillResignActive:(NSNotification *)notification
+{
+    DDLogInfo(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+}
+
+- (void)extensionHostDidEnterBackground:(NSNotification *)notification
+{
+    DDLogInfo(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
+}
+
+- (void)extensionHostWillEnterForeground:(NSNotification *)notification
+{
+    DDLogInfo(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
 }
 
 @end

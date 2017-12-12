@@ -294,7 +294,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                                  name:YapDatabaseModifiedNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModified:)
+                                             selector:@selector(yapDatabaseModifiedExternally:)
                                                  name:YapDatabaseModifiedExternallyNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -2790,8 +2790,44 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     return _editingDatabaseConnection;
 }
 
+- (void)yapDatabaseModifiedExternally:(NSNotification *)notification
+{
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _messageMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"\t %@", notification);
+    DDLogWarn(@"\t %@", notification.userInfo);
+    [DDLog flushLog];
+
+    //    if (self.shouldObserveDBModifications) {
+    //        OWSFail(<#message, ...#>)
+    //        return;
+    //    }
+
+    [self handleDatabaseUpdate];
+
+    //    [self.uiDatabaseConnection
+    //        flushTransactionsWithCompletionQueue:dispatch_get_main_queue()
+    //                             completionBlock:^{
+    //                                 DDLogWarn(@"%@ flushTransactionsWithCompletionQueue", self.logTag);
+    //
+    //                                 [self handleDatabaseUpdate];
+    //                             }];
+}
+
 - (void)yapDatabaseModified:(NSNotification *)notification
 {
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _messageMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"\t %@", notification);
+    DDLogWarn(@"\t %@", notification.userInfo);
+    [DDLog flushLog];
+
+    [self handleDatabaseUpdate];
+}
+
+- (void)handleDatabaseUpdate
+{
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _messageMappings.snapshotOfLastUpdate);
+    [DDLog flushLog];
+
     OWSAssert([NSThread isMainThread]);
 
     // Currently, we update thread and message state every time
@@ -2816,6 +2852,10 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     // We need to `beginLongLivedReadTransaction` before we update our
     // models in order to jump to the most recent commit.
     NSArray *notifications = [self.uiDatabaseConnection beginLongLivedReadTransaction];
+
+    DDLogWarn(@"%@ %s %p %llu", self.logTag, __PRETTY_FUNCTION__, self, _messageMappings.snapshotOfLastUpdate);
+    DDLogWarn(@"%@ notifications: %@", self.logTag, notifications);
+    [DDLog flushLog];
 
     [self updateBackButtonUnreadCount];
     [self updateNavigationBarSubtitleLabel];
