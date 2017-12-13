@@ -42,7 +42,7 @@ static NSString *keychainDBPassAccount    = @"TSDatabasePass";
 
 #pragma mark -
 
-// This flag is only used in DEBUG builds.
+#ifdef DEBUG
 static BOOL isDatabaseInitializedFlag = NO;
 
 NSObject *isDatabaseInitializedFlagLock()
@@ -70,6 +70,7 @@ void setDatabaseInitialized()
         isDatabaseInitializedFlag = YES;
     }
 }
+#endif
 
 #pragma mark -
 
@@ -81,33 +82,135 @@ void setDatabaseInitialized()
 
 #pragma mark -
 
-// This class is only used in DEBUG builds.
 @interface OWSDatabaseConnection : YapDatabaseConnection
+
+@property (nonatomic, readonly) NSMutableSet<NSNumber *> *backgroundTaskIds;
 
 @end
 
 #pragma mark -
 
-@implementation OWSDatabaseConnection
-
-// This clobbers the superclass implementation to include an assert which
+// 1. This clobbers the superclass implementation to include an assert which
 // ensures that the database is in a ready state before creating write transactions.
 //
 // Creating write transactions before the _sync_ database views are registered
 // causes YapDatabase to rebuild all of our database views, which is catastrophic.
 // We're not sure why, but it causes YDB's "view version" checks to fail.
+//
+// 2. This creates background tasks for the duration of every "write" (but not
+// "read") operation.
+@implementation OWSDatabaseConnection
+
+- (instancetype)init
+{
+    self = [super init];
+
+    if (self) {
+        _backgroundTaskIds = [NSMutableSet new];
+    }
+
+    return self;
+}
+
+- (void)dealloc
+{
+    for (NSNumber *backgroundTaskId in self.backgroundTaskIds) {
+        [CurrentAppContext() endBackgroundTask:backgroundTaskId.unsignedIntegerValue];
+    }
+}
+
+- (BOOL)shouldUseBackgroundTask
+{
+    return (CurrentAppContext().isMainApp && CurrentAppContext().mainApplicationState == UIApplicationStateBackground);
+}
+
 - (void)readWriteWithBlock:(void (^)(YapDatabaseReadWriteTransaction *transaction))block
 {
     OWSAssert(isDatabaseInitialized());
 
+    __block UIBackgroundTaskIdentifier backgroundTaskId = UIBackgroundTaskInvalid;
+    if (self.shouldUseBackgroundTask) {
+        backgroundTaskId = [CurrentAppContext() beginBackgroundTaskWithExpirationHandler:^{
+            OWSAssert([NSThread isMainThread]);
+
+            DDLogInfo(@"%@ %s background task expired", self.logTag, __PRETTY_FUNCTION__);
+
+            if (backgroundTaskId != UIBackgroundTaskInvalid) {
+                [self.backgroundTaskIds removeObject:@(backgroundTaskId)];
+            }
+            backgroundTaskId = UIBackgroundTaskInvalid;
+        }];
+
+        if (backgroundTaskId != UIBackgroundTaskInvalid) {
+            [self.backgroundTaskIds addObject:@(backgroundTaskId)];
+        }
+    }
+
     [super readWriteWithBlock:block];
+
+    if (backgroundTaskId != UIBackgroundTaskInvalid) {
+        [CurrentAppContext() endBackgroundTask:backgroundTaskId];
+        [self.backgroundTaskIds removeObject:@(backgroundTaskId)];
+    }
+}
+
+- (void)asyncReadWriteWithBlock:(void (^)(YapDatabaseReadWriteTransaction *transaction))block
+{
+    OWSAssert(isDatabaseInitialized());
+
+    [super asyncReadWriteWithBlock:block completionQueue:dispatch_get_main_queue() completionBlock:nil];
+}
+
+- (void)asyncReadWriteWithBlock:(void (^)(YapDatabaseReadWriteTransaction *transaction))block
+                completionBlock:(nullable dispatch_block_t)completionBlock
+{
+    OWSAssert(isDatabaseInitialized());
+
+    [super asyncReadWriteWithBlock:block completionQueue:dispatch_get_main_queue() completionBlock:completionBlock];
+}
+
+- (void)asyncReadWriteWithBlock:(void (^)(YapDatabaseReadWriteTransaction *transaction))block
+                completionQueue:(nullable dispatch_queue_t)completionQueue
+                completionBlock:(nullable dispatch_block_t)completionBlock
+{
+    OWSAssert(isDatabaseInitialized());
+
+    __block UIBackgroundTaskIdentifier backgroundTaskId = UIBackgroundTaskInvalid;
+    if (self.shouldUseBackgroundTask) {
+        backgroundTaskId = [CurrentAppContext() beginBackgroundTaskWithExpirationHandler:^{
+            OWSAssert([NSThread isMainThread]);
+
+            DDLogInfo(@"%@ %s background task expired", self.logTag, __PRETTY_FUNCTION__);
+
+            if (backgroundTaskId != UIBackgroundTaskInvalid) {
+                [self.backgroundTaskIds removeObject:@(backgroundTaskId)];
+            }
+            backgroundTaskId = UIBackgroundTaskInvalid;
+        }];
+
+        if (backgroundTaskId != UIBackgroundTaskInvalid) {
+            [self.backgroundTaskIds addObject:@(backgroundTaskId)];
+        }
+    }
+
+    [super asyncReadWriteWithBlock:block
+                   completionQueue:completionQueue
+                   completionBlock:^{
+                       if (completionBlock) {
+                           completionBlock();
+                       }
+
+                       if (backgroundTaskId != UIBackgroundTaskInvalid) {
+                           [CurrentAppContext() endBackgroundTask:backgroundTaskId];
+                           [self.backgroundTaskIds removeObject:@(backgroundTaskId)];
+                       }
+                   }];
 }
 
 @end
 
 #pragma mark -
 
-// This class is only used in DEBUG builds.
 @interface YapDatabase ()
 
 - (void)addConnection:(YapDatabaseConnection *)connection;
@@ -262,17 +365,10 @@ void setDatabaseInitialized()
     };
     options.enableMultiProcessSupport = YES;
 
-#ifdef DEBUG
     _database = [[OWSDatabase alloc] initWithPath:[self dbPath]
                                        serializer:NULL
                                      deserializer:[[self class] logOnFailureDeserializer]
                                           options:options];
-#else
-    _database = [[YapDatabase alloc] initWithPath:[self dbPath]
-                                       serializer:NULL
-                                     deserializer:[[self class] logOnFailureDeserializer]
-                                          options:options];
-#endif
 
     if (!_database) {
         return NO;
@@ -318,6 +414,7 @@ void setDatabaseInitialized()
     [OWSMessageReceiver syncRegisterDatabaseExtension:self.database];
     [OWSBatchMessageProcessor syncRegisterDatabaseExtension:self.database];
 
+#ifdef DEBUG
     // See comments on OWSDatabaseConnection.
     //
     // In the absence of finding documentation that can shed light on the issue we've been
@@ -325,6 +422,7 @@ void setDatabaseInitialized()
     // been opening write transactions before the async registrations complete without negative
     // consequences.
     setDatabaseInitialized();
+#endif
 
     // Run the blocking migrations.
     //
