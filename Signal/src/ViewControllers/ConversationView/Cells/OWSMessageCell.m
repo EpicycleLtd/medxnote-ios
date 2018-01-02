@@ -237,7 +237,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self addGestureRecognizer:longPress];
 
     PanDirectionGestureRecognizer *panGesture =
-        [[PanDirectionGestureRecognizer alloc] initWithDirection:PanDirectionHorizontal
+        [[PanDirectionGestureRecognizer alloc] initWithDirection:PanDirectionForward
                                                           target:self
                                                           action:@selector(handlePanGesture:)];
     [self addGestureRecognizer:panGesture];
