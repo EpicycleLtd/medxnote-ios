@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "OWSIdentityManager.h"
@@ -806,12 +806,12 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
     DDLogInfo(@"%s", __PRETTY_FUNCTION__);
 
-    [self.sessionStorage migrateCollection:TSStorageManagerIdentityKeyStoreCollection
-                               fromStorage:storage
-                                valueClass:[NSDictionary class]];
-    [self.sessionStorage migrateCollection:OWSRecipientIdentity.collection
-                               fromStorage:storage
-                                valueClass:[NSDictionary class]];
+    [self.sessionStorage copyCollection:TSStorageManagerIdentityKeyStoreCollection
+                            fromStorage:storage
+                             valueClass:[ECKeyPair class]];
+    [self.sessionStorage copyCollection:OWSRecipientIdentity.collection
+                            fromStorage:storage
+                             valueClass:[OWSRecipientIdentity class]];
 
     // Mark migration as complete.
     [self.dbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {

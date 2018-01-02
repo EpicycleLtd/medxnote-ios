@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "OWSSessionStorage.h"
@@ -194,37 +194,15 @@ NSString *const OWSSessionStorageExceptionName_CouldNotCreateDatabaseDirectory
 
 #pragma mark - Migration
 
-- (void)migrateCollection:(NSString *)collection fromStorage:(OWSStorage *)storage valueClass:(Class)valueClass
+- (void)copyCollection:(NSString *)collection fromStorage:(OWSStorage *)storage valueClass:(Class)valueClass
 {
     OWSAssert(collection.length > 0);
     OWSAssert(storage);
 
-    DDLogInfo(@"%@: migrating %@", self.logTag, collection);
-
-    NSMutableDictionary<NSString *, id> *collectionContents = [NSMutableDictionary new];
-
-    // 1. Read from old storage.
-    [storage.newDatabaseConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
-        [transaction
-            enumerateKeysAndObjectsInCollection:collection
-                                     usingBlock:^(NSString *_Nonnull key, id _Nonnull value, BOOL *_Nonnull stop) {
-                                         if (![value isKindOfClass:valueClass]) {
-                                             OWSFail(
-                                                 @"Unexpected type: %@ in collection: %@.", [value class], collection);
-                                             return;
-                                         }
-
-                                         collectionContents[key] = value;
-                                     }];
-    }];
-
-    // 2. Write to new storage.
-    [self.dbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
-        [collectionContents enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id value, BOOL *_Nonnull stop){
-        }];
-    }];
-
-    DDLogInfo(@"%@ migrated %zd items.", self.logTag, (unsigned long)collectionContents.count);
+    [OWSStorage copyCollection:collection
+               srcDBConnection:storage.newDatabaseConnection
+               dstDBConnection:self.dbConnection
+                    valueClass:valueClass];
 }
 
 @end
