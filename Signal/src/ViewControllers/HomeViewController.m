@@ -138,10 +138,6 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
                                              selector:@selector(yapDatabaseModified:)
                                                  name:YapDatabaseModifiedNotification
                                                object:TSStorageManager.sharedManager.dbNotificationObject];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModifiedExternally:)
-                                                 name:YapDatabaseModifiedExternallyNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
 }
 
 - (void)dealloc
@@ -922,18 +918,6 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
         [_uiDatabaseConnection beginLongLivedReadTransaction];
     }
     return _uiDatabaseConnection;
-}
-
-- (void)yapDatabaseModifiedExternally:(NSNotification *)notification
-{
-    OWSAssertIsOnMainThread();
-
-    DDLogVerbose(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
-
-    // External database modifications can't be converted into incremental updates,
-    // so rebuild everything.  This is expensive and usually isn't necessary, but
-    // there's no alternative.
-    [self resetMappings];
 }
 
 - (void)yapDatabaseModified:(NSNotification *)notification

@@ -133,10 +133,6 @@ NS_ASSUME_NONNULL_BEGIN
                                              selector:@selector(yapDatabaseModified:)
                                                  name:YapDatabaseModifiedNotification
                                                object:TSStorageManager.sharedManager.dbNotificationObject];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModified:)
-                                                 name:YapDatabaseModifiedExternallyNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
 }
 
 - (void)yapDatabaseModified:(NSNotification *)notification
@@ -1110,6 +1106,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+// TODO: Move this method elsewhere.
 - (NSUInteger)unreadMessagesCount
 {
     __block NSUInteger numberOfItems;
@@ -1120,6 +1117,7 @@ NS_ASSUME_NONNULL_BEGIN
     return numberOfItems;
 }
 
+// TODO: Move this method elsewhere.
 - (NSUInteger)unreadMessagesCountExcept:(TSThread *)thread
 {
     __block NSUInteger numberOfItems;
@@ -1132,6 +1130,7 @@ NS_ASSUME_NONNULL_BEGIN
     return numberOfItems;
 }
 
+// TODO: Move this method elsewhere.
 - (void)updateApplicationBadgeCount
 {
     if (!CurrentAppContext().isMainApp) {
@@ -1142,6 +1141,7 @@ NS_ASSUME_NONNULL_BEGIN
     [CurrentAppContext() setMainAppBadgeNumber:numberOfItems];
 }
 
+// TODO: Move this method elsewhere.
 - (NSUInteger)unreadMessagesInThread:(TSThread *)thread
 {
     __block NSUInteger numberOfItems;

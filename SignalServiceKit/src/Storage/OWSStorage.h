@@ -14,6 +14,7 @@ typedef NS_ENUM(NSUInteger, StorageType) {
     StorageType_Unknown,
     StorageType_Primary,
     StorageType_Session,
+    StorageType_Outbox,
     // The main app uses this to maintain a slightly stale copy of the primary
     // storage for the SAE.
     // The SAE uses this as their primary.

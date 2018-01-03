@@ -66,10 +66,6 @@ int const OWSLinkedDevicesTableViewControllerSectionAddDevice = 1;
                                              selector:@selector(yapDatabaseModified:)
                                                  name:YapDatabaseModifiedNotification
                                                object:TSStorageManager.sharedManager.dbNotificationObject];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(yapDatabaseModifiedExternally:)
-                                                 name:YapDatabaseModifiedExternallyNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
 
     self.refreshControl = [UIRefreshControl new];
     [self.refreshControl addTarget:self action:@selector(refreshDevices) forControlEvents:UIControlEventValueChanged];
@@ -199,23 +195,6 @@ int const OWSLinkedDevicesTableViewControllerSectionAddDevice = 1;
 }
 
 #pragma mark - Table view data source
-
-- (void)yapDatabaseModifiedExternally:(NSNotification *)notification
-{
-    OWSAssertIsOnMainThread();
-
-    DDLogVerbose(@"%@ %s", self.logTag, __PRETTY_FUNCTION__);
-
-    // External database modifications can't be converted into incremental updates,
-    // so rebuild everything.  This is expensive and usually isn't necessary, but
-    // there's no alternative.
-    [self.dbConnection beginLongLivedReadTransaction];
-    [self.dbConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        [self.deviceMappings updateWithTransaction:transaction];
-    }];
-
-    [self.tableView reloadData];
-}
 
 - (void)yapDatabaseModified:(NSNotification *)notification
 {

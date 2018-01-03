@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "OWSStorage.h"
@@ -21,6 +21,7 @@ void runAsyncRegistrationsForPrimaryStorage(OWSStorage *storage);
 + (YapDatabaseConnection *)dbReadConnection;
 + (YapDatabaseConnection *)dbReadWriteConnection;
 
+- (NSString *)databaseFilePath;
 + (NSString *)databaseFilePath;
 + (NSString *)databaseFilePath_SHM;
 + (NSString *)databaseFilePath_WAL;

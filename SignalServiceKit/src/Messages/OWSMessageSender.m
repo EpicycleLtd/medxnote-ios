@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "OWSMessageSender.h"
@@ -14,6 +14,7 @@
 #import "OWSError.h"
 #import "OWSIdentityManager.h"
 #import "OWSMessageServiceParams.h"
+#import "OWSOutboxStorage.h"
 #import "OWSOutgoingSentMessageTranscript.h"
 #import "OWSOutgoingSyncMessage.h"
 #import "OWSSessionStorage+SessionStore.h"
@@ -427,17 +428,130 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
     [self ensureAnyAttachmentsUploaded:message
         success:^() {
             [self sendMessageToService:message
-                               success:successHandler
-                               failure:^(NSError *error) {
-                                   DDLogDebug(
-                                       @"%@ Message send attempt failed: %@", self.logTag, message.debugDescription);
-                                   failureHandler(error);
-                               }];
+                success:^() {
+                    [self copyToOutboxIfNecessary:message
+                                          success:successHandler
+                                          failure:^(NSError *error) {
+                                              DDLogDebug(@"%@ Message send attempt failed during outbox copy: %@",
+                                                  self.logTag,
+                                                  message.debugDescription);
+                                              failureHandler(error);
+                                          }];
+                }
+                failure:^(NSError *error) {
+                    DDLogDebug(@"%@ Message send attempt failed: %@", self.logTag, message.debugDescription);
+                    failureHandler(error);
+                }];
         }
         failure:^(NSError *error) {
             DDLogDebug(@"%@ Attachment upload attempt failed: %@", self.logTag, message.debugDescription);
             failureHandler(error);
         }];
+}
+
+- (void)copyToOutboxIfNecessary:(TSOutgoingMessage *)message
+                        success:(void (^)(void))successHandler
+                        failure:(RetryableFailureHandler)failureHandlerParameter
+{
+    OWSAssert(message);
+    OWSAssert(successHandler);
+    OWSAssert(failureHandlerParameter);
+
+    if (CurrentAppContext().isMainApp) {
+        successHandler();
+        return;
+    }
+
+    void (^failureHandler)(void) = ^{
+        failureHandlerParameter(OWSErrorWithCodeDescription(OWSErrorCodeMessageCouldNotBeCloned,
+            NSLocalizedString(@"ERROR_DESCRIPTION_MESSAGE_COULD_NOT_BE_CLONED",
+                @"Error indicating that a message could not be cloned.")));
+    };
+
+    // Messages sent from the SAE have the following lifecycle:
+    //
+    // * Saved in primary storage copy.
+    // * Sent.
+    // * Cloned into "outbox" storage by SAE.
+    // * Cloned into primary storage by main app.
+    //
+    // To avoid uniqueId conflicts, the models unique ids are regenerated each time it is
+    // "cloned" between storages.
+    //
+    // Note that database reads in this method are from the primary copy storage (via TSStorageManager)
+    // and that writes are to the "outbox" storage.
+
+    NSError *_Nullable error = nil;
+
+    TSThread *_Nullable thread = message.thread;
+    if (!thread) {
+        OWSFail(@"%@ Failed to fetch thread for message.", self.logTag);
+        failureHandler();
+        return;
+    }
+
+    TSAttachmentStream *_Nullable attachmentStream =
+        [TSAttachmentStream fetchObjectWithUniqueID:message.attachmentIds.firstObject];
+    TSAttachmentStream *_Nullable attachmentStreamCopy = nil;
+    if (attachmentStream) {
+        attachmentStreamCopy =
+            [[TSAttachmentStream alloc] initWithDictionary:attachmentStream.dictionaryValue error:&error];
+        if (!attachmentStreamCopy || error) {
+            OWSFail(@"%@ Failed to copy attachment with error: %@", self.logTag, error);
+            failureHandler();
+            return;
+        }
+        attachmentStreamCopy.uniqueId = nil;
+    }
+
+    TSOutgoingMessage *messageCopy =
+        [[TSOutgoingMessage alloc] initWithDictionary:message.dictionaryValue error:&error];
+    if (!messageCopy || error) {
+        OWSFail(@"%@ Failed to copy message with error: %@", self.logTag, error);
+        failureHandler();
+        return;
+    }
+    messageCopy.uniqueId = nil;
+
+    // Copy the message and an optional attachment to the "outbox" database.
+    YapDatabaseConnection *outboxDBConnection = OWSOutboxStorage.sharedManager.dbConnection;
+    [outboxDBConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *_Nonnull transaction) {
+        if (attachmentStreamCopy) {
+            [attachmentStreamCopy saveWithTransaction:transaction];
+
+            OWSAssert(attachmentStreamCopy.uniqueId.length > 0);
+
+            DDLogDebug(@"%@ Attachment cloned to outbox: %@", self.logTag, attachmentStreamCopy.uniqueId);
+
+            [messageCopy.attachmentIds removeAllObjects];
+            [messageCopy.attachmentIds addObject:attachmentStreamCopy.uniqueId];
+        }
+
+        [messageCopy saveWithTransaction:transaction];
+
+        OWSOutboxItem *_Nullable outboxItem = nil;
+        if (thread.isGroupThread) {
+            TSGroupThread *groupThread = (TSGroupThread *)thread;
+            outboxItem = [[OWSOutboxItem alloc] initWithSourceMessageId:message.uniqueId
+                                                        outboxMessageId:messageCopy.uniqueId
+                                                                groupId:groupThread.groupModel.groupId];
+        } else {
+            TSContactThread *contactThread = (TSContactThread *)thread;
+            outboxItem = [[OWSOutboxItem alloc] initWithSourceMessageId:message.uniqueId
+                                                        outboxMessageId:messageCopy.uniqueId
+                                                            recipientId:contactThread.contactIdentifier];
+        }
+        OWSAssert(outboxItem);
+        [outboxItem saveWithTransaction:transaction];
+
+        DDLogDebug(@"%@ Message cloned to outbox: %@, %@, %@",
+            self.logTag,
+            outboxItem.sourceMessageId,
+            outboxItem.outboxMessageId,
+            outboxItem.uniqueId);
+    }];
+
+    successHandler();
 }
 
 - (void)ensureAnyAttachmentsUploaded:(TSOutgoingMessage *)message
