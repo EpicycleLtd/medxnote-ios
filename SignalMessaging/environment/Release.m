@@ -27,6 +27,22 @@
         TSNetworkManager *networkManager = [TSNetworkManager sharedManager];
         OWSContactsManager *contactsManager = [OWSContactsManager new];
         ContactsUpdater *contactsUpdater = [ContactsUpdater sharedUpdater];
+
+        DDLogVerbose(@"TSStorageManager databaseFilePath: %@", TSStorageManager.databaseFilePath);
+        DDLogVerbose(@"OWSPrimaryCopyStorage databaseCopiesDirPath: %@", OWSPrimaryCopyStorage.databaseCopiesDirPath);
+        DDLogVerbose(@"OWSSessionStorage databaseFilePath: %@", OWSSessionStorage.databaseFilePath);
+        DDLogVerbose(@"OWSOutboxStorage databaseFilePath: %@", OWSOutboxStorage.databaseFilePath);
+
+        DDLogVerbose(
+            @"TSStorageManager.sharedManager databaseFilePath: %@", TSStorageManager.sharedManager.databaseFilePath);
+        //        DDLogVerbose(@"OWSPrimaryCopyStorage.sharedManager databaseFilePath: %@",
+        //        OWSPrimaryCopyStorage.sharedManager.databaseFilePath);
+        DDLogVerbose(
+            @"OWSSessionStorage.sharedManager databaseFilePath: %@", OWSSessionStorage.sharedManager.databaseFilePath);
+        DDLogVerbose(
+            @"OWSOutboxStorage.sharedManager databaseFilePath: %@", OWSOutboxStorage.sharedManager.databaseFilePath);
+        [DDLog flushLog];
+
         OWSMessageSender *messageSender = [[OWSMessageSender alloc] initWithNetworkManager:networkManager
                                                                             storageManager:storageManager
                                                                             sessionStorage:sessionStorage

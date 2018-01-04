@@ -260,6 +260,7 @@ static NSString *keychainDBPassAccount = @"TSDatabasePass";
     return @[
         TSStorageManager.sharedManager,
         OWSSessionStorage.sharedManager,
+        OWSOutboxStorage.sharedManager,
     ];
 }
 

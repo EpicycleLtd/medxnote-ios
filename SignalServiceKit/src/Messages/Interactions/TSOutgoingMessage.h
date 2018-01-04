@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "TSMessage.h"
@@ -113,6 +113,9 @@ typedef NS_ENUM(NSInteger, TSGroupMetaMessage) {
 
 @property (nonatomic, readonly) BOOL isSilent;
 
+// If non-null, a unique id used to synchronize messages sent from app extensions.
+@property (nonatomic, nullable, readonly) NSString *syncId;
+
 /**
  * Signal Identifier (e.g. e164 number) or nil if in a group thread.
  */
@@ -157,6 +160,9 @@ typedef NS_ENUM(NSInteger, TSGroupMetaMessage) {
 - (void)updateWithMessageState:(TSOutgoingMessageState)messageState
                    transaction:(YapDatabaseReadWriteTransaction *)transaction;
 - (void)updateWithSendingError:(NSError *)error;
+- (void)updateWithSendingError:(NSError *)error transaction:(YapDatabaseReadWriteTransaction *)transaction;
+- (void)updateWithMostRecentFailureText:(NSString *)mostRecentFailureText
+                            transaction:(YapDatabaseReadWriteTransaction *)transaction;
 - (void)updateWithHasSyncedTranscript:(BOOL)hasSyncedTranscript
                           transaction:(YapDatabaseReadWriteTransaction *)transaction;
 - (void)updateWithCustomMessage:(NSString *)customMessage transaction:(YapDatabaseReadWriteTransaction *)transaction;
@@ -175,6 +181,8 @@ typedef NS_ENUM(NSInteger, TSGroupMetaMessage) {
                     readTimestamp:(uint64_t)readTimestamp
                       transaction:(YapDatabaseReadWriteTransaction *)transaction;
 - (nullable NSNumber *)firstRecipientReadTimestamp;
+// Returns YES IFF successful.
+- (BOOL)ensureSyncIdWithTransaction:(YapDatabaseReadWriteTransaction *)transaction;
 
 #pragma mark - Sent Recipients
 

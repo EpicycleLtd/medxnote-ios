@@ -17,6 +17,7 @@
 #import "OWSMessageReceiver.h"
 #import "OWSPrimaryCopyStorage.h"
 #import "OWSStorage+Subclass.h"
+#import "OutboxProcessor.h"
 #import "TSAttachment.h"
 #import "TSDatabaseSecondaryIndexes.h"
 #import "TSDatabaseView.h"
@@ -63,6 +64,7 @@ void runAsyncRegistrationsForPrimaryStorage(OWSStorage *storage)
     [OWSDisappearingMessagesFinder asyncRegisterDatabaseExtensions:storage];
     [OWSFailedMessagesJob asyncRegisterDatabaseExtensionsWithStorageManager:storage];
     [OWSFailedAttachmentDownloadsJob asyncRegisterDatabaseExtensionsWithStorageManager:storage];
+    [OutboxProcessor asyncRegisterPrimaryDatabaseExtensions:storage];
 }
 
 @interface TSStorageManager ()

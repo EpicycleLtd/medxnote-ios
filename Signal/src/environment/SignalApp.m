@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "SignalApp.h"
@@ -8,6 +8,7 @@
 #import "Signal-Swift.h"
 #import <SignalMessaging/DebugLogger.h>
 #import <SignalMessaging/Environment.h>
+#import <SignalServiceKit/OutboxProcessor.h>
 #import <SignalServiceKit/TSContactThread.h>
 #import <SignalServiceKit/TSGroupThread.h>
 #import <SignalServiceKit/TSStorageManager.h>
@@ -47,6 +48,9 @@
     }
 
     OWSSingletonAssert();
+
+    // Ensure OutboxProcessor is initialized.
+    __unused OutboxProcessor *outboxProcessor = OutboxProcessor.sharedManager;
 
     return self;
 }

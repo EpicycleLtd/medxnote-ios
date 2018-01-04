@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "TSOutgoingMessage.h"
@@ -41,6 +41,8 @@ NSString *const kTSOutgoingMessageSentRecipientAll = @"kTSOutgoingMessageSentRec
 @property (atomic) NSDictionary<NSString *, NSNumber *> *recipientDeliveryMap;
 
 @property (atomic) NSDictionary<NSString *, NSNumber *> *recipientReadMap;
+
+@property (nonatomic, nullable) NSString *syncId;
 
 @end
 
@@ -258,12 +260,29 @@ NSString *const kTSOutgoingMessageSentRecipientAll = @"kTSOutgoingMessageSentRec
     OWSAssert(error);
 
     [self.dbReadWriteConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
-        [self applyChangeToSelfAndLatestCopy:transaction
-                                 changeBlock:^(TSOutgoingMessage *message) {
-                                     [message setMessageState:TSOutgoingMessageStateUnsent];
-                                     [message setMostRecentFailureText:error.localizedDescription];
-                                 }];
+        [self updateWithSendingError:error transaction:transaction];
     }];
+}
+
+- (void)updateWithSendingError:(NSError *)error transaction:(YapDatabaseReadWriteTransaction *)transaction
+{
+    OWSAssert(transaction);
+    OWSAssert(error);
+
+    [self updateWithMostRecentFailureText:error.localizedDescription transaction:transaction];
+}
+
+- (void)updateWithMostRecentFailureText:(NSString *)mostRecentFailureText
+                            transaction:(YapDatabaseReadWriteTransaction *)transaction
+{
+    OWSAssert(transaction);
+    OWSAssert(mostRecentFailureText);
+
+    [self applyChangeToSelfAndLatestCopy:transaction
+                             changeBlock:^(TSOutgoingMessage *message) {
+                                 [message setMessageState:TSOutgoingMessageStateUnsent];
+                                 [message setMostRecentFailureText:mostRecentFailureText];
+                             }];
 }
 
 - (void)updateWithMessageState:(TSOutgoingMessageState)messageState
@@ -355,6 +374,25 @@ NSString *const kTSOutgoingMessageSentRecipientAll = @"kTSOutgoingMessageSentRec
                              changeBlock:^(TSOutgoingMessage *message) {
                                  [message setSingleGroupRecipient:singleGroupRecipient];
                              }];
+}
+
+- (BOOL)ensureSyncIdWithTransaction:(YapDatabaseReadWriteTransaction *)transaction
+{
+    OWSAssert(transaction);
+
+    TSOutgoingMessage *latestInstance =
+        [transaction objectForKey:self.uniqueId inCollection:TSOutgoingMessage.collection];
+    if (!latestInstance) {
+        return NO;
+    }
+    if (latestInstance.syncId.length > 0) {
+        return YES;
+    }
+    NSString *syncId = [NSUUID UUID].UUIDString;
+    latestInstance.syncId = syncId;
+    [latestInstance saveWithTransaction:transaction];
+    self.syncId = syncId;
+    return YES;
 }
 
 #pragma mark - Sent Recipients

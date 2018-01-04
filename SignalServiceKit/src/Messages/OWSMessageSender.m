@@ -14,6 +14,7 @@
 #import "OWSError.h"
 #import "OWSIdentityManager.h"
 #import "OWSMessageServiceParams.h"
+#import "OWSOutboxItem.h"
 #import "OWSOutboxStorage.h"
 #import "OWSOutgoingSentMessageTranscript.h"
 #import "OWSOutgoingSyncMessage.h"
@@ -428,15 +429,13 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
     [self ensureAnyAttachmentsUploaded:message
         success:^() {
             [self sendMessageToService:message
-                success:^() {
-                    [self copyToOutboxIfNecessary:message
-                                          success:successHandler
-                                          failure:^(NSError *error) {
-                                              DDLogDebug(@"%@ Message send attempt failed during outbox copy: %@",
-                                                  self.logTag,
-                                                  message.debugDescription);
-                                              failureHandler(error);
-                                          }];
+                success:^{
+                    if ([self copyToOutboxIfNecessary:message]) {
+                        successHandler();
+                    } else {
+                        DDLogDebug(@"%@ Final copy to outbox failed: %@", self.logTag, message.debugDescription);
+                        failureHandler(error);
+                    }
                 }
                 failure:^(NSError *error) {
                     DDLogDebug(@"%@ Message send attempt failed: %@", self.logTag, message.debugDescription);
@@ -449,45 +448,36 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
         }];
 }
 
-- (void)copyToOutboxIfNecessary:(TSOutgoingMessage *)message
-                        success:(void (^)(void))successHandler
-                        failure:(RetryableFailureHandler)failureHandlerParameter
+// Returns NO IFF there is an unrecoverable error.
+- (BOOL)copyToOutboxIfNecessary:(TSOutgoingMessage *)message
 {
     OWSAssert(message);
-    OWSAssert(successHandler);
-    OWSAssert(failureHandlerParameter);
 
     if (CurrentAppContext().isMainApp) {
-        successHandler();
-        return;
+        return YES;
     }
 
-    void (^failureHandler)(void) = ^{
-        failureHandlerParameter(OWSErrorWithCodeDescription(OWSErrorCodeMessageCouldNotBeCloned,
-            NSLocalizedString(@"ERROR_DESCRIPTION_MESSAGE_COULD_NOT_BE_CLONED",
-                @"Error indicating that a message could not be cloned.")));
-    };
-
-    // Messages sent from the SAE have the following lifecycle:
-    //
-    // * Saved in primary storage copy.
-    // * Sent.
-    // * Cloned into "outbox" storage by SAE.
-    // * Cloned into primary storage by main app.
-    //
-    // To avoid uniqueId conflicts, the models unique ids are regenerated each time it is
-    // "cloned" between storages.
-    //
     // Note that database reads in this method are from the primary copy storage (via TSStorageManager)
     // and that writes are to the "outbox" storage.
+    //
+    // See comments in OWSOutboxItem.h.
+
+    __block BOOL hasSyncId;
+    [self.dbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *_Nonnull transaction) {
+        hasSyncId = [message ensureSyncIdWithTransaction:transaction];
+    }];
+    if (!hasSyncId) {
+        OWSFail(@"%@ Can't assign sync id to message.", self.logTag);
+        return NO;
+    }
+    OWSAssert(message.syncId.length > 0);
 
     NSError *_Nullable error = nil;
 
     TSThread *_Nullable thread = message.thread;
     if (!thread) {
         OWSFail(@"%@ Failed to fetch thread for message.", self.logTag);
-        failureHandler();
-        return;
+        return NO;
     }
 
     TSAttachmentStream *_Nullable attachmentStream =
@@ -498,8 +488,7 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
             [[TSAttachmentStream alloc] initWithDictionary:attachmentStream.dictionaryValue error:&error];
         if (!attachmentStreamCopy || error) {
             OWSFail(@"%@ Failed to copy attachment with error: %@", self.logTag, error);
-            failureHandler();
-            return;
+            return NO;
         }
         attachmentStreamCopy.uniqueId = nil;
     }
@@ -508,8 +497,7 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
         [[TSOutgoingMessage alloc] initWithDictionary:message.dictionaryValue error:&error];
     if (!messageCopy || error) {
         OWSFail(@"%@ Failed to copy message with error: %@", self.logTag, error);
-        failureHandler();
-        return;
+        return NO;
     }
     messageCopy.uniqueId = nil;
 
@@ -532,26 +520,26 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
         OWSOutboxItem *_Nullable outboxItem = nil;
         if (thread.isGroupThread) {
             TSGroupThread *groupThread = (TSGroupThread *)thread;
-            outboxItem = [[OWSOutboxItem alloc] initWithSourceMessageId:message.uniqueId
-                                                        outboxMessageId:messageCopy.uniqueId
-                                                                groupId:groupThread.groupModel.groupId];
+            outboxItem = [[OWSOutboxItem alloc] initWithSyncId:message.syncId
+                                               outboxMessageId:messageCopy.uniqueId
+                                                       groupId:groupThread.groupModel.groupId];
         } else {
             TSContactThread *contactThread = (TSContactThread *)thread;
-            outboxItem = [[OWSOutboxItem alloc] initWithSourceMessageId:message.uniqueId
-                                                        outboxMessageId:messageCopy.uniqueId
-                                                            recipientId:contactThread.contactIdentifier];
+            outboxItem = [[OWSOutboxItem alloc] initWithSyncId:message.syncId
+                                               outboxMessageId:messageCopy.uniqueId
+                                                   recipientId:contactThread.contactIdentifier];
         }
         OWSAssert(outboxItem);
         [outboxItem saveWithTransaction:transaction];
 
         DDLogDebug(@"%@ Message cloned to outbox: %@, %@, %@",
             self.logTag,
-            outboxItem.sourceMessageId,
+            outboxItem.syncId,
             outboxItem.outboxMessageId,
             outboxItem.uniqueId);
     }];
 
-    successHandler();
+    return YES;
 }
 
 - (void)ensureAnyAttachmentsUploaded:(TSOutgoingMessage *)message
@@ -1094,6 +1082,15 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
                                                                                messages:deviceMessages
                                                                                   relay:recipient.relay
                                                                               timeStamp:message.timestamp];
+
+    if (![self copyToOutboxIfNecessary:message]) {
+        DDLogWarn(@"%@ Could not copy outgoing message to outbox", self.logTag);
+        NSError *error = OWSErrorWithCodeDescription(OWSErrorCodeMessageCouldNotBeCloned,
+            NSLocalizedString(@"ERROR_DESCRIPTION_MESSAGE_COULD_NOT_BE_CLONED",
+                @"Error indicating that a message could not be cloned."));
+        [error setIsRetryable:NO];
+        return failureHandler(error);
+    }
 
     [self.networkManager makeRequest:request
         success:^(NSURLSessionDataTask *task, id responseObject) {

@@ -5,58 +5,11 @@
 #import "OWSOutboxStorage.h"
 #import "OWSFileSystem.h"
 #import "OWSStorage+Subclass.h"
+#import "OutboxProcessor.h"
 #import "TSDatabaseView.h"
 #import <YapDatabase/YapDatabase.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-@implementation OWSOutboxItem
-
-- (instancetype)initWithSourceMessageId:(NSString *)sourceMessageId
-                        outboxMessageId:(NSString *)outboxMessageId
-                            recipientId:(NSString *)recipientId
-{
-    OWSAssert(sourceMessageId.length > 0);
-    OWSAssert(outboxMessageId.length > 0);
-    OWSAssert(recipientId.length > 0);
-
-    self = [super initWithUniqueId:nil];
-
-    if (!self) {
-        return self;
-    }
-
-    _sourceMessageId = sourceMessageId;
-    _outboxMessageId = outboxMessageId;
-    _recipientId = recipientId;
-
-    return self;
-}
-
-- (instancetype)initWithSourceMessageId:(NSString *)sourceMessageId
-                        outboxMessageId:(NSString *)outboxMessageId
-                                groupId:(NSData *)groupId
-{
-    OWSAssert(sourceMessageId.length > 0);
-    OWSAssert(outboxMessageId.length > 0);
-    OWSAssert(groupId.length > 0);
-
-    self = [super initWithUniqueId:nil];
-
-    if (!self) {
-        return self;
-    }
-
-    _sourceMessageId = sourceMessageId;
-    _outboxMessageId = outboxMessageId;
-    _groupId = groupId;
-
-    return self;
-}
-
-@end
-
-#pragma mark -
 
 @implementation OWSOutboxStorage
 
@@ -108,6 +61,15 @@ NS_ASSUME_NONNULL_BEGIN
 + (YapDatabaseConnection *)dbConnection
 {
     return OWSOutboxStorage.sharedManager.dbConnection;
+}
+
+- (void)runAsyncRegistrationsWithCompletion:(void (^_Nonnull)(void))completion
+{
+    OWSAssert(completion);
+
+    [OutboxProcessor asyncRegisterOutboxDatabaseExtensions:self];
+
+    [super runAsyncRegistrationsWithCompletion:completion];
 }
 
 @end
