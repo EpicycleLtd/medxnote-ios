@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "OWSMessageCell.h"
@@ -237,7 +237,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self addGestureRecognizer:longPress];
 
     PanDirectionGestureRecognizer *panGesture =
-        [[PanDirectionGestureRecognizer alloc] initWithDirection:PanDirectionForward
+        [[PanDirectionGestureRecognizer alloc] initWithDirection:(self.isRTL ? PanDirectionLeft : PanDirectionRight)
                                                           target:self
                                                           action:@selector(handlePanGesture:)];
     [self addGestureRecognizer:panGesture];
