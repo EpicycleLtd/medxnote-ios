@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
 #import "HomeViewController.h"
@@ -124,24 +124,24 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillEnterForeground:)
-                                                 name:OWSApplicationWillEnterForegroundNotification
+                                                 name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationDidEnterBackground:)
-                                                 name:OWSApplicationDidEnterBackgroundNotification
+                                                 name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationDidBecomeActive:)
-                                                 name:OWSApplicationDidBecomeActiveNotification
+                                                 name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(yapDatabaseModified:)
                                                  name:YapDatabaseModifiedNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
+                                               object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(yapDatabaseModifiedExternally:)
                                                  name:YapDatabaseModifiedExternallyNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
+                                               object:nil];
 }
 
 - (void)dealloc

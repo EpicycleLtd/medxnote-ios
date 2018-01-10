@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation OWSFileSystem
 
-+ (void)protectFileOrFolderAtPath:(NSString *)path
++ (void)protectFolderAtPath:(NSString *)path
 {
     if (![NSFileManager.defaultManager fileExistsAtPath:path]) {
         return;
@@ -121,13 +121,6 @@ NS_ASSUME_NONNULL_BEGIN
     [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
     if (error) {
         DDLogError(@"%@ Failed to delete file: %@", self.logTag, error.description);
-    }
-}
-
-+ (void)deleteFileIfExists:(NSString *)filePath
-{
-    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-        [self deleteFile:filePath];
     }
 }
 

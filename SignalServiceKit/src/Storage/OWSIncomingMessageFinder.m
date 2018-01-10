@@ -92,14 +92,14 @@ NSString *const OWSIncomingMessageFinderColumnSourceDeviceId = @"OWSIncomingMess
     return [[YapDatabaseSecondaryIndex alloc] initWithSetup:setup handler:handler];
 }
 
-+ (void)asyncRegisterExtensionWithStorageManager:(OWSStorage *)storage
++ (void)asyncRegisterExtensionWithStorageManager:(TSStorageManager *)storageManager
 {
     DDLogInfo(@"%@ registering async.", self.logTag);
-    [storage asyncRegisterExtension:self.indexExtension
-                           withName:OWSIncomingMessageFinderExtensionName
-                    completionBlock:^(BOOL ready) {
-                        DDLogInfo(@"%@ finished registering async.", self.logTag);
-                    }];
+    [storageManager asyncRegisterExtension:self.indexExtension
+                                  withName:OWSIncomingMessageFinderExtensionName
+                           completionBlock:^(BOOL ready) {
+                               DDLogInfo(@"%@ finished registering async.", self.logTag);
+                           }];
 }
 
 // We should not normally hit this, as we should have prefer registering async, but it is useful for testing.

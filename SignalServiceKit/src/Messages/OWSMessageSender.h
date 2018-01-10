@@ -8,7 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ContactsUpdater;
 @class OWSBlockingManager;
-@class OWSSessionStorage;
 @class OWSUploadingService;
 @class SignalRecipient;
 @class TSInvalidIdentityKeySendingErrorMessage;
@@ -57,7 +56,6 @@ NS_SWIFT_NAME(MessageSender)
 
 - (instancetype)initWithNetworkManager:(TSNetworkManager *)networkManager
                         storageManager:(TSStorageManager *)storageManager
-                        sessionStorage:(OWSSessionStorage *)sessionStorage
                        contactsManager:(id<ContactsManagerProtocol>)contactsManager
                        contactsUpdater:(ContactsUpdater *)contactsUpdater;
 

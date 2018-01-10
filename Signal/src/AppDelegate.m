@@ -75,9 +75,6 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     DDLogWarn(@"%@ applicationWillEnterForeground.", self.logTag);
 
-    // We want to prod OWSStorage here so that all storage is valid.
-    [OWSStorage applicationWillEnterForeground];
-
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
 }
 
@@ -217,9 +214,11 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
         return;
     }
 
-    DDLogInfo(@"%s", __PRETTY_FUNCTION__);
-
     [NSUserDefaults migrateToSharedUserDefaults];
+
+    [TSStorageManager migrateToSharedData];
+    [OWSProfileManager migrateToSharedData];
+    [TSAttachmentStream migrateToSharedData];
 }
 
 - (void)startupLogging
@@ -764,11 +763,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 
     // Disable the SAE until the main app has successfully completed launch process
     // at least once in the post-SAE world.
-    [TSStorageManager.sharedManager copyPrimaryDatabaseFileWithCompletion:^{
-        // Don't mark the SAE as "ready" until we have a complete copy of the
-        // primary database.
-        [OWSPreferences setIsReadyForAppExtensions];
-    }];
+    [OWSPreferences setIsReadyForAppExtensions];
 
     [self ensureRootViewController];
 }

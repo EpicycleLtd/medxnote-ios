@@ -35,7 +35,7 @@
 {
     NSString *dirPath = [[OWSFileSystem cachesDirectoryPath] stringByAppendingPathComponent:@"Logs"];
     [OWSFileSystem ensureDirectoryExists:dirPath];
-    [OWSFileSystem protectFileOrFolderAtPath:dirPath];
+    [OWSFileSystem protectFolderAtPath:dirPath];
     return dirPath;
 }
 
@@ -44,7 +44,7 @@
     NSString *dirPath =
         [[OWSFileSystem appSharedDataDirectoryPath] stringByAppendingPathComponent:@"ShareExtensionLogs"];
     [OWSFileSystem ensureDirectoryExists:dirPath];
-    [OWSFileSystem protectFileOrFolderAtPath:dirPath];
+    [OWSFileSystem protectFolderAtPath:dirPath];
     return dirPath;
 }
 

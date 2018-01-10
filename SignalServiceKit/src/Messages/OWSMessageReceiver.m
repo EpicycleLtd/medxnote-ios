@@ -190,17 +190,17 @@ NSString *const OWSMessageDecryptJobFinderExtensionGroup = @"OWSMessageProcessin
     });
 }
 
-+ (void)syncRegisterDatabaseExtension:(OWSStorage *)storage
++ (void)syncRegisterDatabaseExtension:(TSStorageManager *)storageManager
 {
     [self registerLegacyClasses];
 
-    YapDatabaseView *existingView = [storage registeredExtension:OWSMessageDecryptJobFinderExtensionName];
+    YapDatabaseView *existingView = [storageManager registeredExtension:OWSMessageDecryptJobFinderExtensionName];
     if (existingView) {
         OWSFail(@"%@ was already initialized.", OWSMessageDecryptJobFinderExtensionName);
         // already initialized
         return;
     }
-    [storage registerExtension:[self databaseExtension] withName:OWSMessageDecryptJobFinderExtensionName];
+    [storageManager registerExtension:[self databaseExtension] withName:OWSMessageDecryptJobFinderExtensionName];
 }
 
 @end
@@ -422,9 +422,9 @@ NSString *const OWSMessageDecryptJobFinderExtensionGroup = @"OWSMessageProcessin
 
 #pragma mark - class methods
 
-+ (void)syncRegisterDatabaseExtension:(OWSStorage *)storage
++ (void)syncRegisterDatabaseExtension:(TSStorageManager *)storageManager
 {
-    [OWSMessageDecryptJobFinder syncRegisterDatabaseExtension:storage];
+    [OWSMessageDecryptJobFinder syncRegisterDatabaseExtension:storageManager];
 }
 
 #pragma mark - instance methods

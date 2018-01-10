@@ -2,12 +2,11 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
-#import "OWSDatabaseConnection.h"
 #import "OWSStorage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OWSStorage (Subclass) <OWSDatabaseConnectionDelegate>
+@interface OWSStorage (Subclass)
 
 - (void)runSyncRegistrations;
 - (void)runAsyncRegistrationsWithCompletion:(void (^_Nonnull)(void))completion;
@@ -16,13 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)areSyncRegistrationsComplete;
 
 - (NSString *)databaseFilePath;
-- (NSString *)databaseFilePath_SHM;
-- (NSString *)databaseFilePath_WAL;
-
-- (void)openDatabase;
-- (void)closeDatabase;
-
-- (void)observeNotifications;
 
 - (void)resetStorage;
 

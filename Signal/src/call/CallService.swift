@@ -230,11 +230,11 @@ protocol CallServiceObserver: class {
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didEnterBackground),
-                                               name: NSNotification.Name.OWSApplicationDidEnterBackground,
+                                               name: NSNotification.Name.UIApplicationDidEnterBackground,
                                                object: nil)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didBecomeActive),
-                                               name: NSNotification.Name.OWSApplicationDidBecomeActive,
+                                               name: NSNotification.Name.UIApplicationDidBecomeActive,
                                                object: nil)
     }
 

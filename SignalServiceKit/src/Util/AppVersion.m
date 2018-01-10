@@ -32,7 +32,6 @@ NSString *const kNSUserDefaults_LastCompletedLaunchAppVersion = @"kNSUserDefault
     return instance;
 }
 
-// TODO: Modify these NSUserDefaults keys for SAE.
 - (void)configure {
     self.currentAppVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     

@@ -4,7 +4,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class OWSStorage;
 @class TSStorageManager;
 
 @interface OWSFailedMessagesJob : NSObject
@@ -17,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Database extensions required for class to work.
  */
-+ (void)asyncRegisterDatabaseExtensionsWithStorageManager:(OWSStorage *)storage;
++ (void)asyncRegisterDatabaseExtensionsWithStorageManager:(TSStorageManager *)storageManager;
 
 /**
  * Only use the sync version for testing, generally we'll want to register extensions async

@@ -134,6 +134,8 @@
     // Make a local copy of this state, since this method is called by `dealloc`.
     UIBackgroundTaskIdentifier backgroundTaskId;
     BackgroundTaskCompletionBlock _Nullable completionBlock;
+    NSString *logTag = self.logTag;
+    NSString *label = self.label;
 
     @synchronized(self)
     {
@@ -149,14 +151,13 @@
 
     // endBackgroundTask must be called on the main thread.
     DispatchMainThreadSafe(^{
-        
+        DDLogVerbose(@"%@ %@ background task completed.", logTag, label);
+
         if (completionBlock) {
             completionBlock(BackgroundTaskState_Success);
         }
 
-        if (backgroundTaskId != UIBackgroundTaskInvalid) {
-            [CurrentAppContext() endBackgroundTask:backgroundTaskId];
-        }
+        [CurrentAppContext() endBackgroundTask:backgroundTaskId];
     });
 }
 

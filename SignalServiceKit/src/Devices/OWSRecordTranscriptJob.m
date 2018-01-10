@@ -7,11 +7,10 @@
 #import "OWSDisappearingMessagesJob.h"
 #import "OWSIncomingSentMessageTranscript.h"
 #import "OWSReadReceiptManager.h"
-#import "OWSSessionStorage+SessionStore.h"
 #import "TSInfoMessage.h"
 #import "TSNetworkManager.h"
 #import "TSOutgoingMessage.h"
-#import "TSStorageManager.h"
+#import "TSStorageManager+SessionStore.h"
 #import "TextSecureKitEnv.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,7 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) TSNetworkManager *networkManager;
 @property (nonatomic, readonly) TSStorageManager *storageManager;
-@property (nonatomic, readonly) OWSSessionStorage *sessionStorage;
 @property (nonatomic, readonly) OWSReadReceiptManager *readReceiptManager;
 @property (nonatomic, readonly) id<ContactsManagerProtocol> contactsManager;
 
@@ -36,8 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
                                         networkManager:TSNetworkManager.sharedManager
                                         storageManager:TSStorageManager.sharedManager
                                     readReceiptManager:OWSReadReceiptManager.sharedManager
-                                       contactsManager:[TextSecureKitEnv sharedEnv].contactsManager
-                                        sessionStorage:OWSSessionStorage.sharedManager];
+                                       contactsManager:[TextSecureKitEnv sharedEnv].contactsManager];
 }
 
 - (instancetype)initWithIncomingSentMessageTranscript:(OWSIncomingSentMessageTranscript *)incomingSentMessageTranscript
@@ -45,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
                                        storageManager:(TSStorageManager *)storageManager
                                    readReceiptManager:(OWSReadReceiptManager *)readReceiptManager
                                       contactsManager:(id<ContactsManagerProtocol>)contactsManager
-                                       sessionStorage:(OWSSessionStorage *)sessionStorage
 {
     self = [super init];
     if (!self) {
@@ -57,7 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
     _storageManager = storageManager;
     _readReceiptManager = readReceiptManager;
     _contactsManager = contactsManager;
-    _sessionStorage = sessionStorage;
 
     return self;
 }
@@ -74,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (transcript.isEndSessionMessage) {
         DDLogInfo(@"%@ EndSession was sent to recipient: %@.", self.logTag, transcript.recipientId);
         dispatch_async([OWSDispatch sessionStoreQueue], ^{
-            [self.sessionStorage deleteAllSessionsForContact:transcript.recipientId];
+            [self.storageManager deleteAllSessionsForContact:transcript.recipientId];
         });
         [[[TSInfoMessage alloc] initWithTimestamp:transcript.timestamp
                                          inThread:thread

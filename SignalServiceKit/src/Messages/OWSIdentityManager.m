@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
 #import "OWSIdentityManager.h"
@@ -11,14 +11,13 @@
 #import "OWSMessageSender.h"
 #import "OWSOutgoingNullMessage.h"
 #import "OWSRecipientIdentity.h"
-#import "OWSSessionStorage+SessionStore.h"
-#import "OWSSessionStorage.h"
 #import "OWSVerificationStateChangeMessage.h"
 #import "OWSVerificationStateSyncMessage.h"
 #import "TSAccountManager.h"
 #import "TSContactThread.h"
 #import "TSErrorMessage.h"
 #import "TSGroupThread.h"
+#import "TSStorageManager+sessionStore.h"
 #import "TSStorageManager.h"
 #import "TextSecureKitEnv.h"
 #import "YapDatabaseConnection+OWS.h"
@@ -31,9 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 // Storing our own identity key
 NSString *const TSStorageManagerIdentityKeyStoreIdentityKey = @"TSStorageManagerIdentityKeyStoreIdentityKey";
 NSString *const TSStorageManagerIdentityKeyStoreCollection = @"TSStorageManagerIdentityKeyStoreCollection";
-
-NSString *const OWSIdentityStore_Collection = @"OWSIdentityStore_Collection";
-NSString *const OWSIdentityStore_Key_HasMigratedToSessionStorage = @"OWSIdentityStore_Key_HasMigratedToSessionStorage";
 
 // Storing recipients identity keys
 NSString *const TSStorageManagerTrustedKeysCollection = @"TSStorageManagerTrustedKeysCollection";
@@ -57,7 +53,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 @interface OWSIdentityManager ()
 
 @property (nonatomic, readonly) TSStorageManager *storageManager;
-@property (nonatomic, readonly) OWSSessionStorage *sessionStorage;
 @property (nonatomic, readonly) YapDatabaseConnection *dbConnection;
 @property (nonatomic, readonly) OWSMessageSender *messageSender;
 
@@ -81,14 +76,12 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 {
     TSStorageManager *storageManager = [TSStorageManager sharedManager];
     OWSMessageSender *messageSender = [TextSecureKitEnv sharedEnv].messageSender;
-    OWSSessionStorage *sessionStorage = OWSSessionStorage.sharedManager;
 
-    return [self initWithStorageManager:storageManager messageSender:messageSender sessionStorage:sessionStorage];
+    return [self initWithStorageManager:storageManager messageSender:messageSender];
 }
 
 - (instancetype)initWithStorageManager:(TSStorageManager *)storageManager
                          messageSender:(OWSMessageSender *)messageSender
-                        sessionStorage:(OWSSessionStorage *)sessionStorage
 {
     self = [super init];
 
@@ -98,12 +91,10 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
     OWSAssert(storageManager);
     OWSAssert(messageSender);
-    OWSAssert(sessionStorage);
 
     _storageManager = storageManager;
     _dbConnection = storageManager.newDatabaseConnection;
     _messageSender = messageSender;
-    _sessionStorage = sessionStorage;
 
     OWSSingletonAssert();
 
@@ -121,23 +112,19 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationDidBecomeActive:)
-                                                 name:OWSApplicationDidBecomeActiveNotification
+                                                 name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
 }
 
 - (void)generateNewIdentityKey
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
-
-    [self.sessionStorage.dbConnection setObject:[Curve25519 generateKeyPair]
-                                         forKey:TSStorageManagerIdentityKeyStoreIdentityKey
-                                   inCollection:TSStorageManagerIdentityKeyStoreCollection];
+    [self.dbConnection setObject:[Curve25519 generateKeyPair]
+                          forKey:TSStorageManagerIdentityKeyStoreIdentityKey
+                    inCollection:TSStorageManagerIdentityKeyStoreCollection];
 }
 
 - (nullable NSData *)identityKeyForRecipientId:(NSString *)recipientId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
-
     @synchronized(self)
     {
         return [OWSRecipientIdentity fetchObjectWithUniqueID:recipientId].identityKey;
@@ -146,22 +133,17 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (nullable ECKeyPair *)identityKeyPair
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
-
-    return [self.sessionStorage.dbConnection keyPairForKey:TSStorageManagerIdentityKeyStoreIdentityKey
-                                              inCollection:TSStorageManagerIdentityKeyStoreCollection];
+    return [self.dbConnection keyPairForKey:TSStorageManagerIdentityKeyStoreIdentityKey
+                               inCollection:TSStorageManagerIdentityKeyStoreCollection];
 }
 
 - (int)localRegistrationId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
-
     return (int)[TSAccountManager getOrGenerateRegistrationId];
 }
 
 - (BOOL)saveRemoteIdentity:(NSData *)identityKey recipientId:(NSString *)recipientId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(identityKey.length == kStoredIdentityKeyLength);
     OWSAssert(recipientId.length > 0);
 
@@ -171,9 +153,7 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
         // decisions, but it's desirable to try to keep it up to date with our trusted identitys
         // while we're switching between versions, e.g. so we don't get into a state where we have a
         // session for an identity not in our key store.
-        [self.sessionStorage.dbConnection setObject:identityKey
-                                             forKey:recipientId
-                                       inCollection:TSStorageManagerTrustedKeysCollection];
+        [self.dbConnection setObject:identityKey forKey:recipientId inCollection:TSStorageManagerTrustedKeysCollection];
 
         OWSRecipientIdentity *existingIdentity = [OWSRecipientIdentity fetchObjectWithUniqueID:recipientId];
 
@@ -219,7 +199,7 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
                                              verificationState:verificationState] save];
 
             dispatch_async([OWSDispatch sessionStoreQueue], ^{
-                [self.sessionStorage archiveAllSessionsForContact:recipientId];
+                [self.storageManager archiveAllSessionsForContact:recipientId];
             });
 
             // Cancel any pending verification state sync messages for this recipient.
@@ -239,7 +219,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
                  recipientId:(NSString *)recipientId
        isUserInitiatedChange:(BOOL)isUserInitiatedChange
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(identityKey.length == kStoredIdentityKeyLength);
     OWSAssert(recipientId.length > 0);
 
@@ -282,7 +261,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (OWSVerificationState)verificationStateForRecipientId:(NSString *)recipientId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(recipientId.length > 0);
 
     @synchronized(self)
@@ -300,7 +278,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (nullable OWSRecipientIdentity *)recipientIdentityForRecipientId:(NSString *)recipientId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(recipientId.length > 0);
 
     @synchronized(self)
@@ -311,7 +288,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (nullable OWSRecipientIdentity *)untrustedIdentityForSendingToRecipientId:(NSString *)recipientId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(recipientId.length > 0);
 
     @synchronized(self)
@@ -345,7 +321,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
                  recipientId:(NSString *)recipientId
                    direction:(TSMessageDirection)direction
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(identityKey.length == kStoredIdentityKeyLength);
     OWSAssert(recipientId.length > 0);
     OWSAssert(direction != TSMessageDirectionUnknown);
@@ -383,7 +358,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (BOOL)isTrustedKey:(NSData *)identityKey forSendingToIdentity:(nullable OWSRecipientIdentity *)recipientIdentity
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(identityKey.length == kStoredIdentityKeyLength);
 
     @synchronized(self)
@@ -427,7 +401,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (void)createIdentityChangeInfoMessageForRecipientId:(NSString *)recipientId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(recipientId.length > 0);
 
     NSMutableArray<TSMessage *> *messages = [NSMutableArray new];
@@ -453,7 +426,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (void)enqueueSyncMessageForVerificationStateForRecipientId:(NSString *)recipientId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(recipientId.length > 0);
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -473,16 +445,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 - (void)tryToSyncQueuedVerificationStates
 {
     OWSAssertIsOnMainThread();
-
-    if (!self.hasMigratedToSessionStorage) {
-        return;
-    }
-    if (!CurrentAppContext().isMainApp) {
-        return;
-    }
-    if (CurrentAppContext().mainApplicationState != UIApplicationStateActive) {
-        return;
-    }
 
     if (!CurrentAppContext().isMainAppAndActive) {
         // Only try to sync if the main app is active to avoid interfering with startup.
@@ -549,7 +511,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (void)sendSyncVerificationStateMessage:(OWSVerificationStateSyncMessage *)message
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(message);
     OWSAssert(message.verificationForRecipientId.length > 0);
 
@@ -587,7 +548,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (void)clearSyncMessageForRecipientId:(NSString *)recipientId
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(recipientId.length > 0);
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -601,8 +561,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
 
 - (void)processIncomingSyncMessage:(OWSSignalServiceProtosVerified *)verified
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
-
     NSString *recipientId = verified.destination;
     if (recipientId.length < 1) {
         OWSFail(@"Verification state sync message missing recipientId.");
@@ -646,8 +604,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
                                        identityKey:(NSData *)identityKey
                                overwriteOnConflict:(BOOL)overwriteOnConflict
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
-
     if (recipientId.length < 1) {
         OWSFail(@"Verification state sync message missing recipientId.");
         return;
@@ -761,7 +717,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
                        verificationState:(OWSVerificationState)verificationState
                            isLocalChange:(BOOL)isLocalChange
 {
-    OWSAssert(self.hasMigratedToSessionStorage);
     OWSAssert(recipientId.length > 0);
 
     NSMutableArray<TSMessage *> *messages = [NSMutableArray new];
@@ -788,43 +743,6 @@ NSString *const kNSNotificationName_IdentityStateDidChange = @"kNSNotificationNa
             [message saveWithTransaction:transaction];
         }
     }];
-}
-
-- (BOOL)hasMigratedToSessionStorage
-{
-    return [self.dbConnection boolForKey:OWSIdentityStore_Key_HasMigratedToSessionStorage
-                            inCollection:OWSIdentityStore_Collection
-                            defaultValue:NO];
-}
-
-- (void)migrateFromStorageIfNecessary:(OWSStorage *)storage
-{
-    if (self.hasMigratedToSessionStorage) {
-        // We don't need to worry about races; we'll only attempt this migration once per main app launch.
-        return;
-    }
-
-    DDLogInfo(@"%s", __PRETTY_FUNCTION__);
-
-    if (!CurrentAppContext().isMainApp) {
-        [NSException raise:@"OWSStorageExceptionName_SessionMigrationOutsideMainApp"
-                    format:@"Can only migrate session storage in main app."];
-    }
-
-    [self.sessionStorage copyCollection:TSStorageManagerIdentityKeyStoreCollection
-                            fromStorage:storage
-                             valueClass:[ECKeyPair class]];
-    [self.sessionStorage copyCollection:OWSRecipientIdentity.collection
-                            fromStorage:storage
-                             valueClass:[OWSRecipientIdentity class]];
-
-    // Mark migration as complete.
-    [self.dbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
-        [transaction setObject:@(YES)
-                        forKey:OWSIdentityStore_Key_HasMigratedToSessionStorage
-                  inCollection:OWSIdentityStore_Collection];
-    }];
-    [self tryToSyncQueuedVerificationStates];
 }
 
 #pragma mark - Notifications

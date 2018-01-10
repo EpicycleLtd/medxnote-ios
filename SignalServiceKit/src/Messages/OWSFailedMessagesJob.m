@@ -134,17 +134,17 @@ static NSString *const OWSFailedMessagesJobMessageStateIndex = @"index_outoing_m
                                   withName:OWSFailedMessagesJobMessageStateIndex];
 }
 
-+ (void)asyncRegisterDatabaseExtensionsWithStorageManager:(OWSStorage *)storage
++ (void)asyncRegisterDatabaseExtensionsWithStorageManager:(TSStorageManager *)storageManager
 {
-    [storage asyncRegisterExtension:[self indexDatabaseExtension]
-                           withName:OWSFailedMessagesJobMessageStateIndex
-                    completionBlock:^(BOOL ready) {
-                        if (ready) {
-                            DDLogDebug(@"%@ completed registering extension async.", self.logTag);
-                        } else {
-                            DDLogError(@"%@ failed registering extension async.", self.logTag);
-                        }
-                    }];
+    [storageManager asyncRegisterExtension:[self indexDatabaseExtension]
+                                  withName:OWSFailedMessagesJobMessageStateIndex
+                           completionBlock:^(BOOL ready) {
+                               if (ready) {
+                                   DDLogDebug(@"%@ completed registering extension async.", self.logTag);
+                               } else {
+                                   DDLogError(@"%@ failed registering extension async.", self.logTag);
+                               }
+                           }];
 }
 
 @end

@@ -6,10 +6,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-void runSyncRegistrationsForPrimaryStorage(OWSStorage *storage);
-void runAsyncRegistrationsForPrimaryStorage(OWSStorage *storage);
-
-// TODO: Rename to OWSPrimaryStorage?
 @interface TSStorageManager : OWSStorage
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -21,12 +17,9 @@ void runAsyncRegistrationsForPrimaryStorage(OWSStorage *storage);
 + (YapDatabaseConnection *)dbReadConnection;
 + (YapDatabaseConnection *)dbReadWriteConnection;
 
-+ (NSString *)databaseFilePath;
-+ (NSString *)databaseFilePath_SHM;
-+ (NSString *)databaseFilePath_WAL;
++ (void)migrateToSharedData;
 
-// This method is used to copy the primary database for the SAE.
-- (void)copyPrimaryDatabaseFileWithCompletion:(void (^_Nonnull)(void))completion;
++ (NSString *)databaseFilePath;
 
 @end
 

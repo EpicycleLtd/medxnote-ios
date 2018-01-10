@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
 #import "OWSLinkedDevicesTableViewController.h"
@@ -65,11 +65,11 @@ int const OWSLinkedDevicesTableViewControllerSectionAddDevice = 1;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(yapDatabaseModified:)
                                                  name:YapDatabaseModifiedNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
+                                               object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(yapDatabaseModifiedExternally:)
                                                  name:YapDatabaseModifiedExternallyNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
+                                               object:nil];
 
     self.refreshControl = [UIRefreshControl new];
     [self.refreshControl addTarget:self action:@selector(refreshDevices) forControlEvents:UIControlEventValueChanged];

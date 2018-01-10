@@ -127,7 +127,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
                                                object: nil)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didBecomeActive),
-                                               name: NSNotification.Name.OWSApplicationDidBecomeActive,
+                                               name: NSNotification.Name.UIApplicationDidBecomeActive,
                                                object: nil)
     }
 

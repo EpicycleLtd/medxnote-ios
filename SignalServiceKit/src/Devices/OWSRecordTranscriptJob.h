@@ -6,7 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class OWSIncomingSentMessageTranscript;
 @class OWSReadReceiptManager;
-@class OWSSessionStorage;
 @class TSAttachmentStream;
 @class TSNetworkManager;
 @class TSStorageManager;
@@ -24,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
                                        storageManager:(TSStorageManager *)storageManager
                                    readReceiptManager:(OWSReadReceiptManager *)readReceiptManager
                                       contactsManager:(id<ContactsManagerProtocol>)contactsManager
-                                       sessionStorage:(OWSSessionStorage *)sessionStorage NS_DESIGNATED_INITIALIZER;
+    NS_DESIGNATED_INITIALIZER;
 
 - (void)runWithAttachmentHandler:(void (^)(TSAttachmentStream *attachmentStream))attachmentHandler
                      transaction:(YapDatabaseReadWriteTransaction *)transaction;

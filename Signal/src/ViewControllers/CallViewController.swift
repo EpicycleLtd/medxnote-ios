@@ -146,7 +146,7 @@ class CallViewController: OWSViewController, CallObserver, CallServiceObserver {
     func observeNotifications() {
         NotificationCenter.default.addObserver(self,
                                                selector:#selector(didBecomeActive),
-                                               name:NSNotification.Name.OWSApplicationDidBecomeActive,
+                                               name:NSNotification.Name.UIApplicationDidBecomeActive,
                                                object:nil)
 
         NotificationCenter.default.addObserver(forName: CallAudioServiceSessionChanged, object: nil, queue: nil) { [weak self] _ in

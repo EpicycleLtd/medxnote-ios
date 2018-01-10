@@ -125,11 +125,11 @@ NSString *const kNSNotification_SocketManagerStateDidChange = @"kNSNotification_
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationDidBecomeActive:)
-                                                 name:OWSApplicationDidBecomeActiveNotification
+                                                 name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResignActive:)
-                                                 name:OWSApplicationWillResignActiveNotification
+                                                 name:UIApplicationWillResignActiveNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(registrationStateDidChange:)

@@ -57,11 +57,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationDidBecomeActive:)
-                                                 name:OWSApplicationDidBecomeActiveNotification
+                                                 name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResignActive:)
-                                                 name:OWSApplicationWillResignActiveNotification
+                                                 name:UIApplicationWillResignActiveNotification
                                                object:nil];
 
     return self;

@@ -3,7 +3,6 @@
 //
 
 #import "TSAttachmentStream.h"
-#import "AppContext.h"
 #import "MIMETypeUtil.h"
 #import "NSData+Image.h"
 #import "OWSFileSystem.h"
@@ -180,7 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [dataSource writeToPath:filePath];
 }
 
-+ (NSString *)mainAppAttachmentsDirPath
++ (NSString *)legacyAttachmentsDirPath
 {
     return [[OWSFileSystem appDocumentDirectoryPath] stringByAppendingPathComponent:@"Attachments"];
 }
@@ -190,17 +189,23 @@ NS_ASSUME_NONNULL_BEGIN
     return [[OWSFileSystem appSharedDataDirectoryPath] stringByAppendingPathComponent:@"Attachments"];
 }
 
++ (void)migrateToSharedData
+{
+    [OWSFileSystem moveAppFilePath:self.legacyAttachmentsDirPath
+                sharedDataFilePath:self.sharedDataAttachmentsDirPath
+                     exceptionName:@"CouldNotMigrateAttachmentsDirectory"];
+}
+
 + (NSString *)attachmentsFolder
 {
     static NSString *attachmentsFolder = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        attachmentsFolder
-            = (CurrentAppContext().isMainApp ? self.mainAppAttachmentsDirPath : self.sharedDataAttachmentsDirPath);
+        attachmentsFolder = TSAttachmentStream.sharedDataAttachmentsDirPath;
 
         [OWSFileSystem ensureDirectoryExists:attachmentsFolder];
 
-        [OWSFileSystem protectFileOrFolderAtPath:attachmentsFolder];
+        [OWSFileSystem protectFolderAtPath:attachmentsFolder];
     });
     return attachmentsFolder;
 }

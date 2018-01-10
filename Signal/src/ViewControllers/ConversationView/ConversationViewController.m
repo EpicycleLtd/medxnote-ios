@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
 #import "ConversationViewController.h"
@@ -202,7 +202,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic, readonly) ContactsUpdater *contactsUpdater;
 @property (nonatomic, readonly) OWSMessageSender *messageSender;
 @property (nonatomic, readonly) TSStorageManager *storageManager;
-@property (nonatomic, readonly) OWSSessionStorage *sessionStorage;
 @property (nonatomic, readonly) OWSMessageManager *messagesManager;
 @property (nonatomic, readonly) TSNetworkManager *networkManager;
 @property (nonatomic, readonly) OutboundCallInitiator *outboundCallInitiator;
@@ -273,7 +272,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     _messageSender = [Environment current].messageSender;
     _outboundCallInitiator = SignalApp.sharedApp.outboundCallInitiator;
     _storageManager = [TSStorageManager sharedManager];
-    _sessionStorage = [OWSSessionStorage sharedManager];
     _messagesManager = [OWSMessageManager sharedManager];
     _networkManager = [TSNetworkManager sharedManager];
     _blockingManager = [OWSBlockingManager sharedManager];
@@ -297,26 +295,26 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(yapDatabaseModified:)
                                                  name:YapDatabaseModifiedNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
+                                               object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(yapDatabaseModifiedExternally:)
                                                  name:YapDatabaseModifiedExternallyNotification
-                                               object:TSStorageManager.sharedManager.dbNotificationObject];
+                                               object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillEnterForeground:)
-                                                 name:OWSApplicationWillEnterForegroundNotification
+                                                 name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationDidEnterBackground:)
-                                                 name:OWSApplicationDidEnterBackgroundNotification
+                                                 name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResignActive:)
-                                                 name:OWSApplicationWillResignActiveNotification
+                                                 name:UIApplicationWillResignActiveNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(cancelReadTimer)
-                                                 name:OWSApplicationDidEnterBackgroundNotification
+                                                 name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(otherUsersProfileDidChange:)
@@ -1803,7 +1801,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     TSContactThread *contactThread = (TSContactThread *)self.thread;
                     [OWSSessionResetJob runWithContactThread:contactThread
                                                messageSender:self.messageSender
-                                              sessionStorage:self.sessionStorage];
+                                              storageManager:self.storageManager];
                 }];
     [alertController addAction:resetSessionAction];
 

@@ -14,7 +14,6 @@
 #import <SignalServiceKit/OWSBatchMessageProcessor.h>
 #import <SignalServiceKit/OWSDisappearingConfigurationUpdateInfoMessage.h>
 #import <SignalServiceKit/OWSDisappearingMessagesConfiguration.h>
-#import <SignalServiceKit/OWSSessionStorage+SessionStore.h>
 #import <SignalServiceKit/OWSSyncGroupsRequestMessage.h>
 #import <SignalServiceKit/OWSVerificationStateChangeMessage.h>
 #import <SignalServiceKit/SecurityUtils.h>
@@ -22,6 +21,7 @@
 #import <SignalServiceKit/TSDatabaseView.h>
 #import <SignalServiceKit/TSIncomingMessage.h>
 #import <SignalServiceKit/TSInvalidIdentityKeyReceivingErrorMessage.h>
+#import <SignalServiceKit/TSStorageManager+SessionStore.h>
 #import <SignalServiceKit/TSThread.h>
 
 NS_ASSUME_NONNULL_BEGIN

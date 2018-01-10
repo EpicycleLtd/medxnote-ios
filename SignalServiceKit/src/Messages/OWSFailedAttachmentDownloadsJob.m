@@ -82,6 +82,7 @@ static NSString *const OWSFailedAttachmentDownloadsJobAttachmentStateIndex = @"i
             [self enumerateAttemptingOutAttachmentsWithBlock:^(TSAttachmentPointer *attachment) {
                 // sanity check
                 if (attachment.state != TSAttachmentPointerStateFailed) {
+                    DDLogDebug(@"%@ marking attachment as failed", self.logTag);
                     attachment.state = TSAttachmentPointerStateFailed;
                     [attachment saveWithTransaction:transaction];
                     count++;
@@ -124,17 +125,17 @@ static NSString *const OWSFailedAttachmentDownloadsJobAttachmentStateIndex = @"i
                                   withName:OWSFailedAttachmentDownloadsJobAttachmentStateIndex];
 }
 
-+ (void)asyncRegisterDatabaseExtensionsWithStorageManager:(OWSStorage *)storage
++ (void)asyncRegisterDatabaseExtensionsWithStorageManager:(TSStorageManager *)storageManager
 {
-    [storage asyncRegisterExtension:[self indexDatabaseExtension]
-                           withName:OWSFailedAttachmentDownloadsJobAttachmentStateIndex
-                    completionBlock:^(BOOL ready) {
-                        if (ready) {
-                            DDLogDebug(@"%@ completed registering extension async.", self.logTag);
-                        } else {
-                            DDLogError(@"%@ failed registering extension async.", self.logTag);
-                        }
-                    }];
+    [storageManager asyncRegisterExtension:[self indexDatabaseExtension]
+                                  withName:OWSFailedAttachmentDownloadsJobAttachmentStateIndex
+                           completionBlock:^(BOOL ready) {
+                               if (ready) {
+                                   DDLogDebug(@"%@ completed registering extension async.", self.logTag);
+                               } else {
+                                   DDLogError(@"%@ failed registering extension async.", self.logTag);
+                               }
+                           }];
 }
 
 @end

@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-+ (void)protectFileOrFolderAtPath:(NSString *)path;
++ (void)protectFolderAtPath:(NSString *)path;
 
 + (NSString *)appDocumentDirectoryPath;
 
@@ -24,8 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)ensureDirectoryExists:(NSString *)dirPath;
 
 + (void)deleteFile:(NSString *)filePath;
-
-+ (void)deleteFileIfExists:(NSString *)filePath;
 
 @end
 

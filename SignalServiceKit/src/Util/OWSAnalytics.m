@@ -101,7 +101,7 @@ NSString *NSStringForOWSAnalyticsSeverity(OWSAnalyticsSeverity severity)
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationDidBecomeActive)
-                                                 name:OWSApplicationDidBecomeActiveNotification
+                                                 name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
 }
 

@@ -200,15 +200,15 @@ NSString *const OWSMessageContentJobFinderExtensionGroup = @"OWSMessageContentJo
 }
 
 
-+ (void)syncRegisterDatabaseExtension:(OWSStorage *)storage
++ (void)syncRegisterDatabaseExtension:(TSStorageManager *)storageManager
 {
-    YapDatabaseView *existingView = [storage registeredExtension:OWSMessageContentJobFinderExtensionName];
+    YapDatabaseView *existingView = [storageManager registeredExtension:OWSMessageContentJobFinderExtensionName];
     if (existingView) {
         OWSFail(@"%@ was already initialized.", OWSMessageContentJobFinderExtensionName);
         // already initialized
         return;
     }
-    [storage registerExtension:[self databaseExtension] withName:OWSMessageContentJobFinderExtensionName];
+    [storageManager registerExtension:[self databaseExtension] withName:OWSMessageContentJobFinderExtensionName];
 }
 
 #pragma mark Logging
@@ -443,9 +443,9 @@ NSString *const OWSMessageContentJobFinderExtensionGroup = @"OWSMessageContentJo
 
 #pragma mark - class methods
 
-+ (void)syncRegisterDatabaseExtension:(OWSStorage *)storage
++ (void)syncRegisterDatabaseExtension:(TSStorageManager *)storageManager
 {
-    [OWSMessageContentJobFinder syncRegisterDatabaseExtension:storage];
+    [OWSMessageContentJobFinder syncRegisterDatabaseExtension:storageManager];
 }
 
 #pragma mark - instance methods
