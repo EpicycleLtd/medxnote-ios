@@ -11,6 +11,14 @@
 #pragma mark Logging - Production logging wants us to write some logs to a file in case we need it for debugging.
 #import <CocoaLumberjack/DDTTYLogger.h>
 
+@interface DDFileLogger (DebugLogger)
+
+- (void)deleteOldLogFiles;
+
+@end
+
+#pragma mark -
+
 @interface DebugLogger ()
 
 @property (nonatomic) DDFileLogger *fileLogger;
@@ -33,6 +41,7 @@
 
 + (NSString *)mainAppLogsDirPath
 {
+    // Logging to file, because it's in the Cache folder, they are not uploaded in iTunes/iCloud backups.
     NSString *dirPath = [[OWSFileSystem cachesDirectoryPath] stringByAppendingPathComponent:@"Logs"];
     [OWSFileSystem ensureDirectoryExists:dirPath];
     [OWSFileSystem protectFileOrFolderAtPath:dirPath];
@@ -48,30 +57,53 @@
     return dirPath;
 }
 
-- (NSString *)logsDirPath
+- (NSString *)activeLogsDirPath
 {
     // This assumes that the only app extension is the share app extension.
     return (CurrentAppContext().isMainApp ? DebugLogger.mainAppLogsDirPath : DebugLogger.shareExtensionLogsDirPath);
 }
 
-- (void)enableFileLogging
+// Although we only want to log to the "active" logs dirs, we want to clean up both
+// the active AND inactive logs dirs.
+- (NSString *)inactiveLogsDirPath
 {
-    NSString *logsDirPath = [self logsDirPath];
+    return (CurrentAppContext().isMainApp ? DebugLogger.shareExtensionLogsDirPath : DebugLogger.mainAppLogsDirPath);
+}
+
++ (DDFileLogger *)fileLoggerWithLogsDirPath:(NSString *)logsDirPath
+{
+    OWSAssert(logsDirPath.length > 0);
 
     // Logging to file, because it's in the Cache folder, they are not uploaded in iTunes/iCloud backups.
     id<DDLogFileManager> logFileManager =
         [[DDLogFileManagerDefault alloc] initWithLogsDirectory:logsDirPath defaultFileProtectionLevel:@""];
-    self.fileLogger = [[DDFileLogger alloc] initWithLogFileManager:logFileManager];
+    DDFileLogger *fileLogger = [[DDFileLogger alloc] initWithLogFileManager:logFileManager];
 
     // 24 hour rolling.
-    self.fileLogger.rollingFrequency = kDayInterval;
+    fileLogger.rollingFrequency = kDayInterval;
     // Keep last 3 days of logs - or last 3 logs (if logs rollover due to max file size).
-    self.fileLogger.logFileManager.maximumNumberOfLogFiles = 3;
+    fileLogger.logFileManager.maximumNumberOfLogFiles = 3;
     // Raise the max file size per log file to 3 MB.
-    self.fileLogger.maximumFileSize = 1024 * 1024 * 3;
-    self.fileLogger.logFormatter = [OWSScrubbingLogFormatter new];
+    fileLogger.maximumFileSize = 1024 * 1024 * 3;
+    fileLogger.logFormatter = [OWSScrubbingLogFormatter new];
 
-    [DDLog addLogger:self.fileLogger];
+    return fileLogger;
+}
+
+- (void)enableFileLogging
+{
+    // "Active" file logger.
+    self.fileLogger = [DebugLogger fileLoggerWithLogsDirPath:[self activeLogsDirPath]];
+
+    // Instantiate but don't register an "inactive" file logger to clean up
+    // the log files from the "other" app: the main app will clean up logs from the SAE
+    // and vice versa.
+    DDFileLogger *inactiveFileLogger = [DebugLogger fileLoggerWithLogsDirPath:[self inactiveLogsDirPath]];
+    dispatch_async([DDLog loggingQueue], ^{
+        @autoreleasepool {
+            [inactiveFileLogger deleteOldLogFiles];
+        }
+    });
 }
 
 - (void)disableFileLogging
