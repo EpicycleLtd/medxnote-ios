@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "OWSMath.h"
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [UIColor colorWithRed:239.f / 255.f green:189.f / 255.f blue:88.f / 255.f alpha:1.0f];
 }
 
-+ (UIColor *)ows_inputToolbarBackgroundColor
++ (UIColor *)ows_toolbarBackgroundColor
 {
     return [self colorWithWhite:245 / 255.f alpha:1.f];
 }
