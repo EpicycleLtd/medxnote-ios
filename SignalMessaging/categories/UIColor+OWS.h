@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, readonly, nonatomic) UIColor *ows_blackColor;
 @property (class, readonly, nonatomic) UIColor *ows_errorMessageBorderColor;
 @property (class, readonly, nonatomic) UIColor *ows_infoMessageBorderColor;
-@property (class, readonly, nonatomic) UIColor *ows_inputToolbarBackgroundColor;
+@property (class, readonly, nonatomic) UIColor *ows_toolbarBackgroundColor;
 
 + (UIColor *)backgroundColorForContact:(NSString *)contactIdentifier;
 + (UIColor *)colorWithRGBHex:(unsigned long)value;

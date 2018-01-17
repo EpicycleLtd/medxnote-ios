@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
+//  Copyright (c) 2018 Open Whisper Systems. All rights reserved.
 //
 
 #import "ConversationInputToolbar.h"
@@ -73,7 +73,7 @@ static void *kConversationInputTextViewObservingContext = &kConversationInputTex
 {
     self.layoutMargins = UIEdgeInsetsZero;
 
-    self.backgroundColor = [UIColor ows_inputToolbarBackgroundColor];
+    self.backgroundColor = [UIColor ows_toolbarBackgroundColor];
 
     UIView *borderView = [UIView new];
     borderView.backgroundColor = [UIColor colorWithWhite:238 / 255.f alpha:1.f];
