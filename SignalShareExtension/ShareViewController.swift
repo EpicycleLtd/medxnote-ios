@@ -582,6 +582,10 @@ public class ShareViewController: UINavigationController, ShareViewDelegate, SAE
                     fulfill((url, srcUtiType))
                 }
             } else {
+                // It's unavoidable that we may sometimes receives data types that we
+                // don't know how to handle.
+                //
+                // See comments on NSItemProvider+OWS.h.
                 let unexpectedTypeError = ShareViewControllerError.assertionError(description: "unexpected value: \(String(describing: value))")
                 reject(unexpectedTypeError)
             }
