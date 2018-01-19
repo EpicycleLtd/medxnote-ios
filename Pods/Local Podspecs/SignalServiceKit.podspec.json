@@ -1,0 +1,73 @@
+{
+  "name": "SignalServiceKit",
+  "version": "0.9.0",
+  "summary": "An Objective-C library for communicating with the Signal messaging service.",
+  "description": "An Objective-C library for communicating with the Signal messaging service.",
+  "homepage": "https://github.com/WhisperSystems/SignalServiceKit",
+  "license": "GPLv3",
+  "authors": {
+    "Frederic Jacobs": "github@fredericjacobs.com"
+  },
+  "source": {
+    "git": "https://github.com/WhisperSystems/SignalServiceKit.git",
+    "tag": "0.9.0"
+  },
+  "social_media_url": "https://twitter.com/FredericJacobs",
+  "platforms": {
+    "ios": "8.0"
+  },
+  "requires_arc": true,
+  "source_files": "SignalServiceKit/src/**/*.{h,m,mm}",
+  "resources": [
+    "SignalServiceKit/src/Security/PinningCertificate/textsecure.cer",
+    "SignalServiceKit/src/Security/PinningCertificate/GIAG2.crt",
+    "SignalServiceKit/src/Security/PinningCertificate/GSR2.crt",
+    "SignalServiceKit/src/Security/PinningCertificate/GSR4.crt",
+    "SignalServiceKit/src/Security/PinningCertificate/GTSR1.crt",
+    "SignalServiceKit/src/Security/PinningCertificate/GTSR2.crt",
+    "SignalServiceKit/src/Security/PinningCertificate/GTSR3.crt",
+    "SignalServiceKit/src/Security/PinningCertificate/GTSR4.crt"
+  ],
+  "prefix_header_file": "SignalServiceKit/src/TSPrefix.h",
+  "xcconfig": {
+    "OTHER_CFLAGS": "$(inherited) -DSQLITE_HAS_CODEC"
+  },
+  "dependencies": {
+    "25519": [
+
+    ],
+    "CocoaLumberjack": [
+
+    ],
+    "AFNetworking": [
+
+    ],
+    "AxolotlKit": [
+
+    ],
+    "Mantle": [
+
+    ],
+    "YapDatabase/SQLCipher": [
+      "~> 2.9.3"
+    ],
+    "SocketRocket": [
+
+    ],
+    "libPhoneNumber-iOS": [
+
+    ],
+    "OpenSSL": [
+
+    ],
+    "SAMKeychain": [
+
+    ],
+    "TwistedOakCollapsingFutures": [
+
+    ],
+    "Reachability": [
+
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "OpenSSL",
+  "version": "1.0.213",
+  "summary": "OpenSSL is an SSL/TLS and Crypto toolkit. Deprecated in Mac OS and gone in iOS, this spec gives your project non-deprecated OpenSSL support.",
+  "authors": "OpenSSL Project <openssl-dev@openssl.org>",
+  "source": {
+    "http": "https://www.openssl.org/source/openssl-1.0.2m.tar.gz",
+    "sha256": "8c6ff15ec6b319b50788f42c7abc2890c08ba5a1cdcd3810eb9092deada37b0f"
+  },
+  "homepage": "https://github.com/WhisperSystems/OpenSSL-Pod",
+  "source_files": "opensslIncludes/openssl/*.h",
+  "header_dir": "openssl",
+  "license": {
+    "type": "OpenSSL (OpenSSL/SSLeay)",
+    "file": "LICENSE"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "ios": {
+    "public_header_files": "opensslIncludes/openssl/*.h",
+    "vendored_libraries": [
+      "lib/libcrypto.a",
+      "lib/libssl.a"
+    ]
+  },
+  "libraries": [
+    "crypto",
+    "ssl"
+  ],
+  "requires_arc": false,
+  "prepare_command": "OPENSSL_VERSION=\"1.0.2m\"\n\nCHECKSUM_FILE=\"checksum\"\n\nSRC_TARBALL=\"openssl-${OPENSSL_VERSION}.tar.gz\"\nSRC_URL=\"https://www.openssl.org/source/${SRC_TARBALL}\"\n\nif [ -f file.tgz ]\nthen\n  echo \"Using existing file.tgz\"\n  mv file.tgz $SRC_TARBALL\nelse\n  echo \"Downloading from ${SRC_URL}\"\n  curl -O \"${SRC_URL}\"\n  if [ ! -f $SRC_TARBALL ]\n  then\n    echo \"Failed to download ${SRC_URL}\"\n    exit 1\n  fi\nfi\n\n# Ensure checksum matches incase we're installing from development pod\n# (Cocoapods checks for us if we're downloading from source)\nif [ ! -f $CHECKSUM_FILE ]\nthen\n  echo \"Missing checksum file\"\n  exit 1\nfi\n\nshasum -c $CHECKSUM_FILE\nif [ $? -eq 0 ]\nthen\n  echo \"Checksum OK.\"\nelse\n  echo \"Checksum failed.\"\n  exit 1\nfi\n\nSDKVERSION=`xcrun --sdk iphoneos --show-sdk-version 2> /dev/null`\nMIN_SDK_VERSION_FLAG=\"-miphoneos-version-min=8.0\"\n\nBASEPATH=\"${PWD}\"\nBUILD_ROOT=\"/tmp/openssl-pod\"\n\n# Order of ARCHS is somewhat significant since our pod exposes the headers from the last built arch\nARCHS=\"i386 x86_64 armv7 armv7s arm64\"\nDEVELOPER=`xcode-select -print-path`\nOUTPUT_DIR=\"${BUILD_ROOT}/output\"\n\nmkdir -p \"${OUTPUT_DIR}\"\n\ncp \"${SRC_TARBALL}\" \"${BUILD_ROOT}/${SRC_TARBALL}\"\ncd \"${BUILD_ROOT}\"\ntar -xzf \"${SRC_TARBALL}\"\nSRC_DIR=\"openssl-${OPENSSL_VERSION}\"\ncd $SRC_DIR\n\necho \"Building OpenSSL. This will take a while...\"\nfor ARCH in ${ARCHS}\ndo\n  CONFIGURE_FOR=\"iphoneos-cross\"\n\n  if [ \"${ARCH}\" == \"i386\" ] || [ \"${ARCH}\" == \"x86_64\" ] ;\n  then\n    PLATFORM=\"iPhoneSimulator\"\n    if [ \"${ARCH}\" == \"x86_64\" ] ;\n    then\n      CONFIGURE_FOR=\"darwin64-x86_64-cc\"\n    fi\n  else\n    sed -ie \"s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!\" \"crypto/ui/ui_openssl.c\"\n    PLATFORM=\"iPhoneOS\"\n  fi\n\n  export CROSS_TOP=\"${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer\"\n  export CROSS_SDK=\"${PLATFORM}${SDKVERSION}.sdk\"\n\n  echo \"Building openssl-${OPENSSL_VERSION} for ${PLATFORM} ${SDKVERSION} ${ARCH}\"\n  echo \"Please stand by...\"\n\n  export CC=\"${DEVELOPER}/usr/bin/gcc -arch ${ARCH} ${MIN_SDK_VERSION_FLAG}\"\n\n  ARCH_OUTPUT_DIR=\"${OUTPUT_DIR}/${PLATFORM}${SDKVERSION}-${ARCH}.sdk\"\n  mkdir -p \"${ARCH_OUTPUT_DIR}\"\n  SSL_BUILD_LOG=\"${ARCH_OUTPUT_DIR}/build-openssl-${OPENSSL_VERSION}.log\"\n\n  echo \"Starting build for ${ARCH} / ${OPENSSL_VERSION}\" > $SSL_BUILD_LOG\n\n  ./Configure ${CONFIGURE_FOR} --prefix=\"${ARCH_OUTPUT_DIR}\" --openssldir=\"${ARCH_OUTPUT_DIR}\" >> \"${SSL_BUILD_LOG}\" 2>&1\n  sed -ie \"s!^CFLAG=!CFLAG=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} !\" \"Makefile\"\n\n  make -j8 build_libs >> \"${SSL_BUILD_LOG}\" 2>&1\n  make install >> \"${SSL_BUILD_LOG}\" 2>&1\n  make clean >> \"${SSL_BUILD_LOG}\" 2>&1\n\n  if [ ! -f \"${ARCH_OUTPUT_DIR}/lib/libssl.a\" ]\n  then\n    echo \"Failed to build ${ARCH_OUTPUT_DIR}/lib/libssl.a\"\n    echo \"See ${SSL_BUILD_LOG} for details\"\n    exit 1\n  fi\n  LIBSSL_ACCUM=\"${LIBSSL_ACCUM} ${ARCH_OUTPUT_DIR}/lib/libssl.a\"\n\n  if [ ! -f \"${ARCH_OUTPUT_DIR}/lib/libcrypto.a\" ]\n  then\n    echo \"Failed to build ${ARCH_OUTPUT_DIR}/lib/libssl.a\"\n    echo \"See ${SSL_BUILD_LOG} for details\"\n    exit 1\n  fi\n  LIBCRYPTO_ACCUM=\"${LIBCRYPTO_ACCUM} ${ARCH_OUTPUT_DIR}/lib/libcrypto.a\"\ndone\n\necho \"Copying headers from last built ARCH...\"\nrm -rf \"${BASEPATH}/opensslIncludes/\"\nmkdir -p \"${BASEPATH}/opensslIncludes/\"\nif [ ! -d \"${ARCH_OUTPUT_DIR}/include/openssl\" ]\nthen\n  echo \"Failed to find headers ${ARCH_OUTPUT_DIR}/include/openssl\"\n  echo \"See ${SSL_BUILD_LOG} for details\"\n  exit 1\nfi\ncp -RL \"${ARCH_OUTPUT_DIR}/include/openssl\" \"${BASEPATH}/opensslIncludes/\"\n\necho \"Creating fat library...\"\nrm -rf \"${BASEPATH}/lib/\"\nmkdir -p \"${BASEPATH}/lib/\"\nlipo -create ${LIBSSL_ACCUM}    -output \"${BASEPATH}/lib/libssl.a\"\nlipo -create ${LIBCRYPTO_ACCUM} -output \"${BASEPATH}/lib/libcrypto.a\"\n\ncd \"${BASEPATH}\"\necho \"Building done.\"\n\necho \"Cleaning up...\"\nrm -rf \"${BUILD_ROOT}\"\necho \"Done.\""
+}
