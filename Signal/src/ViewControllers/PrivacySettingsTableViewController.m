@@ -128,12 +128,24 @@ NS_ASSUME_NONNULL_BEGIN
     __weak PrivacySettingsTableViewController *weakSelf = self;
     OWSTableSection *screenSecuritySection = [OWSTableSection new];
     screenSecuritySection.headerTitle = NSLocalizedString(@"Passcode", @"Section header");
-    // TODO: add TouchID/FaceID setting
     [screenSecuritySection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"Passcode Security", @"")
                                                                isOn:[MedxPasscodeManager isPasscodeEnabled]
                                                           isEnabled:false
                                                              target:weakSelf
                                                            selector:@selector(didTogglePasscodeEnabled:)]];
+    // TODO: switch based on biometric type
+    [screenSecuritySection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"Allow Touch ID", @"")
+                                                               isOn:[MedxPasscodeManager allowBiometricAuthentication]
+                                                             target:weakSelf
+                                                           selector:@selector(didToggleAllowBiometric:)]];
+    // TODO: add timeout item
+//    [OWSTableItem disclosureItemWithText:
+//     NSLocalizedString(@"SETTINGS_BLOCK_LIST_TITLE",
+//                       @"Label for the block list section of the settings view")
+//                             actionBlock:^{
+//                                 [weakSelf showBlocklist];
+//                             }],
+//    ]]
     [contents addSection:screenSecuritySection];
 }
 
@@ -211,6 +223,10 @@ NS_ASSUME_NONNULL_BEGIN
             [sender setOn:true];
         }];
     }
+}
+    
+- (void)didToggleAllowBiometric:(UISwitch *)sender {
+    [MedxPasscodeManager setAllowBiometricAuthentication:sender.isOn];
 }
 
 #pragma mark - Log util

@@ -12,6 +12,8 @@
 #import "TOPasscodeView.h"
 #import "TOPasscodeInputField.h"
 
+@import LocalAuthentication;
+
 @interface PasscodeHelper () <TOPasscodeViewControllerDelegate>
 
 @property (nonatomic, weak) UIViewController *vc;
@@ -20,6 +22,7 @@
 @property NSInteger attempt;
 @property NSString *tempCode;
 @property PasscodeHelperAction action;
+@property LAContext *authContext;
 //@property NSSet <NSString *> *commonPasswords;
 
 @end
@@ -28,6 +31,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
+        self.authContext = [[LAContext alloc] init];
 //        [self loadCommonPasswords];
     }
     return self;
@@ -49,8 +53,28 @@
 }
 
 - (TOPasscodeViewController *)showPasscodeView {
-    // TODO: add check if action is check/changepasscode and old passcode is alphanumeric and step 0 is supposed to happen
-    TOPasscodeViewController *vc = [[TOPasscodeViewController alloc] initWithStyle:TOPasscodeViewStyleOpaqueDark passcodeType:TOPasscodeTypeSixDigits];
+    // TODO: change to use library check for old passcode instead of logic below
+    TOPasscodeType type = MedxAlphanumericPasscode ? TOPasscodeTypeCustomAlphanumeric : TOPasscodeTypeSixDigits;
+    if (!MedxAlphanumericPasscode
+        && [MedxPasscodeManager isPasscodeAlphanumeric]
+        && _attempt == 0
+        && (_action == PasscodeHelperActionCheckPasscode || _action == PasscodeHelperActionChangePasscode)) {
+        type = TOPasscodeTypeCustomAlphanumeric;
+    }
+    TOPasscodeViewController *vc = [[TOPasscodeViewController alloc] initWithStyle:TOPasscodeViewStyleOpaqueDark passcodeType:type];
+    vc.delegate = self;
+    // TODO: add check since last passcode auth was done
+//    if ([self.authContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:nil]
+//        && self.action == PasscodeHelperActionCheckPasscode
+//        && [MedxPasscodeManager allowBiometricAuthentication]) {
+//        vc.allowBiometricValidation = true;
+//        if (@available(iOS 11.0, *)) {
+//            vc.biometryType = self.authContext.biometryType == LABiometryTypeFaceID ? TOPasscodeBiometryTypeFaceID : TOPasscodeBiometryTypeTouchID;
+//        } else {
+//            vc.biometryType = TOPasscodeBiometryTypeTouchID;
+//        }
+//        vc.automaticallyPromptForBiometricValidation = true;
+//    }
     [vc view];
     
     // appearance
@@ -65,7 +89,6 @@
         [vc.cancelButton setTitle:@"Restart" forState:UIControlStateNormal];
     }
     
-    vc.delegate = self;
     vc.cancelButton.hidden = _action == PasscodeHelperActionCheckPasscode || _action == PasscodeHelperActionChangePasscode;
     switch (self.action) {
         case PasscodeHelperActionChangePasscode:
@@ -89,7 +112,7 @@
         case PasscodeHelperActionDisablePasscode:
             vc.passcodeView.titleLabel.text = @"Enter passcode";
             break;
-        default:
+        case PasscodeHelperActionCheckPasscode:
             break;
     }
     
@@ -232,5 +255,48 @@
             break;
     }
 }
+    
+//- (void)didPerformBiometricValidationRequestInPasscodeViewController:(TOPasscodeViewController *)passcodeViewController {
+//    LAContext *myContext = [[LAContext alloc] init];
+//    NSError *authError = nil;
+//    NSString *reasonString = @"Medxnote uses biometrics for quick and secure access to the app";
+//    __weak typeof(self) weakSelf = self;
+//    if ([myContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&authError]) {
+//        [myContext evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
+//                  localizedReason:reasonString
+//                            reply:^(BOOL success, NSError *error) {
+//                                if (success) {
+//                                    dispatch_async(dispatch_get_main_queue(), ^{
+//                                        [weakSelf.authContext invalidate];
+//                                        weakSelf.authContext = [[LAContext alloc] init];
+//                                        [weakSelf.vc dismissViewControllerAnimated:true completion:nil];
+//                                        _completion();
+//                                    });
+//                                } else {
+//                                    switch (error.code) {
+//                                        case LAErrorAuthenticationFailed:
+//                                        NSLog(@"Authentication Failed");
+//                                        break;
+//                                        
+//                                        case LAErrorUserCancel:
+//                                        NSLog(@"User pressed Cancel button");
+//                                        break;
+//                                        
+//                                        case LAErrorUserFallback:
+//                                        NSLog(@"User pressed \"Enter Password\"");
+//                                        break;
+//                                        
+//                                        default:
+//                                        NSLog(@"Touch ID is not configured");
+//                                        break;
+//                                    }
+//                                    // TODO:
+//                                    // User did not authenticate successfully, look at error and take appropriate action
+//                                }
+//                            }];
+//    } else {
+//        // TODO: show error
+//    }
+//}
 
 @end
