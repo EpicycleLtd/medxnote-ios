@@ -59,7 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     OWSTableSection *screenSecuritySection = [OWSTableSection new];
     screenSecuritySection.headerTitle = NSLocalizedString(@"SETTINGS_SECURITY_TITLE", @"Section header");
-    screenSecuritySection.footerTitle = NSLocalizedString(@"SETTINGS_SCREEN_SECURITY_DETAIL", nil);
+    screenSecuritySection.footerTitle = NSLocalizedString(@"Prevent Medxnote previews from appearing in the app switcher.", @"");
+//    screenSecuritySection.footerTitle = NSLocalizedString(@"SETTINGS_SCREEN_SECURITY_DETAIL", nil);
     [screenSecuritySection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"SETTINGS_SCREEN_SECURITY", @"")
                                                                isOn:[Environment.preferences screenSecurityIsEnabled]
                                                              target:weakSelf
@@ -70,8 +71,9 @@ NS_ASSUME_NONNULL_BEGIN
     OWSTableSection *callingSection = [OWSTableSection new];
     callingSection.headerTitle
         = NSLocalizedString(@"SETTINGS_SECTION_TITLE_CALLING", @"settings topic header for table section");
-    callingSection.footerTitle = NSLocalizedString(@"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE_DETAIL",
-        @"User settings section footer, a detailed explanation");
+    callingSection.footerTitle = NSLocalizedString(@"Relay all calls through the Medxnote server to avoid revealing your IP address to your contact. Enabling will reduce call quality.", @"");
+//    callingSection.footerTitle = NSLocalizedString(@"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE_DETAIL",
+//        @"User settings section footer, a detailed explanation");
     [callingSection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(
                                                                  @"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE",
                                                                  @"Table cell label")
@@ -82,8 +84,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     if ([UIDevice currentDevice].supportsCallKit) {
         OWSTableSection *callKitSection = [OWSTableSection new];
-        callKitSection.footerTitle
-            = NSLocalizedString(@"SETTINGS_SECTION_CALL_KIT_DESCRIPTION", @"Settings table section footer.");
+        callKitSection.footerTitle = NSLocalizedString(@"iOS Call Integration shows Medxnote calls on your lock screen and in the system's call history. You may optionally show your contact's name and number. If iCloud is enabled, this call history will be shared with Apple.", @"");
+//        callKitSection.footerTitle
+//            = NSLocalizedString(@"SETTINGS_SECTION_CALL_KIT_DESCRIPTION", @"Settings table section footer.");
         [callKitSection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"SETTINGS_PRIVACY_CALLKIT_TITLE",
                                                                      @"Short table cell label")
                                                             isOn:[Environment.preferences isCallKitEnabled]

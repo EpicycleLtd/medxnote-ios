@@ -49,24 +49,24 @@
                                                                     objectForKey:@"CFBundleVersion"]]];
     [contents addSection:informationSection];
 
-    OWSTableSection *helpSection = [OWSTableSection new];
-    helpSection.headerTitle = NSLocalizedString(@"SETTINGS_HELP_HEADER", @"");
-    [helpSection addItem:[OWSTableItem disclosureItemWithText:NSLocalizedString(@"SETTINGS_SUPPORT", @"")
-                                                  actionBlock:^{
-                                                      [[UIApplication sharedApplication]
-                                                          openURL:[NSURL URLWithString:@"https://support.signal.org"]];
-                                                  }]];
-    [contents addSection:helpSection];
-
-    UILabel *copyrightLabel = [UILabel new];
-    copyrightLabel.text = NSLocalizedString(@"SETTINGS_COPYRIGHT", @"");
-    copyrightLabel.textColor = [UIColor ows_darkGrayColor];
-    copyrightLabel.font = [UIFont ows_regularFontWithSize:15.0f];
-    copyrightLabel.numberOfLines = 2;
-    copyrightLabel.lineBreakMode = NSLineBreakByWordWrapping;
-    copyrightLabel.textAlignment = NSTextAlignmentCenter;
-    helpSection.customFooterView = copyrightLabel;
-    helpSection.customFooterHeight = @(60.f);
+//    OWSTableSection *helpSection = [OWSTableSection new];
+//    helpSection.headerTitle = NSLocalizedString(@"SETTINGS_HELP_HEADER", @"");
+//    [helpSection addItem:[OWSTableItem disclosureItemWithText:NSLocalizedString(@"SETTINGS_SUPPORT", @"")
+//                                                  actionBlock:^{
+//                                                      [[UIApplication sharedApplication]
+//                                                          openURL:[NSURL URLWithString:@"https://support.signal.org"]];
+//                                                  }]];
+//    [contents addSection:helpSection];
+//
+//    UILabel *copyrightLabel = [UILabel new];
+//    copyrightLabel.text = NSLocalizedString(@"SETTINGS_COPYRIGHT", @"");
+//    copyrightLabel.textColor = [UIColor ows_darkGrayColor];
+//    copyrightLabel.font = [UIFont ows_regularFontWithSize:15.0f];
+//    copyrightLabel.numberOfLines = 2;
+//    copyrightLabel.lineBreakMode = NSLineBreakByWordWrapping;
+//    copyrightLabel.textAlignment = NSTextAlignmentCenter;
+//    helpSection.customFooterView = copyrightLabel;
+//    helpSection.customFooterHeight = @(60.f);
 
 #ifdef DEBUG
     __block NSUInteger threadCount;
