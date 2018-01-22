@@ -133,11 +133,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                           isEnabled:false
                                                              target:weakSelf
                                                            selector:@selector(didTogglePasscodeEnabled:)]];
-    // TODO: switch based on biometric type
-    [screenSecuritySection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"Allow Touch ID", @"")
-                                                               isOn:[MedxPasscodeManager allowBiometricAuthentication]
-                                                             target:weakSelf
-                                                           selector:@selector(didToggleAllowBiometric:)]];
+    // TODO: switch text based on biometric type
+//    [screenSecuritySection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"Allow Touch ID", @"")
+//                                                               isOn:[MedxPasscodeManager allowBiometricAuthentication]
+//                                                             target:weakSelf
+//                                                           selector:@selector(didToggleAllowBiometric:)]];
     // TODO: add timeout item
 //    [OWSTableItem disclosureItemWithText:
 //     NSLocalizedString(@"SETTINGS_BLOCK_LIST_TITLE",
