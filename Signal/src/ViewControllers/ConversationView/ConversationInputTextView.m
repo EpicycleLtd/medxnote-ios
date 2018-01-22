@@ -2,6 +2,7 @@
 //  Copyright (c) 2017 Open Whisper Systems. All rights reserved.
 //
 
+#import "ActivityWindow.h"
 #import "ConversationInputTextView.h"
 #import "NSString+OWS.h"
 #import "Signal-Swift.h"
@@ -174,6 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)textViewDidChange:(UITextView *)textView
 {
+    [(ActivityWindow *)UIApplication.sharedApplication.keyWindow restartTimer];
     OWSAssert(self.textViewToolbarDelegate);
 
     [self updatePlaceholderVisibility];

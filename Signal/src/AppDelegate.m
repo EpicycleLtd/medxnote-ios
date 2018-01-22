@@ -169,6 +169,10 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
                                              selector:@selector(registrationStateDidChange)
                                                  name:kNSNotificationName_RegistrationStateDidChange
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(presentPasscodeEntry)
+                                                 name:@"ActivityTimeoutExceeded"
+                                               object:nil];
 
     DDLogInfo(@"%@ application: didFinishLaunchingWithOptions completed.", self.logTag);
 
@@ -797,6 +801,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
     BOOL isPasscodeChangeRequired = [MedxPasscodeManager isPasscodeChangeRequired];
     PasscodeHelperAction type = isPasscodeChangeRequired ? PasscodeHelperActionChangePasscode : PasscodeHelperActionCheckPasscode;
     TOPasscodeViewController *vc = [self.passcodeHelper initiateAction:type from:UIApplication.sharedApplication.keyWindow.rootViewController completion:^{
+        [(ActivityWindow *)UIApplication.sharedApplication.keyWindow restartTimer];
         if (self.onUnlock != nil) {
             self.onUnlock();
             self.onUnlock = nil; // not needed anymore
