@@ -1,7 +1,7 @@
-platform :ios, '8.0'
+platform :ios, '9.0'
 source 'https://github.com/CocoaPods/Specs.git'
 
-target 'Signal' do
+target 'Medxnote' do
     pod 'Mantle', :inhibit_warnings => true    
     pod 'YapDatabase/SQLCipher', '~> 2.9.3', :inhibit_warnings => true    
     pod 'ATAppUpdater', :inhibit_warnings => true
@@ -15,7 +15,9 @@ target 'Signal' do
     pod 'SignalServiceKit',           path: '.'
     pod 'SocketRocket',               :git => 'https://github.com/facebook/SocketRocket.git', :inhibit_warnings => true
     pod 'YYImage'
-    target 'SignalTests' do
+    pod 'TOPasscodeViewController'
+
+    target 'MedxnoteTests' do
       inherit! :search_paths
     end
 

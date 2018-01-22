@@ -59,6 +59,7 @@ PODS:
   - SQLCipher/common (3.4.1)
   - SQLCipher/fts (3.4.1):
     - SQLCipher/common
+  - TOPasscodeViewController (0.0.2)
   - TwistedOakCollapsingFutures (1.0.0):
     - UnionFind (~> 1.0)
   - UnionFind (1.0.1)
@@ -124,6 +125,7 @@ DEPENDENCIES:
   - Reachability
   - SignalServiceKit (from `.`)
   - SocketRocket (from `https://github.com/facebook/SocketRocket.git`)
+  - TOPasscodeViewController
   - YapDatabase/SQLCipher (~> 2.9.3)
   - YYImage
 
@@ -170,14 +172,15 @@ SPEC CHECKSUMS:
   PureLayout: 4d550abe49a94f24c2808b9b95db9131685fe4cd
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
-  SignalServiceKit: df4e0ef294c7123d62fe249bc89fc46546d89808
+  SignalServiceKit: b84d80de0bfd5f863994a1ce1f5b742b91c46cb5
   SocketRocket: dbb1554b8fc288ef8ef370d6285aeca7361be31e
   SQLCipher: 43d12c0eb9c57fb438749618fc3ce0065509a559
+  TOPasscodeViewController: 03b5df3762a7be1511102093c644a42275bddf24
   TwistedOakCollapsingFutures: f359b90f203e9ab13dfb92c9ff41842a7fe1cd0c
   UnionFind: c33be5adb12983981d6e827ea94fc7f9e370f52d
   YapDatabase: cd911121580ff16675f65ad742a9eb0ab4d9e266
   YYImage: 1e1b62a9997399593e4b9c4ecfbbabbf1d3f3b54
 
-PODFILE CHECKSUM: c2050a9ca911ca680c14ef28faa0c5e79df81210
+PODFILE CHECKSUM: d9987c9db9ab5be4d723e90923f517cd0846ae2e
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.3.1

@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D221A088169C9E5E00537ABF"
-               BuildableName = "Signal.app"
+               BuildableName = "Medxnote.app"
                BlueprintName = "Medxnote"
                ReferencedContainer = "container:Medxnote.xcodeproj">
             </BuildableReference>
@@ -48,7 +48,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D221A0A9169C9E5F00537ABF"
-               BuildableName = "SignalTests.xctest"
+               BuildableName = "MedxnoteTests.xctest"
                BlueprintName = "MedxnoteTests"
                ReferencedContainer = "container:Medxnote.xcodeproj">
             </BuildableReference>
@@ -58,7 +58,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D221A088169C9E5E00537ABF"
-            BuildableName = "Signal.app"
+            BuildableName = "Medxnote.app"
             BlueprintName = "Medxnote"
             ReferencedContainer = "container:Medxnote.xcodeproj">
          </BuildableReference>
@@ -90,7 +90,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D221A088169C9E5E00537ABF"
-            BuildableName = "Signal.app"
+            BuildableName = "Medxnote.app"
             BlueprintName = "Medxnote"
             ReferencedContainer = "container:Medxnote.xcodeproj">
          </BuildableReference>
@@ -116,7 +116,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D221A088169C9E5E00537ABF"
-            BuildableName = "Signal.app"
+            BuildableName = "Medxnote.app"
             BlueprintName = "Medxnote"
             ReferencedContainer = "container:Medxnote.xcodeproj">
          </BuildableReference>
