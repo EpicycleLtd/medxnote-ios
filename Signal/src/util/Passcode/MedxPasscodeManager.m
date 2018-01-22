@@ -13,11 +13,34 @@ NSString *const Medxnote_LockoutEnabled = @"MedxLockoutFlag";
 NSString *const Medxnote_Passcode = @"MedxStoragePasscodeKey";
 NSString *const Medxnote_PasscodeTimeout = @"MedxStorageTimeoutKey";
 NSString *const Medxnote_LastActivity = @"MedxStorageLastActivityKey";
+NSString *const Medxnote_AllowBiometric = @"MedxStorageAllowBiometricKey";
 
 // this is copied from TSAccountManager.m
 NSString *const UserAccountCollection = @"TSStorageUserAccountCollection";
 
 @implementation MedxPasscodeManager
+    
++ (BOOL)allowBiometricAuthentication {
+    return [[TSStorageManager sharedManager] boolForKey:Medxnote_AllowBiometric inCollection:UserAccountCollection];
+}
+    
++ (void)setAllowBiometricAuthentication:(BOOL)allowBiometric {
+    YapDatabaseConnection *dbConn = [TSStorageManager sharedManager].dbReadWriteConnection;
+    [dbConn readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
+        [transaction setObject:@(allowBiometric)
+                        forKey:Medxnote_AllowBiometric
+                  inCollection:UserAccountCollection];
+    }];
+}
+    
++ (BOOL)isPasscodeChangeRequired {
+    return [MedxPasscodeManager passcode].length < MedxMinimumPasscodeLength || (!MedxAlphanumericPasscode && [MedxPasscodeManager passcode].length != MedxMinimumPasscodeLength) || (!MedxAlphanumericPasscode && [[MedxPasscodeManager passcode] stringByTrimmingCharactersInSet:[NSCharacterSet decimalDigitCharacterSet]].length > 0);
+}
+    
++ (BOOL)isPasscodeAlphanumeric {
+    NSCharacterSet *set = [NSCharacterSet decimalDigitCharacterSet];
+    return self.passcode.length > 0 && [self.passcode stringByTrimmingCharactersInSet:set].length > 0;
+}
 
 + (BOOL)isLockoutEnabled {
     return [[TSStorageManager sharedManager] boolForKey:Medxnote_LockoutEnabled inCollection:UserAccountCollection];

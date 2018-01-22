@@ -12,11 +12,15 @@
 
 @interface MedxPasscodeManager : NSObject
 
++ (BOOL)allowBiometricAuthentication;
++ (void)setAllowBiometricAuthentication:(BOOL)allowBiometric;
 + (BOOL)isLockoutEnabled;
 + (void)setLockoutEnabled;
 + (BOOL)isPasscodeEnabled;
 + (NSString *)passcode;
 + (void)storePasscode:(NSString *)passcode;
++ (BOOL)isPasscodeChangeRequired;
++ (BOOL)isPasscodeAlphanumeric;
 + (NSNumber *)inactivityTimeout;
 + (NSNumber *)inactivityTimeoutInMinutes;
 + (void)storeInactivityTimeout:(NSNumber *)timeout;

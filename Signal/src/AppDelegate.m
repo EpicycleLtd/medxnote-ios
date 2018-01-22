@@ -135,6 +135,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
         return YES;
     }
 
+    self.passcodeHelper = [[PasscodeHelper alloc] init];
     self.window = [[ActivityWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
     // Show the launch screen until the async database view registrations are complete.
@@ -476,9 +477,10 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
         return;
     }
     
-    [self removeScreenProtection];
-
     [self ensureRootViewController];
+    
+    // this needs to happen after root is set up
+    [self removeScreenProtection];
 
     // Always check prekeys after app launches, and sometimes check on app activation.
     [TSPreKeyManager checkPreKeysIfNecessary];
@@ -748,7 +750,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 - (void)prepareScreenProtection
 {
     UIWindow *window = [[UIWindow alloc] initWithFrame:self.window.bounds];
-    window.hidden = YES;
+    window.hidden = NO;
     window.opaque = YES;
     window.userInteractionEnabled = NO;
     window.windowLevel = CGFLOAT_MAX;
@@ -761,7 +763,6 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 
 - (void)showScreenProtection
 {
-    [MedxPasscodeManager storeLastActivityTime:[NSDate date]];
     if (Environment.preferences.screenSecurityIsEnabled) {
         self.screenProtectionWindow.hidden = NO;
     }
@@ -771,7 +772,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 {
     // get time when user exited the app and present passcode prompt if needed
     NSNumber *timeout = [MedxPasscodeManager inactivityTimeout];
-    BOOL shouldShowPasscode = [MedxPasscodeManager lastActivityTime].timeIntervalSinceNow < -timeout.intValue || [MedxPasscodeManager passcode].length < MedxMinimumPasscodeLength;
+    BOOL shouldShowPasscode = [MedxPasscodeManager lastActivityTime].timeIntervalSinceNow < -timeout.intValue || [MedxPasscodeManager isPasscodeChangeRequired];
     if ([MedxPasscodeManager isPasscodeEnabled] && shouldShowPasscode) {
         [self presentPasscodeEntry];
     }
@@ -793,16 +794,15 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
     if ([UIApplication sharedApplication].keyWindow.rootViewController.presentedViewController != nil) {
         [[UIApplication sharedApplication].keyWindow.rootViewController.presentedViewController dismissViewControllerAnimated:false completion:nil];
     }
-    // TODO: also require passcode change if passcode is alphanumeric as we use numeric pins only now
-    BOOL forcePasscodeChange = [MedxPasscodeManager passcode].length < MedxMinimumPasscodeLength;
-    PasscodeHelperAction type = forcePasscodeChange ? PasscodeHelperActionChangePasscode : PasscodeHelperActionCheckPasscode;
+    BOOL isPasscodeChangeRequired = [MedxPasscodeManager isPasscodeChangeRequired];
+    PasscodeHelperAction type = isPasscodeChangeRequired ? PasscodeHelperActionChangePasscode : PasscodeHelperActionCheckPasscode;
     TOPasscodeViewController *vc = [self.passcodeHelper initiateAction:type from:UIApplication.sharedApplication.keyWindow.rootViewController completion:^{
         if (self.onUnlock != nil) {
             self.onUnlock();
             self.onUnlock = nil; // not needed anymore
         }
     }];
-    if (forcePasscodeChange) {
+    if (isPasscodeChangeRequired) {
         vc.passcodeView.titleLabel.text = @"Enter your old passcode. You will be required to change your passcode to match the new security requirements.";
     }
 }

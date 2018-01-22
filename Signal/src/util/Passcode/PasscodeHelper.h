@@ -11,6 +11,7 @@
 
 #define MedxDefaultTimeout 30*60
 #define MedxMinimumPasscodeLength 6
+#define MedxAlphanumericPasscode NO
 
 typedef NS_ENUM(NSUInteger, PasscodeHelperAction) {
     PasscodeHelperActionCheckPasscode,
