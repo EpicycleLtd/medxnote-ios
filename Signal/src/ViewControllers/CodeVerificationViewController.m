@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
     UIColor *signalBlueColor = [UIColor ows_signalBrandBlueColor];
 
     UIView *header = [UIView new];
-    header.backgroundColor = signalBlueColor;
+    header.backgroundColor = UIColor.whiteColor;
     [self.view addSubview:header];
     [header autoPinWidthToSuperview];
     [header autoPinEdgeToSuperviewEdge:ALEdgeTop];
