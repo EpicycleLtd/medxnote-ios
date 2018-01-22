@@ -354,6 +354,10 @@
 		B6F509971AA53F760068F56A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6F509951AA53F760068F56A /* Localizable.strings */; };
 		B6FE7EB71ADD62FA00A6D22F /* PushKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6FE7EB61ADD62FA00A6D22F /* PushKit.framework */; };
 		B7AD0292201620D100A7DB4F /* Medxnote.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7AD0291201620D100A7DB4F /* Medxnote.xcassets */; };
+		B7AD029720163B3A00A7DB4F /* MedxPasscodeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */; };
+		B7AD029A201643AB00A7DB4F /* ActivityWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD0299201643AA00A7DB4F /* ActivityWindow.m */; };
+		B7AD029D2016449A00A7DB4F /* PasscodeHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD029C2016449A00A7DB4F /* PasscodeHelper.m */; };
+		B7AD02A12016460200A7DB4F /* UIViewController+Medxnote.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD029F2016460200A7DB4F /* UIViewController+Medxnote.m */; };
 		B90418E6183E9DD40038554A /* DateUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B90418E5183E9DD40038554A /* DateUtil.m */; };
 		B97940271832BD2400BD66CB /* UIUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B97940261832BD2400BD66CB /* UIUtil.m */; };
 		B9EB5ABD1884C002007CBB57 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9EB5ABC1884C002007CBB57 /* MessageUI.framework */; };
@@ -861,6 +865,14 @@
 		B6F509961AA53F760068F56A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = translations/en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B6FE7EB61ADD62FA00A6D22F /* PushKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PushKit.framework; path = System/Library/Frameworks/PushKit.framework; sourceTree = SDKROOT; };
 		B7AD0291201620D100A7DB4F /* Medxnote.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Medxnote.xcassets; sourceTree = "<group>"; };
+		B7AD029520163B3900A7DB4F /* MedxPasscodeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MedxPasscodeManager.h; sourceTree = "<group>"; };
+		B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MedxPasscodeManager.m; sourceTree = "<group>"; };
+		B7AD0298201643AA00A7DB4F /* ActivityWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityWindow.h; sourceTree = "<group>"; };
+		B7AD0299201643AA00A7DB4F /* ActivityWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityWindow.m; sourceTree = "<group>"; };
+		B7AD029B2016449900A7DB4F /* PasscodeHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PasscodeHelper.h; sourceTree = "<group>"; };
+		B7AD029C2016449A00A7DB4F /* PasscodeHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PasscodeHelper.m; sourceTree = "<group>"; };
+		B7AD029F2016460200A7DB4F /* UIViewController+Medxnote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+Medxnote.m"; sourceTree = "<group>"; };
+		B7AD02A02016460200A7DB4F /* UIViewController+Medxnote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+Medxnote.h"; sourceTree = "<group>"; };
 		B90418E4183E9DD40038554A /* DateUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateUtil.h; sourceTree = "<group>"; };
 		B90418E5183E9DD40038554A /* DateUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DateUtil.m; sourceTree = "<group>"; };
 		B97940251832BD2400BD66CB /* UIUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIUtil.h; sourceTree = "<group>"; };
@@ -1470,6 +1482,7 @@
 		76EB04C818170B33006006FC /* util */ = {
 			isa = PBXGroup;
 			children = (
+				B7AD029E201645C700A7DB4F /* Passcode */,
 				B6DA6B051B8A2F9A00CA6F98 /* AppStoreRating.h */,
 				B6DA6B061B8A2F9A00CA6F98 /* AppStoreRating.m */,
 				34CCAF361F0C0599004084F4 /* AppUpdateNag.h */,
@@ -1691,6 +1704,21 @@
 				B6C6AE531A305ED1006BAF8F /* redphone.cer */,
 			);
 			path = Certificates;
+			sourceTree = "<group>";
+		};
+		B7AD029E201645C700A7DB4F /* Passcode */ = {
+			isa = PBXGroup;
+			children = (
+				B7AD029B2016449900A7DB4F /* PasscodeHelper.h */,
+				B7AD029C2016449A00A7DB4F /* PasscodeHelper.m */,
+				B7AD0298201643AA00A7DB4F /* ActivityWindow.h */,
+				B7AD0299201643AA00A7DB4F /* ActivityWindow.m */,
+				B7AD029520163B3900A7DB4F /* MedxPasscodeManager.h */,
+				B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */,
+				B7AD02A02016460200A7DB4F /* UIViewController+Medxnote.h */,
+				B7AD029F2016460200A7DB4F /* UIViewController+Medxnote.m */,
+			);
+			path = Passcode;
 			sourceTree = "<group>";
 		};
 		D221A07E169C9E5E00537ABF = {
@@ -2233,6 +2261,7 @@
 				455AC69B1F4F79E500134004 /* ImageCache.swift in Sources */,
 				451A13B11E13DED2000A50FD /* CallNotificationsAdapter.swift in Sources */,
 				450DF2091E0DD2C6003D14BE /* UserNotificationsAdaptee.swift in Sources */,
+				B7AD029A201643AB00A7DB4F /* ActivityWindow.m in Sources */,
 				34D1F0821F8678AA0066283D /* ConversationHeaderView.m in Sources */,
 				340CB2241EAC155C0001CAA1 /* ContactsViewHelper.m in Sources */,
 				34D1F0AB1F867BFC0066283D /* OWSContactOffersCell.m in Sources */,
@@ -2270,6 +2299,7 @@
 				34B3F8901E8DF1710035BE1A /* AppSettingsViewController.m in Sources */,
 				34FD93701E3BD43A00109093 /* OWSAnyTouchGestureRecognizer.m in Sources */,
 				343D3D9B1E9283F100165CA4 /* BlockListUIUtils.m in Sources */,
+				B7AD02A12016460200A7DB4F /* UIViewController+Medxnote.m in Sources */,
 				34B3F8931E8DF1710035BE1A /* SignalsNavigationController.m in Sources */,
 				34D1F0AC1F867BFC0066283D /* OWSExpirationTimerView.m in Sources */,
 				76EB063A18170B33006006FC /* FunctionalUtil.m in Sources */,
@@ -2311,6 +2341,7 @@
 				343A65951FC47D5E000477A1 /* DebugUISyncMessages.m in Sources */,
 				45666F561D9B2827008FE134 /* OWSScrubbingLogFormatter.m in Sources */,
 				45C0DC1E1E69011F00E04C47 /* UIStoryboard+OWS.swift in Sources */,
+				B7AD029D2016449A00A7DB4F /* PasscodeHelper.m in Sources */,
 				34B3F8861E8DF1700035BE1A /* NotificationSettingsOptionsViewController.m in Sources */,
 				452ECA4D1E087E7200E2F016 /* MessageFetcherJob.swift in Sources */,
 				4556FA681F54AA9500AF40DD /* DebugUIProfile.swift in Sources */,
@@ -2320,6 +2351,7 @@
 				45666EC61D99483D008FE134 /* OWSAvatarBuilder.m in Sources */,
 				45E615161E8C590B0018AD52 /* DisplayableText.swift in Sources */,
 				34B3F88A1E8DF1700035BE1A /* OWSLinkDeviceViewController.m in Sources */,
+				B7AD029720163B3A00A7DB4F /* MedxPasscodeManager.m in Sources */,
 				34D1F0881F8678AA0066283D /* ConversationViewLayout.m in Sources */,
 				76EB068618170B34006006FC /* ContactTableViewCell.m in Sources */,
 				3497DBEF1ECE2E4700DB2605 /* DomainFrontingCountryViewController.m in Sources */,

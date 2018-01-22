@@ -3,6 +3,7 @@
 //
 
 #import "CodeVerificationViewController.h"
+#import "MedxPasscodeManager.h"
 #import "ProfileViewController.h"
 #import "Signal-Swift.h"
 #import "StringUtil.h"
@@ -31,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) UIActivityIndicatorView *submitCodeSpinner;
 @property (nonatomic) UIActivityIndicatorView *requestCodeAgainSpinner;
 @property (nonatomic) UIActivityIndicatorView *requestCallSpinner;
+    
+@property (nonatomic) PasscodeHelper *passcodeHelper;
 
 @end
 
@@ -46,6 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     _accountManager = [Environment getCurrent].accountManager;
+    _passcodeHelper = [[PasscodeHelper alloc] init];
+    _passcodeHelper.cancelDisabled = true;
 
     return self;
 }
@@ -58,6 +63,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     _accountManager = [Environment getCurrent].accountManager;
+    _passcodeHelper = [[PasscodeHelper alloc] init];
+    _passcodeHelper.cancelDisabled = true;
 
     return self;
 }
@@ -267,7 +274,11 @@ NS_ASSUME_NONNULL_BEGIN
             DDLogInfo(@"%@ Successfully registered Signal account.", weakSelf.logTag);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf stopActivityIndicator];
-                [weakSelf vericationWasCompleted];
+                [weakSelf.passcodeHelper initiateAction:PasscodeHelperActionEnablePasscode from:weakSelf completion:^{
+                    [MedxPasscodeManager storeInactivityTimeout:@(MedxDefaultTimeout)]; // default timeout
+                    [weakSelf vericationWasCompleted];
+                }];
+//                [weakSelf vericationWasCompleted];
             });
         })
         .catch(^(NSError *_Nonnull error) {

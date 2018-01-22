@@ -8,6 +8,7 @@
 #import "CodeVerificationViewController.h"
 #import "DebugLogger.h"
 #import "Environment.h"
+#import "MedxPasscodeManager.h"
 #import "NotificationsManager.h"
 #import "OWSContactsManager.h"
 #import "OWSContactsSyncing.h"
@@ -53,6 +54,10 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 @property (nonatomic) UIWindow *screenProtectionWindow;
 @property (nonatomic) OWSContactsSyncing *contactsSyncing;
 @property (nonatomic) BOOL hasInitialRootViewController;
+    
+// passcode
+@property (nonatomic, copy) void (^onUnlock)();
+@property (nonatomic, strong) PasscodeHelper *passcodeHelper;
 
 @end
 
@@ -130,7 +135,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
         return YES;
     }
 
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window = [[ActivityWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
     // Show the launch screen until the async database view registrations are complete.
     self.window.rootViewController = [self loadingRootViewController];
@@ -573,6 +578,16 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 - (void)application:(UIApplication *)application
     performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
                completionHandler:(void (^)(BOOL succeeded))completionHandler {
+    BOOL passcodeNeeded = [self removeScreenProtection];
+    __weak typeof(self) weakSelf = self;
+    if (passcodeNeeded) {
+        // pin needs to be input before proceeding so this action is stored for later
+        self.onUnlock = ^void() {
+            [weakSelf application:application performActionForShortcutItem:shortcutItem completionHandler:completionHandler];
+        };
+        completionHandler(NO);
+        return;
+    }
     if ([TSAccountManager isRegistered]) {
         [[Environment getCurrent].homeViewController showNewConversationView];
         completionHandler(YES);
@@ -746,13 +761,50 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 
 - (void)showScreenProtection
 {
+    [MedxPasscodeManager storeLastActivityTime:[NSDate date]];
     if (Environment.preferences.screenSecurityIsEnabled) {
         self.screenProtectionWindow.hidden = NO;
     }
 }
 
-- (void)removeScreenProtection {
-    self.screenProtectionWindow.hidden = YES;
+- (BOOL)removeScreenProtection
+{
+    // get time when user exited the app and present passcode prompt if needed
+    NSNumber *timeout = [MedxPasscodeManager inactivityTimeout];
+    BOOL shouldShowPasscode = [MedxPasscodeManager lastActivityTime].timeIntervalSinceNow < -timeout.intValue || [MedxPasscodeManager passcode].length < MedxMinimumPasscodeLength;
+    if ([MedxPasscodeManager isPasscodeEnabled] && shouldShowPasscode) {
+        [self presentPasscodeEntry];
+    }
+    if ([MedxPasscodeManager isLockoutEnabled]) {
+        return shouldShowPasscode;
+    }
+    if (Environment.preferences.screenSecurityIsEnabled) {
+        self.screenProtectionWindow.hidden = YES;
+    }
+    return shouldShowPasscode;
+}
+    
+- (void)presentPasscodeEntry
+{
+    if ([[UIApplication sharedApplication].keyWindow.rootViewController.presentedViewController isKindOfClass:[TOPasscodeViewController class]]) {
+        // no need to present again
+        return;
+    }
+    if ([UIApplication sharedApplication].keyWindow.rootViewController.presentedViewController != nil) {
+        [[UIApplication sharedApplication].keyWindow.rootViewController.presentedViewController dismissViewControllerAnimated:false completion:nil];
+    }
+    // TODO: also require passcode change if passcode is alphanumeric as we use numeric pins only now
+    BOOL forcePasscodeChange = [MedxPasscodeManager passcode].length < MedxMinimumPasscodeLength;
+    PasscodeHelperAction type = forcePasscodeChange ? PasscodeHelperActionChangePasscode : PasscodeHelperActionCheckPasscode;
+    TOPasscodeViewController *vc = [self.passcodeHelper initiateAction:type from:UIApplication.sharedApplication.keyWindow.rootViewController completion:^{
+        if (self.onUnlock != nil) {
+            self.onUnlock();
+            self.onUnlock = nil; // not needed anymore
+        }
+    }];
+    if (forcePasscodeChange) {
+        vc.passcodeView.titleLabel.text = @"Enter your old passcode. You will be required to change your passcode to match the new security requirements.";
+    }
 }
 
 #pragma mark Push Notifications Delegate Methods

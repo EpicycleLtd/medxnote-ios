@@ -5,17 +5,25 @@
 #import "PrivacySettingsTableViewController.h"
 #import "BlockListViewController.h"
 #import "Environment.h"
+#import "MedxPasscodeManager.h"
 #import "OWSPreferences.h"
 #import "Signal-Swift.h"
 #import <SignalServiceKit/OWSReadReceiptManager.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface PrivacySettingsTableViewController ()
+    
+@property (nonatomic, strong) PasscodeHelper *passcodeHelper;
+    
+@end
+
 @implementation PrivacySettingsTableViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    self.passcodeHelper = [[PasscodeHelper alloc] init];
     self.title = NSLocalizedString(@"SETTINGS_PRIVACY_TITLE", @"");
 
     [self updateTableContents];
@@ -66,6 +74,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                              target:weakSelf
                                                            selector:@selector(didToggleScreenSecuritySwitch:)]];
     [contents addSection:screenSecuritySection];
+    
+    [self addMedxSpecificContent:contents];
 
     // Allow calls to connect directly vs. using TURN exclusively
     OWSTableSection *callingSection = [OWSTableSection new];
@@ -112,6 +122,19 @@ NS_ASSUME_NONNULL_BEGIN
     [contents addSection:historyLogsSection];
 
     self.contents = contents;
+}
+    
+- (void)addMedxSpecificContent:(OWSTableContents *)contents {
+    __weak PrivacySettingsTableViewController *weakSelf = self;
+    OWSTableSection *screenSecuritySection = [OWSTableSection new];
+    screenSecuritySection.headerTitle = NSLocalizedString(@"Passcode", @"Section header");
+    // TODO: add TouchID/FaceID setting
+    [screenSecuritySection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"Passcode Security", @"")
+                                                               isOn:[MedxPasscodeManager isPasscodeEnabled]
+                                                          isEnabled:false
+                                                             target:weakSelf
+                                                           selector:@selector(didTogglePasscodeEnabled:)]];
+    [contents addSection:screenSecuritySection];
 }
 
 #pragma mark - Events
@@ -176,6 +199,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)didToggleEnableCallKitPrivacySwitch:(UISwitch *)sender {
     DDLogInfo(@"%@ user toggled call kit privacy preference: %@", self.logTag, (sender.isOn ? @"ON" : @"OFF"));
     [[Environment getCurrent].preferences setIsCallKitPrivacyEnabled:!sender.isOn];
+}
+    
+- (void)didTogglePasscodeEnabled:(UISwitch *)sender {
+    if ([MedxPasscodeManager isPasscodeEnabled]) {
+        [self.passcodeHelper initiateAction:PasscodeHelperActionDisablePasscode from:self completion:^{
+            [sender setOn:false];
+        }];
+    } else {
+        [self.passcodeHelper initiateAction:PasscodeHelperActionEnablePasscode from:self completion:^{
+            [sender setOn:true];
+        }];
+    }
 }
 
 #pragma mark - Log util
