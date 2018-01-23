@@ -16,6 +16,7 @@ target 'Medxnote' do
     pod 'SocketRocket',               :git => 'https://github.com/facebook/SocketRocket.git', :inhibit_warnings => true
     pod 'YYImage'
     pod 'TOPasscodeViewController'
+    pod 'ActionSheetPicker-3.0'
 
     target 'MedxnoteTests' do
       inherit! :search_paths

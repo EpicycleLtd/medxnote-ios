@@ -8,6 +8,7 @@
 #import "MedxPasscodeManager.h"
 #import "OWSPreferences.h"
 #import "Signal-Swift.h"
+#import <ActionSheetPicker-3.0/ActionSheetDatePicker.h>
 #import <SignalServiceKit/OWSReadReceiptManager.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -138,14 +139,12 @@ NS_ASSUME_NONNULL_BEGIN
 //                                                               isOn:[MedxPasscodeManager allowBiometricAuthentication]
 //                                                             target:weakSelf
 //                                                           selector:@selector(didToggleAllowBiometric:)]];
-    // TODO: add timeout item
-//    [OWSTableItem disclosureItemWithText:
-//     NSLocalizedString(@"SETTINGS_BLOCK_LIST_TITLE",
-//                       @"Label for the block list section of the settings view")
-//                             actionBlock:^{
-//                                 [weakSelf showBlocklist];
-//                             }],
-//    ]]
+    [screenSecuritySection addItem:[OWSTableItem disclosureItemWithText:
+                                    NSLocalizedString(@"Activity Timeout",
+                                                      @"Setttings")
+                                                            actionBlock:^{
+                                                                [weakSelf showTimeoutOptions];
+                                                            }]];
     [contents addSection:screenSecuritySection];
 }
 
@@ -227,6 +226,32 @@ NS_ASSUME_NONNULL_BEGIN
     
 - (void)didToggleAllowBiometric:(UISwitch *)sender {
     [MedxPasscodeManager setAllowBiometricAuthentication:sender.isOn];
+}
+
+- (void)showTimeoutOptions {
+    __weak typeof(self) weakSelf = self;
+    ActionSheetDatePicker *datePicker = [[ActionSheetDatePicker alloc] initWithTitle:@"Inactivity Timeout" datePickerMode:UIDatePickerModeCountDownTimer selectedDate:nil doneBlock:^(ActionSheetDatePicker *picker, id selectedDate, id origin) {
+        NSNumber *number = selectedDate;
+        NSLog(@"new timeout: %@", number);
+        [MedxPasscodeManager storeInactivityTimeout:number];
+        [weakSelf.tableView reloadData];
+    } cancelBlock:^(ActionSheetDatePicker *picker) {
+        //
+    } origin:self.view];
+    // preselect currently selected time
+    datePicker.countDownDuration = [MedxPasscodeManager inactivityTimeout].integerValue;
+    
+    // done button
+    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:nil action:nil];
+    [doneButton setTintColor:[UIColor blackColor]];
+    [datePicker setDoneButton:doneButton];
+    
+    // cancel button
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:nil action:nil];
+    [cancelButton setTintColor:[UIColor blackColor]];
+    [datePicker setCancelButton:cancelButton];
+    
+    [datePicker showActionSheetPicker];
 }
 
 #pragma mark - Log util
