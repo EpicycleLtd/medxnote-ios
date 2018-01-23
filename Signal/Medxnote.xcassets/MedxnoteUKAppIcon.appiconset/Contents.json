@@ -3,55 +3,55 @@
     {
       "size" : "20x20",
       "idiom" : "iphone",
-      "filename" : "Medxnote_IE_20@2x.png",
+      "filename" : "Medxnote_UK_20@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "20x20",
       "idiom" : "iphone",
-      "filename" : "Medxnote_IE_20@3x.png",
+      "filename" : "Medxnote_UK_20@3x.png",
       "scale" : "3x"
     },
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "Medxnote_IE_29@2x.png",
+      "filename" : "Medxnote_UK_29@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "Medxnote_IE_29@3x.png",
+      "filename" : "Medxnote_UK_29@3x.png",
       "scale" : "3x"
     },
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "Medxnote_IE 80.png",
+      "filename" : "Medxnote_UK_40@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "Medxnote_IE 1024 2.png",
+      "filename" : "Medxnote_UK_40@3x.png",
       "scale" : "3x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "Medxnote_IE-2.png",
+      "filename" : "Medxnote_UK_60@2x.png",
       "scale" : "2x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "Medxnote_IE-1.png",
+      "filename" : "Medxnote_UK_60@3x.png",
       "scale" : "3x"
     },
     {
       "size" : "1024x1024",
       "idiom" : "ios-marketing",
-      "filename" : "Medxnote_IE.png",
+      "filename" : "Medxnote_UK_1024.png",
       "scale" : "1x"
     }
   ],
