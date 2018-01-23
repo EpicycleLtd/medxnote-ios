@@ -767,6 +767,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 
 - (void)showScreenProtection
 {
+    [MedxPasscodeManager storeLastActivityTime:[NSDate date]];
     if (Environment.preferences.screenSecurityIsEnabled) {
         self.screenProtectionWindow.hidden = NO;
     }
