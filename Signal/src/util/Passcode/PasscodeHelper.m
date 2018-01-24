@@ -113,6 +113,7 @@
             vc.passcodeView.titleLabel.text = @"Enter passcode";
             break;
         case PasscodeHelperActionCheckPasscode:
+            vc.passcodeView.titleLabel.text = @"Enter passcode";
             break;
     }
     
