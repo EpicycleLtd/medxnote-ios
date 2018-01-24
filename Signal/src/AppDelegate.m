@@ -56,7 +56,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 @property (nonatomic) BOOL hasInitialRootViewController;
     
 // passcode
-@property (nonatomic, copy) void (^onUnlock)();
+@property (nonatomic, copy) void (^onUnlock)(void);
 @property (nonatomic, strong) PasscodeHelper *passcodeHelper;
 
 @end

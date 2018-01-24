@@ -64,17 +64,13 @@
     TOPasscodeViewController *vc = [[TOPasscodeViewController alloc] initWithStyle:TOPasscodeViewStyleOpaqueDark passcodeType:type];
     vc.delegate = self;
     // TODO: add check since last passcode auth was done
-//    if ([self.authContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:nil]
-//        && self.action == PasscodeHelperActionCheckPasscode
-//        && [MedxPasscodeManager allowBiometricAuthentication]) {
-//        vc.allowBiometricValidation = true;
-//        if (@available(iOS 11.0, *)) {
-//            vc.biometryType = self.authContext.biometryType == LABiometryTypeFaceID ? TOPasscodeBiometryTypeFaceID : TOPasscodeBiometryTypeTouchID;
-//        } else {
-//            vc.biometryType = TOPasscodeBiometryTypeTouchID;
-//        }
-//        vc.automaticallyPromptForBiometricValidation = true;
-//    }
+    if (self.hasBiometrics
+        && self.action == PasscodeHelperActionCheckPasscode
+        && [MedxPasscodeManager allowBiometricAuthentication]) {
+        vc.allowBiometricValidation = true;
+        vc.biometryType = self.biometryType;
+        vc.automaticallyPromptForBiometricValidation = true;
+    }
     [vc view];
     
     // appearance
@@ -127,6 +123,17 @@
         }
     }];
     return vc;
+}
+
+- (BOOL)hasBiometrics {
+    return [self.authContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:nil]
+}
+
+- (TOPasscodeBiometryType)biometryType {
+    if (@available(iOS 11.0, *)) {
+        return self.authContext.biometryType == LABiometryTypeFaceID ? TOPasscodeBiometryTypeFaceID : TOPasscodeBiometryTypeTouchID;
+    }
+    return TOPasscodeBiometryTypeTouchID;
 }
 
 #pragma mark - TOPasscodeViewController
@@ -257,47 +264,47 @@
     }
 }
     
-//- (void)didPerformBiometricValidationRequestInPasscodeViewController:(TOPasscodeViewController *)passcodeViewController {
-//    LAContext *myContext = [[LAContext alloc] init];
-//    NSError *authError = nil;
-//    NSString *reasonString = @"Medxnote uses biometrics for quick and secure access to the app";
-//    __weak typeof(self) weakSelf = self;
-//    if ([myContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&authError]) {
-//        [myContext evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
-//                  localizedReason:reasonString
-//                            reply:^(BOOL success, NSError *error) {
-//                                if (success) {
-//                                    dispatch_async(dispatch_get_main_queue(), ^{
-//                                        [weakSelf.authContext invalidate];
-//                                        weakSelf.authContext = [[LAContext alloc] init];
-//                                        [weakSelf.vc dismissViewControllerAnimated:true completion:nil];
-//                                        _completion();
-//                                    });
-//                                } else {
-//                                    switch (error.code) {
-//                                        case LAErrorAuthenticationFailed:
-//                                        NSLog(@"Authentication Failed");
-//                                        break;
-//                                        
-//                                        case LAErrorUserCancel:
-//                                        NSLog(@"User pressed Cancel button");
-//                                        break;
-//                                        
-//                                        case LAErrorUserFallback:
-//                                        NSLog(@"User pressed \"Enter Password\"");
-//                                        break;
-//                                        
-//                                        default:
-//                                        NSLog(@"Touch ID is not configured");
-//                                        break;
-//                                    }
-//                                    // TODO:
-//                                    // User did not authenticate successfully, look at error and take appropriate action
-//                                }
-//                            }];
-//    } else {
-//        // TODO: show error
-//    }
-//}
+- (void)didPerformBiometricValidationRequestInPasscodeViewController:(TOPasscodeViewController *)passcodeViewController {
+    LAContext *myContext = [[LAContext alloc] init];
+    NSError *authError = nil;
+    NSString *reasonString = @"Medxnote uses biometrics for quick and secure access to the app";
+    __weak typeof(self) weakSelf = self;
+    if ([myContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&authError]) {
+        [myContext evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
+                  localizedReason:reasonString
+                            reply:^(BOOL success, NSError *error) {
+                                if (success) {
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        [weakSelf.authContext invalidate];
+                                        weakSelf.authContext = [[LAContext alloc] init];
+                                        [weakSelf.vc dismissViewControllerAnimated:true completion:nil];
+                                        _completion();
+                                    });
+                                } else {
+                                    switch (error.code) {
+                                        case LAErrorAuthenticationFailed:
+                                        NSLog(@"Authentication Failed");
+                                        break;
+                                        
+                                        case LAErrorUserCancel:
+                                        NSLog(@"User pressed Cancel button");
+                                        break;
+                                        
+                                        case LAErrorUserFallback:
+                                        NSLog(@"User pressed \"Enter Password\"");
+                                        break;
+                                        
+                                        default:
+                                        NSLog(@"Touch ID is not configured");
+                                        break;
+                                    }
+                                    // TODO:
+                                    // User did not authenticate successfully, look at error and take appropriate action
+                                }
+                            }];
+    } else {
+        // TODO: show error
+    }
+}
 
 @end

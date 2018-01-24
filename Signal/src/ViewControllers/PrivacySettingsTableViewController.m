@@ -134,14 +134,14 @@ NS_ASSUME_NONNULL_BEGIN
                                                           isEnabled:false
                                                              target:weakSelf
                                                            selector:@selector(didTogglePasscodeEnabled:)]];
-    // TODO: switch text based on biometric type
-//    [screenSecuritySection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"Allow Touch ID", @"")
-//                                                               isOn:[MedxPasscodeManager allowBiometricAuthentication]
-//                                                             target:weakSelf
-//                                                           selector:@selector(didToggleAllowBiometric:)]];
-    [screenSecuritySection addItem:[OWSTableItem disclosureItemWithText:
-                                    NSLocalizedString(@"Activity Timeout",
-                                                      @"Setttings")
+    if (self.passcodeHelper.hasBiometrics) {
+        NSString *biometryType = self.passcodeHelper.biometryType == TOPasscodeBiometryTypeFaceID ? @"Face ID" : @"Touch ID";
+        [screenSecuritySection addItem:[OWSTableItem switchItemWithText:[NSString stringWithFormat:@"Allow %@", biometryType]
+                                                                   isOn:[MedxPasscodeManager allowBiometricAuthentication]
+                                                                 target:weakSelf
+                                                               selector:@selector(didToggleAllowBiometric:)]];
+    }
+    [screenSecuritySection addItem:[OWSTableItem disclosureItemWithText:@"Activity Timeout"
                                                             actionBlock:^{
                                                                 [weakSelf showTimeoutOptions];
                                                             }]];

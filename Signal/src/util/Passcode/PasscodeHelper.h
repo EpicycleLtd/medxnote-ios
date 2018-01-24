@@ -25,5 +25,7 @@ typedef NS_ENUM(NSUInteger, PasscodeHelperAction) {
 @property BOOL cancelDisabled;
 
 - (TOPasscodeViewController *)initiateAction:(PasscodeHelperAction)action from:(UIViewController *)vc completion:(void (^)(void))completion;
+- (BOOL)hasBiometrics;
+- (TOPasscodeBiometryType)biometryType;
 
 @end
