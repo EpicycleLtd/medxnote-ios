@@ -126,7 +126,7 @@
 }
 
 - (BOOL)hasBiometrics {
-    return [self.authContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:nil]
+    return [self.authContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:nil];
 }
 
 - (TOPasscodeBiometryType)biometryType {

@@ -3492,10 +3492,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
 - (void)saveDraft
 {
-    if (self.inputToolbar.hidden == NO) {
+    if (self.inputToolbar.hidden == NO && self.preventDraftSaving == NO) {
         __block TSThread *thread = _thread;
         __block NSString *currentDraft = [self.inputToolbar messageText];
-
         [self.editingDatabaseConnection asyncReadWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
             [thread setDraft:currentDraft transaction:transaction];
         }];

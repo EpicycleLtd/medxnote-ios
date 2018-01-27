@@ -26,7 +26,6 @@ const NSUInteger kAvatarViewDiameter = 52;
 
 @property (nonatomic) AvatarImageView *avatarView;
 @property (nonatomic) UILabel *nameLabel;
-@property (nonatomic) UILabel *snippetLabel;
 @property (nonatomic) UILabel *timeLabel;
 @property (nonatomic) UIView *unreadBadge;
 @property (nonatomic) UILabel *unreadLabel;

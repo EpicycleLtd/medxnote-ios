@@ -8,6 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class OWSContactsManager;
 
 @interface InboxTableViewCell : UITableViewCell
+    
+@property (nonatomic) UILabel *snippetLabel;
 
 + (CGFloat)rowHeight;
 

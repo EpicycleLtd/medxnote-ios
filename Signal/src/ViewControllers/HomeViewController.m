@@ -7,6 +7,7 @@
 #import "AppSettingsViewController.h"
 #import "ConversationViewController.h"
 #import "InboxTableViewCell.h"
+#import "MedxInboxSearchUpdater.h"
 #import "NewContactThreadViewController.h"
 #import "OWSContactsManager.h"
 #import "OWSNavigationController.h"
@@ -66,6 +67,8 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 @property (nonatomic) NSLayoutConstraint *hideMissingContactsPermissionViewConstraint;
 
 @property (nonatomic) TSThread *lastThread;
+    
+@property (nonatomic) MedxInboxSearchUpdater *searchUpdater;
 
 @end
 
@@ -280,6 +283,19 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     }
 
     [self updateBarButtonItems];
+    [self setupSearch];
+}
+    
+- (void)setupSearch {
+    self.searchUpdater = [[MedxInboxSearchUpdater alloc] initWithTableView:self.tableView
+                                                              dbConnection:self.uiDatabaseConnection
+                                                            threadMappings:self.threadMappings];
+    if (@available(iOS 11.0, *)) {
+        self.navigationItem.searchController = self.searchUpdater.searchController;
+    } else {
+        self.searchUpdater.searchController.hidesNavigationBarDuringPresentation = false;
+        self.tableView.tableHeaderView = self.searchUpdater.searchController.searchBar;
+    }
 }
 
 - (void)updateBarButtonItems
@@ -415,6 +431,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     }
 
     [self checkIfEmptyView];
+    [self.searchUpdater updateMappings];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -578,11 +595,17 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if (self.searchUpdater.isSearching) {
+        return 1;
+    }
     return (NSInteger)[self.threadMappings numberOfSections];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    if (self.searchUpdater.isSearching) {
+        return self.searchUpdater.results.count;
+    }
     return (NSInteger)[self.threadMappings numberOfItemsInSection:(NSUInteger)section];
 }
 
@@ -591,6 +614,25 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     InboxTableViewCell *cell =
         [self.tableView dequeueReusableCellWithIdentifier:InboxTableViewCell.cellReuseIdentifier];
     OWSAssert(cell);
+    
+    // handle search result
+    if (self.searchUpdater.isSearching) {
+        SearchResult *result = self.searchUpdater.results[indexPath.row];
+        [cell configureWithThread:result.thread contactsManager:self.contactsManager blockedPhoneNumberSet:_blockedPhoneNumberSet];
+        
+        if ([result.interaction isKindOfClass:[TSIncomingMessage class]]) {
+            TSIncomingMessage *message = (TSIncomingMessage *)result.interaction;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.snippetLabel.text = message.body;
+            });
+        } else if ([result.interaction isKindOfClass:[TSOutgoingMessage class]]) {
+            TSOutgoingMessage *message = (TSOutgoingMessage *)result.interaction;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.snippetLabel.text = message.body;
+            });
+        }
+        return cell;
+    }
 
     TSThread *thread = [self threadForIndexPath:indexPath];
 
@@ -761,6 +803,22 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (self.searchUpdater.isSearching) {
+        // TODO: we should probably find the same thread in the normal list before
+        SearchResult *result = self.searchUpdater.results[indexPath.row];
+        TSThread *thread = result.thread;
+        
+        DispatchMainThreadSafe(^{
+            ConversationViewController *mvc = [ConversationViewController new];
+            [mvc configureForThread:thread
+            keyboardOnViewAppearing:NO
+                callOnViewAppearing:NO];
+            mvc.preventDraftSaving = YES;
+            
+            [self pushTopLevelViewController:mvc animateDismissal:YES animatePresentation:YES];
+        });
+        return;
+    }
     TSThread *thread = [self threadForIndexPath:indexPath];
     [self presentThread:thread keyboardOnViewAppearing:NO callOnViewAppearing:NO];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

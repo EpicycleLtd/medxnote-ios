@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ConversationViewController : OWSViewController
 
 @property (nonatomic, readonly) TSThread *thread;
+@property (nonatomic) BOOL preventDraftSaving;
 
 - (void)configureForThread:(TSThread *)thread
     keyboardOnViewAppearing:(BOOL)keyboardAppearing
