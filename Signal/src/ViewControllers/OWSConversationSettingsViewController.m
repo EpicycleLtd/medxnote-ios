@@ -327,62 +327,63 @@ NS_ASSUME_NONNULL_BEGIN
                                  }]];
     }
 
-    [mainSection
-        addItem:[OWSTableItem itemWithCustomCellBlock:^{
-            UITableViewCell *cell = [UITableViewCell new];
-            OWSConversationSettingsViewController *strongSelf = weakSelf;
-            OWSCAssert(strongSelf);
-            cell.preservesSuperviewLayoutMargins = YES;
-            cell.contentView.preservesSuperviewLayoutMargins = YES;
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
-
-            UIView *topView = [UIView containerView];
-            [cell.contentView addSubview:topView];
-            [topView autoPinLeadingAndTrailingToSuperview];
-            [topView autoPinEdgeToSuperviewEdge:ALEdgeTop];
-            [topView autoSetDimension:ALDimensionHeight toSize:kOWSTable_DefaultCellHeight];
-
-            UIImageView *iconView = [strongSelf viewForIconWithName:@"table_ic_hourglass"];
-            [topView addSubview:iconView];
-            [iconView autoVCenterInSuperview];
-            [iconView autoPinLeadingToSuperview];
-
-            UILabel *rowLabel = [UILabel new];
-            rowLabel.text = NSLocalizedString(@"DISAPPEARING_MESSAGES", @"table cell label in conversation settings");
-            rowLabel.textColor = [UIColor blackColor];
-            rowLabel.font = [UIFont ows_regularFontWithSize:17.f];
-            rowLabel.lineBreakMode = NSLineBreakByTruncatingTail;
-            [topView addSubview:rowLabel];
-            [rowLabel autoVCenterInSuperview];
-            [rowLabel autoPinLeadingToTrailingOfView:iconView margin:weakSelf.iconSpacing];
-
-            UISwitch *switchView = [UISwitch new];
-            switchView.on = strongSelf.disappearingMessagesConfiguration.isEnabled;
-            [switchView addTarget:strongSelf
-                           action:@selector(disappearingMessagesSwitchValueDidChange:)
-                 forControlEvents:UIControlEventValueChanged];
-            [topView addSubview:switchView];
-            [switchView autoVCenterInSuperview];
-            [switchView autoPinLeadingToTrailingOfView:rowLabel margin:weakSelf.iconSpacing];
-            [switchView autoPinTrailingToSuperview];
-
-            UILabel *subtitleLabel = [UILabel new];
-            subtitleLabel.text
-                = NSLocalizedString(@"DISAPPEARING_MESSAGES_DESCRIPTION", @"subheading in conversation settings");
-            subtitleLabel.textColor = [UIColor blackColor];
-            subtitleLabel.font = [UIFont ows_footnoteFont];
-            subtitleLabel.numberOfLines = 0;
-            subtitleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-            [cell.contentView addSubview:subtitleLabel];
-            [subtitleLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:topView];
-            [subtitleLabel autoPinEdge:ALEdgeLeading toEdge:ALEdgeLeading ofView:rowLabel];
-            [subtitleLabel autoPinTrailingToSuperview];
-
-            return cell;
-        }
-                                      // TODO: We shouldn't hard-code a row height that will contain the cell content.
-                                      customRowHeight:108.f
-                                          actionBlock:nil]];
+    // disabling disappearing messages
+//    [mainSection
+//        addItem:[OWSTableItem itemWithCustomCellBlock:^{
+//            UITableViewCell *cell = [UITableViewCell new];
+//            OWSConversationSettingsViewController *strongSelf = weakSelf;
+//            OWSCAssert(strongSelf);
+//            cell.preservesSuperviewLayoutMargins = YES;
+//            cell.contentView.preservesSuperviewLayoutMargins = YES;
+//            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+//
+//            UIView *topView = [UIView containerView];
+//            [cell.contentView addSubview:topView];
+//            [topView autoPinLeadingAndTrailingToSuperview];
+//            [topView autoPinEdgeToSuperviewEdge:ALEdgeTop];
+//            [topView autoSetDimension:ALDimensionHeight toSize:kOWSTable_DefaultCellHeight];
+//
+//            UIImageView *iconView = [strongSelf viewForIconWithName:@"table_ic_hourglass"];
+//            [topView addSubview:iconView];
+//            [iconView autoVCenterInSuperview];
+//            [iconView autoPinLeadingToSuperview];
+//
+//            UILabel *rowLabel = [UILabel new];
+//            rowLabel.text = NSLocalizedString(@"DISAPPEARING_MESSAGES", @"table cell label in conversation settings");
+//            rowLabel.textColor = [UIColor blackColor];
+//            rowLabel.font = [UIFont ows_regularFontWithSize:17.f];
+//            rowLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+//            [topView addSubview:rowLabel];
+//            [rowLabel autoVCenterInSuperview];
+//            [rowLabel autoPinLeadingToTrailingOfView:iconView margin:weakSelf.iconSpacing];
+//
+//            UISwitch *switchView = [UISwitch new];
+//            switchView.on = strongSelf.disappearingMessagesConfiguration.isEnabled;
+//            [switchView addTarget:strongSelf
+//                           action:@selector(disappearingMessagesSwitchValueDidChange:)
+//                 forControlEvents:UIControlEventValueChanged];
+//            [topView addSubview:switchView];
+//            [switchView autoVCenterInSuperview];
+//            [switchView autoPinLeadingToTrailingOfView:rowLabel margin:weakSelf.iconSpacing];
+//            [switchView autoPinTrailingToSuperview];
+//
+//            UILabel *subtitleLabel = [UILabel new];
+//            subtitleLabel.text
+//                = NSLocalizedString(@"DISAPPEARING_MESSAGES_DESCRIPTION", @"subheading in conversation settings");
+//            subtitleLabel.textColor = [UIColor blackColor];
+//            subtitleLabel.font = [UIFont ows_footnoteFont];
+//            subtitleLabel.numberOfLines = 0;
+//            subtitleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+//            [cell.contentView addSubview:subtitleLabel];
+//            [subtitleLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:topView];
+//            [subtitleLabel autoPinEdge:ALEdgeLeading toEdge:ALEdgeLeading ofView:rowLabel];
+//            [subtitleLabel autoPinTrailingToSuperview];
+//
+//            return cell;
+//        }
+//                                      // TODO: We shouldn't hard-code a row height that will contain the cell content.
+//                                      customRowHeight:108.f
+//                                          actionBlock:nil]];
 
     if (self.disappearingMessagesConfiguration.isEnabled) {
         [mainSection
