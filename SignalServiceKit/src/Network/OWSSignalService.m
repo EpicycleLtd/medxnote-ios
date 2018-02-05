@@ -239,7 +239,7 @@ NSString *const kNSNotificationName_IsCensorshipCircumventionActiveDidChange =
     AFHTTPSessionManager *sessionManager =
         [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL sessionConfiguration:sessionConf];
 
-    sessionManager.securityPolicy = [OWSHTTPSecurityPolicy sharedPolicy];
+//    sessionManager.securityPolicy = [OWSHTTPSecurityPolicy sharedPolicy];
     
     // Default acceptable content headers are rejected by AWS
     sessionManager.responseSerializer.acceptableContentTypes = nil;
