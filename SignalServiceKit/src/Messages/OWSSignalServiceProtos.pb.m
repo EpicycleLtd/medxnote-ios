@@ -2914,6 +2914,261 @@ static OWSSignalServiceProtosCallMessageHangup* defaultOWSSignalServiceProtosCal
 }
 @end
 
+@interface OWSSignalServiceProtosPredefinedAnswers ()
+@property UInt32 type;
+@property (strong) NSString* data;
+@end
+
+@implementation OWSSignalServiceProtosPredefinedAnswers
+
+- (BOOL) hasType {
+  return !!hasType_;
+}
+- (void) setHasType:(BOOL) _value_ {
+  hasType_ = !!_value_;
+}
+@synthesize type;
+- (BOOL) hasData {
+  return !!hasData_;
+}
+- (void) setHasData:(BOOL) _value_ {
+  hasData_ = !!_value_;
+}
+@synthesize data;
+- (instancetype) init {
+  if ((self = [super init])) {
+    self.type = 0;
+    self.data = @"";
+  }
+  return self;
+}
+static OWSSignalServiceProtosPredefinedAnswers* defaultOWSSignalServiceProtosPredefinedAnswersInstance = nil;
++ (void) initialize {
+  if (self == [OWSSignalServiceProtosPredefinedAnswers class]) {
+    defaultOWSSignalServiceProtosPredefinedAnswersInstance = [[OWSSignalServiceProtosPredefinedAnswers alloc] init];
+  }
+}
++ (instancetype) defaultInstance {
+  return defaultOWSSignalServiceProtosPredefinedAnswersInstance;
+}
+- (instancetype) defaultInstance {
+  return defaultOWSSignalServiceProtosPredefinedAnswersInstance;
+}
+- (BOOL) isInitialized {
+  return YES;
+}
+- (void) writeToCodedOutputStream:(PBCodedOutputStream*) output {
+  if (self.hasType) {
+    [output writeUInt32:1 value:self.type];
+  }
+  if (self.hasData) {
+    [output writeString:2 value:self.data];
+  }
+  [self.unknownFields writeToCodedOutputStream:output];
+}
+- (SInt32) serializedSize {
+  __block SInt32 size_ = memoizedSerializedSize;
+  if (size_ != -1) {
+    return size_;
+  }
+
+  size_ = 0;
+  if (self.hasType) {
+    size_ += computeUInt32Size(1, self.type);
+  }
+  if (self.hasData) {
+    size_ += computeStringSize(2, self.data);
+  }
+  size_ += self.unknownFields.serializedSize;
+  memoizedSerializedSize = size_;
+  return size_;
+}
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromData:(NSData*) data {
+  return (OWSSignalServiceProtosPredefinedAnswers*)[[[OWSSignalServiceProtosPredefinedAnswers builder] mergeFromData:data] build];
+}
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromData:(NSData*) data extensionRegistry:(PBExtensionRegistry*) extensionRegistry {
+  return (OWSSignalServiceProtosPredefinedAnswers*)[[[OWSSignalServiceProtosPredefinedAnswers builder] mergeFromData:data extensionRegistry:extensionRegistry] build];
+}
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromInputStream:(NSInputStream*) input {
+  return (OWSSignalServiceProtosPredefinedAnswers*)[[[OWSSignalServiceProtosPredefinedAnswers builder] mergeFromInputStream:input] build];
+}
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromInputStream:(NSInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {
+  return (OWSSignalServiceProtosPredefinedAnswers*)[[[OWSSignalServiceProtosPredefinedAnswers builder] mergeFromInputStream:input extensionRegistry:extensionRegistry] build];
+}
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromCodedInputStream:(PBCodedInputStream*) input {
+  return (OWSSignalServiceProtosPredefinedAnswers*)[[[OWSSignalServiceProtosPredefinedAnswers builder] mergeFromCodedInputStream:input] build];
+}
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {
+  return (OWSSignalServiceProtosPredefinedAnswers*)[[[OWSSignalServiceProtosPredefinedAnswers builder] mergeFromCodedInputStream:input extensionRegistry:extensionRegistry] build];
+}
++ (OWSSignalServiceProtosPredefinedAnswersBuilder*) builder {
+  return [[OWSSignalServiceProtosPredefinedAnswersBuilder alloc] init];
+}
++ (OWSSignalServiceProtosPredefinedAnswersBuilder*) builderWithPrototype:(OWSSignalServiceProtosPredefinedAnswers*) prototype {
+  return [[OWSSignalServiceProtosPredefinedAnswers builder] mergeFrom:prototype];
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) builder {
+  return [OWSSignalServiceProtosPredefinedAnswers builder];
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) toBuilder {
+  return [OWSSignalServiceProtosPredefinedAnswers builderWithPrototype:self];
+}
+- (void) writeDescriptionTo:(NSMutableString*) output withIndent:(NSString*) indent {
+  if (self.hasType) {
+    [output appendFormat:@"%@%@: %@\n", indent, @"type", [NSNumber numberWithInteger:self.type]];
+  }
+  if (self.hasData) {
+    [output appendFormat:@"%@%@: %@\n", indent, @"data", self.data];
+  }
+  [self.unknownFields writeDescriptionTo:output withIndent:indent];
+}
+- (void) storeInDictionary:(NSMutableDictionary *)dictionary {
+  if (self.hasType) {
+    [dictionary setObject: [NSNumber numberWithInteger:self.type] forKey: @"type"];
+  }
+  if (self.hasData) {
+    [dictionary setObject: self.data forKey: @"data"];
+  }
+  [self.unknownFields storeInDictionary:dictionary];
+}
+- (BOOL) isEqual:(id)other {
+  if (other == self) {
+    return YES;
+  }
+  if (![other isKindOfClass:[OWSSignalServiceProtosPredefinedAnswers class]]) {
+    return NO;
+  }
+  OWSSignalServiceProtosPredefinedAnswers *otherMessage = other;
+  return
+      self.hasType == otherMessage.hasType &&
+      (!self.hasType || self.type == otherMessage.type) &&
+      self.hasData == otherMessage.hasData &&
+      (!self.hasData || [self.data isEqual:otherMessage.data]) &&
+      (self.unknownFields == otherMessage.unknownFields || (self.unknownFields != nil && [self.unknownFields isEqual:otherMessage.unknownFields]));
+}
+- (NSUInteger) hash {
+  __block NSUInteger hashCode = 7;
+  if (self.hasType) {
+    hashCode = hashCode * 31 + [[NSNumber numberWithInteger:self.type] hash];
+  }
+  if (self.hasData) {
+    hashCode = hashCode * 31 + [self.data hash];
+  }
+  hashCode = hashCode * 31 + [self.unknownFields hash];
+  return hashCode;
+}
+@end
+
+@interface OWSSignalServiceProtosPredefinedAnswersBuilder()
+@property (strong) OWSSignalServiceProtosPredefinedAnswers* resultPredefinedAnswers;
+@end
+
+@implementation OWSSignalServiceProtosPredefinedAnswersBuilder
+@synthesize resultPredefinedAnswers;
+- (instancetype) init {
+  if ((self = [super init])) {
+    self.resultPredefinedAnswers = [[OWSSignalServiceProtosPredefinedAnswers alloc] init];
+  }
+  return self;
+}
+- (PBGeneratedMessage*) internalGetResult {
+  return resultPredefinedAnswers;
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) clear {
+  self.resultPredefinedAnswers = [[OWSSignalServiceProtosPredefinedAnswers alloc] init];
+  return self;
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) clone {
+  return [OWSSignalServiceProtosPredefinedAnswers builderWithPrototype:resultPredefinedAnswers];
+}
+- (OWSSignalServiceProtosPredefinedAnswers*) defaultInstance {
+  return [OWSSignalServiceProtosPredefinedAnswers defaultInstance];
+}
+- (OWSSignalServiceProtosPredefinedAnswers*) build {
+  [self checkInitialized];
+  return [self buildPartial];
+}
+- (OWSSignalServiceProtosPredefinedAnswers*) buildPartial {
+  OWSSignalServiceProtosPredefinedAnswers* returnMe = resultPredefinedAnswers;
+  self.resultPredefinedAnswers = nil;
+  return returnMe;
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) mergeFrom:(OWSSignalServiceProtosPredefinedAnswers*) other {
+  if (other == [OWSSignalServiceProtosPredefinedAnswers defaultInstance]) {
+    return self;
+  }
+  if (other.hasType) {
+    [self setType:other.type];
+  }
+  if (other.hasData) {
+    [self setData:other.data];
+  }
+  [self mergeUnknownFields:other.unknownFields];
+  return self;
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) mergeFromCodedInputStream:(PBCodedInputStream*) input {
+  return [self mergeFromCodedInputStream:input extensionRegistry:[PBExtensionRegistry emptyRegistry]];
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) mergeFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {
+  PBUnknownFieldSetBuilder* unknownFields = [PBUnknownFieldSet builderWithUnknownFields:self.unknownFields];
+  while (YES) {
+    SInt32 tag = [input readTag];
+    switch (tag) {
+      case 0:
+        [self setUnknownFields:[unknownFields build]];
+        return self;
+      default: {
+        if (![self parseUnknownField:input unknownFields:unknownFields extensionRegistry:extensionRegistry tag:tag]) {
+          [self setUnknownFields:[unknownFields build]];
+          return self;
+        }
+        break;
+      }
+      case 8: {
+        [self setType:[input readUInt32]];
+        break;
+      }
+      case 18: {
+        [self setData:[input readString]];
+        break;
+      }
+    }
+  }
+}
+- (BOOL) hasType {
+  return resultPredefinedAnswers.hasType;
+}
+- (UInt32) type {
+  return resultPredefinedAnswers.type;
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) setType:(UInt32) value {
+  resultPredefinedAnswers.hasType = YES;
+  resultPredefinedAnswers.type = value;
+  return self;
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) clearType {
+  resultPredefinedAnswers.hasType = NO;
+  resultPredefinedAnswers.type = 0;
+  return self;
+}
+- (BOOL) hasData {
+  return resultPredefinedAnswers.hasData;
+}
+- (NSString*) data {
+  return resultPredefinedAnswers.data;
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) setData:(NSString*) value {
+  resultPredefinedAnswers.hasData = YES;
+  resultPredefinedAnswers.data = value;
+  return self;
+}
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) clearData {
+  resultPredefinedAnswers.hasData = NO;
+  resultPredefinedAnswers.data = @"";
+  return self;
+}
+@end
+
 @interface OWSSignalServiceProtosDataMessage ()
 @property (strong) NSString* body;
 @property (strong) NSMutableArray<OWSSignalServiceProtosAttachmentPointer*> * attachmentsArray;
@@ -2921,6 +3176,7 @@ static OWSSignalServiceProtosCallMessageHangup* defaultOWSSignalServiceProtosCal
 @property UInt32 flags;
 @property UInt32 expireTimer;
 @property (strong) NSData* profileKey;
+@property (strong) OWSSignalServiceProtosPredefinedAnswers* pa;
 @end
 
 @implementation OWSSignalServiceProtosDataMessage
@@ -2962,6 +3218,13 @@ static OWSSignalServiceProtosCallMessageHangup* defaultOWSSignalServiceProtosCal
   hasProfileKey_ = !!_value_;
 }
 @synthesize profileKey;
+- (BOOL) hasPa {
+  return !!hasPa_;
+}
+- (void) setHasPa:(BOOL) _value_ {
+  hasPa_ = !!_value_;
+}
+@synthesize pa;
 - (instancetype) init {
   if ((self = [super init])) {
     self.body = @"";
@@ -2969,6 +3232,7 @@ static OWSSignalServiceProtosCallMessageHangup* defaultOWSSignalServiceProtosCal
     self.flags = 0;
     self.expireTimer = 0;
     self.profileKey = [NSData data];
+    self.pa = [OWSSignalServiceProtosPredefinedAnswers defaultInstance];
   }
   return self;
 }
@@ -3012,6 +3276,9 @@ static OWSSignalServiceProtosDataMessage* defaultOWSSignalServiceProtosDataMessa
   if (self.hasProfileKey) {
     [output writeData:6 value:self.profileKey];
   }
+  if (self.hasPa) {
+    [output writeMessage:20 value:self.pa];
+  }
   [self.unknownFields writeToCodedOutputStream:output];
 }
 - (SInt32) serializedSize {
@@ -3038,6 +3305,9 @@ static OWSSignalServiceProtosDataMessage* defaultOWSSignalServiceProtosDataMessa
   }
   if (self.hasProfileKey) {
     size_ += computeDataSize(6, self.profileKey);
+  }
+  if (self.hasPa) {
+    size_ += computeMessageSize(20, self.pa);
   }
   size_ += self.unknownFields.serializedSize;
   memoizedSerializedSize = size_;
@@ -3098,6 +3368,12 @@ static OWSSignalServiceProtosDataMessage* defaultOWSSignalServiceProtosDataMessa
   if (self.hasProfileKey) {
     [output appendFormat:@"%@%@: %@\n", indent, @"profileKey", self.profileKey];
   }
+  if (self.hasPa) {
+    [output appendFormat:@"%@%@ {\n", indent, @"pa"];
+    [self.pa writeDescriptionTo:output
+                         withIndent:[NSString stringWithFormat:@"%@  ", indent]];
+    [output appendFormat:@"%@}\n", indent];
+  }
   [self.unknownFields writeDescriptionTo:output withIndent:indent];
 }
 - (void) storeInDictionary:(NSMutableDictionary *)dictionary {
@@ -3123,6 +3399,11 @@ static OWSSignalServiceProtosDataMessage* defaultOWSSignalServiceProtosDataMessa
   if (self.hasProfileKey) {
     [dictionary setObject: self.profileKey forKey: @"profileKey"];
   }
+  if (self.hasPa) {
+   NSMutableDictionary *messageDictionary = [NSMutableDictionary dictionary]; 
+   [self.pa storeInDictionary:messageDictionary];
+   [dictionary setObject:[NSDictionary dictionaryWithDictionary:messageDictionary] forKey:@"pa"];
+  }
   [self.unknownFields storeInDictionary:dictionary];
 }
 - (BOOL) isEqual:(id)other {
@@ -3145,6 +3426,8 @@ static OWSSignalServiceProtosDataMessage* defaultOWSSignalServiceProtosDataMessa
       (!self.hasExpireTimer || self.expireTimer == otherMessage.expireTimer) &&
       self.hasProfileKey == otherMessage.hasProfileKey &&
       (!self.hasProfileKey || [self.profileKey isEqual:otherMessage.profileKey]) &&
+      self.hasPa == otherMessage.hasPa &&
+      (!self.hasPa || [self.pa isEqual:otherMessage.pa]) &&
       (self.unknownFields == otherMessage.unknownFields || (self.unknownFields != nil && [self.unknownFields isEqual:otherMessage.unknownFields]));
 }
 - (NSUInteger) hash {
@@ -3166,6 +3449,9 @@ static OWSSignalServiceProtosDataMessage* defaultOWSSignalServiceProtosDataMessa
   }
   if (self.hasProfileKey) {
     hashCode = hashCode * 31 + [self.profileKey hash];
+  }
+  if (self.hasPa) {
+    hashCode = hashCode * 31 + [self.pa hash];
   }
   hashCode = hashCode * 31 + [self.unknownFields hash];
   return hashCode;
@@ -3255,6 +3541,9 @@ NSString *NSStringFromOWSSignalServiceProtosDataMessageFlags(OWSSignalServicePro
   if (other.hasProfileKey) {
     [self setProfileKey:other.profileKey];
   }
+  if (other.hasPa) {
+    [self mergePa:other.pa];
+  }
   [self mergeUnknownFields:other.unknownFields];
   return self;
 }
@@ -3305,6 +3594,15 @@ NSString *NSStringFromOWSSignalServiceProtosDataMessageFlags(OWSSignalServicePro
       }
       case 50: {
         [self setProfileKey:[input readData]];
+        break;
+      }
+      case 162: {
+        OWSSignalServiceProtosPredefinedAnswersBuilder* subBuilder = [OWSSignalServiceProtosPredefinedAnswers builder];
+        if (self.hasPa) {
+          [subBuilder mergeFrom:self.pa];
+        }
+        [input readMessage:subBuilder extensionRegistry:extensionRegistry];
+        [self setPa:[subBuilder buildPartial]];
         break;
       }
     }
@@ -3423,6 +3721,36 @@ NSString *NSStringFromOWSSignalServiceProtosDataMessageFlags(OWSSignalServicePro
 - (OWSSignalServiceProtosDataMessageBuilder*) clearProfileKey {
   resultDataMessage.hasProfileKey = NO;
   resultDataMessage.profileKey = [NSData data];
+  return self;
+}
+- (BOOL) hasPa {
+  return resultDataMessage.hasPa;
+}
+- (OWSSignalServiceProtosPredefinedAnswers*) pa {
+  return resultDataMessage.pa;
+}
+- (OWSSignalServiceProtosDataMessageBuilder*) setPa:(OWSSignalServiceProtosPredefinedAnswers*) value {
+  resultDataMessage.hasPa = YES;
+  resultDataMessage.pa = value;
+  return self;
+}
+- (OWSSignalServiceProtosDataMessageBuilder*) setPaBuilder:(OWSSignalServiceProtosPredefinedAnswersBuilder*) builderForValue {
+  return [self setPa:[builderForValue build]];
+}
+- (OWSSignalServiceProtosDataMessageBuilder*) mergePa:(OWSSignalServiceProtosPredefinedAnswers*) value {
+  if (resultDataMessage.hasPa &&
+      resultDataMessage.pa != [OWSSignalServiceProtosPredefinedAnswers defaultInstance]) {
+    resultDataMessage.pa =
+      [[[OWSSignalServiceProtosPredefinedAnswers builderWithPrototype:resultDataMessage.pa] mergeFrom:value] buildPartial];
+  } else {
+    resultDataMessage.pa = value;
+  }
+  resultDataMessage.hasPa = YES;
+  return self;
+}
+- (OWSSignalServiceProtosDataMessageBuilder*) clearPa {
+  resultDataMessage.hasPa = NO;
+  resultDataMessage.pa = [OWSSignalServiceProtosPredefinedAnswers defaultInstance];
   return self;
 }
 @end

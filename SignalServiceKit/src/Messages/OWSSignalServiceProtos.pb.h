@@ -36,6 +36,8 @@
 @class OWSSignalServiceProtosGroupDetailsBuilder;
 @class OWSSignalServiceProtosNullMessage;
 @class OWSSignalServiceProtosNullMessageBuilder;
+@class OWSSignalServiceProtosPredefinedAnswers;
+@class OWSSignalServiceProtosPredefinedAnswersBuilder;
 @class OWSSignalServiceProtosReceiptMessage;
 @class OWSSignalServiceProtosReceiptMessageBuilder;
 @class OWSSignalServiceProtosSyncMessage;
@@ -793,21 +795,84 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 - (OWSSignalServiceProtosCallMessageBuilder*) clearProfileKey;
 @end
 
+#define PredefinedAnswers_type @"type"
+#define PredefinedAnswers_data @"data"
+@interface OWSSignalServiceProtosPredefinedAnswers : PBGeneratedMessage<GeneratedMessageProtocol> {
+@private
+  BOOL hasData_:1;
+  BOOL hasType_:1;
+  NSString* data;
+  UInt32 type;
+}
+- (BOOL) hasType;
+- (BOOL) hasData;
+@property (readonly) UInt32 type;
+@property (readonly, strong) NSString* data;
+
++ (instancetype) defaultInstance;
+- (instancetype) defaultInstance;
+
+- (BOOL) isInitialized;
+- (void) writeToCodedOutputStream:(PBCodedOutputStream*) output;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) builder;
++ (OWSSignalServiceProtosPredefinedAnswersBuilder*) builder;
++ (OWSSignalServiceProtosPredefinedAnswersBuilder*) builderWithPrototype:(OWSSignalServiceProtosPredefinedAnswers*) prototype;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) toBuilder;
+
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromData:(NSData*) data;
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromData:(NSData*) data extensionRegistry:(PBExtensionRegistry*) extensionRegistry;
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromInputStream:(NSInputStream*) input;
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromInputStream:(NSInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry;
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromCodedInputStream:(PBCodedInputStream*) input;
++ (OWSSignalServiceProtosPredefinedAnswers*) parseFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry;
+@end
+
+@interface OWSSignalServiceProtosPredefinedAnswersBuilder : PBGeneratedMessageBuilder {
+@private
+  OWSSignalServiceProtosPredefinedAnswers* resultPredefinedAnswers;
+}
+
+- (OWSSignalServiceProtosPredefinedAnswers*) defaultInstance;
+
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) clear;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) clone;
+
+- (OWSSignalServiceProtosPredefinedAnswers*) build;
+- (OWSSignalServiceProtosPredefinedAnswers*) buildPartial;
+
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) mergeFrom:(OWSSignalServiceProtosPredefinedAnswers*) other;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) mergeFromCodedInputStream:(PBCodedInputStream*) input;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) mergeFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry;
+
+- (BOOL) hasType;
+- (UInt32) type;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) setType:(UInt32) value;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) clearType;
+
+- (BOOL) hasData;
+- (NSString*) data;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) setData:(NSString*) value;
+- (OWSSignalServiceProtosPredefinedAnswersBuilder*) clearData;
+@end
+
 #define DataMessage_body @"body"
 #define DataMessage_attachments @"attachments"
 #define DataMessage_group @"group"
 #define DataMessage_flags @"flags"
 #define DataMessage_expireTimer @"expireTimer"
 #define DataMessage_profileKey @"profileKey"
+#define DataMessage_pa @"pa"
 @interface OWSSignalServiceProtosDataMessage : PBGeneratedMessage<GeneratedMessageProtocol> {
 @private
   BOOL hasBody_:1;
   BOOL hasGroup_:1;
+  BOOL hasPa_:1;
   BOOL hasProfileKey_:1;
   BOOL hasFlags_:1;
   BOOL hasExpireTimer_:1;
   NSString* body;
   OWSSignalServiceProtosGroupContext* group;
+  OWSSignalServiceProtosPredefinedAnswers* pa;
   NSData* profileKey;
   UInt32 flags;
   UInt32 expireTimer;
@@ -818,12 +883,14 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 - (BOOL) hasFlags;
 - (BOOL) hasExpireTimer;
 - (BOOL) hasProfileKey;
+- (BOOL) hasPa;
 @property (readonly, strong) NSString* body;
 @property (readonly, strong) NSArray<OWSSignalServiceProtosAttachmentPointer*> * attachments;
 @property (readonly, strong) OWSSignalServiceProtosGroupContext* group;
 @property (readonly) UInt32 flags;
 @property (readonly) UInt32 expireTimer;
 @property (readonly, strong) NSData* profileKey;
+@property (readonly, strong) OWSSignalServiceProtosPredefinedAnswers* pa;
 - (OWSSignalServiceProtosAttachmentPointer*)attachmentsAtIndex:(NSUInteger)index;
 
 + (instancetype) defaultInstance;
@@ -893,6 +960,13 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 - (NSData*) profileKey;
 - (OWSSignalServiceProtosDataMessageBuilder*) setProfileKey:(NSData*) value;
 - (OWSSignalServiceProtosDataMessageBuilder*) clearProfileKey;
+
+- (BOOL) hasPa;
+- (OWSSignalServiceProtosPredefinedAnswers*) pa;
+- (OWSSignalServiceProtosDataMessageBuilder*) setPa:(OWSSignalServiceProtosPredefinedAnswers*) value;
+- (OWSSignalServiceProtosDataMessageBuilder*) setPaBuilder:(OWSSignalServiceProtosPredefinedAnswersBuilder*) builderForValue;
+- (OWSSignalServiceProtosDataMessageBuilder*) mergePa:(OWSSignalServiceProtosPredefinedAnswers*) value;
+- (OWSSignalServiceProtosDataMessageBuilder*) clearPa;
 @end
 
 #define NullMessage_padding @"padding"
