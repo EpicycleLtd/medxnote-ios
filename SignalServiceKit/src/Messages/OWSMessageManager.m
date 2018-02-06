@@ -1033,7 +1033,15 @@ NS_ASSUME_NONNULL_BEGIN
         OWSFail(@"%@ Can't finalize missing message", self.logTag);
         return;
     }
-
+    
+    // Check if PredefinedAnswers exist and serialize
+    if (dataMessage.hasPa) {
+        DDLogDebug(@"%@ incoming PA: %@", self.logTag, dataMessage.pa);
+        NSArray <NSDictionary*>*jsonObject = [NSJSONSerialization JSONObjectWithData:[dataMessage.pa.data dataUsingEncoding:NSUTF8StringEncoding]
+                                                                             options:0 error:NULL];
+        incomingMessage.predefinedAnswers = jsonObject.firstObject;
+    }
+    
     [incomingMessage saveWithTransaction:transaction];
 
     // Any messages sent from the current user - from this device or another - should be

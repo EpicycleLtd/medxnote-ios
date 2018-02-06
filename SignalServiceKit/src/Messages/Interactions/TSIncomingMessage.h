@@ -109,6 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
 // NOTE: Use messageAuthorId instead wherever possible.
 @property (nonatomic, readonly) NSString *authorId;
 
+@property (nonatomic, strong) NSDictionary *predefinedAnswers;
+
 - (NSString *)messageAuthorId;
 
 @end
