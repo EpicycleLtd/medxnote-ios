@@ -516,7 +516,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
                 [[[OWSFailedMessagesJob alloc] initWithStorageManager:[TSStorageManager sharedManager]] run];
                 [[[OWSFailedAttachmentDownloadsJob alloc] initWithStorageManager:[TSStorageManager sharedManager]] run];
 
-                [AppStoreRating setupRatingLibrary];
+//                [AppStoreRating setupRatingLibrary];
             });
         } else {
             DDLogInfo(@"%@ running post launch block for unregistered user.", self.logTag);
@@ -839,7 +839,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
     }
     DDLogInfo(@"%@ %s %@", self.logTag, __PRETTY_FUNCTION__, notification);
 
-    [AppStoreRating preventPromptAtNextTest];
+//    [AppStoreRating preventPromptAtNextTest];
     [[PushManager sharedManager] application:application didReceiveLocalNotification:notification];
 }
 
