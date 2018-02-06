@@ -355,6 +355,13 @@
 		B6FE7EB71ADD62FA00A6D22F /* PushKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6FE7EB61ADD62FA00A6D22F /* PushKit.framework */; };
 		B724C4E8201D0F70004B5803 /* SearchResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B724C4E6201D0F6F004B5803 /* SearchResult.m */; };
 		B724C4EB201D0F9F004B5803 /* MedxInboxSearchUpdater.m in Sources */ = {isa = PBXBuildFile; fileRef = B724C4EA201D0F9F004B5803 /* MedxInboxSearchUpdater.m */; };
+		B7284CAE202A3DE1002581D0 /* PredefinedAnswers.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CAD202A3DE1002581D0 /* PredefinedAnswers.m */; };
+		B7284CB4202A4039002581D0 /* InlineKeyboardCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CB0202A4037002581D0 /* InlineKeyboardCell.m */; };
+		B7284CB5202A4039002581D0 /* InlineKeyboardCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B7284CB1202A4037002581D0 /* InlineKeyboardCell.xib */; };
+		B7284CB6202A4039002581D0 /* InlineKeyboard.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CB2202A4038002581D0 /* InlineKeyboard.m */; };
+		B7284CB9202A4D10002581D0 /* UIColor+HexString.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CB8202A4D10002581D0 /* UIColor+HexString.m */; };
+		B7284CBC202A5420002581D0 /* PredefinedAnswerItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */; };
+		B7284CBF202A5594002581D0 /* PredefinedAnswerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */; };
 		B7AD0292201620D100A7DB4F /* Medxnote.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7AD0291201620D100A7DB4F /* Medxnote.xcassets */; };
 		B7AD029720163B3A00A7DB4F /* MedxPasscodeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */; };
 		B7AD029A201643AB00A7DB4F /* ActivityWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD0299201643AA00A7DB4F /* ActivityWindow.m */; };
@@ -870,6 +877,19 @@
 		B724C4E7201D0F70004B5803 /* SearchResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchResult.h; sourceTree = "<group>"; };
 		B724C4E9201D0F9F004B5803 /* MedxInboxSearchUpdater.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MedxInboxSearchUpdater.h; sourceTree = "<group>"; };
 		B724C4EA201D0F9F004B5803 /* MedxInboxSearchUpdater.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MedxInboxSearchUpdater.m; sourceTree = "<group>"; };
+		B7284CAC202A3DE1002581D0 /* PredefinedAnswers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PredefinedAnswers.h; sourceTree = "<group>"; };
+		B7284CAD202A3DE1002581D0 /* PredefinedAnswers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswers.m; sourceTree = "<group>"; };
+		B7284CAF202A4037002581D0 /* InlineKeyboardCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InlineKeyboardCell.h; sourceTree = "<group>"; };
+		B7284CB0202A4037002581D0 /* InlineKeyboardCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InlineKeyboardCell.m; sourceTree = "<group>"; };
+		B7284CB1202A4037002581D0 /* InlineKeyboardCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InlineKeyboardCell.xib; sourceTree = "<group>"; };
+		B7284CB2202A4038002581D0 /* InlineKeyboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InlineKeyboard.m; sourceTree = "<group>"; };
+		B7284CB3202A4038002581D0 /* InlineKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InlineKeyboard.h; sourceTree = "<group>"; };
+		B7284CB7202A4D10002581D0 /* UIColor+HexString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+HexString.h"; sourceTree = "<group>"; };
+		B7284CB8202A4D10002581D0 /* UIColor+HexString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+HexString.m"; sourceTree = "<group>"; };
+		B7284CBA202A5420002581D0 /* PredefinedAnswerItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PredefinedAnswerItem.h; sourceTree = "<group>"; };
+		B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswerItem.m; sourceTree = "<group>"; };
+		B7284CBD202A5594002581D0 /* PredefinedAnswerSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PredefinedAnswerSection.h; sourceTree = "<group>"; };
+		B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswerSection.m; sourceTree = "<group>"; };
 		B7AD0291201620D100A7DB4F /* Medxnote.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Medxnote.xcassets; sourceTree = "<group>"; };
 		B7AD029520163B3900A7DB4F /* MedxPasscodeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MedxPasscodeManager.h; sourceTree = "<group>"; };
 		B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MedxPasscodeManager.m; sourceTree = "<group>"; };
@@ -1022,6 +1042,7 @@
 		34B3F8331E8DF1700035BE1A /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				B7284CAB202A3DCC002581D0 /* InlineKeyboard */,
 				B724C4E5201D0F39004B5803 /* SearchResults */,
 				34B3F8341E8DF1700035BE1A /* AboutTableViewController.h */,
 				34B3F8351E8DF1700035BE1A /* AboutTableViewController.m */,
@@ -1724,6 +1745,26 @@
 			path = SearchResults;
 			sourceTree = "<group>";
 		};
+		B7284CAB202A3DCC002581D0 /* InlineKeyboard */ = {
+			isa = PBXGroup;
+			children = (
+				B7284CAC202A3DE1002581D0 /* PredefinedAnswers.h */,
+				B7284CAD202A3DE1002581D0 /* PredefinedAnswers.m */,
+				B7284CBD202A5594002581D0 /* PredefinedAnswerSection.h */,
+				B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */,
+				B7284CBA202A5420002581D0 /* PredefinedAnswerItem.h */,
+				B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */,
+				B7284CB3202A4038002581D0 /* InlineKeyboard.h */,
+				B7284CB2202A4038002581D0 /* InlineKeyboard.m */,
+				B7284CAF202A4037002581D0 /* InlineKeyboardCell.h */,
+				B7284CB0202A4037002581D0 /* InlineKeyboardCell.m */,
+				B7284CB1202A4037002581D0 /* InlineKeyboardCell.xib */,
+				B7284CB7202A4D10002581D0 /* UIColor+HexString.h */,
+				B7284CB8202A4D10002581D0 /* UIColor+HexString.m */,
+			);
+			path = InlineKeyboard;
+			sourceTree = "<group>";
+		};
 		B7AD029E201645C700A7DB4F /* Passcode */ = {
 			isa = PBXGroup;
 			children = (
@@ -2038,6 +2079,7 @@
 				34330A5C1E787A9800DF2FB9 /* dripicons-v2.ttf in Resources */,
 				B633C5C41A1D190B0059AC12 /* mute_on@2x.png in Resources */,
 				B633C5CE1A1D190B0059AC12 /* quit@2x.png in Resources */,
+				B7284CB5202A4039002581D0 /* InlineKeyboardCell.xib in Resources */,
 				AD83FF441A73426500B5C81A /* audio_pause_button.png in Resources */,
 				B6F509971AA53F760068F56A /* Localizable.strings in Resources */,
 				AD41D7B51A6F6F0600241130 /* play_button.png in Resources */,
@@ -2304,6 +2346,7 @@
 				45794E861E00620000066731 /* CallUIAdapter.swift in Sources */,
 				4585C4681ED8F8D200896AEA /* SafetyNumberConfirmationAlert.swift in Sources */,
 				450D19131F85236600970622 /* RemoteVideoView.m in Sources */,
+				B7284CB9202A4D10002581D0 /* UIColor+HexString.m in Sources */,
 				FCFA64B71A24F6730007FB87 /* UIFont+OWS.m in Sources */,
 				B6B9ECFC198B31BA00C620D3 /* PushManager.m in Sources */,
 				45DF5DF21DDB843F00C936C7 /* CompareSafetyNumbersActivity.swift in Sources */,
@@ -2326,6 +2369,7 @@
 				34CE88E71F2FB9A10098030F /* ProfileViewController.m in Sources */,
 				348F2EAE1F0D21BC00D4ECE0 /* DeviceSleepManager.swift in Sources */,
 				34E3EF101EFC2684007F6822 /* DebugUIPage.m in Sources */,
+				B7284CB6202A4039002581D0 /* InlineKeyboard.m in Sources */,
 				34D1F0AE1F867BFC0066283D /* OWSMessageCell.m in Sources */,
 				451686AB1F520CDA00AC3D4B /* MultiDeviceProfileKeyUpdateJob.swift in Sources */,
 				76EB058A18170B33006006FC /* Release.m in Sources */,
@@ -2338,6 +2382,7 @@
 				342FCE6B1EF9C375002690AD /* OWS105AttachmentFilePaths.m in Sources */,
 				D221A09A169C9E5E00537ABF /* main.m in Sources */,
 				345671011E89A5F1006EE662 /* ThreadUtil.m in Sources */,
+				B7284CBF202A5594002581D0 /* PredefinedAnswerSection.m in Sources */,
 				B724C4E8201D0F70004B5803 /* SearchResult.m in Sources */,
 				4585C4601ED4FD0400896AEA /* OWS104CreateRecipientIdentities.m in Sources */,
 				45843D1F1D2236B30013E85A /* OWSContactsSearcher.m in Sources */,
@@ -2368,6 +2413,7 @@
 				34DFCB851E8E04B500053165 /* AddToBlockListViewController.m in Sources */,
 				45855F371D9498A40084F340 /* OWSContactAvatarBuilder.m in Sources */,
 				45A6DAD61EBBF85500893231 /* ReminderView.swift in Sources */,
+				B7284CAE202A3DE1002581D0 /* PredefinedAnswers.m in Sources */,
 				45666EC61D99483D008FE134 /* OWSAvatarBuilder.m in Sources */,
 				45E615161E8C590B0018AD52 /* DisplayableText.swift in Sources */,
 				34B3F88A1E8DF1700035BE1A /* OWSLinkDeviceViewController.m in Sources */,
@@ -2404,6 +2450,7 @@
 				45C0DC1B1E68FE9000E04C47 /* UIApplication+OWS.swift in Sources */,
 				45638BDF1F3DDB2200128435 /* MessageSender+Promise.swift in Sources */,
 				34535D821E256BE9008A4747 /* UIView+OWS.m in Sources */,
+				B7284CBC202A5420002581D0 /* PredefinedAnswerItem.m in Sources */,
 				453034AB200289F50018945D /* VideoPlayerView.swift in Sources */,
 				45F3AEB61DFDE7900080CE33 /* AvatarImageView.swift in Sources */,
 				7038632718F70C0700D4A43F /* CryptoTools.m in Sources */,
@@ -2459,6 +2506,7 @@
 				34B3F8941E8DF1710035BE1A /* HomeViewController.m in Sources */,
 				34E8BF381EE9E2FD00F5F4CA /* FingerprintViewScanController.m in Sources */,
 				346B66311F4E29B200E5122F /* CropScaleImageViewController.swift in Sources */,
+				B7284CB4202A4039002581D0 /* InlineKeyboardCell.m in Sources */,
 				76EB058818170B33006006FC /* OWSPreferences.m in Sources */,
 				45E5A6991F61E6DE001E4A8A /* MarqueeLabel.swift in Sources */,
 				34D1F0B01F867BFC0066283D /* OWSSystemMessageCell.m in Sources */,

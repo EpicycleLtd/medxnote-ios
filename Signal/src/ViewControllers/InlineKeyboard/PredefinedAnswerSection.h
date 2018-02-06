@@ -1,5 +1,5 @@
 //
-//  PredefinedAnswers.h
+//  PredefinedAnswerSection.h
 //  Medxnote
 //
 //  Created by Jan Nemecek on 6/2/18.
@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@class PredefinedAnswerSection;
+@class PredefinedAnswerItem;
 
-@interface PredefinedAnswers : NSObject
+@interface PredefinedAnswerSection : NSObject
 
-@property NSArray <PredefinedAnswerSection *> *sections;
+@property (nonatomic) NSArray <PredefinedAnswerItem *> *items;
 
 - (instancetype)initWithJson:(NSDictionary *)dictionary;
 
