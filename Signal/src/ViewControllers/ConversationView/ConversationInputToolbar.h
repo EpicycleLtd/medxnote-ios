@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ConversationInputToolbar : UIView
 
+@property (nonatomic) ConversationInputTextView *inputTextView;
 @property (nonatomic, weak) id<ConversationInputToolbarDelegate> inputToolbarDelegate;
 
 - (void)beginEditingTextMessage;

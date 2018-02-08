@@ -19,7 +19,6 @@ static const CGFloat ConversationInputToolbarBorderViewHeight = 0.5;
 @interface ConversationInputToolbar () <UIGestureRecognizerDelegate, ConversationTextViewToolbarDelegate>
 
 @property (nonatomic, readonly) UIView *contentView;
-@property (nonatomic, readonly) ConversationInputTextView *inputTextView;
 @property (nonatomic, readonly) UIButton *attachmentButton;
 @property (nonatomic, readonly) UIButton *sendButton;
 @property (nonatomic, readonly) UIButton *voiceMemoButton;

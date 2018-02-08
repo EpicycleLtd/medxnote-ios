@@ -19,6 +19,7 @@
 #import "DebugUITableViewController.h"
 #import "Environment.h"
 #import "FingerprintViewController.h"
+#import "InlineKeyboard.h"
 #import "MediaDetailViewController.h"
 #import "NSAttributedString+OWS.h"
 #import "NSString+OWS.h"
@@ -34,6 +35,7 @@
 #import "OWSMessageCell.h"
 #import "OWSSystemMessageCell.h"
 #import "OWSUnreadIndicatorCell.h"
+#import "PredefinedAnswerItem.h"
 #import "Signal-Swift.h"
 #import "SignalKeyingStorage.h"
 #import "TSAttachmentPointer.h"
@@ -135,7 +137,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     UITextViewDelegate,
     ConversationCollectionViewDelegate,
     ConversationInputToolbarDelegate,
-    GifPickerViewControllerDelegate>
+    GifPickerViewControllerDelegate,
+    InlineKeyboardDelegate>
 
 // Show message info animation
 @property (nullable, nonatomic) UIPercentDrivenInteractiveTransition *showMessageDetailsTransition;
@@ -226,6 +229,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 @property (nonatomic) BOOL shouldObserveDBModifications;
 @property (nonatomic) BOOL viewHasEverAppeared;
 @property (nonatomic) BOOL hasUnreadMessages;
+
+// Inline keyboard
+@property (nonatomic) InlineKeyboard *inlineKeyboard;
 
 @end
 
@@ -1013,6 +1019,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     self.isViewCompletelyAppeared = YES;
     self.viewHasEverAppeared = YES;
+    
+    [self showInlineKeyboardIfNeeded];
 }
 
 // `viewWillDisappear` is called whenever the view *starts* to disappear,
@@ -1349,6 +1357,40 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [self dismissKeyBoard];
 
     [FingerprintViewController presentFromViewController:self recipientId:recipientId];
+}
+
+#pragma mark - Inline Keyboard
+
+- (BOOL)showInlineKeyboardIfNeeded {
+    ConversationViewItem *viewItem = [self viewItemForIndex:(NSInteger)self.viewItems.count-1];
+    if ([viewItem.interaction isKindOfClass:[TSIncomingMessage class]] && [(TSIncomingMessage*)viewItem.interaction predefinedAnswers]) {
+        TSIncomingMessage *interaction = (TSIncomingMessage *)viewItem.interaction;
+        self.inlineKeyboard = [[InlineKeyboard alloc] initWithAnswers:interaction.predefinedAnswers];
+        self.inlineKeyboard.delegate = self;
+        self.inputToolbar.inputTextView.inputView = self.inlineKeyboard.keyboardView;
+        self.inputToolbar.inputTextView.delegate = self;
+        [self.inputToolbar.inputTextView reloadInputViews];
+        [self.inputToolbar.inputTextView becomeFirstResponder];
+        
+        return true;
+    }
+    self.inputToolbar.inputTextView.inputView = nil;
+    [self.inputToolbar.inputTextView reloadInputViews];
+    return false;
+}
+
+- (void)tappedInlineKeyboardCell:(PredefinedAnswerItem *)item {
+    NSString *text = item.command;
+    if (text.length > 0) {
+        [JSQSystemSoundPlayer jsq_playMessageSentSound];
+        TSOutgoingMessage *message = [ThreadUtil sendMessageWithText:text inThread:self.thread messageSender:self.messageSender];
+        [self messageWasSent:message];
+        [self.inputToolbar toggleDefaultKeyboard];
+        [self.inputToolbar clearTextMessage];
+//        [self clearDraft];
+
+        self.inlineKeyboard = nil;
+    }
 }
 
 #pragma mark - Calls
@@ -2955,6 +2997,8 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         if (hasDeletions) {
             [self cleanUpUnreadIndicatorIfNecessary];
         }
+        
+        [self showInlineKeyboardIfNeeded];
     };
     if (shouldAnimateUpdates) {
         [self.collectionView performBatchUpdates:batchUpdates completion:batchUpdatesCompletion];
