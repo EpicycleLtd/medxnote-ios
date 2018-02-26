@@ -90,26 +90,26 @@
         case PasscodeHelperActionChangePasscode:
             switch (_attempt) {
                 case 0:
-                    vc.passcodeView.titleLabel.text = @"Enter old passcode";
+                    vc.passcodeView.titleLabel.text = @"Enter old PIN";
                     break;
                 case 1:
-                    vc.passcodeView.titleLabel.text = @"Enter new passcode";
+                    vc.passcodeView.titleLabel.text = @"Set new PIN";
                     break;
                 case 2:
-                    vc.passcodeView.titleLabel.text = @"Repeat new passcode";
+                    vc.passcodeView.titleLabel.text = @"Repeat new PIN";
                     break;
                 default:
                     break;
             }
             break;
         case PasscodeHelperActionEnablePasscode:
-            vc.passcodeView.titleLabel.text = _attempt == 0 ? @"Enter new passcode" : @"Repeat new passcode";
+            vc.passcodeView.titleLabel.text = _attempt == 0 ? @"Set new PIN" : @"Repeat new PIN";
             break;
         case PasscodeHelperActionDisablePasscode:
-            vc.passcodeView.titleLabel.text = @"Enter passcode";
+            vc.passcodeView.titleLabel.text = @"Enter PIN";
             break;
         case PasscodeHelperActionCheckPasscode:
-            vc.passcodeView.titleLabel.text = @"Enter passcode";
+            vc.passcodeView.titleLabel.text = @"Enter PIN";
             break;
     }
     
@@ -205,7 +205,7 @@
                 }
                 case 10: {
                     [MedxPasscodeManager setLockoutEnabled];
-                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"The app has been disabled due to too many invalid passcode attempts. Please delete and reinstall the app to regain access" preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"The app has been disabled due to too many invalid PIN. Please delete and reinstall the app to regain access" preferredStyle:UIAlertControllerStyleAlert];
                     [passcodeViewController presentViewController:alertController animated:YES completion:nil];
                     return false;
                 }

@@ -12,7 +12,7 @@
 @implementation UIViewController (Medxnote)
 
 - (void)showPasscodeAlert {
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"Please set up an App PIN Lock. If you forget your PIN or enter it incorrectly 10 times, you will have to delete and reinstall the app to restore access to the service" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"Please set a PIN to prevent sensitive information from being inadvertently disclosed. If you forget your PIN, or incorrectly enter it 10 times, you will have to delete and reinstall the app to restore access to the service." preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
     [alertController addAction:okAction];
     [self presentViewController:alertController animated:true completion:nil];
