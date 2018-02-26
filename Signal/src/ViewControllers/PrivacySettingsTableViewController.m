@@ -43,17 +43,17 @@ NS_ASSUME_NONNULL_BEGIN
 
     __weak PrivacySettingsTableViewController *weakSelf = self;
 
-    [contents
-        addSection:[OWSTableSection
-                       sectionWithTitle:nil
-                                  items:@[
-                                      [OWSTableItem disclosureItemWithText:
-                                                        NSLocalizedString(@"SETTINGS_BLOCK_LIST_TITLE",
-                                                            @"Label for the block list section of the settings view")
-                                                               actionBlock:^{
-                                                                   [weakSelf showBlocklist];
-                                                               }],
-                                  ]]];
+//    [contents
+//        addSection:[OWSTableSection
+//                       sectionWithTitle:nil
+//                                  items:@[
+//                                      [OWSTableItem disclosureItemWithText:
+//                                                        NSLocalizedString(@"SETTINGS_BLOCK_LIST_TITLE",
+//                                                            @"Label for the block list section of the settings view")
+//                                                               actionBlock:^{
+//                                                                   [weakSelf showBlocklist];
+//                                                               }],
+//                                  ]]];
 
     OWSTableSection *readReceiptsSection = [OWSTableSection new];
     readReceiptsSection.footerTitle = NSLocalizedString(
@@ -78,41 +78,41 @@ NS_ASSUME_NONNULL_BEGIN
     
     [self addMedxSpecificContent:contents];
 
-    // Allow calls to connect directly vs. using TURN exclusively
-    OWSTableSection *callingSection = [OWSTableSection new];
-    callingSection.headerTitle
-        = NSLocalizedString(@"SETTINGS_SECTION_TITLE_CALLING", @"settings topic header for table section");
-    callingSection.footerTitle = @"Relay all calls through the Medxnote server to avoid revealing your IP address to your contact. Enabling will reduce call quality.";
-//    callingSection.footerTitle = NSLocalizedString(@"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE_DETAIL",
-//        @"User settings section footer, a detailed explanation");
-    [callingSection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(
-                                                                 @"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE",
-                                                                 @"Table cell label")
-                                                        isOn:[Environment.preferences doCallsHideIPAddress]
-                                                      target:weakSelf
-                                                    selector:@selector(didToggleCallsHideIPAddressSwitch:)]];
-    [contents addSection:callingSection];
-
-    if ([UIDevice currentDevice].supportsCallKit) {
-        OWSTableSection *callKitSection = [OWSTableSection new];
-        callKitSection.footerTitle = @"iOS Call Integration shows Medxnote calls on your lock screen and in the system's call history. You may optionally show your contact's name and number. If iCloud is enabled, this call history will be shared with Apple.";
-//        callKitSection.footerTitle
-//            = NSLocalizedString(@"SETTINGS_SECTION_CALL_KIT_DESCRIPTION", @"Settings table section footer.");
-        [callKitSection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"SETTINGS_PRIVACY_CALLKIT_TITLE",
-                                                                     @"Short table cell label")
-                                                            isOn:[Environment.preferences isCallKitEnabled]
-                                                          target:weakSelf
-                                                        selector:@selector(didToggleEnableCallKitSwitch:)]];
-        if (Environment.preferences.isCallKitEnabled) {
-            [callKitSection
-                addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"SETTINGS_PRIVACY_CALLKIT_PRIVACY_TITLE",
-                                                             @"Label for 'CallKit privacy' preference")
-                                                    isOn:![Environment.preferences isCallKitPrivacyEnabled]
-                                                  target:weakSelf
-                                                selector:@selector(didToggleEnableCallKitPrivacySwitch:)]];
-        }
-        [contents addSection:callKitSection];
-    }
+//    // Allow calls to connect directly vs. using TURN exclusively
+//    OWSTableSection *callingSection = [OWSTableSection new];
+//    callingSection.headerTitle
+//        = NSLocalizedString(@"SETTINGS_SECTION_TITLE_CALLING", @"settings topic header for table section");
+//    callingSection.footerTitle = @"Relay all calls through the Medxnote server to avoid revealing your IP address to your contact. Enabling will reduce call quality.";
+////    callingSection.footerTitle = NSLocalizedString(@"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE_DETAIL",
+////        @"User settings section footer, a detailed explanation");
+//    [callingSection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(
+//                                                                 @"SETTINGS_CALLING_HIDES_IP_ADDRESS_PREFERENCE_TITLE",
+//                                                                 @"Table cell label")
+//                                                        isOn:[Environment.preferences doCallsHideIPAddress]
+//                                                      target:weakSelf
+//                                                    selector:@selector(didToggleCallsHideIPAddressSwitch:)]];
+//    [contents addSection:callingSection];
+//
+//    if ([UIDevice currentDevice].supportsCallKit) {
+//        OWSTableSection *callKitSection = [OWSTableSection new];
+//        callKitSection.footerTitle = @"iOS Call Integration shows Medxnote calls on your lock screen and in the system's call history. You may optionally show your contact's name and number. If iCloud is enabled, this call history will be shared with Apple.";
+////        callKitSection.footerTitle
+////            = NSLocalizedString(@"SETTINGS_SECTION_CALL_KIT_DESCRIPTION", @"Settings table section footer.");
+//        [callKitSection addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"SETTINGS_PRIVACY_CALLKIT_TITLE",
+//                                                                     @"Short table cell label")
+//                                                            isOn:[Environment.preferences isCallKitEnabled]
+//                                                          target:weakSelf
+//                                                        selector:@selector(didToggleEnableCallKitSwitch:)]];
+//        if (Environment.preferences.isCallKitEnabled) {
+//            [callKitSection
+//                addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"SETTINGS_PRIVACY_CALLKIT_PRIVACY_TITLE",
+//                                                             @"Label for 'CallKit privacy' preference")
+//                                                    isOn:![Environment.preferences isCallKitPrivacyEnabled]
+//                                                  target:weakSelf
+//                                                selector:@selector(didToggleEnableCallKitPrivacySwitch:)]];
+//        }
+//        [contents addSection:callKitSection];
+//    }
 
     OWSTableSection *historyLogsSection = [OWSTableSection new];
     historyLogsSection.headerTitle = NSLocalizedString(@"SETTINGS_HISTORYLOG_TITLE", @"Section header");

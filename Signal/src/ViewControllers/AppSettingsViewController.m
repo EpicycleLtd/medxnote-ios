@@ -158,11 +158,11 @@
                                                    actionBlock:nil]];
     }
 
-    [section addItem:[OWSTableItem disclosureItemWithText:NSLocalizedString(@"SETTINGS_INVITE_TITLE",
-                                                              @"Settings table view cell label")
-                                              actionBlock:^{
-                                                  [weakSelf showInviteFlow];
-                                              }]];
+//    [section addItem:[OWSTableItem disclosureItemWithText:NSLocalizedString(@"SETTINGS_INVITE_TITLE",
+//                                                              @"Settings table view cell label")
+//                                              actionBlock:^{
+//                                                  [weakSelf showInviteFlow];
+//                                              }]];
     [section addItem:[OWSTableItem disclosureItemWithText:NSLocalizedString(@"SETTINGS_PRIVACY_TITLE",
                                                               @"Settings table view cell label")
                                               actionBlock:^{

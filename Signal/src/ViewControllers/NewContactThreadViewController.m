@@ -218,19 +218,19 @@ NS_ASSUME_NONNULL_BEGIN
     [subtitleLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:lastSubview withOffset:15];
     lastSubview = subtitleLabel;
 
-    UIButton *inviteContactsButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [inviteContactsButton setTitle:NSLocalizedString(@"INVITE_FRIENDS_CONTACT_TABLE_BUTTON",
-                                       "Label for the cell that presents the 'invite contacts' workflow.")
-                          forState:UIControlStateNormal];
-    [inviteContactsButton setTitleColor:[UIColor ows_materialBlueColor] forState:UIControlStateNormal];
-    [inviteContactsButton.titleLabel setFont:[UIFont ows_regularFontWithSize:17.f]];
-    [contents addSubview:inviteContactsButton];
-    [inviteContactsButton autoHCenterInSuperview];
-    [inviteContactsButton autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:lastSubview withOffset:50];
-    [inviteContactsButton addTarget:self
-                             action:@selector(presentInviteFlow)
-                   forControlEvents:UIControlEventTouchUpInside];
-    lastSubview = inviteContactsButton;
+//    UIButton *inviteContactsButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [inviteContactsButton setTitle:NSLocalizedString(@"INVITE_FRIENDS_CONTACT_TABLE_BUTTON",
+//                                       "Label for the cell that presents the 'invite contacts' workflow.")
+//                          forState:UIControlStateNormal];
+//    [inviteContactsButton setTitleColor:[UIColor ows_materialBlueColor] forState:UIControlStateNormal];
+//    [inviteContactsButton.titleLabel setFont:[UIFont ows_regularFontWithSize:17.f]];
+//    [contents addSubview:inviteContactsButton];
+//    [inviteContactsButton autoHCenterInSuperview];
+//    [inviteContactsButton autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:lastSubview withOffset:50];
+//    [inviteContactsButton addTarget:self
+//                             action:@selector(presentInviteFlow)
+//                   forControlEvents:UIControlEventTouchUpInside];
+//    lastSubview = inviteContactsButton;
 
     UIButton *searchByPhoneNumberButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [searchByPhoneNumberButton setTitle:NSLocalizedString(@"NO_CONTACTS_SEARCH_BY_PHONE_NUMBER",
@@ -341,17 +341,17 @@ NS_ASSUME_NONNULL_BEGIN
                                                                                       animated:YES];
                                          }]];
 
-    if (self.contactsViewHelper.contactsManager.isSystemContactsAuthorized) {
-        // Invite Contacts
-        [staticSection
-            addItem:[OWSTableItem
-                        disclosureItemWithText:NSLocalizedString(@"INVITE_FRIENDS_CONTACT_TABLE_BUTTON",
-                                                   @"Label for the cell that presents the 'invite contacts' workflow.")
-                               customRowHeight:self.actionCellHeight
-                                   actionBlock:^{
-                                       [weakSelf presentInviteFlow];
-                                   }]];
-    }
+//    if (self.contactsViewHelper.contactsManager.isSystemContactsAuthorized) {
+//        // Invite Contacts
+//        [staticSection
+//            addItem:[OWSTableItem
+//                        disclosureItemWithText:NSLocalizedString(@"INVITE_FRIENDS_CONTACT_TABLE_BUTTON",
+//                                                   @"Label for the cell that presents the 'invite contacts' workflow.")
+//                               customRowHeight:self.actionCellHeight
+//                                   actionBlock:^{
+//                                       [weakSelf presentInviteFlow];
+//                                   }]];
+//    }
     [contents addSection:staticSection];
 
     BOOL hasSearchText = [self.searchBar text].length > 0;
