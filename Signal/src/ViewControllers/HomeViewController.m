@@ -530,7 +530,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 
     if (!self.viewHasEverAppeared) {
         self.viewHasEverAppeared = YES;
-        [self displayAnyUnseenUpgradeExperience];
+//        [self displayAnyUnseenUpgradeExperience];
     }
 }
 
