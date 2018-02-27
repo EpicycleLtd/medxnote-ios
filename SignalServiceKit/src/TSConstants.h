@@ -27,7 +27,7 @@ typedef enum { kSMSVerification, kPhoneNumberVerification } VerificationTranspor
 #define textSecureWebSocketAPI @"wss://test1.textsecure.medx.im/v1/websocket/"
 #define textSecureServerURL @"https://test1.textsecure.medx.im/"
 //#define textSecureCDNServerURL @"https://cdn.signal.org"
-#define textSecureCDNServerURL @"https://d34fxt4breb67q.cloudfront.net"
+#define textSecureCDNServerURL @"https://s3.amazonaws.com/medxtest1profiles/"
 #define textSecureServiceReflectorHost @"signal-reflector-meek.appspot.com"
 #define textSecureCDNReflectorHost @"signal-cdn-reflector.appspot.com"
 
