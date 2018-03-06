@@ -40,6 +40,7 @@
         self.results = [NSMutableArray new];
         self.memberNameCache = [NSMutableDictionary new];
         [[UITextField appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]] setDefaultTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]}];
+        [[UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]] setTintColor:[UIColor whiteColor]];
         [self setupSearch];
     }
     return self;
