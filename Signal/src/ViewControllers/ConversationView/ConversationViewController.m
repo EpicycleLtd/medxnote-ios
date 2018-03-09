@@ -1362,6 +1362,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 #pragma mark - Inline Keyboard
 
 - (BOOL)showInlineKeyboardIfNeeded {
+    if (self.viewItems.count == 0) { return false; }
     ConversationViewItem *viewItem = [self viewItemForIndex:(NSInteger)self.viewItems.count-1];
     if ([viewItem.interaction isKindOfClass:[TSIncomingMessage class]] && [(TSIncomingMessage*)viewItem.interaction predefinedAnswers]) {
         TSIncomingMessage *interaction = (TSIncomingMessage *)viewItem.interaction;
