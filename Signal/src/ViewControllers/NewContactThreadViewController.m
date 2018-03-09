@@ -525,15 +525,15 @@ NS_ASSUME_NONNULL_BEGIN
                                                  [weakSelf newConversationWithRecipientId:phoneNumber];
                                              }]];
         } else {
-            NSString *text = [NSString stringWithFormat:NSLocalizedString(@"SEND_INVITE_VIA_SMS_BUTTON_FORMAT",
-                                                            @"Text for button to send a Signal invite via SMS. %@ is "
-                                                            @"placeholder for the receipient's phone number."),
-                                       phoneNumber];
-            [phoneNumbersSection addItem:[OWSTableItem disclosureItemWithText:text
-                                                              customRowHeight:self.actionCellHeight
-                                                                  actionBlock:^{
-                                                                      [weakSelf sendTextToPhoneNumber:phoneNumber];
-                                                                  }]];
+//            NSString *text = [NSString stringWithFormat:NSLocalizedString(@"SEND_INVITE_VIA_SMS_BUTTON_FORMAT",
+//                                                            @"Text for button to send a Signal invite via SMS. %@ is "
+//                                                            @"placeholder for the receipient's phone number."),
+//                                       phoneNumber];
+//            [phoneNumbersSection addItem:[OWSTableItem disclosureItemWithText:text
+//                                                              customRowHeight:self.actionCellHeight
+//                                                                  actionBlock:^{
+//                                                                      [weakSelf sendTextToPhoneNumber:phoneNumber];
+//                                                                  }]];
         }
     }
     if (searchPhoneNumbers.count > 0) {
@@ -599,34 +599,34 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     // Invitation offers for non-signal contacts
-    OWSTableSection *inviteeSection = [OWSTableSection new];
-    inviteeSection.headerTitle = NSLocalizedString(@"COMPOSE_MESSAGE_INVITE_SECTION_TITLE",
-        @"Table section header for invite listing when composing a new message");
-    NSArray<Contact *> *invitees = [helper nonSignalContactsMatchingSearchString:[self.searchBar text]];
-    for (Contact *contact in invitees) {
-        hasSearchResults = YES;
-
-        OWSAssert(contact.parsedPhoneNumbers.count > 0);
-        // TODO: Should we invite all of their phone numbers?
-        PhoneNumber *phoneNumber = contact.parsedPhoneNumbers[0];
-        NSString *displayName = contact.fullName;
-        if (displayName.length < 1) {
-            displayName = phoneNumber.toE164;
-        }
-
-        NSString *text = [NSString stringWithFormat:NSLocalizedString(@"SEND_INVITE_VIA_SMS_BUTTON_FORMAT",
-                                                        @"Text for button to send a Signal invite via SMS. %@ is "
-                                                        @"placeholder for the receipient's phone number."),
-                                   displayName];
-        [inviteeSection addItem:[OWSTableItem disclosureItemWithText:text
-                                                     customRowHeight:self.actionCellHeight
-                                                         actionBlock:^{
-                                                             [weakSelf sendTextToPhoneNumber:phoneNumber.toE164];
-                                                         }]];
-    }
-    if (invitees.count > 0) {
-        [sections addObject:inviteeSection];
-    }
+//    OWSTableSection *inviteeSection = [OWSTableSection new];
+//    inviteeSection.headerTitle = NSLocalizedString(@"COMPOSE_MESSAGE_INVITE_SECTION_TITLE",
+//        @"Table section header for invite listing when composing a new message");
+//    NSArray<Contact *> *invitees = [helper nonSignalContactsMatchingSearchString:[self.searchBar text]];
+//    for (Contact *contact in invitees) {
+//        hasSearchResults = YES;
+//
+//        OWSAssert(contact.parsedPhoneNumbers.count > 0);
+//        // TODO: Should we invite all of their phone numbers?
+//        PhoneNumber *phoneNumber = contact.parsedPhoneNumbers[0];
+//        NSString *displayName = contact.fullName;
+//        if (displayName.length < 1) {
+//            displayName = phoneNumber.toE164;
+//        }
+//
+//        NSString *text = [NSString stringWithFormat:NSLocalizedString(@"SEND_INVITE_VIA_SMS_BUTTON_FORMAT",
+//                                                        @"Text for button to send a Signal invite via SMS. %@ is "
+//                                                        @"placeholder for the receipient's phone number."),
+//                                   displayName];
+//        [inviteeSection addItem:[OWSTableItem disclosureItemWithText:text
+//                                                     customRowHeight:self.actionCellHeight
+//                                                         actionBlock:^{
+//                                                             [weakSelf sendTextToPhoneNumber:phoneNumber.toE164];
+//                                                         }]];
+//    }
+//    if (invitees.count > 0) {
+//        [sections addObject:inviteeSection];
+//    }
 
 
     if (!hasSearchResults) {
