@@ -233,6 +233,10 @@
     if (!sender || ![sender isKindOfClass:[UIDatePicker class]])
         return;
     UIDatePicker *datePicker = (UIDatePicker *)sender;
+    if (datePicker.datePickerMode == UIDatePickerModeCountDownTimer && datePicker.countDownDuration >= self.maximumCountdown) {
+        [datePicker setCountDownDuration:self.maximumCountdown];
+        return;
+    }
     self.selectedDate = datePicker.date;
     self.countDownDuration = datePicker.countDownDuration;
 }

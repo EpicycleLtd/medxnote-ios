@@ -36,6 +36,7 @@ typedef void(^ActionDateCancelBlock)(ActionSheetDatePicker *picker);
 
 @property (nonatomic, retain) NSDate *minimumDate; // specify min/max date range. default is nil. When min > max, the values are ignored. Ignored in countdown timer mode
 @property (nonatomic, retain) NSDate *maximumDate; // default is nil
+@property (nonatomic) NSTimeInterval maximumCountdown; // only used for countdown mode
 
 @property (nonatomic) NSInteger minuteInterval; // display minutes wheel with interval. interval must be evenly divided into 60. default is 1. min is 1, max is 30
 

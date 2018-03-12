@@ -240,6 +240,7 @@ NS_ASSUME_NONNULL_BEGIN
     } origin:self.view];
     // preselect currently selected time
     datePicker.countDownDuration = [MedxPasscodeManager inactivityTimeout].integerValue;
+    datePicker.maximumCountdown = 30*60;
     
     // done button
     UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:nil action:nil];
