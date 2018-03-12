@@ -25,6 +25,7 @@
 #import "VersionMigrations.h"
 #import "ViewControllerUtils.h"
 #import <AxolotlKit/SessionCipher.h>
+#import <Reachability/Reachability.h>
 #import <SignalServiceKit/OWSBatchMessageProcessor.h>
 #import <SignalServiceKit/OWSDisappearingMessagesJob.h>
 #import <SignalServiceKit/OWSFailedAttachmentDownloadsJob.h>
@@ -155,6 +156,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
     }
 
     [self prepareScreenProtection];
+    [self setupReachability];
 
     self.contactsSyncing = [[OWSContactsSyncing alloc] initWithContactsManager:[Environment getCurrent].contactsManager
                                                                identityManager:[OWSIdentityManager sharedManager]
@@ -277,6 +279,22 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
         [VersionMigrations runSafeBlockingMigrations];
     }];
     [[Environment getCurrent].contactsManager startObserving];
+}
+
+- (void)setupReachability {
+    Reachability* reach = [Reachability reachabilityWithHostname:@"www.google.com"];
+    reach.reachableBlock = ^(Reachability *reachability) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSLog(@"REACHABLE");
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"InternetNowReachable" object:nil];
+        });
+    };
+    
+    reach.unreachableBlock = ^(Reachability *reachability) {
+        NSLog(@"UNREACHABLE");
+    };
+    
+    [reach startNotifier];
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken

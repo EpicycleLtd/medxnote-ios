@@ -51,6 +51,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 @property (nonatomic) BOOL isAppInBackground;
 @property (nonatomic) BOOL shouldObserveDBModifications;
 @property (nonatomic) BOOL hasBeenPresented;
+@property (nonatomic) BOOL isSendingUnsentMessages;
 
 // Dependencies
 
@@ -281,6 +282,11 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
         && (self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable)) {
         [self registerForPreviewingWithDelegate:self sourceView:self.tableView];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(sendUnsentMessages)
+                                                 name:@"InternetNowReachable"
+                                               object:nil];
 
     [self updateBarButtonItems];
     [self setupSearch];
@@ -532,6 +538,50 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
         self.viewHasEverAppeared = YES;
 //        [self displayAnyUnseenUpgradeExperience];
     }
+}
+
+- (void)sendUnsentMessages {
+    if (self.isSendingUnsentMessages) { return; }
+    self.isSendingUnsentMessages = true;
+    DDLogInfo(@"%@ About to check if there are unsent messages", self.logTag);
+    
+    dispatch_group_t group = dispatch_group_create();
+    
+    for (NSUInteger i = 0; i < [self.threadMappings numberOfItemsInSection:0]; i++) {
+        TSThread *thread = [self threadForIndexPath:[NSIndexPath indexPathForRow:(NSInteger)i inSection:0]];
+        [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+            YapDatabaseViewMappings *messageMappings =
+            [[YapDatabaseViewMappings alloc] initWithGroups:@[thread.uniqueId] view:TSMessageDatabaseViewExtensionName];
+            [messageMappings updateWithTransaction:transaction];
+            YapDatabaseViewTransaction *viewTransaction = [transaction ext:TSMessageDatabaseViewExtensionName];
+            NSParameterAssert(viewTransaction != nil);
+            NSParameterAssert(messageMappings != nil);
+            
+            // check all messages in this thread
+            NSUInteger numberOfItemsInSection = [messageMappings numberOfItemsInSection:0];
+            for (NSUInteger j = 0; j<numberOfItemsInSection; j++) {
+                TSInteraction *interaction = [viewTransaction objectAtRow:j inSection:0 withMappings:messageMappings];
+                if (interaction.interactionType != OWSInteractionType_OutgoingMessage) { continue; }
+                TSOutgoingMessage *message = (TSOutgoingMessage *)interaction;
+                if (message.messageState != TSOutgoingMessageStateUnsent) { continue; }
+                dispatch_group_enter(group);
+                [[Environment getCurrent].messageSender enqueueMessage:message
+                                                               success:^{
+                                                                   DDLogInfo(@"%@ Successfully resent failed message.", self.logTag);
+                                                                   dispatch_group_leave(group);
+                                                               }
+                                                               failure:^(NSError *_Nonnull error) {
+                                                                   DDLogWarn(@"%@ Failed to send message with error: %@", self.logTag, error);
+                                                                   dispatch_group_leave(group);
+                                                               }];
+            }
+        }];
+    }
+    
+    dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        DDLogInfo(@"%@ Successfully resent ALL failed messages.", self.logTag);
+        self.isSendingUnsentMessages = false;
+    });
 }
 
 #pragma mark - startup
