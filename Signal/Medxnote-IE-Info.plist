@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>${PRODUCT_NAME} Test</string>
+	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -69,9 +69,9 @@
 	<key>MedxCdnUrl</key>
 	<string>https://s3.amazonaws.com/medxtest1profiles/</string>
 	<key>MedxWebserverUrl</key>
-	<string>https://test1.textsecure.medx.im/</string>
+	<string>https://global2.textsecure.medx.im/</string>
 	<key>MedxWebsocketApi</key>
-	<string>wss://test1.textsecure.medx.im/v1/websocket/</string>
+	<string>wss://global2.textsecure.medx.im/v1/websocket/</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
