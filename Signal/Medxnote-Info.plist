@@ -66,12 +66,27 @@
 	<string>public.app-category.social-networking</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MedxCdnUrl</key>
+	<string>https://s3.amazonaws.com/medxtest1profiles/</string>
+	<key>MedxWebserverUrl</key>
+	<string>https://test1.textsecure.medx.im/</string>
+	<key>MedxWebsocketApi</key>
+	<string>wss://test1.textsecure.medx.im/v1/websocket/</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>amazonaws.com</key>
 			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
+				<false/>
+			</dict>
+			<key>cloudfront.net</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
 				<key>NSIncludesSubdomains</key>
 				<true/>
 				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>

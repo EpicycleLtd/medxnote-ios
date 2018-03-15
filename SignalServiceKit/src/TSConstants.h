@@ -24,10 +24,13 @@ typedef enum { kSMSVerification, kPhoneNumberVerification } VerificationTranspor
 //#ifndef DEBUG
 
 // Production
-#define textSecureWebSocketAPI @"wss://test1.textsecure.medx.im/v1/websocket/"
-#define textSecureServerURL @"https://test1.textsecure.medx.im/"
+#define textSecureWebSocketAPI [NSBundle mainBundle].infoDictionary[@"MedxWebsocketApi"]
+#define textSecureServerURL [NSBundle mainBundle].infoDictionary[@"MedxWebserverUrl"]
+#define textSecureCDNServerURL [NSBundle mainBundle].infoDictionary[@"MedxCdnUrl"]
+//#define textSecureWebSocketAPI @"wss://test1.textsecure.medx.im/v1/websocket/"
+//#define textSecureServerURL @"https://test1.textsecure.medx.im/"
 //#define textSecureCDNServerURL @"https://cdn.signal.org"
-#define textSecureCDNServerURL @"https://s3.amazonaws.com/medxtest1profiles/"
+//#define textSecureCDNServerURL @"https://s3.amazonaws.com/medxtest1profiles/"
 #define textSecureServiceReflectorHost @"signal-reflector-meek.appspot.com"
 #define textSecureCDNReflectorHost @"signal-cdn-reflector.appspot.com"
 

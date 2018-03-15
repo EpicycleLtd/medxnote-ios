@@ -362,6 +362,7 @@
 		B7284CB9202A4D10002581D0 /* UIColor+HexString.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CB8202A4D10002581D0 /* UIColor+HexString.m */; };
 		B7284CBC202A5420002581D0 /* PredefinedAnswerItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */; };
 		B7284CBF202A5594002581D0 /* PredefinedAnswerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */; };
+		B7996AD1205B1816006E4802 /* textsecure.cer in Resources */ = {isa = PBXBuildFile; fileRef = B7996AD0205B1816006E4802 /* textsecure.cer */; };
 		B7AD0292201620D100A7DB4F /* Medxnote.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7AD0291201620D100A7DB4F /* Medxnote.xcassets */; };
 		B7AD029720163B3A00A7DB4F /* MedxPasscodeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */; };
 		B7AD029A201643AB00A7DB4F /* ActivityWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD0299201643AA00A7DB4F /* ActivityWindow.m */; };
@@ -890,6 +891,7 @@
 		B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswerItem.m; sourceTree = "<group>"; };
 		B7284CBD202A5594002581D0 /* PredefinedAnswerSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PredefinedAnswerSection.h; sourceTree = "<group>"; };
 		B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswerSection.m; sourceTree = "<group>"; };
+		B7996AD0205B1816006E4802 /* textsecure.cer */ = {isa = PBXFileReference; lastKnownFileType = file; name = textsecure.cer; path = Signal/Certificates/Test/textsecure.cer; sourceTree = SOURCE_ROOT; };
 		B7AD0291201620D100A7DB4F /* Medxnote.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Medxnote.xcassets; sourceTree = "<group>"; };
 		B7AD029520163B3900A7DB4F /* MedxPasscodeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MedxPasscodeManager.h; sourceTree = "<group>"; };
 		B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MedxPasscodeManager.m; sourceTree = "<group>"; };
@@ -1729,7 +1731,7 @@
 		B6C6AE521A305ED1006BAF8F /* Certificates */ = {
 			isa = PBXGroup;
 			children = (
-				B6C6AE531A305ED1006BAF8F /* redphone.cer */,
+				B7996AD2205B1902006E4802 /* Test */,
 			);
 			path = Certificates;
 			sourceTree = "<group>";
@@ -1763,6 +1765,15 @@
 				B7284CB8202A4D10002581D0 /* UIColor+HexString.m */,
 			);
 			path = InlineKeyboard;
+			sourceTree = "<group>";
+		};
+		B7996AD2205B1902006E4802 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				B7996AD0205B1816006E4802 /* textsecure.cer */,
+				B6C6AE531A305ED1006BAF8F /* redphone.cer */,
+			);
+			path = Test;
 			sourceTree = "<group>";
 		};
 		B7AD029E201645C700A7DB4F /* Passcode */ = {
@@ -2105,6 +2116,7 @@
 				B67EBF5D19194AC60084CCFD /* Settings.bundle in Resources */,
 				E1370BE418A0686C00826894 /* outring.mp3 in Resources */,
 				B10C9B601A7049EC00ECA2BF /* pause_icon@2x.png in Resources */,
+				B7996AD1205B1816006E4802 /* textsecure.cer in Resources */,
 				B6C6AE551A305ED1006BAF8F /* redphone.cer in Resources */,
 				E1370BE518A0686C00826894 /* r.caf in Resources */,
 				B7AD0292201620D100A7DB4F /* Medxnote.xcassets in Resources */,
