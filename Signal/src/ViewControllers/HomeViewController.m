@@ -29,8 +29,12 @@
 #import <SignalServiceKit/Threading.h>
 #import <YapDatabase/YapDatabaseViewChange.h>
 #import <YapDatabase/YapDatabaseViewConnection.h>
+#import <YapDatabase/YapDatabaseFilteredView.h>
 
-typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
+
+NSString *const MedxQDatabaseViewExtensionName = @"medxqview";
+
+typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState };
 
 @interface HomeViewController () <UITableViewDelegate, UITableViewDataSource, UIViewControllerPreviewingDelegate>
 
@@ -186,6 +190,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
         @"INBOX_VIEW_ARCHIVE_MODE_REMINDER", @"Label reminding the user that they are in archive mode.");
     __weak HomeViewController *weakSelf = self;
     archiveReminderView.tapAction = ^{
+        weakSelf.segmentedControl.selectedSegmentIndex = 0;
         [weakSelf showInboxGrouping];
     };
     [self.view addSubview:archiveReminderView];
@@ -266,7 +271,8 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 
     self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[
         NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil),
-        NSLocalizedString(@"ARCHIVE_NAV_BAR_TITLE", nil)
+        NSLocalizedString(@"ARCHIVE_NAV_BAR_TITLE", nil),
+        @"MedxQ",
     ]];
 
     [self.segmentedControl addTarget:self
@@ -395,10 +401,18 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 
 - (void)swappedSegmentedControl
 {
-    if (self.segmentedControl.selectedSegmentIndex == 0) {
-        [self showInboxGrouping];
-    } else {
-        [self showArchiveGrouping];
+    switch (self.segmentedControl.selectedSegmentIndex) {
+        case 0:
+            [self showInboxGrouping];
+            break;
+        case 1:
+            [self showArchiveGrouping];
+            break;
+        case 2:
+            [self showMedxQGrouping];
+            break;
+        default:
+            break;
     }
 }
 
@@ -981,11 +995,22 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
     self.viewingThreadsIn = kArchiveState;
 }
 
+- (void)showMedxQGrouping {
+    self.viewingThreadsIn = kMedxQState;
+}
+
 - (void)setViewingThreadsIn:(CellState)viewingThreadsIn
 {
     BOOL didChange = _viewingThreadsIn != viewingThreadsIn;
     _viewingThreadsIn = viewingThreadsIn;
-    self.segmentedControl.selectedSegmentIndex = (viewingThreadsIn == kInboxState ? 0 : 1);
+//    switch (viewingThreadsIn) {
+//        case kInboxState:
+//            self.segmentedControl.selectedSegmentIndex = 0;
+//        case kArchiveState:
+//            self.segmentedControl.selectedSegmentIndex = 1;
+//        case kMedxQState:
+//            self.segmentedControl.selectedSegmentIndex = 2;
+//    }
     if (didChange || !self.threadMappings) {
         [self updateMappings];
     } else {
@@ -996,15 +1021,14 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
 
 - (NSString *)currentGrouping
 {
-    return self.viewingThreadsIn == kInboxState ? TSInboxGroup : TSArchiveGroup;
+    return self.viewingThreadsIn == kArchiveState ? TSArchiveGroup : TSInboxGroup;
 }
 
 - (void)updateMappings
 {
     OWSAssert([NSThread isMainThread]);
-
     self.threadMappings = [[YapDatabaseViewMappings alloc] initWithGroups:@[ self.currentGrouping ]
-                                                                     view:TSThreadDatabaseViewExtensionName];
+                                                                     view:self.viewingThreadsIn == kMedxQState ? MedxQDatabaseViewExtensionName : TSThreadDatabaseViewExtensionName];
     [self.threadMappings setIsReversed:YES forGroup:self.currentGrouping];
 
     [self resetMappings];
@@ -1023,6 +1047,12 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState };
         YapDatabase *database = TSStorageManager.sharedManager.database;
         _uiDatabaseConnection = [database newConnection];
         [_uiDatabaseConnection beginLongLivedReadTransaction];
+        
+        YapDatabaseViewFiltering *filtering = [YapDatabaseViewFiltering withObjectBlock:^BOOL(YapDatabaseReadTransaction * _Nonnull transaction, NSString * _Nonnull group, NSString * _Nonnull collection, NSString * _Nonnull key, id  _Nonnull object) {
+            return [[(TSThread *)object name] hasPrefix:@"@"];
+        }];
+        YapDatabaseFilteredView *view = [[YapDatabaseFilteredView alloc] initWithParentViewName:TSThreadDatabaseViewExtensionName filtering:filtering versionTag:@"0"];
+        [_uiDatabaseConnection.database registerExtension:view withName:MedxQDatabaseViewExtensionName];
     }
     return _uiDatabaseConnection;
 }
