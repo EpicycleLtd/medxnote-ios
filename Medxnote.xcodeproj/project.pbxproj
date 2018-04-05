@@ -4530,7 +4530,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C57BF498BE051E36E8F85554 /* Pods-Medxnote.debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = MedxnoteAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MedxnoteUKAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Signal/Signal.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -4591,7 +4591,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BE1E7FA894E7997EAAA4025 /* Pods-Medxnote.test.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = MedxnoteAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MedxnoteUKAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Signal/Signal.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -4652,7 +4652,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2C10CCC00E1F55286864DFC9 /* Pods-Medxnote.app store release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = MedxnoteAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MedxnoteUKAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Signal/Signal.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
