@@ -145,6 +145,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                             actionBlock:^{
                                                                 [weakSelf showTimeoutOptions];
                                                             }]];
+    [screenSecuritySection addItem:[OWSTableItem disclosureItemWithText:@"Change Passcode"
+                                                            actionBlock:^{
+                                                                [weakSelf.passcodeHelper initiateAction:PasscodeHelperActionChangePasscode from:weakSelf completion:^{
+                                                                    //
+                                                                }];
+                                                            }]];
     [contents addSection:screenSecuritySection];
 }
 
