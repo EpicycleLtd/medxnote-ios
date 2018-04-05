@@ -272,7 +272,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState 
     self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[
         NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil),
         NSLocalizedString(@"ARCHIVE_NAV_BAR_TITLE", nil),
-        @"MedxQ",
+//        @"MedxQ", // disabling for now, just uncomment this line to show MedxQ tab
     ]];
 
     [self.segmentedControl addTarget:self

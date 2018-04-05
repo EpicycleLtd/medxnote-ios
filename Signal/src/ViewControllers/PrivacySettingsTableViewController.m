@@ -54,17 +54,17 @@ NS_ASSUME_NONNULL_BEGIN
 //                                                                   [weakSelf showBlocklist];
 //                                                               }],
 //                                  ]]];
-
-    OWSTableSection *readReceiptsSection = [OWSTableSection new];
-    readReceiptsSection.footerTitle = NSLocalizedString(
-        @"SETTINGS_READ_RECEIPTS_SECTION_FOOTER", @"An explanation of the 'read receipts' setting.");
-    [readReceiptsSection
-        addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"SETTINGS_READ_RECEIPT",
-                                                     @"Label for the 'read receipts' setting.")
-                                            isOn:[OWSReadReceiptManager.sharedManager areReadReceiptsEnabled]
-                                          target:weakSelf
-                                        selector:@selector(didToggleReadReceiptsSwitch:)]];
-    [contents addSection:readReceiptsSection];
+//
+//    OWSTableSection *readReceiptsSection = [OWSTableSection new];
+//    readReceiptsSection.footerTitle = NSLocalizedString(
+//        @"SETTINGS_READ_RECEIPTS_SECTION_FOOTER", @"An explanation of the 'read receipts' setting.");
+//    [readReceiptsSection
+//        addItem:[OWSTableItem switchItemWithText:NSLocalizedString(@"SETTINGS_READ_RECEIPT",
+//                                                     @"Label for the 'read receipts' setting.")
+//                                            isOn:[OWSReadReceiptManager.sharedManager areReadReceiptsEnabled]
+//                                          target:weakSelf
+//                                        selector:@selector(didToggleReadReceiptsSwitch:)]];
+//    [contents addSection:readReceiptsSection];
 
     OWSTableSection *screenSecuritySection = [OWSTableSection new];
     screenSecuritySection.headerTitle = NSLocalizedString(@"SETTINGS_SECURITY_TITLE", @"Section header");
