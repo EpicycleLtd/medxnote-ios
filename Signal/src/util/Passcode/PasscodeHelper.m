@@ -11,6 +11,7 @@
 #import "UIViewController+Medxnote.h"
 #import "TOPasscodeView.h"
 #import "TOPasscodeInputField.h"
+#import "TOPasscodeKeypadView.h"
 
 @import LocalAuthentication;
 
@@ -24,6 +25,7 @@
 @property PasscodeHelperAction action;
 @property LAContext *authContext;
 //@property NSSet <NSString *> *commonPasswords;
+@property (weak, nonatomic) TOPasscodeViewController *passcodeView;
 
 @end
 
@@ -81,6 +83,14 @@
     vc.passcodeView.keypadButtonHighlightedTextColor = [UIColor lightGrayColor];
     vc.passcodeView.inputProgressViewTintColor = [UIColor whiteColor];
     vc.passcodeView.inputField.keyboardAppearance = UIKeyboardAppearanceLight;
+    
+    // add delete
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button setTitle:@"Delete" forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(deleteTapped) forControlEvents:UIControlEventTouchUpInside];
+    vc.passcodeView.keypadView.rightAccessoryView = button;
+    self.passcodeView = vc;
+    
     if (self.cancelDisabled) {
         [vc.cancelButton setTitle:@"Restart" forState:UIControlStateNormal];
     }
@@ -137,6 +147,10 @@
 }
 
 #pragma mark - TOPasscodeViewController
+
+- (void)deleteTapped {
+    [self.passcodeView.passcodeView deleteLastPasscodeCharacterAnimated:true];
+}
 
 - (NSString *)isCodeStrong:(NSString *)code {
     // check length
