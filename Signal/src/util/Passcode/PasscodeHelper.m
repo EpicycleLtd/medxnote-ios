@@ -84,18 +84,19 @@
     vc.passcodeView.inputProgressViewTintColor = [UIColor whiteColor];
     vc.passcodeView.inputField.keyboardAppearance = UIKeyboardAppearanceLight;
     
-    // add delete
-    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    [button setTitle:@"Delete" forState:UIControlStateNormal];
-    [button addTarget:self action:@selector(deleteTapped) forControlEvents:UIControlEventTouchUpInside];
-    vc.passcodeView.keypadView.rightAccessoryView = button;
-    self.passcodeView = vc;
-    
     if (self.cancelDisabled) {
         [vc.cancelButton setTitle:@"Restart" forState:UIControlStateNormal];
     }
     
-    vc.cancelButton.hidden = _action == PasscodeHelperActionCheckPasscode || _action == PasscodeHelperActionChangePasscode;
+    vc.cancelButton.hidden = _action == PasscodeHelperActionCheckPasscode;
+    if (vc.cancelButton.hidden) {
+        // add delete
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        [button setTitle:@"Delete" forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(deleteTapped) forControlEvents:UIControlEventTouchUpInside];
+        vc.passcodeView.keypadView.rightAccessoryView = button;
+        self.passcodeView = vc;
+    }
     switch (self.action) {
         case PasscodeHelperActionChangePasscode:
             switch (_attempt) {
