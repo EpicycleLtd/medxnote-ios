@@ -282,7 +282,7 @@
 - (void)didPerformBiometricValidationRequestInPasscodeViewController:(TOPasscodeViewController *)passcodeViewController {
     LAContext *myContext = [[LAContext alloc] init];
     NSError *authError = nil;
-    NSString *reasonString = @"Medxnote uses biometrics for quick and secure access to the app";
+    NSString *reasonString = @"Authentication required to proceed";
     __weak typeof(self) weakSelf = self;
     if ([myContext canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&authError]) {
         [myContext evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
