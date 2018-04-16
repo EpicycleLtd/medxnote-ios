@@ -78,8 +78,7 @@ NSString *const TSStorageManagerAppUpgradeNagDate = @"TSStorageManagerAppUpgrade
     }
 
     ATAppUpdater *updater = [ATAppUpdater sharedUpdater];
-    [updater setAlertTitle:NSLocalizedString(
-                               @"APP_UPDATE_NAG_ALERT_TITLE", @"Title for the 'new app version available' alert.")];
+    [updater setAlertTitle:@"A new version of Medxnote is available"];
     [updater setAlertMessage:NSLocalizedString(@"APP_UPDATE_NAG_ALERT_MESSAGE_FORMAT",
                                  @"Message format for the 'new app version available' alert. Embeds: {{The latest app "
                                  @"version number.}}.")];
