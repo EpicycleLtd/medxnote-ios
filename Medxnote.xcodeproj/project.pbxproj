@@ -940,6 +940,9 @@
 		B7AD029A201643AB00A7DB4F /* ActivityWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD0299201643AA00A7DB4F /* ActivityWindow.m */; };
 		B7AD029D2016449A00A7DB4F /* PasscodeHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD029C2016449A00A7DB4F /* PasscodeHelper.m */; };
 		B7AD02A12016460200A7DB4F /* UIViewController+Medxnote.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD029F2016460200A7DB4F /* UIViewController+Medxnote.m */; };
+		B7BA2EA820874F3300DC074E /* MedxSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = B7BA2EA720874F3300DC074E /* MedxSearchBar.m */; };
+		B7BA2EA920874F3300DC074E /* MedxSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = B7BA2EA720874F3300DC074E /* MedxSearchBar.m */; };
+		B7BA2EAA20874F3300DC074E /* MedxSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = B7BA2EA720874F3300DC074E /* MedxSearchBar.m */; };
 		B90418E6183E9DD40038554A /* DateUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B90418E5183E9DD40038554A /* DateUtil.m */; };
 		B97940271832BD2400BD66CB /* UIUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B97940261832BD2400BD66CB /* UIUtil.m */; };
 		B9EB5ABD1884C002007CBB57 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9EB5ABC1884C002007CBB57 /* MessageUI.framework */; };
@@ -1481,6 +1484,8 @@
 		B7AD029C2016449A00A7DB4F /* PasscodeHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PasscodeHelper.m; sourceTree = "<group>"; };
 		B7AD029F2016460200A7DB4F /* UIViewController+Medxnote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+Medxnote.m"; sourceTree = "<group>"; };
 		B7AD02A02016460200A7DB4F /* UIViewController+Medxnote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+Medxnote.h"; sourceTree = "<group>"; };
+		B7BA2EA620874F3200DC074E /* MedxSearchBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MedxSearchBar.h; sourceTree = "<group>"; };
+		B7BA2EA720874F3300DC074E /* MedxSearchBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MedxSearchBar.m; sourceTree = "<group>"; };
 		B90418E4183E9DD40038554A /* DateUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateUtil.h; sourceTree = "<group>"; };
 		B90418E5183E9DD40038554A /* DateUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DateUtil.m; sourceTree = "<group>"; };
 		B97940251832BD2400BD66CB /* UIUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIUtil.h; sourceTree = "<group>"; };
@@ -2393,6 +2398,8 @@
 				B724C4EA201D0F9F004B5803 /* MedxInboxSearchUpdater.m */,
 				B724C4E7201D0F70004B5803 /* SearchResult.h */,
 				B724C4E6201D0F6F004B5803 /* SearchResult.m */,
+				B7BA2EA620874F3200DC074E /* MedxSearchBar.h */,
+				B7BA2EA720874F3300DC074E /* MedxSearchBar.m */,
 			);
 			path = SearchResults;
 			sourceTree = "<group>";
@@ -3536,6 +3543,7 @@
 				B7996BA0205B1DBA006E4802 /* OWSSwiftUtils.swift in Sources */,
 				B7996BA1205B1DBA006E4802 /* OWSContactOffersInteraction.m in Sources */,
 				B7996BA2205B1DBA006E4802 /* HomeViewController.m in Sources */,
+				B7BA2EA920874F3300DC074E /* MedxSearchBar.m in Sources */,
 				B7996BA3205B1DBA006E4802 /* FingerprintViewScanController.m in Sources */,
 				B7996BA4205B1DBA006E4802 /* CropScaleImageViewController.swift in Sources */,
 				B7996BA5205B1DBA006E4802 /* InlineKeyboardCell.m in Sources */,
@@ -3758,6 +3766,7 @@
 				B7996CD3205B1F25006E4802 /* OWSSwiftUtils.swift in Sources */,
 				B7996CD4205B1F25006E4802 /* OWSContactOffersInteraction.m in Sources */,
 				B7996CD5205B1F25006E4802 /* HomeViewController.m in Sources */,
+				B7BA2EAA20874F3300DC074E /* MedxSearchBar.m in Sources */,
 				B7996CD6205B1F25006E4802 /* FingerprintViewScanController.m in Sources */,
 				B7996CD7205B1F25006E4802 /* CropScaleImageViewController.swift in Sources */,
 				B7996CD8205B1F25006E4802 /* InlineKeyboardCell.m in Sources */,
@@ -3980,6 +3989,7 @@
 				34D99C941F2937CC00D284D6 /* OWSSwiftUtils.swift in Sources */,
 				34C42D661F4734ED0072EC04 /* OWSContactOffersInteraction.m in Sources */,
 				34B3F8941E8DF1710035BE1A /* HomeViewController.m in Sources */,
+				B7BA2EA820874F3300DC074E /* MedxSearchBar.m in Sources */,
 				34E8BF381EE9E2FD00F5F4CA /* FingerprintViewScanController.m in Sources */,
 				346B66311F4E29B200E5122F /* CropScaleImageViewController.swift in Sources */,
 				B7284CB4202A4039002581D0 /* InlineKeyboardCell.m in Sources */,
