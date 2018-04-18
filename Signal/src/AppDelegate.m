@@ -959,7 +959,9 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 
     [OWSProfileManager.sharedManager fetchLocalUsersProfile];
     [[OWSReadReceiptManager sharedManager] prepareCachedValues];
-    [OWSReadReceiptManager.sharedManager setAreReadReceiptsEnabled:true]; // enable always
+    if ([TSAccountManager isRegistered]) {
+        [OWSReadReceiptManager.sharedManager setAreReadReceiptsEnabled:true]; // enable always
+    }
 }
 
 - (void)registrationStateDidChange
