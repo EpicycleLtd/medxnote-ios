@@ -6,6 +6,7 @@
 #import "ContactTableViewCell.h"
 #import "ContactsViewHelper.h"
 #import "Environment.h"
+#import "MedxSearchBar.h"
 #import "NewGroupViewController.h"
 #import "NewNonContactConversationViewController.h"
 #import "OWSContactsSearcher.h"
@@ -52,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) UILocalizedIndexedCollation *collation;
 
-@property (nonatomic, readonly) UISearchBar *searchBar;
+@property (nonatomic, readonly) MedxSearchBar *searchBar;
 @property (nonatomic, readonly) NSLayoutConstraint *hideContactsPermissionReminderViewConstraint;
 
 // A list of possible phone numbers parsed from the search text as
@@ -108,7 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
     self.navigationItem.rightBarButtonItem = newGroupButton;
 
     // Search
-    UISearchBar *searchBar = [UISearchBar new];
+    [[UITextField appearanceWhenContainedInInstancesOfClasses:@[[MedxSearchBar class]]] setDefaultTextAttributes:@{NSForegroundColorAttributeName: [UIColor blackColor]}];
+    MedxSearchBar *searchBar = [MedxSearchBar new];
     _searchBar = searchBar;
     searchBar.searchBarStyle = UISearchBarStyleMinimal;
     searchBar.delegate = self;
