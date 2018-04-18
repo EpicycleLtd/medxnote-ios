@@ -125,7 +125,7 @@ NSString *const kProfileView_LastPresentedDate = @"kProfileView_LastPresentedDat
         @"PROFILE_VIEW_NAME_DEFAULT_TEXT", @"Default text for the profile name field of the profile view.");
     nameTextField.delegate = self;
     nameTextField.text = [OWSProfileManager.sharedManager localProfileName];
-    nameTextField.textAlignment = NSTextAlignmentRight;
+    nameTextField.textAlignment = NSTextAlignmentLeft;
     nameTextField.font = [UIFont ows_mediumFontWithSize:fontSizePoints];
     [nameTextField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     [nameRow addSubview:nameTextField];
@@ -183,7 +183,7 @@ NSString *const kProfileView_LastPresentedDate = @"kProfileView_LastPresentedDat
     infoLabel.textAlignment = NSTextAlignmentCenter;
     NSMutableAttributedString *text = [NSMutableAttributedString new];
     [text appendAttributedString:[[NSAttributedString alloc]
-                                  initWithString:NSLocalizedString(@"Your Medxnote Profile will be visible to your contacts, when you initiate new conversations, and when you share it with other users and groups.", @"")
+                                  initWithString:@"Your Medxnote Profile will be visible to your contacts, when you initiate new conversations, and when you share it with other users and groups."
                                          attributes:@{}]];
     /*NSLocalizedString(@"PROFILE_VIEW_PROFILE_DESCRIPTION",
      @"Description of the user profile.")*/
