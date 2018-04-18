@@ -644,7 +644,9 @@ const NSUInteger kOWSProfileManager_MaxAvatarDiameter = 640;
                                                     name:@"Content-Type"];
                         NSData *encryptedAvatarData = [self encryptProfileData:avatarData];
                         OWSAssert(encryptedAvatarData.length > 0);
+
 //                        [formData appendPartWithFormData:encryptedAvatarData name:@"file"];
+
                         [formData appendPartWithFileData:encryptedAvatarData name:@"file" fileName:@"file" mimeType: @"image/jpeg"];
 
                         DDLogVerbose(@"%@ constructed body", self.logTag);
