@@ -969,6 +969,11 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
         [NSUserDefaults.standardUserDefaults setBool:true forKey:kMedxBiometricCheck];
         [NSUserDefaults.standardUserDefaults synchronize];
     }
+    
+    // change setting if user previously had notifications with previews
+    if (Environment.preferences.notificationPreviewType == NotificationNamePreview) {
+        [Environment.preferences setNotificationPreviewType:NotificationNameNoPreview];
+    }
 }
 
 - (void)registrationStateDidChange

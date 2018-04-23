@@ -25,7 +25,7 @@
     OWSPreferences *prefs = [Environment preferences];
     NotificationType selectedNotifType = [prefs notificationPreviewType];
     for (NSNumber *option in
-        @[ @(NotificationNamePreview), @(NotificationNameNoPreview), @(NotificationNoNameNoPreview) ]) {
+        @[ @(NotificationNameNoPreview), @(NotificationNoNameNoPreview) ]) {
         NotificationType notificationType = (NotificationType)option.intValue;
 
         [section addItem:[OWSTableItem itemWithCustomCellBlock:^{
