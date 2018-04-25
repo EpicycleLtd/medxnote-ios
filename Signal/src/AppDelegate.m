@@ -962,6 +962,18 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
     if ([TSAccountManager isRegistered]) {
         [OWSReadReceiptManager.sharedManager setAreReadReceiptsEnabled:true]; // enable always
     }
+    
+    // check if biometrics are available and enable them only this time (for user discoverability)
+    if (self.passcodeHelper.hasBiometrics && ![NSUserDefaults.standardUserDefaults boolForKey:kMedxBiometricCheck]) {
+        [MedxPasscodeManager setAllowBiometricAuthentication:true];
+        [NSUserDefaults.standardUserDefaults setBool:true forKey:kMedxBiometricCheck];
+        [NSUserDefaults.standardUserDefaults synchronize];
+    }
+    
+    // change setting if user previously had notifications with previews
+    if (Environment.preferences.notificationPreviewType == NotificationNamePreview) {
+        [Environment.preferences setNotificationPreviewType:NotificationNameNoPreview];
+    }
 }
 
 - (void)registrationStateDidChange
