@@ -1369,7 +1369,6 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
         self.inlineKeyboard = [[InlineKeyboard alloc] initWithAnswers:interaction.predefinedAnswers];
         self.inlineKeyboard.delegate = self;
         self.inputToolbar.inputTextView.inputView = self.inlineKeyboard.keyboardView;
-        self.inputToolbar.inputTextView.delegate = self;
         [self.inputToolbar.inputTextView reloadInputViews];
         [self.inputToolbar.inputTextView becomeFirstResponder];
         
@@ -1383,13 +1382,11 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 - (void)tappedInlineKeyboardCell:(PredefinedAnswerItem *)item {
     NSString *text = item.command;
     if (text.length > 0) {
-        [JSQSystemSoundPlayer jsq_playMessageSentSound];
         TSOutgoingMessage *message = [ThreadUtil sendMessageWithText:text inThread:self.thread messageSender:self.messageSender];
         [self messageWasSent:message];
         [self.inputToolbar toggleDefaultKeyboard];
         [self.inputToolbar clearTextMessage];
-//        [self clearDraft];
-
+        
         self.inlineKeyboard = nil;
     }
 }
