@@ -7,6 +7,7 @@
 #import "AppUpdateNag.h"
 #import "CodeVerificationViewController.h"
 #import "DebugLogger.h"
+#import "DTTJailbreakDetection.h"
 #import "Environment.h"
 #import "MedxPasscodeManager.h"
 #import "NotificationsManager.h"
@@ -157,6 +158,24 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 
     [self prepareScreenProtection];
     [self setupReachability];
+    
+    // jailbreak
+    if ([DTTJailbreakDetection isJailbroken]) {
+        self.screenProtectionWindow.hidden = NO;
+        self.screenProtectionWindow.userInteractionEnabled = YES;
+        [self.screenProtectionWindow makeKeyAndVisible];
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Error"
+                                                                                 message:@"This app is only supported on unmodified versions of iOS."
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"OK"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^(UIAlertAction *action) {
+                                                                 exit(0);
+                                                             }];
+        [alertController addAction:cancelAction];
+        [self.screenProtectionWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+        return YES;
+    }
 
     self.contactsSyncing = [[OWSContactsSyncing alloc] initWithContactsManager:[Environment getCurrent].contactsManager
                                                                identityManager:[OWSIdentityManager sharedManager]
@@ -495,7 +514,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     DDLogWarn(@"%@ applicationDidBecomeActive.", self.logTag);
 
-    if (getenv("runningTests_dontStartApp")) {
+    if (getenv("runningTests_dontStartApp") || [DTTJailbreakDetection isJailbroken]) {
         return;
     }
     
@@ -915,7 +934,9 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
 - (void)databaseViewRegistrationComplete
 {
     DDLogInfo(@"%@ databaseViewRegistrationComplete", self.logTag);
-
+    
+    if ([DTTJailbreakDetection isJailbroken] || [MedxPasscodeManager isLockoutEnabled]) { return; }
+    
     if ([TSAccountManager isRegistered]) {
         DDLogInfo(@"localNumber: %@", [TSAccountManager localNumber]);
 
