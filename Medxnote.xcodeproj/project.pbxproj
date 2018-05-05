@@ -356,6 +356,12 @@
 		B703C418209DF59A0068C619 /* DTTJailbreakDetection.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C417209DF59A0068C619 /* DTTJailbreakDetection.m */; };
 		B703C419209DF59A0068C619 /* DTTJailbreakDetection.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C417209DF59A0068C619 /* DTTJailbreakDetection.m */; };
 		B703C41A209DF59A0068C619 /* DTTJailbreakDetection.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C417209DF59A0068C619 /* DTTJailbreakDetection.m */; };
+		B703C41D209DFA260068C619 /* QRCode.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B703C41C209DFA260068C619 /* QRCode.storyboard */; };
+		B703C41E209DFA260068C619 /* QRCode.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B703C41C209DFA260068C619 /* QRCode.storyboard */; };
+		B703C41F209DFA260068C619 /* QRCode.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B703C41C209DFA260068C619 /* QRCode.storyboard */; };
+		B703C422209DFA820068C619 /* QRCodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C421209DFA820068C619 /* QRCodeViewController.m */; };
+		B703C423209DFA820068C619 /* QRCodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C421209DFA820068C619 /* QRCodeViewController.m */; };
+		B703C424209DFA820068C619 /* QRCodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C421209DFA820068C619 /* QRCodeViewController.m */; };
 		B724C4E8201D0F70004B5803 /* SearchResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B724C4E6201D0F6F004B5803 /* SearchResult.m */; };
 		B724C4EB201D0F9F004B5803 /* MedxInboxSearchUpdater.m in Sources */ = {isa = PBXBuildFile; fileRef = B724C4EA201D0F9F004B5803 /* MedxInboxSearchUpdater.m */; };
 		B7284CAE202A3DE1002581D0 /* PredefinedAnswers.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CAD202A3DE1002581D0 /* PredefinedAnswers.m */; };
@@ -1454,6 +1460,9 @@
 		B6FE7EB61ADD62FA00A6D22F /* PushKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PushKit.framework; path = System/Library/Frameworks/PushKit.framework; sourceTree = SDKROOT; };
 		B703C416209DF5990068C619 /* DTTJailbreakDetection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTTJailbreakDetection.h; sourceTree = "<group>"; };
 		B703C417209DF59A0068C619 /* DTTJailbreakDetection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTTJailbreakDetection.m; sourceTree = "<group>"; };
+		B703C41C209DFA260068C619 /* QRCode.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = QRCode.storyboard; sourceTree = "<group>"; };
+		B703C420209DFA820068C619 /* QRCodeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QRCodeViewController.h; sourceTree = "<group>"; };
+		B703C421209DFA820068C619 /* QRCodeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QRCodeViewController.m; sourceTree = "<group>"; };
 		B724C4E6201D0F6F004B5803 /* SearchResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchResult.m; sourceTree = "<group>"; };
 		B724C4E7201D0F70004B5803 /* SearchResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchResult.h; sourceTree = "<group>"; };
 		B724C4E9201D0F9F004B5803 /* MedxInboxSearchUpdater.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MedxInboxSearchUpdater.h; sourceTree = "<group>"; };
@@ -1704,6 +1713,7 @@
 			children = (
 				B7284CAB202A3DCC002581D0 /* InlineKeyboard */,
 				B724C4E5201D0F39004B5803 /* SearchResults */,
+				B703C425209DFB530068C619 /* QRCode */,
 				34B3F8341E8DF1700035BE1A /* AboutTableViewController.h */,
 				34B3F8351E8DF1700035BE1A /* AboutTableViewController.m */,
 				34DFCB831E8E04B400053165 /* AddToBlockListViewController.h */,
@@ -2406,6 +2416,16 @@
 			path = Jailbreak;
 			sourceTree = "<group>";
 		};
+		B703C425209DFB530068C619 /* QRCode */ = {
+			isa = PBXGroup;
+			children = (
+				B703C41C209DFA260068C619 /* QRCode.storyboard */,
+				B703C420209DFA820068C619 /* QRCodeViewController.h */,
+				B703C421209DFA820068C619 /* QRCodeViewController.m */,
+			);
+			path = QRCode;
+			sourceTree = "<group>";
+		};
 		B724C4E5201D0F39004B5803 /* SearchResults */ = {
 			isa = PBXGroup;
 			children = (
@@ -2847,6 +2867,7 @@
 				B7996BDB205B1DBA006E4802 /* play_icon.png in Resources */,
 				B7996BDC205B1DBA006E4802 /* audio_pause_button_blue@2x.png in Resources */,
 				B7996BDD205B1DBA006E4802 /* Images.xcassets in Resources */,
+				B703C41E209DFA260068C619 /* QRCode.storyboard in Resources */,
 				B7996BDE205B1DBA006E4802 /* ContactCell.xib in Resources */,
 				B7996BDF205B1DBA006E4802 /* audio_play_button@2x.png in Resources */,
 				B7996BE0205B1DBA006E4802 /* Launch Screen.storyboard in Resources */,
@@ -2898,6 +2919,7 @@
 				B7996D10205B1F25006E4802 /* audio_pause_button_blue@2x.png in Resources */,
 				B7996D37205B1FAD006E4802 /* redphone.cer in Resources */,
 				B7996D11205B1F25006E4802 /* Images.xcassets in Resources */,
+				B703C41F209DFA260068C619 /* QRCode.storyboard in Resources */,
 				B7996D12205B1F25006E4802 /* ContactCell.xib in Resources */,
 				B7996D13205B1F25006E4802 /* audio_play_button@2x.png in Resources */,
 				B7996D14205B1F25006E4802 /* Launch Screen.storyboard in Resources */,
@@ -2949,6 +2971,7 @@
 				AD83FF401A73426500B5C81A /* audio_pause_button_blue@2x.png in Resources */,
 				B66DBF4A19D5BBC8006EA940 /* Images.xcassets in Resources */,
 				4517642A1DE939FD00EDB8B9 /* ContactCell.xib in Resources */,
+				B703C41D209DFA260068C619 /* QRCode.storyboard in Resources */,
 				AD83FF431A73426500B5C81A /* audio_play_button@2x.png in Resources */,
 				45CB2FA81CB7146C00E1B343 /* Launch Screen.storyboard in Resources */,
 				34B3F8781E8DF1700035BE1A /* ContactsPicker.xib in Resources */,
@@ -3527,6 +3550,7 @@
 				B7996B81205B1DBA006E4802 /* PeerConnectionClient.swift in Sources */,
 				B7996B82205B1DBA006E4802 /* SyncPushTokensJob.swift in Sources */,
 				B7996B83205B1DBA006E4802 /* OWSViewController.m in Sources */,
+				B703C423209DFA820068C619 /* QRCodeViewController.m in Sources */,
 				B7996B84205B1DBA006E4802 /* ConversationInputToolbar.m in Sources */,
 				B7996B85205B1DBA006E4802 /* OWS100RemoveTSRecipientsMigration.m in Sources */,
 				B7996B86205B1DBA006E4802 /* UpdateGroupViewController.m in Sources */,
@@ -3751,6 +3775,7 @@
 				B7996CB4205B1F25006E4802 /* PeerConnectionClient.swift in Sources */,
 				B7996CB5205B1F25006E4802 /* SyncPushTokensJob.swift in Sources */,
 				B7996CB6205B1F25006E4802 /* OWSViewController.m in Sources */,
+				B703C424209DFA820068C619 /* QRCodeViewController.m in Sources */,
 				B7996CB7205B1F25006E4802 /* ConversationInputToolbar.m in Sources */,
 				B7996CB8205B1F25006E4802 /* OWS100RemoveTSRecipientsMigration.m in Sources */,
 				B7996CB9205B1F25006E4802 /* UpdateGroupViewController.m in Sources */,
@@ -3975,6 +4000,7 @@
 				458DE9D61DEE3FD00071BB03 /* PeerConnectionClient.swift in Sources */,
 				451DE9FD1DC1A28200810E42 /* SyncPushTokensJob.swift in Sources */,
 				34D99C8C1F27B13B00D284D6 /* OWSViewController.m in Sources */,
+				B703C422209DFA820068C619 /* QRCodeViewController.m in Sources */,
 				34D1F0841F8678AA0066283D /* ConversationInputToolbar.m in Sources */,
 				45666F761D9BFE00008FE134 /* OWS100RemoveTSRecipientsMigration.m in Sources */,
 				340CB2271EAC25820001CAA1 /* UpdateGroupViewController.m in Sources */,

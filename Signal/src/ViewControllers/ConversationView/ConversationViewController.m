@@ -36,6 +36,7 @@
 #import "OWSSystemMessageCell.h"
 #import "OWSUnreadIndicatorCell.h"
 #import "PredefinedAnswerItem.h"
+#import "QRCodeViewController.h"
 #import "Signal-Swift.h"
 #import "SignalKeyingStorage.h"
 #import "TSAttachmentPointer.h"
@@ -138,7 +139,9 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     ConversationCollectionViewDelegate,
     ConversationInputToolbarDelegate,
     GifPickerViewControllerDelegate,
-    InlineKeyboardDelegate>
+    InlineKeyboardDelegate,
+    QRCodeViewDelegate
+>
 
 // Show message info animation
 @property (nullable, nonatomic) UIPercentDrivenInteractiveTransition *showMessageDetailsTransition;
@@ -3355,6 +3358,16 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     OWSAssert(gifImage);
     [gifAction setValue:gifImage forKey:@"image"];
     [actionSheetController addAction:gifAction];
+    UIAlertAction *qrAction =
+    [UIAlertAction actionWithTitle:@"Scan QR Code"
+                             style:UIAlertActionStyleDefault
+                           handler:^(UIAlertAction *_Nonnull action) {
+                               [self showQRCodeScanner];
+                           }];
+    UIImage *qrImage = [UIImage imageNamed:@"actionsheet_qr"];
+    OWSAssert(qrImage);
+    [qrAction setValue:qrImage forKey:@"image"];
+    [actionSheetController addAction:qrAction];
 
     [self dismissKeyBoard];
     [self presentViewController:actionSheetController animated:true completion:nil];
@@ -3584,6 +3597,19 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 - (NSArray<id<UIPreviewActionItem>> *)previewActionItems
 {
     return @[];
+}
+
+#pragma mark - QR Code
+
+- (void)showQRCodeScanner {
+    QRCodeViewController *vc = [QRCodeViewController viewControllerWithDelegate:self];
+    [self presentViewController:vc animated:true completion:nil];
+}
+
+#pragma mark - QR Code Scanning Delegate
+
+- (void)didFinishScanningQRCodeWithString:(NSString *)string {
+    self.inputToolbar.messageText = [self.inputToolbar.messageText stringByAppendingString:string];
 }
 
 #pragma mark - Event Handling
