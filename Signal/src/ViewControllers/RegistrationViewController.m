@@ -329,11 +329,18 @@ NSString *const kKeychainKey_LastRegisteredPhoneNumber = @"kKeychainKey_LastRegi
 #endif
         }
         failure:^(NSError *error) {
-            if (error.code == 400) {
-                [OWSAlerts showAlertWithTitle:NSLocalizedString(@"REGISTRATION_ERROR", nil)
-                                      message:NSLocalizedString(@"REGISTRATION_NON_VALID_NUMBER", nil)];
-            } else {
-                [OWSAlerts showAlertWithTitle:error.localizedDescription message:error.localizedRecoverySuggestion];
+            switch (error.code) {
+                case 400:
+                    [OWSAlerts showAlertWithTitle:NSLocalizedString(@"REGISTRATION_ERROR", nil)
+                                          message:NSLocalizedString(@"REGISTRATION_NON_VALID_NUMBER", nil)];
+                    break;
+                case 403:
+                    [OWSAlerts showAlertWithTitle:NSLocalizedString(@"REGISTRATION_ERROR", nil)
+                                          message:@"Your number is not allowed access the Medxnote service. Please contact your hospital’s Medxnote administrator or niall.rafferty@medxnote.com for sales enquiries."];
+                    break;
+                default:
+                    [OWSAlerts showAlertWithTitle:error.localizedDescription message:error.localizedRecoverySuggestion];
+                    break;
             }
 
             [weakSelf.activateButton setEnabled:YES];
