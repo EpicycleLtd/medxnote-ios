@@ -3359,7 +3359,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     [gifAction setValue:gifImage forKey:@"image"];
     [actionSheetController addAction:gifAction];
     UIAlertAction *qrAction =
-    [UIAlertAction actionWithTitle:@"Scan QR Code"
+    [UIAlertAction actionWithTitle:@"Scan QR Code or Barcode"
                              style:UIAlertActionStyleDefault
                            handler:^(UIAlertAction *_Nonnull action) {
                                [self showQRCodeScanner];

@@ -52,7 +52,18 @@
     dispatch_queue_t dispatchQueue;
     dispatchQueue = dispatch_queue_create("myQueue", NULL);
     [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatchQueue];
-    [captureMetadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeQRCode, AVMetadataObjectTypeCode128Code]];
+    [captureMetadataOutput setMetadataObjectTypes:@[
+                                                    AVMetadataObjectTypeQRCode,
+                                                    AVMetadataObjectTypeCode128Code,
+                                                    AVMetadataObjectTypeCode93Code,
+                                                    AVMetadataObjectTypeCode39Code,
+                                                    AVMetadataObjectTypeCode39Mod43Code,
+                                                    AVMetadataObjectTypeEAN8Code,
+                                                    AVMetadataObjectTypeEAN13Code,
+                                                    AVMetadataObjectTypeUPCECode,
+                                                    AVMetadataObjectTypeITF14Code,
+                                                    AVMetadataObjectTypeInterleaved2of5Code,
+                                                    ]];
     
     _videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_captureSession];
     [_videoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
