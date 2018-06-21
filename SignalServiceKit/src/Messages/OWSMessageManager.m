@@ -311,11 +311,16 @@ NS_ASSUME_NONNULL_BEGIN
                 @"Unexpected profile key length:%lu on message from:%@", (unsigned long)profileKey.length, recipientId);
         }
     }
-
+    
     if (dataMessage.hasGroup) {
         TSGroupThread *_Nullable groupThread =
-            [TSGroupThread threadWithGroupId:dataMessage.group.id transaction:transaction];
-
+        [TSGroupThread threadWithGroupId:dataMessage.group.id transaction:transaction];
+        
+        if (groupThread && dataMessage.group.kicked.count > 0) {
+            [self handleGroupKickMessage:groupThread kicked:dataMessage.group.kicked envelope:envelope transaction:transaction];
+            return;
+        }
+        
         if (!groupThread) {
             // Unknown group.
             if (dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeUpdate) {
@@ -378,6 +383,27 @@ NS_ASSUME_NONNULL_BEGIN
         }];
 }
 
+- (void)handleGroupKickMessage:(TSGroupThread *)groupThread
+                        kicked:(NSArray <NSString *> *)kicked
+                      envelope:(OWSSignalServiceProtosEnvelope *)envelope
+                   transaction:(YapDatabaseReadWriteTransaction *)transaction {
+    // delete thread if current user is kicked
+    NSString *localNumber = [TSAccountManager localNumber];
+    if ([kicked containsObject:localNumber]) {
+        [groupThread removeWithTransaction:transaction];
+        return;
+    }
+    TSGroupModel *model = groupThread.groupModel;
+    NSMutableArray *newIds = model.groupMemberIds.mutableCopy;
+    [newIds removeObjectsInArray:kicked];
+    model.groupMemberIds = newIds.copy;
+    groupThread.groupModel = model;
+    [groupThread saveWithTransaction:transaction];
+    //    message = [[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+    //                                                  inThread:groupThread
+    //                                          groupMetaMessage:TSGroupMessageUpdate];
+    //    [message updateWithCustomMessage:updateGroupInfo transaction:transaction];
+}
 - (id<ProfileManagerProtocol>)profileManager
 {
     return [TextSecureKitEnv sharedEnv].profileManager;
