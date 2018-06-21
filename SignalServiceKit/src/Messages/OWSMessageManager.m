@@ -18,6 +18,7 @@
 #import "OWSIdentityManager.h"
 #import "OWSIncomingMessageFinder.h"
 #import "OWSIncomingSentMessageTranscript.h"
+#import "OWSKickGroupMemberRequestMessage.h"
 #import "OWSMessageSender.h"
 #import "OWSReadReceiptManager.h"
 #import "OWSRecordTranscriptJob.h"
@@ -404,6 +405,38 @@ NS_ASSUME_NONNULL_BEGIN
     //                                          groupMetaMessage:TSGroupMessageUpdate];
     //    [message updateWithCustomMessage:updateGroupInfo transaction:transaction];
 }
+
+- (void)sendGroupKick:(TSGroupThread *)thread
+            recipient:(NSString *)recipientId
+{
+    OWSKickGroupMemberRequestMessage *kickRequestMessage =
+    [[OWSKickGroupMemberRequestMessage alloc] initWithThread:thread groupId:thread.groupModel.groupId];
+    kickRequestMessage.recipientId = recipientId;
+    [self.messageSender enqueueMessage:kickRequestMessage
+                               success:^{
+                                   // TODO: do group update if needed
+////                                   NSString *updateGroupInfo = [thread.groupModel getInfoStringAboutUpdateTo:thread.groupModel contactsManager:self.contactsManager];
+//                                   TSOutgoingMessage *message = [[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+//                                                                                                    inThread:thread
+//                                                                                            groupMetaMessage:TSGroupMessageUpdate];
+////                                   [message updateWithCustomMessage:updateGroupInfo transaction:transaction];
+//                                   // Only send this group update to the requester.
+////                                   [message updateWithSingleGroupRecipient:envelope.source transaction:transaction];
+//
+//                                   // remove kicked user from thread and send update
+//                                   TSGroupModel *model = thread.groupModel;
+//                                   NSMutableArray *newIds = model.groupMemberIds.mutableCopy;
+//                                   [newIds removeObject:recipientId];
+//                                   model.groupMemberIds = newIds.copy;
+//                                   thread.groupModel = model;
+//                                   [self sendGroupUpdateForThread:thread message:message];
+                                   DDLogWarn(@"%@ Successfully sent Group Kick message.", self.logTag);
+                               }
+                               failure:^(NSError *error) {
+                                   DDLogError(@"%@ Failed to send Request Group Info message with error: %@", self.logTag, error);
+                               }];
+}
+
 - (id<ProfileManagerProtocol>)profileManager
 {
     return [TextSecureKitEnv sharedEnv].profileManager;

@@ -308,14 +308,22 @@ NS_ASSUME_NONNULL_BEGIN
                                         [weakSelf showUnblockAlertForRecipientId:recipientId];
                                     }
                                 } else {
-                                    [OWSAlerts
-                                        showAlertWithTitle:
-                                            NSLocalizedString(@"UPDATE_GROUP_CANT_REMOVE_MEMBERS_ALERT_TITLE",
-                                                @"Title for alert indicating that group members can't be removed.")
-                                                   message:NSLocalizedString(
-                                                               @"UPDATE_GROUP_CANT_REMOVE_MEMBERS_ALERT_MESSAGE",
-                                                               @"Title for alert indicating that group members can't "
-                                                               @"be removed.")];
+//                                    [OWSAlerts
+//                                        showAlertWithTitle:
+//                                            NSLocalizedString(@"UPDATE_GROUP_CANT_REMOVE_MEMBERS_ALERT_TITLE",
+//                                                @"Title for alert indicating that group members can't be removed.")
+//                                                   message:NSLocalizedString(
+//                                                               @"UPDATE_GROUP_CANT_REMOVE_MEMBERS_ALERT_MESSAGE",
+//                                                               @"Title for alert indicating that group members can't "
+//                                                               @"be removed.")];
+                                    
+                                    // show kick confirmation
+                                    [OWSAlerts showConfirmationAlertWithTitle:NSLocalizedString(@"Kick", @"")
+                                                                      message:[NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to kick %@?", @""), signalAccount.displayName]
+                                                                 proceedTitle:NSLocalizedString(@"Kick", @"")
+                                                                proceedAction:^(UIAlertAction * _Nonnull action) {
+                                                                    [self kickMember:recipientId];
+                                                                }];
                                 }
                             } else {
                                 [weakSelf removeRecipientId:recipientId];
@@ -325,6 +333,16 @@ NS_ASSUME_NONNULL_BEGIN
     [contents addSection:section];
 
     self.tableViewController.contents = contents;
+}
+
+- (void)kickMember:(NSString *)recipientId {
+    OWSAssert(recipientId.length > 0);
+    [[OWSMessageManager sharedManager] sendGroupKick:_thread recipient:recipientId];
+    // remove recipient from display
+    NSMutableSet *newRecipients = self.memberRecipientIds.mutableCopy;
+    [newRecipients removeObject:recipientId];
+    self.memberRecipientIds = newRecipients.copy;
+    [self updateTableContents];
 }
 
 - (void)showUnblockAlertForSignalAccount:(SignalAccount *)signalAccount
