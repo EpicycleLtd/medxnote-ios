@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
           plaintextData:(NSData *_Nullable)plaintextData
             transaction:(YapDatabaseReadWriteTransaction *)transaction;
 - (void)sendGroupKick:(TSGroupThread *)thread
-            recipient:(NSString *)recipientId;
+            recipient:(NSString *)recipientId
+          transaction:(YapDatabaseReadWriteTransaction *)transaction;
 
 - (NSUInteger)unreadMessagesCount;
 - (NSUInteger)unreadMessagesCountExcept:(TSThread *)thread;

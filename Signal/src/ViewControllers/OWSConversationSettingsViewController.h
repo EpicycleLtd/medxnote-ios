@@ -6,6 +6,8 @@
 #import "OWSTableViewController.h"
 #import <UIKit/UIKit.h>
 
+@class YapDatabaseConnection;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class TSThread;
@@ -15,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id<OWSConversationSettingsViewDelegate> conversationSettingsViewDelegate;
 
 @property (nonatomic) BOOL showVerificationOnAppear;
+@property (nonatomic) YapDatabaseConnection *editingDatabaseConnection;
 
 - (void)configureWithThread:(TSThread *)thread;
 

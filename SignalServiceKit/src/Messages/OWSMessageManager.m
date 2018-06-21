@@ -408,7 +408,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)sendGroupKick:(TSGroupThread *)thread
             recipient:(NSString *)recipientId
+          transaction:(YapDatabaseReadWriteTransaction *)transaction
 {
+    // TODO: remove user from thread in DB
     OWSKickGroupMemberRequestMessage *kickRequestMessage =
     [[OWSKickGroupMemberRequestMessage alloc] initWithThread:thread groupId:thread.groupModel.groupId];
     kickRequestMessage.recipientId = recipientId;
@@ -423,12 +425,14 @@ NS_ASSUME_NONNULL_BEGIN
 //                                   // Only send this group update to the requester.
 ////                                   [message updateWithSingleGroupRecipient:envelope.source transaction:transaction];
 //
-//                                   // remove kicked user from thread and send update
-//                                   TSGroupModel *model = thread.groupModel;
-//                                   NSMutableArray *newIds = model.groupMemberIds.mutableCopy;
-//                                   [newIds removeObject:recipientId];
-//                                   model.groupMemberIds = newIds.copy;
-//                                   thread.groupModel = model;
+                                   // remove kicked user from thread
+                                   TSGroupModel *model = thread.groupModel;
+                                   NSMutableArray *newIds = model.groupMemberIds.mutableCopy;
+                                   [newIds removeObject:recipientId];
+                                   model.groupMemberIds = newIds.copy;
+                                   thread.groupModel = model;
+                                   [thread saveWithTransaction:transaction];
+                                   // send update
 //                                   [self sendGroupUpdateForThread:thread message:message];
                                    DDLogWarn(@"%@ Successfully sent Group Kick message.", self.logTag);
                                }

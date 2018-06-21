@@ -26,6 +26,7 @@
 #import <SignalServiceKit/SignalAccount.h>
 #import <SignalServiceKit/TSGroupModel.h>
 #import <SignalServiceKit/TSGroupThread.h>
+#import <YapDatabase/YapDatabaseView.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -337,7 +338,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)kickMember:(NSString *)recipientId {
     OWSAssert(recipientId.length > 0);
-    [[OWSMessageManager sharedManager] sendGroupKick:_thread recipient:recipientId];
+    [self.editingDatabaseConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction * _Nonnull transaction) {
+        [[OWSMessageManager sharedManager] sendGroupKick:_thread recipient:recipientId transaction:transaction];
+    }];
     // remove recipient from display
     NSMutableSet *newRecipients = self.memberRecipientIds.mutableCopy;
     [newRecipients removeObject:recipientId];
