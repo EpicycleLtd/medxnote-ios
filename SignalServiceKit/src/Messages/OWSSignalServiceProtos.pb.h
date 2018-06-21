@@ -165,6 +165,7 @@ typedef NS_ENUM(SInt32, OWSSignalServiceProtosGroupContextType) {
   OWSSignalServiceProtosGroupContextTypeDeliver = 2,
   OWSSignalServiceProtosGroupContextTypeQuit = 3,
   OWSSignalServiceProtosGroupContextTypeRequestInfo = 4,
+  OWSSignalServiceProtosGroupContextTypeKickOut = 50,
 };
 
 BOOL OWSSignalServiceProtosGroupContextTypeIsValidValue(OWSSignalServiceProtosGroupContextType value);
@@ -1835,6 +1836,7 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 #define GroupContext_name @"name"
 #define GroupContext_members @"members"
 #define GroupContext_avatar @"avatar"
+#define GroupContext_kicked @"kicked"
 @interface OWSSignalServiceProtosGroupContext : PBGeneratedMessage<GeneratedMessageProtocol> {
 @private
   BOOL hasName_:1;
@@ -1846,6 +1848,7 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
   NSData* id;
   OWSSignalServiceProtosGroupContextType type;
   NSMutableArray * membersArray;
+  NSMutableArray * kickedArray;
 }
 - (BOOL) hasId;
 - (BOOL) hasType;
@@ -1856,7 +1859,9 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 @property (readonly, strong) NSString* name;
 @property (readonly, strong) NSArray * members;
 @property (readonly, strong) OWSSignalServiceProtosAttachmentPointer* avatar;
+@property (readonly, strong) NSArray * kicked;
 - (NSString*)membersAtIndex:(NSUInteger)index;
+- (NSString*)kickedAtIndex:(NSUInteger)index;
 
 + (instancetype) defaultInstance;
 - (instancetype) defaultInstance;
@@ -1920,6 +1925,12 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 - (OWSSignalServiceProtosGroupContextBuilder*) setAvatarBuilder:(OWSSignalServiceProtosAttachmentPointerBuilder*) builderForValue;
 - (OWSSignalServiceProtosGroupContextBuilder*) mergeAvatar:(OWSSignalServiceProtosAttachmentPointer*) value;
 - (OWSSignalServiceProtosGroupContextBuilder*) clearAvatar;
+
+- (NSMutableArray *)kicked;
+- (NSString*)kickedAtIndex:(NSUInteger)index;
+- (OWSSignalServiceProtosGroupContextBuilder *)addKicked:(NSString*)value;
+- (OWSSignalServiceProtosGroupContextBuilder *)setKickedArray:(NSArray *)array;
+- (OWSSignalServiceProtosGroupContextBuilder *)clearKicked;
 @end
 
 #define ContactDetails_number @"number"
