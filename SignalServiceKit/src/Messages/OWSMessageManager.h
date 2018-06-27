@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class OWSSignalServiceProtosEnvelope;
 @class TSThread;
+@class TSGroupThread;
 @class YapDatabaseReadWriteTransaction;
 
 @interface OWSMessageManager : OWSMessageHandler
@@ -19,6 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)processEnvelope:(OWSSignalServiceProtosEnvelope *)envelope
           plaintextData:(NSData *_Nullable)plaintextData
             transaction:(YapDatabaseReadWriteTransaction *)transaction;
+- (void)sendGroupKick:(TSGroupThread *)thread
+            recipient:(NSString *)recipientId
+          transaction:(YapDatabaseReadWriteTransaction *)transaction;
 
 - (NSUInteger)unreadMessagesCount;
 - (NSUInteger)unreadMessagesCountExcept:(TSThread *)thread;

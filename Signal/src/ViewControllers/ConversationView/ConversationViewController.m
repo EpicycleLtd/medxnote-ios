@@ -1484,6 +1484,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
 
     OWSConversationSettingsViewController *settingsVC = [OWSConversationSettingsViewController new];
+    settingsVC.editingDatabaseConnection = self.editingDatabaseConnection;
     settingsVC.conversationSettingsViewDelegate = self;
     [settingsVC configureWithThread:self.thread];
     settingsVC.showVerificationOnAppear = showVerification;

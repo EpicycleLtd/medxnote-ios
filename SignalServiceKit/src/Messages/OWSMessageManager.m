@@ -18,6 +18,7 @@
 #import "OWSIdentityManager.h"
 #import "OWSIncomingMessageFinder.h"
 #import "OWSIncomingSentMessageTranscript.h"
+#import "OWSKickGroupMemberRequestMessage.h"
 #import "OWSMessageSender.h"
 #import "OWSReadReceiptManager.h"
 #import "OWSRecordTranscriptJob.h"
@@ -311,11 +312,16 @@ NS_ASSUME_NONNULL_BEGIN
                 @"Unexpected profile key length:%lu on message from:%@", (unsigned long)profileKey.length, recipientId);
         }
     }
-
+    
     if (dataMessage.hasGroup) {
         TSGroupThread *_Nullable groupThread =
-            [TSGroupThread threadWithGroupId:dataMessage.group.id transaction:transaction];
-
+        [TSGroupThread threadWithGroupId:dataMessage.group.id transaction:transaction];
+        
+        if (groupThread && dataMessage.group.kicked.count > 0) {
+            [self handleGroupKickMessage:groupThread kicked:dataMessage.group.kicked envelope:envelope transaction:transaction];
+            return;
+        }
+        
         if (!groupThread) {
             // Unknown group.
             if (dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeUpdate) {
@@ -376,6 +382,63 @@ NS_ASSUME_NONNULL_BEGIN
         failure:^(NSError *error) {
             DDLogError(@"%@ Failed to send Request Group Info message with error: %@", self.logTag, error);
         }];
+}
+
+- (void)handleGroupKickMessage:(TSGroupThread *)groupThread
+                        kicked:(NSArray <NSString *> *)kicked
+                      envelope:(OWSSignalServiceProtosEnvelope *)envelope
+                   transaction:(YapDatabaseReadWriteTransaction *)transaction {
+    // delete thread if current user is kicked
+    NSString *localNumber = [TSAccountManager localNumber];
+    if ([kicked containsObject:localNumber]) {
+        [groupThread removeWithTransaction:transaction];
+        return;
+    }
+    TSGroupModel *model = groupThread.groupModel;
+    NSMutableArray *newIds = model.groupMemberIds.mutableCopy;
+    [newIds removeObjectsInArray:kicked];
+    model.groupMemberIds = newIds.copy;
+    groupThread.groupModel = model;
+    [groupThread saveWithTransaction:transaction];
+    //    message = [[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+    //                                                  inThread:groupThread
+    //                                          groupMetaMessage:TSGroupMessageUpdate];
+    //    [message updateWithCustomMessage:updateGroupInfo transaction:transaction];
+}
+
+- (void)sendGroupKick:(TSGroupThread *)thread
+            recipient:(NSString *)recipientId
+          transaction:(YapDatabaseReadWriteTransaction *)transaction
+{
+    // TODO: remove user from thread in DB
+    OWSKickGroupMemberRequestMessage *kickRequestMessage =
+    [[OWSKickGroupMemberRequestMessage alloc] initWithThread:thread groupId:thread.groupModel.groupId];
+    kickRequestMessage.recipientId = recipientId;
+    [self.messageSender enqueueMessage:kickRequestMessage
+                               success:^{
+                                   // TODO: do group update if needed
+////                                   NSString *updateGroupInfo = [thread.groupModel getInfoStringAboutUpdateTo:thread.groupModel contactsManager:self.contactsManager];
+//                                   TSOutgoingMessage *message = [[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+//                                                                                                    inThread:thread
+//                                                                                            groupMetaMessage:TSGroupMessageUpdate];
+////                                   [message updateWithCustomMessage:updateGroupInfo transaction:transaction];
+//                                   // Only send this group update to the requester.
+////                                   [message updateWithSingleGroupRecipient:envelope.source transaction:transaction];
+//
+                                   // remove kicked user from thread
+                                   TSGroupModel *model = thread.groupModel;
+                                   NSMutableArray *newIds = model.groupMemberIds.mutableCopy;
+                                   [newIds removeObject:recipientId];
+                                   model.groupMemberIds = newIds.copy;
+                                   thread.groupModel = model;
+                                   [thread saveWithTransaction:transaction];
+                                   // send update
+//                                   [self sendGroupUpdateForThread:thread message:message];
+                                   DDLogWarn(@"%@ Successfully sent Group Kick message.", self.logTag);
+                               }
+                               failure:^(NSError *error) {
+                                   DDLogError(@"%@ Failed to send Request Group Info message with error: %@", self.logTag, error);
+                               }];
 }
 
 - (id<ProfileManagerProtocol>)profileManager

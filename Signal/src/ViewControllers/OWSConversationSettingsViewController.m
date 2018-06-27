@@ -804,6 +804,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showGroupMembersView
 {
     ShowGroupMembersViewController *showGroupMembersViewController = [ShowGroupMembersViewController new];
+    showGroupMembersViewController.editingDatabaseConnection = self.editingDatabaseConnection;
     [showGroupMembersViewController configWithThread:(TSGroupThread *)self.thread];
     [self.navigationController pushViewController:showGroupMembersViewController animated:YES];
 }
@@ -813,6 +814,7 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(self.conversationSettingsViewDelegate);
 
     UpdateGroupViewController *updateGroupViewController = [UpdateGroupViewController new];
+    updateGroupViewController.editingDatabaseConnection = self.editingDatabaseConnection;
     updateGroupViewController.conversationSettingsViewDelegate = self.conversationSettingsViewDelegate;
     updateGroupViewController.thread = (TSGroupThread *)self.thread;
     updateGroupViewController.mode = mode;

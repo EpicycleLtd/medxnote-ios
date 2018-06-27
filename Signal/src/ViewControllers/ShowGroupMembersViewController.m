@@ -14,9 +14,11 @@
 #import "ViewControllerUtils.h"
 #import <AddressBookUI/AddressBookUI.h>
 #import <SignalServiceKit/OWSBlockingManager.h>
+#import <SignalServiceKit/OWSMessageManager.h>
 #import <SignalServiceKit/SignalAccount.h>
 #import <SignalServiceKit/TSGroupModel.h>
 #import <SignalServiceKit/TSGroupThread.h>
+#import <YapDatabase/YapDatabaseView.h>
 
 @import ContactsUI;
 
@@ -391,6 +393,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     [actionSheetController addAction:[OWSAlerts cancelAction]];
+    
+    // kick member action
+    [actionSheetController
+     addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Kick",
+                                                                @"Label for button or row which allows users to verify the "
+                                                                @"safety number of another user.")
+                                        style:UIAlertActionStyleDestructive
+                                      handler:^(UIAlertAction *_Nonnull action) {
+                                          [self kickMember:recipientId];
+                                      }]];
 
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
@@ -421,6 +433,18 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(recipientId.length > 0);
 
     [FingerprintViewController presentFromViewController:self recipientId:recipientId];
+}
+
+- (void)kickMember:(NSString *)recipientId {
+    OWSAssert(recipientId.length > 0);
+    [self.editingDatabaseConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction * _Nonnull transaction) {
+        [[OWSMessageManager sharedManager] sendGroupKick:_thread recipient:recipientId transaction:transaction];
+    }];
+    // remove recipient from display
+    NSMutableSet *newRecipients = self.memberRecipientIds.mutableCopy;
+    [newRecipients removeObject:recipientId];
+    self.memberRecipientIds = newRecipients.copy;
+    [self updateTableContents];
 }
 
 #pragma mark - ContactsViewHelperDelegate

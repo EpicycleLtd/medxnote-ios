@@ -7816,6 +7816,7 @@ NSString *NSStringFromOWSSignalServiceProtosAttachmentPointerFlags(OWSSignalServ
 @property (strong) NSString* name;
 @property (strong) NSMutableArray * membersArray;
 @property (strong) OWSSignalServiceProtosAttachmentPointer* avatar;
+@property (strong) NSMutableArray * kickedArray;
 @end
 
 @implementation OWSSignalServiceProtosGroupContext
@@ -7850,6 +7851,8 @@ NSString *NSStringFromOWSSignalServiceProtosAttachmentPointerFlags(OWSSignalServ
   hasAvatar_ = !!_value_;
 }
 @synthesize avatar;
+@synthesize kickedArray;
+@dynamic kicked;
 - (instancetype) init {
   if ((self = [super init])) {
     self.id = [NSData data];
@@ -7877,6 +7880,12 @@ static OWSSignalServiceProtosGroupContext* defaultOWSSignalServiceProtosGroupCon
 - (NSString*)membersAtIndex:(NSUInteger)index {
   return [membersArray objectAtIndex:index];
 }
+- (NSArray *)kicked {
+  return kickedArray;
+}
+- (NSString*)kickedAtIndex:(NSUInteger)index {
+  return [kickedArray objectAtIndex:index];
+}
 - (BOOL) isInitialized {
   return YES;
 }
@@ -7896,6 +7905,9 @@ static OWSSignalServiceProtosGroupContext* defaultOWSSignalServiceProtosGroupCon
   if (self.hasAvatar) {
     [output writeMessage:5 value:self.avatar];
   }
+  [self.kickedArray enumerateObjectsUsingBlock:^(NSString *element, NSUInteger idx, BOOL *stop) {
+    [output writeString:50 value:element];
+  }];
   [self.unknownFields writeToCodedOutputStream:output];
 }
 - (SInt32) serializedSize {
@@ -7925,6 +7937,15 @@ static OWSSignalServiceProtosGroupContext* defaultOWSSignalServiceProtosGroupCon
   }
   if (self.hasAvatar) {
     size_ += computeMessageSize(5, self.avatar);
+  }
+  {
+    __block SInt32 dataSize = 0;
+    const NSUInteger count = self.kickedArray.count;
+    [self.kickedArray enumerateObjectsUsingBlock:^(NSString *element, NSUInteger idx, BOOL *stop) {
+      dataSize += computeStringSizeNoTag(element);
+    }];
+    size_ += dataSize;
+    size_ += (SInt32)(2 * count);
   }
   size_ += self.unknownFields.serializedSize;
   memoizedSerializedSize = size_;
@@ -7979,6 +8000,9 @@ static OWSSignalServiceProtosGroupContext* defaultOWSSignalServiceProtosGroupCon
                          withIndent:[NSString stringWithFormat:@"%@  ", indent]];
     [output appendFormat:@"%@}\n", indent];
   }
+  [self.kickedArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    [output appendFormat:@"%@%@: %@\n", indent, @"kicked", obj];
+  }];
   [self.unknownFields writeDescriptionTo:output withIndent:indent];
 }
 - (void) storeInDictionary:(NSMutableDictionary *)dictionary {
@@ -7997,6 +8021,7 @@ static OWSSignalServiceProtosGroupContext* defaultOWSSignalServiceProtosGroupCon
    [self.avatar storeInDictionary:messageDictionary];
    [dictionary setObject:[NSDictionary dictionaryWithDictionary:messageDictionary] forKey:@"avatar"];
   }
+  [dictionary setObject:self.kicked forKey: @"kicked"];
   [self.unknownFields storeInDictionary:dictionary];
 }
 - (BOOL) isEqual:(id)other {
@@ -8017,6 +8042,7 @@ static OWSSignalServiceProtosGroupContext* defaultOWSSignalServiceProtosGroupCon
       [self.membersArray isEqualToArray:otherMessage.membersArray] &&
       self.hasAvatar == otherMessage.hasAvatar &&
       (!self.hasAvatar || [self.avatar isEqual:otherMessage.avatar]) &&
+      [self.kickedArray isEqualToArray:otherMessage.kickedArray] &&
       (self.unknownFields == otherMessage.unknownFields || (self.unknownFields != nil && [self.unknownFields isEqual:otherMessage.unknownFields]));
 }
 - (NSUInteger) hash {
@@ -8036,6 +8062,9 @@ static OWSSignalServiceProtosGroupContext* defaultOWSSignalServiceProtosGroupCon
   if (self.hasAvatar) {
     hashCode = hashCode * 31 + [self.avatar hash];
   }
+  [self.kickedArray enumerateObjectsUsingBlock:^(NSString *element, NSUInteger idx, BOOL *stop) {
+    hashCode = hashCode * 31 + [element hash];
+  }];
   hashCode = hashCode * 31 + [self.unknownFields hash];
   return hashCode;
 }
@@ -8048,6 +8077,7 @@ BOOL OWSSignalServiceProtosGroupContextTypeIsValidValue(OWSSignalServiceProtosGr
     case OWSSignalServiceProtosGroupContextTypeDeliver:
     case OWSSignalServiceProtosGroupContextTypeQuit:
     case OWSSignalServiceProtosGroupContextTypeRequestInfo:
+    case OWSSignalServiceProtosGroupContextTypeKickOut:
       return YES;
     default:
       return NO;
@@ -8065,6 +8095,8 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
       return @"OWSSignalServiceProtosGroupContextTypeQuit";
     case OWSSignalServiceProtosGroupContextTypeRequestInfo:
       return @"OWSSignalServiceProtosGroupContextTypeRequestInfo";
+    case OWSSignalServiceProtosGroupContextTypeKickOut:
+      return @"OWSSignalServiceProtosGroupContextTypeKickOut";
     default:
       return nil;
   }
@@ -8127,6 +8159,13 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
   if (other.hasAvatar) {
     [self mergeAvatar:other.avatar];
   }
+  if (other.kickedArray.count > 0) {
+    if (resultGroupContext.kickedArray == nil) {
+      resultGroupContext.kickedArray = [[NSMutableArray alloc] initWithArray:other.kickedArray];
+    } else {
+      [resultGroupContext.kickedArray addObjectsFromArray:other.kickedArray];
+    }
+  }
   [self mergeUnknownFields:other.unknownFields];
   return self;
 }
@@ -8176,6 +8215,10 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
         }
         [input readMessage:subBuilder extensionRegistry:extensionRegistry];
         [self setAvatar:[subBuilder buildPartial]];
+        break;
+      }
+      case 402: {
+        [self addKicked:[input readString]];
         break;
       }
     }
@@ -8278,6 +8321,27 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 - (OWSSignalServiceProtosGroupContextBuilder*) clearAvatar {
   resultGroupContext.hasAvatar = NO;
   resultGroupContext.avatar = [OWSSignalServiceProtosAttachmentPointer defaultInstance];
+  return self;
+}
+- (NSMutableArray *)kicked {
+  return resultGroupContext.kickedArray;
+}
+- (NSString*)kickedAtIndex:(NSUInteger)index {
+  return [resultGroupContext kickedAtIndex:index];
+}
+- (OWSSignalServiceProtosGroupContextBuilder *)addKicked:(NSString*)value {
+  if (resultGroupContext.kickedArray == nil) {
+    resultGroupContext.kickedArray = [[NSMutableArray alloc]init];
+  }
+  [resultGroupContext.kickedArray addObject:value];
+  return self;
+}
+- (OWSSignalServiceProtosGroupContextBuilder *)setKickedArray:(NSArray *)array {
+  resultGroupContext.kickedArray = [[NSMutableArray alloc] initWithArray:array];
+  return self;
+}
+- (OWSSignalServiceProtosGroupContextBuilder *)clearKicked {
+  resultGroupContext.kickedArray = nil;
   return self;
 }
 @end

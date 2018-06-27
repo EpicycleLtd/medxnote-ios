@@ -202,12 +202,14 @@ message GroupContext {
     DELIVER      = 2;
     QUIT         = 3;
     REQUEST_INFO = 4;
+    KICK_OUT     = 50;
   }
   optional bytes             id      = 1;
   optional Type              type    = 2;
   optional string            name    = 3;
   repeated string            members = 4;
   optional AttachmentPointer avatar  = 5;
+  repeated string            kicked  = 50;
 }
 
 message ContactDetails {

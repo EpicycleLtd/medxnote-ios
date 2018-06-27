@@ -5,6 +5,8 @@
 #import "OWSConversationSettingsViewDelegate.h"
 #import "OWSViewController.h"
 
+@class YapDatabaseConnection;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class TSGroupThread;
@@ -23,6 +25,8 @@ typedef NS_ENUM(NSUInteger, UpdateGroupMode) {
 @property (nonatomic) TSGroupThread *thread;
 
 @property (nonatomic) UpdateGroupMode mode;
+
+@property (nonatomic) YapDatabaseConnection *editingDatabaseConnection;
 
 @end
 

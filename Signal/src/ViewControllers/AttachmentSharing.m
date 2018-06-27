@@ -3,6 +3,7 @@
 //
 
 #import "AttachmentSharing.h"
+#import "PDFViewerViewController.h"
 #import "TSAttachmentStream.h"
 #import "UIUtil.h"
 #import <SignalServiceKit/Threading.h>
@@ -37,6 +38,25 @@
     OWSAssert(activityItems);
 
     DispatchMainThreadSafe(^{
+        // Find the frontmost presented UIViewController from which to present the
+        // share view.
+        UIWindow *window = [UIApplication sharedApplication].keyWindow;
+        UIViewController *fromViewController = window.rootViewController;
+        while (fromViewController.presentedViewController) {
+            fromViewController = fromViewController.presentedViewController;
+        }
+        OWSAssert(fromViewController);
+        
+        // show PDF view
+        if ([activityItems.firstObject isKindOfClass:[NSURL class]] && [[(NSURL *)activityItems.firstObject lastPathComponent] containsString:@"pdf"]) {
+            NSURL *url = (NSURL *)activityItems.firstObject;
+            PDFViewerViewController *vc = [UIStoryboard storyboardWithName:@"PDFViewer" bundle:nil].instantiateInitialViewController;
+            vc.url = url;
+            UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
+            [fromViewController presentViewController:nav animated:true completion:nil];
+            return;
+        }
+        
         UIActivityViewController *activityViewController =
             [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:@[]];
 
@@ -55,14 +75,6 @@
             }
         }];
 
-        // Find the frontmost presented UIViewController from which to present the
-        // share view.
-        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-        UIViewController *fromViewController = window.rootViewController;
-        while (fromViewController.presentedViewController) {
-            fromViewController = fromViewController.presentedViewController;
-        }
-        OWSAssert(fromViewController);
         [fromViewController presentViewController:activityViewController
                                          animated:YES
                                        completion:^{

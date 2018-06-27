@@ -24,7 +24,7 @@ NSString *envelopeAddress(OWSSignalServiceProtosEnvelope *envelope)
             return @"DeliveryReceipt";
         case OWSSignalServiceProtosEnvelopeTypeUnknown:
             // Shouldn't happen
-            OWSProdFail([OWSAnalyticsEvents messageManagerErrorEnvelopeTypeUnknown]);
+//            OWSProdFail([OWSAnalyticsEvents messageManagerErrorEnvelopeTypeUnknown]);
             return @"Unknown";
         case OWSSignalServiceProtosEnvelopeTypeCiphertext:
             return @"SignalEncryptedMessage";

@@ -850,6 +850,8 @@
 		B68929B5350F8AEEEBB7ADA3B3D13DFF /* SecurityFailure.h in Headers */ = {isa = PBXBuildFile; fileRef = 879C22447F248B3F6A15CF40650BBA48 /* SecurityFailure.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B6EEFDA174CE57F797834CCD1AA202EF /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B60A891EB2A7F6A076A6C91044994A64 /* ImageIO.framework */; };
 		B7009765E03380C0493B7ACE7D7BE1A1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69AADF12D44BC5E46808D1C6EC3C34B1 /* UIKit.framework */; };
+		B71B06B320DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = B71B06B120DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.h */; };
+		B71B06B420DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = B71B06B220DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.m */; };
 		B71E040F50350009CAC46AC601F3D805 /* SRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3821731DF0B95934E119B4F8470F69 /* SRSIMDHelpers.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		B7536D9A1722AE3A822E060D7F90190A /* YapDatabaseQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC21667D3317F86FD25E294F5E54896 /* YapDatabaseQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B76B6A744964C73B63E91AF90E7AE897 /* YapDatabaseSearchResultsViewTransaction.h in Headers */ = {isa = PBXBuildFile; fileRef = 8FCFA356E7D3D16CC619E07C2A63FE40 /* YapDatabaseSearchResultsViewTransaction.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2477,6 +2479,8 @@
 		B6B03D026392F7BF0DE2A43F49DB0092 /* SignalRecipient.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = SignalRecipient.m; sourceTree = "<group>"; };
 		B6D19E492ED3A03F4ACD4325732516DA /* TSRecipientPrekeyRequest.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = TSRecipientPrekeyRequest.m; sourceTree = "<group>"; };
 		B717902E47BDB57AB607BBA662E218B2 /* GIAG2.crt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = GIAG2.crt; path = SignalServiceKit/src/Security/PinningCertificate/GIAG2.crt; sourceTree = "<group>"; };
+		B71B06B120DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OWSKickGroupMemberRequestMessage.h; sourceTree = "<group>"; };
+		B71B06B220DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OWSKickGroupMemberRequestMessage.m; sourceTree = "<group>"; };
 		B723D7C70634F3B21D8193D9A16DFEB7 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/MapKit.framework; sourceTree = DEVELOPER_DIR; };
 		B72EEADFEE344326267C199B5433352B /* libssl.a */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = archive.ar; name = libssl.a; path = lib/libssl.a; sourceTree = "<group>"; };
 		B7DBC58D4ABE7876A4CD1D7DE087239F /* YapDatabaseFullTextSearchTransaction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = YapDatabaseFullTextSearchTransaction.h; path = YapDatabase/Extensions/FullTextSearch/YapDatabaseFullTextSearchTransaction.h; sourceTree = "<group>"; };
@@ -4302,6 +4306,8 @@
 				9130B74AE4FD5B330986A16BCB009C56 /* OWSSyncGroupsMessage.m */,
 				647A5EC4D5B6CA22901100D25CC1BA8A /* OWSSyncGroupsRequestMessage.h */,
 				0F80990065634342C433DF234C0A1518 /* OWSSyncGroupsRequestMessage.m */,
+				B71B06B120DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.h */,
+				B71B06B220DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.m */,
 			);
 			path = DeviceSyncing;
 			sourceTree = "<group>";
@@ -5950,6 +5956,7 @@
 				90B7B5D5B7FAA76344ABCDC1260214B0 /* TSAttachmentStream.h in Headers */,
 				F74D1F41AA31D020B1EBB15D9E32EE73 /* TSAttributes.h in Headers */,
 				A92AB2A798617945677FBBFD15D3443F /* TSAvailablePreKeysCountRequest.h in Headers */,
+				B71B06B320DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.h in Headers */,
 				8B58A57088016C9E6E0A318801A669E7 /* TSCall.h in Headers */,
 				C5BBA0F15473E2EBAEC357C0EB7097A5 /* TSConstants.h in Headers */,
 				3A4C46E5BE425C8D883A038E734B2F3A /* TSContactsIntersectionRequest.h in Headers */,
@@ -7188,6 +7195,7 @@
 				B396D9EA1687094DEAB30274A4336163 /* OWSRecipientIdentity.m in Sources */,
 				6E9A5DC44B0DD40418FE3E6BE830EBE8 /* OWSRecordTranscriptJob.m in Sources */,
 				ECEEF50BEC4E7C005AF31FFC0DA8FEA8 /* OWSRequestBuilder.m in Sources */,
+				B71B06B420DB9BCE005B7ED8 /* OWSKickGroupMemberRequestMessage.m in Sources */,
 				3F0B96E7601202D01D9EEDC6C806DCE0 /* OWSSignalService.m in Sources */,
 				67EE811C439EB4B9E8214644DF1A0617 /* OWSSignalServiceProtos.pb.m in Sources */,
 				D10575EBE3CDBF4E974879ACA84CAF1D /* OWSSyncConfigurationMessage.m in Sources */,

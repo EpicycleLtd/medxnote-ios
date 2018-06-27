@@ -371,6 +371,12 @@
 		B7284CB9202A4D10002581D0 /* UIColor+HexString.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CB8202A4D10002581D0 /* UIColor+HexString.m */; };
 		B7284CBC202A5420002581D0 /* PredefinedAnswerItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */; };
 		B7284CBF202A5594002581D0 /* PredefinedAnswerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */; };
+		B79740AF20E3C28600466F58 /* PDFViewerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B79740AE20E3C28600466F58 /* PDFViewerViewController.m */; };
+		B79740B020E3C28600466F58 /* PDFViewerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B79740AE20E3C28600466F58 /* PDFViewerViewController.m */; };
+		B79740B120E3C28600466F58 /* PDFViewerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B79740AE20E3C28600466F58 /* PDFViewerViewController.m */; };
+		B79740B320E3C29200466F58 /* PDFViewer.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B79740B220E3C29200466F58 /* PDFViewer.storyboard */; };
+		B79740B420E3C29200466F58 /* PDFViewer.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B79740B220E3C29200466F58 /* PDFViewer.storyboard */; };
+		B79740B520E3C29200466F58 /* PDFViewer.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B79740B220E3C29200466F58 /* PDFViewer.storyboard */; };
 		B7996AD1205B1816006E4802 /* textsecure-server.cer in Resources */ = {isa = PBXBuildFile; fileRef = B7996AD0205B1816006E4802 /* textsecure-server.cer */; };
 		B7996AD8205B1DBA006E4802 /* CodeVerificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34B3F83D1E8DF1700035BE1A /* CodeVerificationViewController.m */; };
 		B7996AD9205B1DBA006E4802 /* Operation.m in Sources */ = {isa = PBXBuildFile; fileRef = 76EB04EF18170B33006006FC /* Operation.m */; };
@@ -1480,6 +1486,9 @@
 		B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswerItem.m; sourceTree = "<group>"; };
 		B7284CBD202A5594002581D0 /* PredefinedAnswerSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PredefinedAnswerSection.h; sourceTree = "<group>"; };
 		B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswerSection.m; sourceTree = "<group>"; };
+		B79740AD20E3C28600466F58 /* PDFViewerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PDFViewerViewController.h; sourceTree = "<group>"; };
+		B79740AE20E3C28600466F58 /* PDFViewerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PDFViewerViewController.m; sourceTree = "<group>"; };
+		B79740B220E3C29200466F58 /* PDFViewer.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = PDFViewer.storyboard; sourceTree = "<group>"; };
 		B7996AD0205B1816006E4802 /* textsecure-server.cer */ = {isa = PBXFileReference; lastKnownFileType = file; name = "textsecure-server.cer"; path = "Signal/Certificates/Test/textsecure-server.cer"; sourceTree = SOURCE_ROOT; };
 		B7996BFF205B1DBA006E4802 /* Medxnote IE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Medxnote IE.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7996C02205B1E19006E4802 /* redphone.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = redphone.cer; sourceTree = "<group>"; };
@@ -1711,6 +1720,7 @@
 		34B3F8331E8DF1700035BE1A /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				B79740AC20E3C26C00466F58 /* PDFViewer */,
 				B7284CAB202A3DCC002581D0 /* InlineKeyboard */,
 				B724C4E5201D0F39004B5803 /* SearchResults */,
 				B703C425209DFB530068C619 /* QRCode */,
@@ -2459,6 +2469,16 @@
 			path = InlineKeyboard;
 			sourceTree = "<group>";
 		};
+		B79740AC20E3C26C00466F58 /* PDFViewer */ = {
+			isa = PBXGroup;
+			children = (
+				B79740AD20E3C28600466F58 /* PDFViewerViewController.h */,
+				B79740AE20E3C28600466F58 /* PDFViewerViewController.m */,
+				B79740B220E3C29200466F58 /* PDFViewer.storyboard */,
+			);
+			path = PDFViewer;
+			sourceTree = "<group>";
+		};
 		B7996AD2205B1902006E4802 /* Test */ = {
 			isa = PBXGroup;
 			children = (
@@ -2875,6 +2895,7 @@
 				B7996BE2205B1DBA006E4802 /* mute_off@2x.png in Resources */,
 				B7996BE3205B1DBA006E4802 /* audio_play_button_blue@2x.png in Resources */,
 				B7996BE4205B1DBA006E4802 /* warning_white@2x.png in Resources */,
+				B79740B420E3C29200466F58 /* PDFViewer.storyboard in Resources */,
 				B7996C05205B1E19006E4802 /* textsecure-server.cer in Resources */,
 				B7996BE5205B1DBA006E4802 /* busy.mp3 in Resources */,
 				B7996BE6205B1DBA006E4802 /* failure.mp3 in Resources */,
@@ -2927,6 +2948,7 @@
 				B7996D16205B1F25006E4802 /* mute_off@2x.png in Resources */,
 				B7996D17205B1F25006E4802 /* audio_play_button_blue@2x.png in Resources */,
 				B7996D18205B1F25006E4802 /* warning_white@2x.png in Resources */,
+				B79740B520E3C29200466F58 /* PDFViewer.storyboard in Resources */,
 				B7996D1A205B1F25006E4802 /* busy.mp3 in Resources */,
 				B7996D1B205B1F25006E4802 /* failure.mp3 in Resources */,
 				B7996D1C205B1F25006E4802 /* NewMessage.aifc in Resources */,
@@ -2979,6 +3001,7 @@
 				AD83FF411A73426500B5C81A /* audio_play_button_blue@2x.png in Resources */,
 				FC5CDF3A1A3393DD00B47253 /* warning_white@2x.png in Resources */,
 				E1370BE018A0686600826894 /* busy.mp3 in Resources */,
+				B79740B320E3C29200466F58 /* PDFViewer.storyboard in Resources */,
 				E1370BE218A0686C00826894 /* failure.mp3 in Resources */,
 				B625CD561ABB589C00E8B23C /* NewMessage.aifc in Resources */,
 				B633C58D1A1D190B0059AC12 /* contact_default_feed.png in Resources */,
@@ -3495,6 +3518,7 @@
 				B7996B4A205B1DBA006E4802 /* DisplayableText.swift in Sources */,
 				B7996B4B205B1DBA006E4802 /* OWSLinkDeviceViewController.m in Sources */,
 				B7996B4C205B1DBA006E4802 /* MedxPasscodeManager.m in Sources */,
+				B79740B020E3C28600466F58 /* PDFViewerViewController.m in Sources */,
 				B7996B4D205B1DBA006E4802 /* ConversationViewLayout.m in Sources */,
 				B7996B4E205B1DBA006E4802 /* ContactTableViewCell.m in Sources */,
 				B7996B4F205B1DBA006E4802 /* DomainFrontingCountryViewController.m in Sources */,
@@ -3720,6 +3744,7 @@
 				B7996C7D205B1F25006E4802 /* DisplayableText.swift in Sources */,
 				B7996C7E205B1F25006E4802 /* OWSLinkDeviceViewController.m in Sources */,
 				B7996C7F205B1F25006E4802 /* MedxPasscodeManager.m in Sources */,
+				B79740B120E3C28600466F58 /* PDFViewerViewController.m in Sources */,
 				B7996C80205B1F25006E4802 /* ConversationViewLayout.m in Sources */,
 				B7996C81205B1F25006E4802 /* ContactTableViewCell.m in Sources */,
 				B7996C82205B1F25006E4802 /* DomainFrontingCountryViewController.m in Sources */,
@@ -3945,6 +3970,7 @@
 				45E615161E8C590B0018AD52 /* DisplayableText.swift in Sources */,
 				34B3F88A1E8DF1700035BE1A /* OWSLinkDeviceViewController.m in Sources */,
 				B7AD029720163B3A00A7DB4F /* MedxPasscodeManager.m in Sources */,
+				B79740AF20E3C28600466F58 /* PDFViewerViewController.m in Sources */,
 				34D1F0881F8678AA0066283D /* ConversationViewLayout.m in Sources */,
 				76EB068618170B34006006FC /* ContactTableViewCell.m in Sources */,
 				3497DBEF1ECE2E4700DB2605 /* DomainFrontingCountryViewController.m in Sources */,
