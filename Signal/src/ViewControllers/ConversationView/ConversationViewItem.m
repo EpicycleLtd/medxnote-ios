@@ -479,22 +479,22 @@ NSString *NSStringForOWSMessageCellType(OWSMessageCellType cellType)
 - (NSArray<UIMenuItem *> *)menuControllerItems
 {
     return @[
-        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SHARE_ACTION",
-                                              @"Short name for edit menu item to share contents of media message.")
-                                   action:self.shareActionSelector],
+//        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SHARE_ACTION",
+//                                              @"Short name for edit menu item to share contents of media message.")
+//                                   action:self.shareActionSelector],
         [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_MESSAGE_METADATA_ACTION",
                                               @"Short name for edit menu item to show message metadata.")
                                    action:self.metadataActionSelector],
-        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_COPY_ACTION",
-                                              @"Short name for edit menu item to copy contents of media message.")
-                                   action:self.copyActionSelector],
+//        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_COPY_ACTION",
+//                                              @"Short name for edit menu item to copy contents of media message.")
+//                                   action:self.copyActionSelector],
         [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_DELETE_ACTION",
                                               @"Short name for edit menu item to delete contents of media message.")
                                    action:self.deleteActionSelector],
         // TODO: Do we want a save action?
-        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SAVE_ACTION",
-                                              @"Short name for edit menu item to save contents of media message.")
-                                   action:self.saveActionSelector],
+//        [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"EDIT_ITEM_SAVE_ACTION",
+//                                              @"Short name for edit menu item to save contents of media message.")
+//                                   action:self.saveActionSelector],
     ];
 }
 
