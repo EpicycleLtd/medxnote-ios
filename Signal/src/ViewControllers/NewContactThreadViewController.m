@@ -181,22 +181,23 @@ NS_ASSUME_NONNULL_BEGIN
     [view addSubview:contents];
     [contents autoCenterInSuperview];
 
-    UIImage *heroImage = [UIImage imageNamed:@"uiEmptyContact"];
-    OWSAssert(heroImage);
-    UIImageView *heroImageView = [[UIImageView alloc] initWithImage:heroImage];
-    heroImageView.layer.minificationFilter = kCAFilterTrilinear;
-    heroImageView.layer.magnificationFilter = kCAFilterTrilinear;
-    [contents addSubview:heroImageView];
-    [heroImageView autoHCenterInSuperview];
-    [heroImageView autoPinEdgeToSuperviewEdge:ALEdgeTop];
-    const CGFloat kHeroSize = ScaleFromIPhone5To7Plus(100, 150);
-    [heroImageView autoSetDimension:ALDimensionWidth toSize:kHeroSize];
-    [heroImageView autoSetDimension:ALDimensionHeight toSize:kHeroSize];
-    UIView *lastSubview = heroImageView;
+//    UIImage *heroImage = [UIImage imageNamed:@"uiEmptyContact"];
+//    OWSAssert(heroImage);
+//    UIImageView *heroImageView = [[UIImageView alloc] initWithImage:heroImage];
+//    heroImageView.layer.minificationFilter = kCAFilterTrilinear;
+//    heroImageView.layer.magnificationFilter = kCAFilterTrilinear;
+//    [contents addSubview:heroImageView];
+//    [heroImageView autoHCenterInSuperview];
+//    [heroImageView autoPinEdgeToSuperviewEdge:ALEdgeTop];
+//    const CGFloat kHeroSize = ScaleFromIPhone5To7Plus(100, 150);
+//    [heroImageView autoSetDimension:ALDimensionWidth toSize:kHeroSize];
+//    [heroImageView autoSetDimension:ALDimensionHeight toSize:kHeroSize];
+//    UIView *lastSubview = heroImageView;
+    UIView *lastSubview = nil;
 
     UILabel *titleLabel = [UILabel new];
     titleLabel.text = NSLocalizedString(
-        @"EMPTY_CONTACTS_LABEL_LINE1", "Full width label displayed when attempting to compose message");
+        @"None of your contacts have Medxnote", "Full width label displayed when attempting to compose message");
     titleLabel.textColor = [UIColor blackColor];
     titleLabel.font = [UIFont ows_mediumFontWithSize:ScaleFromIPhone5To7Plus(17.f, 20.f)];
     titleLabel.textAlignment = NSTextAlignmentCenter;
@@ -204,21 +205,22 @@ NS_ASSUME_NONNULL_BEGIN
     titleLabel.numberOfLines = 0;
     [contents addSubview:titleLabel];
     [titleLabel autoPinWidthToSuperview];
-    [titleLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:lastSubview withOffset:30];
+//    [titleLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:lastSubview withOffset:30];
+    [titleLabel autoPinEdgeToSuperviewEdge:ALEdgeTop];
     lastSubview = titleLabel;
 
-    UILabel *subtitleLabel = [UILabel new];
-    subtitleLabel.text = NSLocalizedString(
-        @"EMPTY_CONTACTS_LABEL_LINE2", "Full width label displayed when attempting to compose message");
-    subtitleLabel.textColor = [UIColor colorWithWhite:0.32f alpha:1.f];
-    subtitleLabel.font = [UIFont ows_regularFontWithSize:ScaleFromIPhone5To7Plus(12.f, 14.f)];
-    subtitleLabel.textAlignment = NSTextAlignmentCenter;
-    subtitleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-    subtitleLabel.numberOfLines = 0;
-    [contents addSubview:subtitleLabel];
-    [subtitleLabel autoPinWidthToSuperview];
-    [subtitleLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:lastSubview withOffset:15];
-    lastSubview = subtitleLabel;
+//    UILabel *subtitleLabel = [UILabel new];
+//    subtitleLabel.text = NSLocalizedString(
+//        @"EMPTY_CONTACTS_LABEL_LINE2", "Full width label displayed when attempting to compose message");
+//    subtitleLabel.textColor = [UIColor colorWithWhite:0.32f alpha:1.f];
+//    subtitleLabel.font = [UIFont ows_regularFontWithSize:ScaleFromIPhone5To7Plus(12.f, 14.f)];
+//    subtitleLabel.textAlignment = NSTextAlignmentCenter;
+//    subtitleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+//    subtitleLabel.numberOfLines = 0;
+//    [contents addSubview:subtitleLabel];
+//    [subtitleLabel autoPinWidthToSuperview];
+//    [subtitleLabel autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:lastSubview withOffset:15];
+//    lastSubview = subtitleLabel;
 
 //    UIButton *inviteContactsButton = [UIButton buttonWithType:UIButtonTypeCustom];
 //    [inviteContactsButton setTitle:NSLocalizedString(@"INVITE_FRIENDS_CONTACT_TABLE_BUTTON",
