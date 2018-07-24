@@ -371,6 +371,15 @@
 		B7284CB9202A4D10002581D0 /* UIColor+HexString.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CB8202A4D10002581D0 /* UIColor+HexString.m */; };
 		B7284CBC202A5420002581D0 /* PredefinedAnswerItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */; };
 		B7284CBF202A5594002581D0 /* PredefinedAnswerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */; };
+		B731E34121071726001ED4C7 /* LDAPContact.m in Sources */ = {isa = PBXBuildFile; fileRef = B731E34021071726001ED4C7 /* LDAPContact.m */; };
+		B731E34221071726001ED4C7 /* LDAPContact.m in Sources */ = {isa = PBXBuildFile; fileRef = B731E34021071726001ED4C7 /* LDAPContact.m */; };
+		B731E34321071726001ED4C7 /* LDAPContact.m in Sources */ = {isa = PBXBuildFile; fileRef = B731E34021071726001ED4C7 /* LDAPContact.m */; };
+		B76104FC20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B76104FB20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m */; };
+		B76104FD20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B76104FB20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m */; };
+		B76104FE20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B76104FB20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m */; };
+		B77A34D620EEBF2600D2A330 /* CorporateContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B77A34D520EEBF2600D2A330 /* CorporateContactsManager.m */; };
+		B77A34D720EEBF2600D2A330 /* CorporateContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B77A34D520EEBF2600D2A330 /* CorporateContactsManager.m */; };
+		B77A34D820EEBF2600D2A330 /* CorporateContactsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B77A34D520EEBF2600D2A330 /* CorporateContactsManager.m */; };
 		B79740AF20E3C28600466F58 /* PDFViewerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B79740AE20E3C28600466F58 /* PDFViewerViewController.m */; };
 		B79740B020E3C28600466F58 /* PDFViewerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B79740AE20E3C28600466F58 /* PDFViewerViewController.m */; };
 		B79740B120E3C28600466F58 /* PDFViewerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B79740AE20E3C28600466F58 /* PDFViewerViewController.m */; };
@@ -1486,6 +1495,12 @@
 		B7284CBB202A5420002581D0 /* PredefinedAnswerItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswerItem.m; sourceTree = "<group>"; };
 		B7284CBD202A5594002581D0 /* PredefinedAnswerSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PredefinedAnswerSection.h; sourceTree = "<group>"; };
 		B7284CBE202A5594002581D0 /* PredefinedAnswerSection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PredefinedAnswerSection.m; sourceTree = "<group>"; };
+		B731E33F21071726001ED4C7 /* LDAPContact.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LDAPContact.h; sourceTree = "<group>"; };
+		B731E34021071726001ED4C7 /* LDAPContact.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LDAPContact.m; sourceTree = "<group>"; };
+		B76104FA20FF4D5900B1D0D1 /* TSLDAPTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TSLDAPTokenRequest.h; sourceTree = "<group>"; };
+		B76104FB20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TSLDAPTokenRequest.m; sourceTree = "<group>"; };
+		B77A34D420EEBF2600D2A330 /* CorporateContactsManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CorporateContactsManager.h; sourceTree = "<group>"; };
+		B77A34D520EEBF2600D2A330 /* CorporateContactsManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CorporateContactsManager.m; sourceTree = "<group>"; };
 		B79740AD20E3C28600466F58 /* PDFViewerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PDFViewerViewController.h; sourceTree = "<group>"; };
 		B79740AE20E3C28600466F58 /* PDFViewerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PDFViewerViewController.m; sourceTree = "<group>"; };
 		B79740B220E3C29200466F58 /* PDFViewer.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = PDFViewer.storyboard; sourceTree = "<group>"; };
@@ -1720,6 +1735,7 @@
 		34B3F8331E8DF1700035BE1A /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				B77A34D320EEBF0800D2A330 /* CorporateContacts */,
 				B79740AC20E3C26C00466F58 /* PDFViewer */,
 				B7284CAB202A3DCC002581D0 /* InlineKeyboard */,
 				B724C4E5201D0F39004B5803 /* SearchResults */,
@@ -2467,6 +2483,19 @@
 				B7284CB8202A4D10002581D0 /* UIColor+HexString.m */,
 			);
 			path = InlineKeyboard;
+			sourceTree = "<group>";
+		};
+		B77A34D320EEBF0800D2A330 /* CorporateContacts */ = {
+			isa = PBXGroup;
+			children = (
+				B77A34D420EEBF2600D2A330 /* CorporateContactsManager.h */,
+				B77A34D520EEBF2600D2A330 /* CorporateContactsManager.m */,
+				B76104FA20FF4D5900B1D0D1 /* TSLDAPTokenRequest.h */,
+				B76104FB20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m */,
+				B731E33F21071726001ED4C7 /* LDAPContact.h */,
+				B731E34021071726001ED4C7 /* LDAPContact.m */,
+			);
+			path = CorporateContacts;
 			sourceTree = "<group>";
 		};
 		B79740AC20E3C26C00466F58 /* PDFViewer */ = {
@@ -3423,6 +3452,7 @@
 				B7996AEB205B1DBA006E4802 /* UserNotificationsAdaptee.swift in Sources */,
 				B7996AEC205B1DBA006E4802 /* ActivityWindow.m in Sources */,
 				B7996AED205B1DBA006E4802 /* MedxInboxSearchUpdater.m in Sources */,
+				B77A34D720EEBF2600D2A330 /* CorporateContactsManager.m in Sources */,
 				B7996AEE205B1DBA006E4802 /* ConversationHeaderView.m in Sources */,
 				B7996AEF205B1DBA006E4802 /* ContactsViewHelper.m in Sources */,
 				B7996AF0205B1DBA006E4802 /* OWSContactOffersCell.m in Sources */,
@@ -3479,6 +3509,7 @@
 				B7996B23205B1DBA006E4802 /* OWSContactsManager.m in Sources */,
 				B7996B24205B1DBA006E4802 /* StringUtil.m in Sources */,
 				B7996B25205B1DBA006E4802 /* DebugUISessionState.m in Sources */,
+				B731E34221071726001ED4C7 /* LDAPContact.m in Sources */,
 				B7996B26205B1DBA006E4802 /* OWS105AttachmentFilePaths.m in Sources */,
 				B7996B27205B1DBA006E4802 /* main.m in Sources */,
 				B7996B28205B1DBA006E4802 /* ThreadUtil.m in Sources */,
@@ -3520,6 +3551,7 @@
 				B7996B4C205B1DBA006E4802 /* MedxPasscodeManager.m in Sources */,
 				B79740B020E3C28600466F58 /* PDFViewerViewController.m in Sources */,
 				B7996B4D205B1DBA006E4802 /* ConversationViewLayout.m in Sources */,
+				B76104FD20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m in Sources */,
 				B7996B4E205B1DBA006E4802 /* ContactTableViewCell.m in Sources */,
 				B7996B4F205B1DBA006E4802 /* DomainFrontingCountryViewController.m in Sources */,
 				B7996B50205B1DBA006E4802 /* DirectionalPanGestureRecognizer.swift in Sources */,
@@ -3649,6 +3681,7 @@
 				B7996C1E205B1F25006E4802 /* UserNotificationsAdaptee.swift in Sources */,
 				B7996C1F205B1F25006E4802 /* ActivityWindow.m in Sources */,
 				B7996C20205B1F25006E4802 /* MedxInboxSearchUpdater.m in Sources */,
+				B77A34D820EEBF2600D2A330 /* CorporateContactsManager.m in Sources */,
 				B7996C21205B1F25006E4802 /* ConversationHeaderView.m in Sources */,
 				B7996C22205B1F25006E4802 /* ContactsViewHelper.m in Sources */,
 				B7996C23205B1F25006E4802 /* OWSContactOffersCell.m in Sources */,
@@ -3705,6 +3738,7 @@
 				B7996C56205B1F25006E4802 /* OWSContactsManager.m in Sources */,
 				B7996C57205B1F25006E4802 /* StringUtil.m in Sources */,
 				B7996C58205B1F25006E4802 /* DebugUISessionState.m in Sources */,
+				B731E34321071726001ED4C7 /* LDAPContact.m in Sources */,
 				B7996C59205B1F25006E4802 /* OWS105AttachmentFilePaths.m in Sources */,
 				B7996C5A205B1F25006E4802 /* main.m in Sources */,
 				B7996C5B205B1F25006E4802 /* ThreadUtil.m in Sources */,
@@ -3746,6 +3780,7 @@
 				B7996C7F205B1F25006E4802 /* MedxPasscodeManager.m in Sources */,
 				B79740B120E3C28600466F58 /* PDFViewerViewController.m in Sources */,
 				B7996C80205B1F25006E4802 /* ConversationViewLayout.m in Sources */,
+				B76104FE20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m in Sources */,
 				B7996C81205B1F25006E4802 /* ContactTableViewCell.m in Sources */,
 				B7996C82205B1F25006E4802 /* DomainFrontingCountryViewController.m in Sources */,
 				B7996C83205B1F25006E4802 /* DirectionalPanGestureRecognizer.swift in Sources */,
@@ -3875,6 +3910,7 @@
 				450DF2091E0DD2C6003D14BE /* UserNotificationsAdaptee.swift in Sources */,
 				B7AD029A201643AB00A7DB4F /* ActivityWindow.m in Sources */,
 				B724C4EB201D0F9F004B5803 /* MedxInboxSearchUpdater.m in Sources */,
+				B77A34D620EEBF2600D2A330 /* CorporateContactsManager.m in Sources */,
 				34D1F0821F8678AA0066283D /* ConversationHeaderView.m in Sources */,
 				340CB2241EAC155C0001CAA1 /* ContactsViewHelper.m in Sources */,
 				34D1F0AB1F867BFC0066283D /* OWSContactOffersCell.m in Sources */,
@@ -3931,6 +3967,7 @@
 				76EB057A18170B33006006FC /* OWSContactsManager.m in Sources */,
 				76EB064218170B33006006FC /* StringUtil.m in Sources */,
 				452037D11EE84975004E4CDF /* DebugUISessionState.m in Sources */,
+				B731E34121071726001ED4C7 /* LDAPContact.m in Sources */,
 				342FCE6B1EF9C375002690AD /* OWS105AttachmentFilePaths.m in Sources */,
 				D221A09A169C9E5E00537ABF /* main.m in Sources */,
 				345671011E89A5F1006EE662 /* ThreadUtil.m in Sources */,
@@ -3972,6 +4009,7 @@
 				B7AD029720163B3A00A7DB4F /* MedxPasscodeManager.m in Sources */,
 				B79740AF20E3C28600466F58 /* PDFViewerViewController.m in Sources */,
 				34D1F0881F8678AA0066283D /* ConversationViewLayout.m in Sources */,
+				B76104FC20FF4D5900B1D0D1 /* TSLDAPTokenRequest.m in Sources */,
 				76EB068618170B34006006FC /* ContactTableViewCell.m in Sources */,
 				3497DBEF1ECE2E4700DB2605 /* DomainFrontingCountryViewController.m in Sources */,
 				452314A01F7E9E18003A428C /* DirectionalPanGestureRecognizer.swift in Sources */,
