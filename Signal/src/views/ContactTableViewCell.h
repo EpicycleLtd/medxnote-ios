@@ -20,6 +20,7 @@ extern const CGFloat kContactTableViewCellAvatarTextMargin;
 @class OWSContactsManager;
 @class SignalAccount;
 @class TSThread;
+@class LDAPContact;
 
 @interface ContactTableViewCell : UITableViewCell
 
@@ -31,6 +32,8 @@ extern const CGFloat kContactTableViewCellAvatarTextMargin;
 + (CGFloat)rowHeight;
 
 - (void)configureWithSignalAccount:(SignalAccount *)signalAccount contactsManager:(OWSContactsManager *)contactsManager;
+
+- (void)configureWithLDAPContact:(LDAPContact *)contact contactsManager:(OWSContactsManager *)contactsManager;
 
 - (void)configureWithRecipientId:(NSString *)recipientId contactsManager:(OWSContactsManager *)contactsManager;
 

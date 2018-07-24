@@ -12,6 +12,9 @@
 #import "TSLDAPTokenRequest.h"
 #import <AFNetworking/AFNetworking.h>
 
+NSString *const kLdapCidKey = @"ldapCid";
+NSString *const kLdapPasswordKey = @"ldapPassword";
+
 @interface CorporateContactsManager ()
 
 @property (nonatomic, strong) NSString *phoneNumber;
@@ -21,8 +24,6 @@
 @property (nonatomic, strong) NSString *ldapToken;
 @property (nonatomic, strong) NSString *cid;
 
-@property (nonatomic, strong) NSArray <LDAPContact *> *contacts;
-
 @end
 
 @implementation CorporateContactsManager
@@ -30,16 +31,37 @@
 - (instancetype)initWithLocalNumber:(NSString *)number {
     self = [super init];
     self.phoneNumber = number;
-    self.password = [NSUUID UUID].UUIDString;
-    self.contacts = @[];
+    self.password = [NSUserDefaults.standardUserDefaults objectForKey:kLdapPasswordKey];
+    if (!self.password)
+        self.password = [NSUUID UUID].UUIDString;
+    _cid = [NSUserDefaults.standardUserDefaults objectForKey:kLdapCidKey];
     self.sessionManager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"https://openldap.s1z.info"]];
     self.sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
     [self.sessionManager.requestSerializer setAuthorizationHeaderFieldWithUsername:self.phoneNumber password:self.password];
-    [self loadContacts];
+    [self registerSignalToken];
     return self;
 }
 
-- (void)loadContacts {
+- (void)setCid:(NSString *)cid {
+    if (!cid) {
+        // regenerate password on cid update
+        self.password = [NSUUID UUID].UUIDString;
+    }
+    _cid = cid;
+    [self onCidUpdate];
+}
+
+- (void)onCidUpdate {
+    [NSUserDefaults.standardUserDefaults setObject:self.password forKey:kLdapPasswordKey];
+    [NSUserDefaults.standardUserDefaults setObject:self.cid forKey:kLdapCidKey];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
+- (void)registerSignalToken {
+    if (self.cid) {
+        [self connectLdap];
+        return;
+    }
     TSLDAPTokenRequest *request = [[TSLDAPTokenRequest alloc] init];
     [TSNetworkManager.sharedManager makeRequest:request
                                         success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
@@ -54,6 +76,10 @@
 }
 
 - (void)registerWithSignalToken:(NSString *)token {
+    if (self.cid) {
+        [self connectLdap];
+        return;
+    }
     [self.sessionManager POST:[NSString stringWithFormat:@"json2ldap/registration/%@", token]
                    parameters:nil
                      progress:^(NSProgress * _Nonnull downloadProgress) {}
@@ -84,9 +110,15 @@
     [self.sessionManager POST:@"json2ldap/" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *response = responseObject;
+        NSLog(@"LDAP CONNECTION RESPONSE: %@", responseObject);
+        if (!response[@"result"]) {
+            // TODO: add retry count here so it doesn't reconnect indefinitely
+            [self registerSignalToken];
+            return;
+        }
         NSDictionary *result = response[@"result"];
         self.cid = result[@"CID"];
-        NSLog(@"LDAP CONNECTION RESPONSE: %@", responseObject);
+        [self onCidUpdate];
         [self loadLdapContacts];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"ERROR CONNECTING TO LDAP: %@", error.localizedDescription);
@@ -94,6 +126,10 @@
 }
     
 - (void)loadLdapContacts {
+    if (!self.cid) {
+        [self connectLdap];
+        return;
+    }
     NSDictionary *params = @{
                              @"method": @"ldap.search",
                              @"params": @{
@@ -109,15 +145,22 @@
     [self.sessionManager POST:@"json2ldap/" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *response = responseObject;
+        if (!response[@"result"]) {
+            // attempt reconnection without a stored CID so we get a new one
+            if (self.cid) {
+                self.cid = nil;
+                [self registerSignalToken];
+            }
+            return;
+        }
         NSArray *contactsJson = response[@"result"][@"matches"];
         NSMutableArray *results = [NSMutableArray new];
         for (NSDictionary *contactJson in contactsJson) {
             LDAPContact *contact = [[LDAPContact alloc] initWithDictionary:contactJson];
             [results addObject:contact];
         }
-        self.contacts = results.copy;
-        NSLog(@"LDAP CONTACTS RESPONSE: %@", self.contacts);
-        [self.delegate didReceiveContacts:self.contacts];
+        NSLog(@"LDAP CONTACTS RESPONSE: %@", results);
+        [self.delegate didReceiveContacts:results.copy];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"ERROR LOADING LDAP CONTACTS: %@", error.localizedDescription);
     }];

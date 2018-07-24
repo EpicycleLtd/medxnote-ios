@@ -4,7 +4,9 @@
 
 #import "ContactsViewHelper.h"
 #import "ContactTableViewCell.h"
+#import "CorporateContactsManager.h"
 #import "Environment.h"
+#import "LDAPContact.h"
 #import "NSString+OWS.h"
 #import "OWSProfileManager.h"
 #import "Signal-Swift.h"
@@ -18,13 +20,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ContactsViewHelper ()
+@interface ContactsViewHelper () <CorporateContactsManagerDelegate>
 
 // This property is a cached value that is lazy-populated.
 @property (nonatomic, nullable) NSArray<Contact *> *nonSignalContacts;
 
+@property (nonatomic) CorporateContactsManager *corporateContactsManager;
+
 @property (nonatomic) NSDictionary<NSString *, SignalAccount *> *signalAccountMap;
 @property (nonatomic) NSArray<SignalAccount *> *signalAccounts;
+@property (nonatomic) NSArray<LDAPContact *> *ldapContacts;
 
 @property (nonatomic) NSArray<NSString *> *blockedPhoneNumbers;
 
@@ -53,7 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     _contactsManager = [Environment getCurrent].contactsManager;
     _profileManager = [OWSProfileManager sharedManager];
-
+    
+    _corporateContactsManager = [[CorporateContactsManager alloc] initWithLocalNumber:[TSAccountManager localNumber]];
+    _corporateContactsManager.delegate = self;
+    
     // We don't want to notify the delegate in the `updateContacts`.
     self.shouldNotifyDelegateOfUpdatedContacts = YES;
     [self updateContacts];
@@ -164,6 +172,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
     self.signalAccountMap = [signalAccountMap copy];
     self.signalAccounts = [signalAccounts copy];
+    if (!self.ldapContacts)
+        self.ldapContacts = @[];
     self.nonSignalContacts = nil;
 
     // Don't fire delegate "change" events during initialization.
@@ -297,6 +307,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return _nonSignalContacts;
+}
+
+#pragma mark - CorporateContactManagerDelegate
+
+- (void)didReceiveContacts:(NSArray<LDAPContact *> *)contacts {
+    self.ldapContacts = contacts;
+    [self.delegate contactsViewHelperDidUpdateContacts];
 }
 
 #pragma mark - Editing

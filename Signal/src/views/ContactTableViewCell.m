@@ -4,6 +4,7 @@
 
 #import "ContactTableViewCell.h"
 #import "Environment.h"
+#import "LDAPContact.h"
 #import "OWSContactAvatarBuilder.h"
 #import "OWSContactsManager.h"
 #import "Signal-Swift.h"
@@ -119,6 +120,11 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
 {
     [self configureWithRecipientId:signalAccount.recipientId
                    contactsManager:contactsManager];
+}
+
+- (void)configureWithLDAPContact:(LDAPContact *)contact contactsManager:(OWSContactsManager *)contactsManager {
+    [self configureWithRecipientId:contact.clientNumber contactsManager:contactsManager];
+    self.nameLabel.text = contact.displayName;
 }
 
 - (void)configureWithRecipientId:(NSString *)recipientId

@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class OWSContactsManager;
 @class OWSBlockingManager;
 @class CNContact;
+@class LDAPContact;
 
 @interface ContactsViewHelper : NSObject
 
@@ -40,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSDictionary<NSString *, SignalAccount *> *signalAccountMap;
 @property (nonatomic, readonly) NSArray<SignalAccount *> *signalAccounts;
+@property (nonatomic, readonly) NSArray<LDAPContact *> *ldapContacts;
 
 // Useful to differentiate between having no signal accounts vs. haven't checked yet
 @property (nonatomic, readonly) BOOL hasUpdatedContactsAtLeastOnce;

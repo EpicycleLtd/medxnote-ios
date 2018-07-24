@@ -6,6 +6,7 @@
 #import "ContactTableViewCell.h"
 #import "ContactsViewHelper.h"
 #import "Environment.h"
+#import "LDAPContact.h"
 #import "MedxSearchBar.h"
 #import "NewGroupViewController.h"
 #import "NewNonContactConversationViewController.h"
@@ -357,6 +358,10 @@ NS_ASSUME_NONNULL_BEGIN
 //                                   }]];
 //    }
     [contents addSection:staticSection];
+    
+    // LDAP
+    OWSTableSection *ldapSection = [self ldapSection];
+    [contents addSection:ldapSection];
 
     BOOL hasSearchText = [self.searchBar text].length > 0;
 
@@ -487,6 +492,32 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
     return [contactSections copy];
+}
+
+- (OWSTableSection *)ldapSection {
+    __weak typeof(self) weakSelf = self;
+    ContactsViewHelper *helper = self.contactsViewHelper;
+    OWSTableSection *ldapSection = [OWSTableSection new];
+    for (LDAPContact *contact in self.contactsViewHelper.ldapContacts) {
+        
+        [ldapSection addItem:[OWSTableItem itemWithCustomCellBlock:^{
+            ContactTableViewCell *cell = [ContactTableViewCell new];
+            [cell configureWithLDAPContact:contact contactsManager:helper.contactsManager];
+
+            BOOL isBlocked = [helper isRecipientIdBlocked:contact.clientNumber];
+            if (isBlocked) {
+                cell.accessoryMessage = NSLocalizedString(
+                                                          @"CONTACT_CELL_IS_BLOCKED", @"An indicator that a contact has been blocked.");
+            }
+            return cell;
+        }
+                                                   customRowHeight:[ContactTableViewCell rowHeight]
+                                                       actionBlock:^{
+                                                           if (contact.clientNumber)
+                                                               [weakSelf newConversationWithRecipientId:contact.clientNumber];
+                                                       }]];
+    }
+    return ldapSection;
 }
 
 - (NSArray<OWSTableSection *> *)contactsSectionsForSearch
