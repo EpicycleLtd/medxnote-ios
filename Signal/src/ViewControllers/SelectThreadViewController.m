@@ -178,8 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (section.itemCount < 1) {
         [section
             addItem:[OWSTableItem
-                        softCenterLabelItemWithText:NSLocalizedString(@"SETTINGS_BLOCK_LIST_NO_CONTACTS",
-                                                        @"A label that indicates the user has no Signal contacts.")]];
+                        softCenterLabelItemWithText:@"You have no contacts on Medxnote."]];
     }
     [contents addSection:section];
 
