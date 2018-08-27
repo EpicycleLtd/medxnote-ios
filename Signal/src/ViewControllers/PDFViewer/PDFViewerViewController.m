@@ -7,6 +7,9 @@
 //
 
 #import "PDFViewerViewController.h"
+#import "SendExternalFileViewController.h"
+#import <SignalServiceKit/DataSource.h>
+#import "Signal-Swift.h"
 
 @import PDFKit;
 
@@ -55,7 +58,20 @@
 #pragma mark - Actions
 
 - (void)shareTapped {
-    // TODO: forward
+    NSString *filename = self.url.lastPathComponent;
+    DataSource *_Nullable dataSource = [DataSourcePath dataSourceWithURL:_url];
+    dataSource.sourceFilename = filename;
+    NSString *utiType;
+    NSError *typeError;
+    [_url getResourceValue:&utiType forKey:NSURLTypeIdentifierKey error:&typeError];
+    if (typeError)
+        return;
+    
+    SignalAttachment *attachment = [SignalAttachment attachmentWithDataSource:dataSource dataUTI:utiType];
+    SendExternalFileViewController *viewController = [SendExternalFileViewController new];
+    viewController.attachment = attachment;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    [self presentViewController:navigationController animated:true completion:nil];
 }
 
 @end
