@@ -39,6 +39,10 @@ NSString *const kLdapPasswordKey = @"ldapPassword";
     self.sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
     [self.sessionManager.requestSerializer setAuthorizationHeaderFieldWithUsername:self.phoneNumber password:self.password];
     [self registerSignalToken];
+    NSArray *cached = [self cachedContacts];
+    if (cached)
+        [self.delegate didReceiveContacts:cached];
+    
     return self;
 }
 
@@ -154,6 +158,8 @@ NSString *const kLdapPasswordKey = @"ldapPassword";
             return;
         }
         NSArray *contactsJson = response[@"result"][@"matches"];
+        // cache locally
+        [self storeContactsJson:contactsJson];
         NSMutableArray *results = [NSMutableArray new];
         for (NSDictionary *contactJson in contactsJson) {
             LDAPContact *contact = [[LDAPContact alloc] initWithDictionary:contactJson];
@@ -164,6 +170,25 @@ NSString *const kLdapPasswordKey = @"ldapPassword";
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"ERROR LOADING LDAP CONTACTS: %@", error.localizedDescription);
     }];
+}
+
+#pragma mark - Cache
+
+- (void)storeContactsJson:(NSArray <NSDictionary *> *)contactsJson {
+    [NSUserDefaults.standardUserDefaults setObject:contactsJson forKey:@"ldap_contacts"];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
+- (NSArray <LDAPContact *> *)cachedContacts {
+    NSArray *contactsJson = [NSUserDefaults.standardUserDefaults objectForKey:@"ldap_contacts"];
+    if (!contactsJson)
+        return nil;
+    NSMutableArray *results = [NSMutableArray new];
+    for (NSDictionary *contactJson in contactsJson) {
+        LDAPContact *contact = [[LDAPContact alloc] initWithDictionary:contactJson];
+        [results addObject:contact];
+    }
+    return results.copy;
 }
 
 @end
