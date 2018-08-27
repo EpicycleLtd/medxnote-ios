@@ -52,8 +52,7 @@
             NSURL *url = (NSURL *)activityItems.firstObject;
             PDFViewerViewController *vc = [UIStoryboard storyboardWithName:@"PDFViewer" bundle:nil].instantiateInitialViewController;
             vc.url = url;
-            UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
-            [fromViewController presentViewController:nav animated:true completion:nil];
+            [(UINavigationController *)fromViewController pushViewController:vc animated:true];
             return;
         }
         
