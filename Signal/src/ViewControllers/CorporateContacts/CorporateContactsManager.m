@@ -39,9 +39,11 @@ NSString *const kLdapPasswordKey = @"ldapPassword";
     self.sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
     [self.sessionManager.requestSerializer setAuthorizationHeaderFieldWithUsername:self.phoneNumber password:self.password];
     [self registerSignalToken];
-    NSArray *cached = [self cachedContacts];
-    if (cached)
-        [self.delegate didReceiveContacts:cached];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSArray *cached = [self cachedContacts];
+        if (cached)
+            [self.delegate didReceiveContacts:cached];
+    });
     
     return self;
 }
