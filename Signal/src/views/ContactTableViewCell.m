@@ -226,7 +226,7 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
 
     NSString *recipientId = self.recipientId;
     if (recipientId.length == 0) {
-        OWSFail(@"%@ recipientId should not be nil", self.logTag);
+//        OWSFail(@"%@ recipientId should not be nil", self.logTag);
         self.avatarView.image = nil;
         return;
     }
@@ -251,7 +251,7 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
 
     NSString *recipientId = self.recipientId;
     if (recipientId.length == 0) {
-        OWSFail(@"%@ recipientId should not be nil", self.logTag);
+//        OWSFail(@"%@ recipientId should not be nil", self.logTag);
         self.profileNameLabel.text = nil;
         return;
     }
