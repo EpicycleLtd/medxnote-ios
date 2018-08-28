@@ -31,6 +31,7 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
 
 @property (nonatomic) OWSContactsManager *contactsManager;
 @property (nonatomic) NSString *recipientId;
+@property (nonatomic) LDAPContact *ldapContact;
 
 @end
 
@@ -123,8 +124,8 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
 }
 
 - (void)configureWithLDAPContact:(LDAPContact *)contact contactsManager:(OWSContactsManager *)contactsManager {
+    self.ldapContact = contact;
     [self configureWithRecipientId:contact.clientNumber contactsManager:contactsManager];
-    self.nameLabel.text = contact.displayName;
 }
 
 - (void)configureWithRecipientId:(NSString *)recipientId
@@ -214,6 +215,14 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
         self.avatarView.image = nil;
         return;
     }
+    
+    if (self.ldapContact) {
+        self.avatarView.image = [[[OWSContactAvatarBuilder alloc] initWithNonSignalName:self.ldapContact.displayName
+                                                                              colorSeed:self.ldapContact.dn ?: @""
+                                                                               diameter:kContactTableViewCellAvatarSize
+                                                                        contactsManager:contactsManager] build];
+        return;
+    }
 
     NSString *recipientId = self.recipientId;
     if (recipientId.length == 0) {
@@ -234,10 +243,15 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
         self.profileNameLabel.text = nil;
         return;
     }
+    
+    if (self.ldapContact) {
+        self.nameLabel.text = self.ldapContact.displayName;
+        return;
+    }
 
     NSString *recipientId = self.recipientId;
     if (recipientId.length == 0) {
-//        OWSFail(@"%@ recipientId should not be nil", self.logTag);
+        OWSFail(@"%@ recipientId should not be nil", self.logTag);
         self.profileNameLabel.text = nil;
         return;
     }
@@ -265,6 +279,7 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
     self.nameLabel.text = nil;
     self.subtitle.text = nil;
     self.profileNameLabel.text = nil;
+    self.ldapContact = nil;
 }
 
 - (void)otherUsersProfileDidChange:(NSNotification *)notification
