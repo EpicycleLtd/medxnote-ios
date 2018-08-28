@@ -7,6 +7,9 @@
 //
 
 #import "PDFViewerViewController.h"
+#import "SendExternalFileViewController.h"
+#import <SignalServiceKit/DataSource.h>
+#import "Signal-Swift.h"
 
 @import PDFKit;
 
@@ -21,8 +24,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", @"") style:UIBarButtonItemStyleDone target:self action:@selector(done)];
-    self.navigationItem.rightBarButtonItem = item;
+    UIBarButtonItem *share = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped)];
+    self.navigationItem.rightBarButtonItem = share;
     [self setupPDF];
 }
 
@@ -54,8 +57,21 @@
 
 #pragma mark - Actions
 
-- (void)done {
-    [self dismissViewControllerAnimated:true completion:nil];
+- (void)shareTapped {
+    NSString *filename = self.url.lastPathComponent;
+    DataSource *_Nullable dataSource = [DataSourcePath dataSourceWithURL:_url];
+    dataSource.sourceFilename = filename;
+    NSString *utiType;
+    NSError *typeError;
+    [_url getResourceValue:&utiType forKey:NSURLTypeIdentifierKey error:&typeError];
+    if (typeError)
+        return;
+    
+    SignalAttachment *attachment = [SignalAttachment attachmentWithDataSource:dataSource dataUTI:utiType];
+    SendExternalFileViewController *viewController = [SendExternalFileViewController new];
+    viewController.attachment = attachment;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    [self presentViewController:navigationController animated:true completion:nil];
 }
 
 @end
