@@ -73,6 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(self.delegate);
 
     // Search
+    [UITextField appearanceWhenContainedInInstancesOfClasses:@[UISearchBar.class]].defaultTextAttributes = @{NSForegroundColorAttributeName: UIColor.darkGrayColor};
     UISearchBar *searchBar = [UISearchBar new];
     _searchBar = searchBar;
     searchBar.searchBarStyle = UISearchBarStyleMinimal;
