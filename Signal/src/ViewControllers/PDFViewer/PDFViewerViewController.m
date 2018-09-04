@@ -10,6 +10,7 @@
 #import "SendExternalFileViewController.h"
 #import <SignalServiceKit/DataSource.h>
 #import "Signal-Swift.h"
+#import "OWSNavigationController.h"
 
 @import PDFKit;
 
@@ -27,6 +28,24 @@
     UIBarButtonItem *share = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped)];
     self.navigationItem.rightBarButtonItem = share;
     [self setupPDF];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    OWSNavigationController *nav = (OWSNavigationController *)self.navigationController;
+    nav.rotationEnabled = true;
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    OWSNavigationController *nav = (OWSNavigationController *)self.navigationController;
+    nav.rotationEnabled = false;
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    // we want to hide navigation so user can't go back to the rest of the UI from landscape
+    BOOL isLandscape = size.height < size.width;
+    self.navigationController.navigationBarHidden = isLandscape;
 }
 
 - (void)setupPDF {
