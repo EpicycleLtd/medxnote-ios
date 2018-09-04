@@ -27,6 +27,12 @@
     self.interactivePopGestureRecognizer.delegate = self;
 }
 
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    if (self.rotationEnabled)
+        return [super supportedInterfaceOrientations];
+    return UIInterfaceOrientationMaskPortrait;
+}
+
 #pragma mark - UINavigationBarDelegate
 
 // All UINavigationController serve as the UINavigationBarDelegate for their navbar.

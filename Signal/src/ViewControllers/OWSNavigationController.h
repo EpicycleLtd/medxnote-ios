@@ -21,4 +21,6 @@
 // unsaved changes.
 @interface OWSNavigationController : UINavigationController
 
+@property (nonatomic, assign) BOOL rotationEnabled;
+
 @end
