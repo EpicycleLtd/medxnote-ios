@@ -4,9 +4,12 @@
 
 #import "AttachmentSharing.h"
 #import "PDFViewerViewController.h"
+#import "SendExternalFileViewController.h"
+#import "Signal-Swift.h"
 #import "TSAttachmentStream.h"
 #import "UIUtil.h"
 #import <SignalServiceKit/Threading.h>
+#import <SignalServiceKit/DataSource.h>
 
 @implementation AttachmentSharing
 
@@ -55,6 +58,26 @@
             [(UINavigationController *)fromViewController pushViewController:vc animated:true];
             return;
         }
+        
+        if (![activityItems.firstObject isKindOfClass:[NSURL class]])
+            return;
+        NSURL *url = (NSURL *)activityItems.firstObject;
+        DataSource *_Nullable dataSource = [DataSourcePath dataSourceWithURL:url];
+        dataSource.sourceFilename = url.lastPathComponent;
+        NSString *utiType;
+        NSError *typeError;
+        [url getResourceValue:&utiType forKey:NSURLTypeIdentifierKey error:&typeError];
+        if (typeError)
+            return;
+        
+        SignalAttachment *attachment = [SignalAttachment attachmentWithDataSource:dataSource dataUTI:utiType];
+        SendExternalFileViewController *viewController = [SendExternalFileViewController new];
+        viewController.attachment = attachment;
+        UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+        [fromViewController presentViewController:navigationController animated:true completion:nil];
+        
+        // disabling regular share so we only share to Medxnote contacts
+        return;
         
         UIActivityViewController *activityViewController =
             [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:@[]];
