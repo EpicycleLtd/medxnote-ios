@@ -5,7 +5,9 @@
 #import "Pastelog.h"
 #include <sys/sysctl.h>
 
-@interface Pastelog ()
+@import MessageUI;
+
+@interface Pastelog () <MFMailComposeViewControllerDelegate>
 
 @property (nonatomic)UIAlertView *reportAlertView;
 @property (nonatomic)UIAlertView *loadingAlertView;
@@ -75,19 +77,23 @@
 
     NSDictionary *gistDict = @{@"description":[self gistDescription], @"files":gistFiles};
 
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:gistDict options:0 error:nil];
-
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"https://api.github.com/gists"] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30];
-
-    [[self sharedManager] setResponseData:[NSMutableData data]];
-    [[self sharedManager] setBlock:block];
-
-    [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:postData];
-
-    NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:[self sharedManager]];
-
-    [connection start];
+    // offer to send via email
+    [self.sharedManager sendEmailWithAttachment:gistDict];
+    
+    // old pastelog upload logic
+//    NSData *postData = [NSJSONSerialization dataWithJSONObject:gistDict options:0 error:nil];
+//
+//    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"https://api.github.com/gists"] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30];
+//
+//    [[self sharedManager] setResponseData:[NSMutableData data]];
+//    [[self sharedManager] setBlock:block];
+//
+//    [request setHTTPMethod:@"POST"];
+//    [request setHTTPBody:postData];
+//
+//    NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:[self sharedManager]];
+//
+//    [connection start];
 
 }
 
@@ -122,7 +128,36 @@
     return gistDesc;
 }
 
-#pragma mark Network delegates
+#pragma mark - Mail
+
+- (void)sendEmailWithAttachment:(NSDictionary *)gist {
+    [self.loadingAlertView dismissWithClickedButtonIndex:0 animated:YES];
+
+    NSISO8601DateFormatter *formatter = [[NSISO8601DateFormatter alloc] init];
+    NSString *emailTitle = [NSString stringWithFormat:@"Medxnote Log %@", [formatter stringFromDate:[NSDate date]]];
+//    NSString *messageBody = @"";
+    NSArray *toRecipents = @[@"imre.agocs@medxnote.com"];
+    
+    MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
+    mailController.mailComposeDelegate = self;
+    [mailController setSubject:emailTitle];
+//    [mailController setMessageBody:messageBody isHTML:NO];
+    [mailController addAttachmentData:[gist.description dataUsingEncoding:NSUTF8StringEncoding] mimeType:@"text/plain" fileName:@"Log.txt"];
+    [mailController setToRecipients:toRecipents];
+    
+    // we need to wait for UIAlertView to dismiss
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [UIApplication.sharedApplication.keyWindow.rootViewController.presentedViewController presentViewController:mailController animated:YES completion:NULL];
+    });
+}
+
+#pragma mark - MFMailComposeViewControllerDelegate
+
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
+    [controller dismissViewControllerAnimated:true completion:nil];
+}
+
+#pragma mark - Network delegates
 
 -(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data{
     [self.responseData appendData:data];
