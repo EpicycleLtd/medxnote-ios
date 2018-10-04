@@ -554,7 +554,7 @@
 "ERROR_DESCRIPTION_MESSAGE_SEND_FAILED_DUE_TO_FAILED_ATTACHMENT_WRITE" = "Failed due to failed attachment write.";
 
 /* Generic error used whenver Signal can't contact the server */
-"ERROR_DESCRIPTION_NO_INTERNET" = "Signal was unable to connect to the internet. Please try from another WiFi network or use mobile data.";
+"ERROR_DESCRIPTION_NO_INTERNET" = "Medxnote was unable to connect to the internet. Please try from another WiFi network or use mobile data.";
 
 /* Error indicating that an outgoing message had no valid recipients. */
 "ERROR_DESCRIPTION_NO_VALID_RECIPIENTS" = "Message send failed due to a lack of valid recipients.";
@@ -1586,7 +1586,7 @@
 "UNLINK_CONFIRMATION_ALERT_TITLE" = "Unlink \"%@\"?";
 
 /* Alert title when unlinking device fails */
-"UNLINKING_FAILED_ALERT_TITLE" = "Signal was unable to unlink your device.";
+"UNLINKING_FAILED_ALERT_TITLE" = "Medxnote was unable to unlink your device.";
 
 /* Label text in device manager for a device with no name */
 "UNNAMED_DEVICE" = "Unnamed Device";
