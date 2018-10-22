@@ -88,6 +88,8 @@ extern const NSUInteger kOWSProfileManager_MaxAvatarDiameter;
                         fromViewController:(UIViewController *)fromViewController
                                    success:(void (^)(void))successHandler;
 
+- (void)userAddedThreadToProfileWhitelist:(TSThread *)thread success:(void (^)(void))successHandler;
+
 @end
 
 NS_ASSUME_NONNULL_END

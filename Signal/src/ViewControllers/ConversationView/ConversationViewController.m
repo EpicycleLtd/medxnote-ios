@@ -770,11 +770,16 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     }
 
     if ([ThreadUtil shouldShowGroupProfileBannerInThread:self.thread blockingManager:self.blockingManager]) {
-        [self createBannerWithTitle:
-                  NSLocalizedString(@"MESSAGES_VIEW_GROUP_PROFILE_WHITELIST_BANNER",
-                      @"Text for banner in group conversation view that offers to share your profile with this group.")
-                        bannerColor:[UIColor ows_reminderDarkYellowColor]
-                        tapSelector:@selector(groupProfileWhitelistBannerWasTapped:)];
+        // we approve requests automatically
+        [[OWSProfileManager sharedManager] userAddedThreadToProfileWhitelist:self.thread success:^{
+            DDLogWarn(@"%@ Added thread %@ to whitelist", self.logTag, self.thread.uniqueId);
+        }];
+        
+//        [self createBannerWithTitle:
+//                  NSLocalizedString(@"MESSAGES_VIEW_GROUP_PROFILE_WHITELIST_BANNER",
+//                      @"Text for banner in group conversation view that offers to share your profile with this group.")
+//                        bannerColor:[UIColor ows_reminderDarkYellowColor]
+//                        tapSelector:@selector(groupProfileWhitelistBannerWasTapped:)];
         return;
     }
 }
