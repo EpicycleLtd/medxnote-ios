@@ -21,6 +21,8 @@
 #import <SignalServiceKit/TSOutgoingMessage.h>
 #import <SignalServiceKit/TSThread.h>
 
+const NSInteger kDefaultExpirationTime = 30*86400;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ThreadDynamicInteractions ()
@@ -84,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
                                             inThread:thread
                                          messageBody:text
                                        attachmentIds:[NSMutableArray new]
-                                    expiresInSeconds:(configuration.isEnabled ? configuration.durationSeconds : 0)];
+                                    expiresInSeconds:(configuration.isEnabled ? configuration.durationSeconds : kDefaultExpirationTime)];
 
     [messageSender enqueueMessage:message success:successHandler failure:failureHandler];
 
