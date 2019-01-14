@@ -319,9 +319,9 @@ NS_ASSUME_NONNULL_BEGIN
 //                                                               @"be removed.")];
                                     
                                     // show kick confirmation
-                                    [OWSAlerts showConfirmationAlertWithTitle:NSLocalizedString(@"Kick", @"")
-                                                                      message:[NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to kick %@?", @""), signalAccount.displayName]
-                                                                 proceedTitle:NSLocalizedString(@"Kick", @"")
+                                    [OWSAlerts showConfirmationAlertWithTitle:NSLocalizedString(@"Remove", @"")
+                                                                      message:[NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to remove %@?", @""), signalAccount.displayName]
+                                                                 proceedTitle:NSLocalizedString(@"Remove", @"")
                                                                 proceedAction:^(UIAlertAction * _Nonnull action) {
                                                                     [self kickMember:recipientId];
                                                                 }];
