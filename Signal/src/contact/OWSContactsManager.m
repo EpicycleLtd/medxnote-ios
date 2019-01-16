@@ -238,10 +238,13 @@ NSString *const OWSContactsManagerSignalAccountsDidChangeNotification
         for (Contact *contact in contacts) {
             NSArray<SignalRecipient *> *signalRecipients = contactIdToSignalRecipientsMap[contact.uniqueId];
             for (SignalRecipient *signalRecipient in [signalRecipients sortedArrayUsingSelector:@selector(compare:)]) {
+                /* DUPLICATED CONTACTS UPDATE:
+                 * Uncomment this if you don't want to handle duplicated contacts !
                 if ([seenRecipientIds containsObject:signalRecipient.recipientId]) {
                     DDLogDebug(@"Ignoring duplicate contact: %@, %@", signalRecipient.recipientId, contact.fullName);
                     continue;
                 }
+                 */
                 [seenRecipientIds addObject:signalRecipient.recipientId];
                 SignalAccount *signalAccount = [[SignalAccount alloc] initWithSignalRecipient:signalRecipient];
                 signalAccount.contact = contact;
