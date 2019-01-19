@@ -76,6 +76,7 @@ NSString *NSStringForOWSMessageCellType(OWSMessageCellType cellType)
 
     _interaction = interaction;
     _isGroupThread = isGroupThread;
+    _isTitleCollapsed = YES;
     self.row = NSNotFound;
     self.previousRow = NSNotFound;
 
@@ -121,6 +122,16 @@ NSString *NSStringForOWSMessageCellType(OWSMessageCellType cellType)
 
     _shouldHideRecipientStatus = shouldHideRecipientStatus;
 
+    [self clearCachedLayoutState];
+}
+
+- (void)setIsTitleCollapsed:(BOOL)isTitleCollapsed {
+    if (_isTitleCollapsed == isTitleCollapsed) {
+        return;
+    }
+    
+    _isTitleCollapsed = isTitleCollapsed;
+    
     [self clearCachedLayoutState];
 }
 

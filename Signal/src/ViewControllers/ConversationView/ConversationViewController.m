@@ -1804,9 +1804,20 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
             // Unused.
             OWSFail(@"TSInfoMessageAddGroupToProfileWhitelistOffer");
             return;
-        case TSInfoMessageTypeGroupUpdate:
-            [self showConversationSettings];
+        case TSInfoMessageTypeGroupUpdate: {
+//            [self showConversationSettings];
+            // we're now reloading cells here to show expand/collapse instead of opening settings
+            NSUInteger indexToReload = 0;
+            for (ConversationViewItem *viewItem in self.viewItems) {
+                if (viewItem.interaction == message) {
+                    viewItem.isTitleCollapsed = !viewItem.isTitleCollapsed;
+                    indexToReload = [self.viewItems indexOfObject:viewItem];
+                    break;
+                }
+            }
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:indexToReload inSection:0]]];
             return;
+        }
         case TSInfoMessageTypeGroupQuit:
             break;
         case TSInfoMessageTypeDisappearingMessagesUpdate:

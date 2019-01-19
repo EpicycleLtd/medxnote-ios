@@ -95,6 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.imageView.image = [icon imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     self.imageView.tintColor = [self iconColorForInteraction:interaction];
     self.titleLabel.textColor = [self textColor];
+    self.titleLabel.numberOfLines = self.viewItem.isTitleCollapsed ? 3 : 0;
     [self applyTitleForInteraction:interaction label:self.titleLabel];
 
     [self setNeedsLayout];
@@ -293,7 +294,9 @@ NS_ASSUME_NONNULL_BEGIN
     [self applyTitleForInteraction:interaction label:self.titleLabel];
     CGFloat maxTitleWidth = (viewWidth - ([self hMargin] * 2.f + [self hSpacing] + [self iconSize]));
     CGSize titleSize = [self.titleLabel sizeThatFits:CGSizeMake(maxTitleWidth, CGFLOAT_MAX)];
-
+    if (self.viewItem.isTitleCollapsed) {
+        titleSize.height = 3 * self.titleLabel.font.pointSize;
+    }
     CGFloat contentHeight = ceil(MAX([self iconSize], titleSize.height));
     result.height += contentHeight;
 

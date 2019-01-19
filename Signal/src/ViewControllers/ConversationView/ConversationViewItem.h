@@ -47,6 +47,7 @@ NSString *NSStringForOWSMessageCellType(OWSMessageCellType cellType);
 
 @property (nonatomic) BOOL shouldShowDate;
 @property (nonatomic) BOOL shouldHideRecipientStatus;
+@property (nonatomic) BOOL isTitleCollapsed; // Used for TSInfoMessageTypeGroupUpdate
 
 @property (nonatomic) NSInteger row;
 // During updates, we sometimes need the previous row index
