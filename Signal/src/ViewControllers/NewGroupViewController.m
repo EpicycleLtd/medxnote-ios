@@ -573,6 +573,7 @@ const NSUInteger kNewGroupViewControllerAvatarWidth = 68;
                                              [self.navigationController popViewControllerAnimated:YES];
                                          }]];
     [controller addAction:[OWSAlerts cancelAction]];
+    controller.popoverPresentationController.sourceView = self.view;
     [self presentViewController:controller animated:YES completion:nil];
 }
 

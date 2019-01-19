@@ -320,6 +320,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                               [_challengeTextField becomeFirstResponder];
                                                           }];
     [alertController addAction:dismissAction];
+    alertController.popoverPresentationController.sourceView = self.view;
 
     [self presentViewController:alertController animated:YES completion:nil];
 }

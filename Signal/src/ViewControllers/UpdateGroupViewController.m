@@ -463,6 +463,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  handler:^(UIAlertAction *action) {
                                                      [self.navigationController popViewControllerAnimated:YES];
                                                  }]];
+    controller.popoverPresentationController.sourceView = self.view;
     [self presentViewController:controller animated:YES completion:nil];
 }
 

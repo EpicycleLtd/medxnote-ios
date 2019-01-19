@@ -234,7 +234,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }];
     [actionSheetController addAction:verifyAction];
     [actionSheetController addAction:[OWSAlerts cancelAction]];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
 
@@ -403,7 +403,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       handler:^(UIAlertAction *_Nonnull action) {
                                           [self kickMember:recipientId];
                                       }]];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
 

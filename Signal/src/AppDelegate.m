@@ -167,6 +167,7 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Error"
                                                                                  message:@"This app is only supported on unmodified versions of iOS."
                                                                           preferredStyle:UIAlertControllerStyleAlert];
+        alertController.popoverPresentationController.sourceView = self.screenProtectionWindow.rootViewController.view;
         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"OK"
                                                                style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction *action) {
@@ -639,13 +640,13 @@ static NSString *const kURLHostVerifyPrefix             = @"verify";
             [UIAlertController alertControllerWithTitle:NSLocalizedString(@"REGISTER_CONTACTS_WELCOME", nil)
                                                 message:NSLocalizedString(@"REGISTRATION_RESTRICTED_MESSAGE", nil)
                                          preferredStyle:UIAlertControllerStyleAlert];
-
         [controller addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                                        style:UIAlertActionStyleDefault
                                                      handler:^(UIAlertAction *_Nonnull action){
 
                                                      }]];
         UIViewController *fromViewController = [[UIApplication sharedApplication] frontmostViewController];
+        controller.popoverPresentationController.sourceView = fromViewController.view;
         [fromViewController presentViewController:controller
                                          animated:YES
                                        completion:^{

@@ -28,7 +28,7 @@ class InviteFlow: NSObject, MFMessageComposeViewControllerDelegate, MFMailCompos
         self.presentingViewController = presentingViewController
         self.contactsManager = contactsManager
         actionSheetController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-
+        actionSheetController.popoverPresentationController?.sourceView = presentingViewController.view
         super.init()
 
         actionSheetController.addAction(dismissAction())
@@ -179,6 +179,7 @@ class InviteFlow: NSObject, MFMessageComposeViewControllerDelegate, MFMailCompos
         case .failed:
             let warning = UIAlertController(title: nil, message: NSLocalizedString("SEND_INVITE_FAILURE", comment:"Alert body after invite failed"), preferredStyle: .alert)
             warning.addAction(UIAlertAction(title: CommonStrings.dismissButton, style: .default, handler: nil))
+            warning.popoverPresentationController?.sourceView = self.presentingViewController.view;
             self.presentingViewController.present(warning, animated: true, completion: nil)
         case .sent:
             Logger.debug("\(self.TAG) user successfully invited their friends via SMS.")

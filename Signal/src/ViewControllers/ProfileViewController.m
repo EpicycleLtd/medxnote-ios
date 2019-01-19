@@ -299,6 +299,7 @@ NSString *const kProfileView_LastPresentedDate = @"kProfileView_LastPresentedDat
                                              [self profileCompletedOrSkipped];
                                          }]];
     [controller addAction:[OWSAlerts cancelAction]];
+    controller.popoverPresentationController.sourceView = self.view;
     [self presentViewController:controller animated:YES completion:nil];
 }
 
@@ -383,7 +384,7 @@ NSString *const kProfileView_LastPresentedDate = @"kProfileView_LastPresentedDat
                                      @"Alert title that indicates the user's profile view is being saved.")
                          message:nil
                   preferredStyle:UIAlertControllerStyleAlert];
-
+    alertController.popoverPresentationController.sourceView = self.view;
     [self presentViewController:alertController
                        animated:YES
                      completion:^{

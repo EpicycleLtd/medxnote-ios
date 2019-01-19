@@ -88,7 +88,7 @@ typedef void (^BlockAlertCompletionBlock)(UIAlertAction *action);
                                             message:NSLocalizedString(@"BLOCK_BEHAVIOR_EXPLANATION",
                                                                       @"An explanation of the consequences of blocking another user.")
                                      preferredStyle:UIAlertControllerStyleActionSheet];
-
+    actionSheetController.popoverPresentationController.sourceView = fromViewController.view;
     UIAlertAction *unblockAction = [UIAlertAction
         actionWithTitle:NSLocalizedString(@"BLOCK_LIST_BLOCK_BUTTON", @"Button label for the 'block' button")
                   style:UIAlertActionStyleDestructive
@@ -192,7 +192,7 @@ typedef void (^BlockAlertCompletionBlock)(UIAlertAction *action);
 
     UIAlertController *actionSheetController =
         [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-
+    actionSheetController.popoverPresentationController.sourceView = fromViewController.view;
     UIAlertAction *unblockAction = [UIAlertAction
         actionWithTitle:NSLocalizedString(@"BLOCK_LIST_UNBLOCK_BUTTON", @"Button label for the 'unblock' button")
                   style:UIAlertActionStyleDestructive
@@ -291,6 +291,7 @@ typedef void (^BlockAlertCompletionBlock)(UIAlertAction *action);
     [controller addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                                    style:UIAlertActionStyleDefault
                                                  handler:completionBlock]];
+    controller.popoverPresentationController.sourceView = fromViewController.view;
     [fromViewController presentViewController:controller animated:YES completion:nil];
 }
 

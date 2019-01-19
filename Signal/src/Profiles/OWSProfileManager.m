@@ -1441,7 +1441,6 @@ const NSUInteger kOWSProfileManager_MaxAvatarDiameter = 640;
 
     UIAlertController *alertController =
         [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-
     NSString *shareTitle = NSLocalizedString(@"CONVERSATION_SETTINGS_VIEW_SHARE_PROFILE",
         @"Button to confirm that user wants to share their profile with a user or group.");
     [alertController addAction:[UIAlertAction actionWithTitle:shareTitle
@@ -1451,7 +1450,7 @@ const NSUInteger kOWSProfileManager_MaxAvatarDiameter = 640;
                                                                                           success:successHandler];
                                                       }]];
     [alertController addAction:[OWSAlerts cancelAction]];
-
+    alertController.popoverPresentationController.sourceView = fromViewController.view;
     [fromViewController presentViewController:alertController animated:YES completion:nil];
 }
 

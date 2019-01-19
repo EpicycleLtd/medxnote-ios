@@ -175,6 +175,7 @@
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
     [alertController addAction:okAction];
+    alertController.popoverPresentationController.sourceView = vc.view;
     [vc presentViewController:alertController animated:true completion:nil];
 }
 
@@ -215,12 +216,14 @@
                     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"If you enter your PIN incorrectly again, the app will lock and will have to be deleted and reinstalled to restore access to the service" preferredStyle:UIAlertControllerStyleAlert];
                     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
                     [alertController addAction:okAction];
+                    alertController.popoverPresentationController.sourceView = passcodeViewController.view;
                     [passcodeViewController presentViewController:alertController animated:true completion:nil];
                     break;
                 }
                 case 10: {
                     [MedxPasscodeManager setLockoutEnabled];
                     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"The app has been disabled due to too many invalid PIN. Please delete and reinstall the app to regain access" preferredStyle:UIAlertControllerStyleAlert];
+                    alertController.popoverPresentationController.sourceView = passcodeViewController.view;
                     [passcodeViewController presentViewController:alertController animated:YES completion:nil];
                     return false;
                 }

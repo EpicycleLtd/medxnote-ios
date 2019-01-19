@@ -19,6 +19,7 @@ import Foundation
         }
         alertController.addAction(dismissAction)
         alertController.addAction(settingsAction)
+        alertController.popoverPresentationController?.sourceView = UIApplication.shared.frontmostViewController?.view
         UIApplication.shared.frontmostViewController?.present(alertController, animated: true, completion: nil)
     }
 
@@ -37,6 +38,7 @@ import Foundation
 
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: actionTitle, style: .default, handler: nil))
+        alert.popoverPresentationController?.sourceView = UIApplication.shared.frontmostViewController?.view
         UIApplication.shared.frontmostViewController?.present(alert, animated: true, completion: nil)
     }
 
@@ -48,7 +50,7 @@ import Foundation
 
         let actionTitle = proceedTitle ?? NSLocalizedString("OK", comment: "")
         alert.addAction(UIAlertAction(title: actionTitle, style: .default, handler: proceedAction))
-
+        alert.popoverPresentationController?.sourceView = UIApplication.shared.frontmostViewController?.view
         UIApplication.shared.frontmostViewController?.present(alert, animated: true, completion: nil)
     }
 

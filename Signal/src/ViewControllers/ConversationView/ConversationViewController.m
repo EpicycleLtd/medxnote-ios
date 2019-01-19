@@ -907,6 +907,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                                                   [weakSelf resetVerificationStateToDefault];
                                                               }];
         [actionSheetController addAction:dismissAction];
+        actionSheetController.popoverPresentationController.sourceView = self.view;
 
         [self dismissKeyBoard];
         [self presentViewController:actionSheetController animated:YES completion:nil];
@@ -1683,7 +1684,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                 }];
 
     [actionSheetController addAction:resendMessageAction];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
@@ -1718,7 +1719,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                }];
 
     [actionSheetController addAction:resendMessageAction];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
@@ -1846,7 +1847,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                               storageManager:self.storageManager];
                 }];
     [alertController addAction:resetSessionAction];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:alertController animated:YES completion:nil];
 }
@@ -1887,7 +1888,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                    }
                                }];
     [actionSheetController addAction:acceptSafetyNumberAction];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
@@ -1917,7 +1918,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                                        }];
     [alertController addAction:callAction];
     [alertController addAction:[OWSAlerts cancelAction]];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:alertController animated:YES completion:nil];
 }
@@ -1967,7 +1968,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                     }];
                 }];
     [actionSheetController addAction:blockAction];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
@@ -3316,7 +3317,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
 
     UIAlertController *actionSheetController =
         [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [actionSheetController addAction:[OWSAlerts cancelAction]];
 
     UIAlertAction *takeMediaAction = [UIAlertAction
@@ -3374,7 +3375,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
     OWSAssert(qrImage);
     [qrAction setValue:qrImage forKey:@"image"];
     [actionSheetController addAction:qrAction];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:actionSheetController animated:true completion:nil];
 }

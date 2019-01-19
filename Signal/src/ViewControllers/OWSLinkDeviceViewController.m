@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    [self.qrScanningController startCapture];
                                }];
         [alertController addAction:proceedAction];
-
+        alertController.popoverPresentationController.sourceView = self.view;
         [self presentViewController:alertController animated:YES completion:nil];
     } else {
         NSString *title
@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
                                        [self provisionWithParser:parser];
                                    }];
         [alertController addAction:proceedAction];
-
+        alertController.popoverPresentationController.sourceView = self.view;
         [self presentViewController:alertController animated:YES completion:nil];
     }
 }

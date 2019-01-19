@@ -186,8 +186,8 @@ int const OWSLinkedDevicesTableViewControllerSectionAddDevice = 1;
                                                                         style:UIAlertActionStyleCancel
                                                                       handler:nil];
                 [alertController addAction:dismissAction];
-
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    alertController.popoverPresentationController.sourceView = wself.view;
                     [wself.refreshControl endRefreshing];
                     [wself presentViewController:alertController animated:YES completion:nil];
                 });
@@ -368,6 +368,7 @@ int const OWSLinkedDevicesTableViewControllerSectionAddDevice = 1;
     [alertController addAction:unlinkAction];
 
     dispatch_async(dispatch_get_main_queue(), ^{
+        alertController.popoverPresentationController.sourceView = self.view;
         [self presentViewController:alertController animated:YES completion:nil];
     });
 }
@@ -394,6 +395,7 @@ int const OWSLinkedDevicesTableViewControllerSectionAddDevice = 1;
                                       [alertController addAction:[OWSAlerts cancelAction]];
 
                                       dispatch_async(dispatch_get_main_queue(), ^{
+                                          alertController.popoverPresentationController.sourceView = self.view;
                                           [self presentViewController:alertController animated:YES completion:nil];
                                       });
                                   }];

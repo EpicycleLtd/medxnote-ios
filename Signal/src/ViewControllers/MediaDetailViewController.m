@@ -625,7 +625,7 @@ NS_ASSUME_NONNULL_BEGIN
                                          }]];
 
     [actionSheet addAction:[OWSAlerts cancelAction]];
-
+    actionSheet.popoverPresentationController.sourceView = self.view;
     [self presentViewController:actionSheet animated:YES completion:nil];
 }
 

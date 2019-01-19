@@ -814,6 +814,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     [alertController addAction:[OWSAlerts cancelAction]];
     [alertController addAction:okAction];
+    alertController.popoverPresentationController.sourceView = self.view;
     self.searchBar.text = @"";
     [self searchTextDidChange];
 

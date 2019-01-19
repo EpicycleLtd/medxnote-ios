@@ -878,7 +878,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }];
     [alertController addAction:leaveAction];
     [alertController addAction:[OWSAlerts cancelAction]];
-
+    alertController.popoverPresentationController.sourceView = self.view;
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
@@ -1100,7 +1100,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     [actionSheetController addAction:[OWSAlerts cancelAction]];
-
+    actionSheetController.popoverPresentationController.sourceView = self.view;
     [self presentViewController:actionSheetController animated:YES completion:nil];
 }
 

@@ -180,7 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    [[TSStorageManager sharedManager] deleteThreadsAndMessages];
                                }];
     [alertController addAction:deleteAction];
-
+    alertController.popoverPresentationController.sourceView = self.view;
     [self presentViewController:alertController animated:true completion:nil];
 }
 

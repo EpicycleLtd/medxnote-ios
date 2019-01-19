@@ -56,7 +56,7 @@
                              message:
                                  @"Sorry, your installation is too old for us to update. You'll have to start fresh."
                       preferredStyle:UIAlertControllerStyleAlert];
-
+        alertController.popoverPresentationController.sourceView = [UIApplication sharedApplication].keyWindow.rootViewController.view;
         UIAlertAction *quitAction = [UIAlertAction actionWithTitle:@"Quit"
                                                              style:UIAlertActionStyleDefault
                                                            handler:^(UIAlertAction *_Nonnull action) {

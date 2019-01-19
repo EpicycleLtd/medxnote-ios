@@ -343,7 +343,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       handler:^(UIAlertAction *_Nonnull action) {
                                                           [[UIApplication sharedApplication] openSystemSettings];
                                                       }]];
-
+    alertController.popoverPresentationController.sourceView = viewController.view;
     [viewController presentViewController:alertController animated:YES completion:nil];
 }
 

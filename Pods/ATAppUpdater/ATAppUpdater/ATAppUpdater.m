@@ -138,7 +138,7 @@ NSString *appStoreURL = nil;
 {
     NSString *alertMessage = [NSString stringWithFormat:self.alertMessage, version];
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:self.alertTitle message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
-    
+    alert.popoverPresentationController.sourceView = [[UIApplication sharedApplication] keyWindow].rootViewController.view;
     UIAlertAction *updateAction = [UIAlertAction actionWithTitle:self.alertUpdateButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:appStoreURL]];
         if ([self.delegate respondsToSelector:@selector(appUpdaterUserDidLaunchAppStore)]) {

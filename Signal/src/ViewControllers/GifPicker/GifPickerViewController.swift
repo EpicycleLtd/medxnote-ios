@@ -389,7 +389,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
             alert.addAction(UIAlertAction(title: CommonStrings.dismissButton, style: .cancel) { _ in
                 strongSelf.dismiss(animated: true, completion: nil)
             })
-
+            alert.popoverPresentationController?.sourceView = strongSelf.view;
             strongSelf.present(alert, animated: true, completion: nil)
         }.retainUntilComplete()
 

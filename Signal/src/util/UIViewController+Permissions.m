@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                   callback(NO);
                                                               }];
         [alert addAction:dismissAction];
-
+        alert.popoverPresentationController.sourceView = self.view;
         [self presentViewController:alert animated:YES completion:nil];
     } else if (status == AVAuthorizationStatusAuthorized) {
         callback(YES);

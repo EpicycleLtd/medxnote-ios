@@ -797,6 +797,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState 
                                              stringWithFormat:NSLocalizedString(@"GROUP_REMOVING", nil), [thread name]]
                                  message:nil
                           preferredStyle:UIAlertControllerStyleAlert];
+            removingFromGroup.popoverPresentationController.sourceView = self.view;
             [self presentViewController:removingFromGroup animated:YES completion:nil];
 
             TSOutgoingMessage *message = [[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]

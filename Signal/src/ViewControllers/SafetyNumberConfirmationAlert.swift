@@ -73,9 +73,9 @@ class SafetyNumberConfirmationAlert: NSObject {
 
         }
         actionSheetController.addAction(showSafetyNumberAction)
-
+        
         actionSheetController.addAction(OWSAlerts.cancelAction)
-
+        actionSheetController.popoverPresentationController?.sourceView = UIApplication.shared.frontmostViewController?.view
         UIApplication.shared.frontmostViewController?.present(actionSheetController, animated: true)
         return true
     }

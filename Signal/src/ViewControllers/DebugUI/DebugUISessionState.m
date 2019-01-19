@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                         recipientId:recipientId
                                                               isUserInitiatedChange:NO];
                                                       }]];
-
+    alertController.popoverPresentationController.sourceView = [UIApplication sharedApplication].frontmostViewController.view;
     [[UIApplication sharedApplication].frontmostViewController presentViewController:alertController
                                                                             animated:YES
                                                                           completion:nil];

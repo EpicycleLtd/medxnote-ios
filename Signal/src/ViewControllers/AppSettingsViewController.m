@@ -364,6 +364,7 @@
         [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CONFIRM_ACCOUNT_DESTRUCTION_TITLE", @"")
                                             message:NSLocalizedString(@"CONFIRM_ACCOUNT_DESTRUCTION_TEXT", @"")
                                      preferredStyle:UIAlertControllerStyleAlert];
+    alertController.popoverPresentationController.sourceView = self.view;
     [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"PROCEED_BUTTON", @"")
                                                         style:UIAlertActionStyleDestructive
                                                       handler:^(UIAlertAction *action) {

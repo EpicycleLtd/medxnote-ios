@@ -213,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    [viewController dismissViewControllerAnimated:true completion:nil];
                                }];
     [alertController addAction:dismissAction];
-
+    alertController.popoverPresentationController.sourceView = viewController.view;
     [viewController presentViewController:alertController animated:YES completion:nil];
 }
 
@@ -247,7 +247,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     [alertController addAction:[OWSAlerts cancelAction]];
-
+    alertController.popoverPresentationController.sourceView = viewController.view;
     [viewController presentViewController:alertController animated:YES completion:nil];
 
     DDLogWarn(@"%@ Identity verification failed with error: %@", tag, error);

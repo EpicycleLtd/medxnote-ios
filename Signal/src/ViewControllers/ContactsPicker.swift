@@ -149,7 +149,7 @@ open class ContactsPicker: OWSViewController, UITableViewDelegate, UITableViewDa
                 let body = NSLocalizedString("INVITE_FLOW_REQUIRES_CONTACT_ACCESS_BODY", comment: "Alert body when contacts disabled while trying to invite contacts to signal")
 
                 let alert = UIAlertController(title: title, message: body, preferredStyle: UIAlertControllerStyle.alert)
-
+                alert.popoverPresentationController?.sourceView = self.view
                 let dismissText = CommonStrings.cancelButton
 
                 let cancelAction = UIAlertAction(title: dismissText, style: .cancel, handler: {  _ in

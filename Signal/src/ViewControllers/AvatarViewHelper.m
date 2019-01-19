@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
         [UIAlertController alertControllerWithTitle:self.delegate.avatarActionSheetTitle
                                             message:nil
                                      preferredStyle:UIAlertControllerStyleActionSheet];
+    actionSheetController.popoverPresentationController.sourceView = self.delegate.fromViewController.view;
     [actionSheetController addAction:[OWSAlerts cancelAction]];
 
     UIAlertAction *takePictureAction = [UIAlertAction

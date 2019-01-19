@@ -815,7 +815,7 @@ static NSString *const iRateMacAppStoreURLFormat  = @"macappstore://itunes.apple
             UIAlertController *alert = [UIAlertController alertControllerWithTitle:self.messageTitle
                                                                            message:message
                                                                     preferredStyle:UIAlertControllerStyleAlert];
-
+            alert.popoverPresentationController.sourceView = topController.view;
             // rate action
             [alert addAction:[UIAlertAction actionWithTitle:self.rateButtonLabel
                                                       style:UIAlertActionStyleDefault
