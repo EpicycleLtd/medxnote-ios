@@ -1847,7 +1847,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                               storageManager:self.storageManager];
                 }];
     [alertController addAction:resetSessionAction];
-    actionSheetController.popoverPresentationController.sourceView = self.view;
+    alertController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:alertController animated:YES completion:nil];
 }
@@ -1918,7 +1918,7 @@ typedef NS_ENUM(NSInteger, MessagesRangeSizeMode) {
                                                        }];
     [alertController addAction:callAction];
     [alertController addAction:[OWSAlerts cancelAction]];
-    actionSheetController.popoverPresentationController.sourceView = self.view;
+    alertController.popoverPresentationController.sourceView = self.view;
     [self dismissKeyBoard];
     [self presentViewController:alertController animated:YES completion:nil];
 }
