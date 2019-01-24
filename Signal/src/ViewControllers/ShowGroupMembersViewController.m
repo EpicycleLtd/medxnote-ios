@@ -396,7 +396,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     // kick member action
     [actionSheetController
-     addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Kick",
+     addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove",
                                                                 @"Label for button or row which allows users to verify the "
                                                                 @"safety number of another user.")
                                         style:UIAlertActionStyleDestructive
