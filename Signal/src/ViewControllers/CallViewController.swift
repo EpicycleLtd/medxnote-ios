@@ -396,7 +396,7 @@ class CallViewController: OWSViewController, CallObserver, CallServiceObserver {
         AssertIsOnMainThread()
 
         let actionSheetController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        actionSheetController.popoverPresentationController?.sourceRect = self.view
+        actionSheetController.popoverPresentationController?.sourceView = self.view
         let dismissAction = UIAlertAction(title:  CommonStrings.dismissButton, style: .cancel, handler: nil)
         actionSheetController.addAction(dismissAction)
 
