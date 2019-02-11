@@ -147,9 +147,9 @@ NS_ASSUME_NONNULL_BEGIN
     OWSDisappearingMessagesConfiguration *disappearingConfig =
         [OWSDisappearingMessagesConfiguration fetchObjectWithUniqueID:message.uniqueThreadId];
 
-    if (!disappearingConfig.isEnabled) {
-        return;
-    }
+//    if (!disappearingConfig.isEnabled) {
+//        return;
+//    }
 
     [self setExpirationForMessage:message expirationStartedAt:[NSDate ows_millisecondTimeStamp]];
 }
