@@ -140,13 +140,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setExpirationForMessage:(TSMessage *)message
 {
-    if (!message.isExpiringMessage) {
-        return;
-    }
-
-    OWSDisappearingMessagesConfiguration *disappearingConfig =
-        [OWSDisappearingMessagesConfiguration fetchObjectWithUniqueID:message.uniqueThreadId];
-
+    // treat all messages as expiring
+//    if (!message.isExpiringMessage) {
+//        return;
+//    }
+//
+//    OWSDisappearingMessagesConfiguration *disappearingConfig =
+//        [OWSDisappearingMessagesConfiguration fetchObjectWithUniqueID:message.uniqueThreadId];
+//
 //    if (!disappearingConfig.isEnabled) {
 //        return;
 //    }
@@ -175,9 +176,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     OWSAssert(transaction);
 
-    if (!message.isExpiringMessage) {
-        return;
-    }
+    // treat all messages as expiring
+//    if (!message.isExpiringMessage) {
+//        return;
+//    }
 
     int startedSecondsAgo = [NSDate new].timeIntervalSince1970 - expirationStartedAt / 1000.0;
     DDLogDebug(@"%@ Starting expiration for message read %d seconds ago", self.logTag, startedSecondsAgo);
