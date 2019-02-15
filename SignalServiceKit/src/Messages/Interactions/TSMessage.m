@@ -263,7 +263,8 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
 
 - (BOOL)isExpiringMessage
 {
-    return self.expiresInSeconds > 0;
+    return true;
+//    return self.expiresInSeconds > 0;
 }
 
 - (uint64_t)timestampForSorting
