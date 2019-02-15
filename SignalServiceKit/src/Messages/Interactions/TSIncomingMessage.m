@@ -136,7 +136,8 @@ NS_ASSUME_NONNULL_BEGIN
             return NO;
         }
     }
-    return self.isExpiringMessage;
+    return true;
+//    return self.isExpiringMessage;
 }
 
 #pragma mark - OWSReadTracking
