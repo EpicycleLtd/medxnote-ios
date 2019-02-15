@@ -184,7 +184,8 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
 
 - (BOOL)shouldStartExpireTimer:(YapDatabaseReadTransaction *)transaction
 {
-    return self.isExpiringMessage;
+    return true;
+//    return self.isExpiringMessage;
 }
 
 // TODO a downloaded media doesn't start counting until download is complete.
@@ -290,6 +291,11 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
 
     [self applyChangeToSelfAndLatestCopy:transaction
                              changeBlock:^(TSMessage *message) {
+                                 // TODO: Jan - replace this with hardcoded value
+                                 if (_expiresAt == 0) {
+                                     [message setExpiresInSeconds:1800];
+                                     [message updateExpiresAt];
+                                 }
                                  [message setExpireStartedAt:expireStartedAt];
                              }];
 }
