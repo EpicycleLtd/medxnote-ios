@@ -21,8 +21,6 @@
 #import <SignalServiceKit/TSOutgoingMessage.h>
 #import <SignalServiceKit/TSThread.h>
 
-const NSInteger kDefaultExpirationTime = 30*86400;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ThreadDynamicInteractions ()
