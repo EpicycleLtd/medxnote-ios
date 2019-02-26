@@ -13,6 +13,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static const NSUInteger OWSMessageSchemaVersion = 3;
+const NSInteger kDefaultExpirationTime = 30/**86400*/; // in seconds
 
 @interface TSMessage ()
 
@@ -194,7 +195,8 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
     if (_expiresInSeconds > 0 && _expireStartedAt > 0) {
         _expiresAt = _expireStartedAt + _expiresInSeconds * 1000;
     } else {
-        _expiresAt = 0;
+        _expireStartedAt = [NSDate ows_millisecondTimeStamp];
+        _expiresAt = _expireStartedAt + kDefaultExpirationTime * 1000;
     }
 }
 
@@ -291,9 +293,8 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
 
     [self applyChangeToSelfAndLatestCopy:transaction
                              changeBlock:^(TSMessage *message) {
-                                 // TODO: Jan - replace this with hardcoded value
                                  if (_expiresAt == 0) {
-                                     [message setExpiresInSeconds:1800];
+                                     [message setExpiresInSeconds:kDefaultExpirationTime];
                                      [message updateExpiresAt];
                                  }
                                  [message setExpireStartedAt:expireStartedAt];
