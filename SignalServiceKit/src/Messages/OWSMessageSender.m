@@ -40,6 +40,8 @@
 #import <AxolotlKit/SessionCipher.h>
 #import <TwistedOakCollapsingFutures/CollapsingFutures.h>
 #import <objc/runtime.h>
+#import "OWSInstallMessage.h"
+#import "SignalAccount.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -627,7 +629,8 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
             [self groupSend:recipients message:message thread:gThread success:successHandler failure:failureHandler];
 
         } else if ([thread isKindOfClass:[TSContactThread class]]
-            || [message isKindOfClass:[OWSOutgoingSyncMessage class]]) {
+            || [message isKindOfClass:[OWSOutgoingSyncMessage class]]
+            || [message isKindOfClass:[OWSInstallMessage class]]) {
 
             TSContactThread *contactThread = (TSContactThread *)thread;
             if ([contactThread.contactIdentifier isEqualToString:[TSAccountManager localNumber]]
@@ -641,6 +644,10 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
             NSString *recipientContactId = [message isKindOfClass:[OWSOutgoingSyncMessage class]]
                 ? [TSAccountManager localNumber]
                 : contactThread.contactIdentifier;
+            if ([message isKindOfClass:[OWSInstallMessage class]]) {
+                OWSInstallMessage *installMessage = (OWSInstallMessage *) message;
+                recipientContactId = installMessage.recipientId;
+            }
 
             // If we block a user, don't send 1:1 messages to them. The UI
             // should prevent this from occurring, but in some edge cases
@@ -1469,6 +1476,23 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
             completionHandler();
         });
     });
+}
+
+- (void)sendInstallMessageToContacts:(NSArray <SignalAccount *> *)contacts {
+    for (SignalAccount *contact in contacts) {
+        OWSInstallMessage *message = [OWSInstallMessage new];
+        message.recipientId = contact.recipientId;
+//        SignalRecipient *recipient = [contact signalRecipientWithTransaction:TSStorageManager.sharedManager.dbReadConnection];
+//        message.recipientId = recipient.recipientId;
+        if (!message.recipientId || message.recipientId.length == 0 || [contact.recipientId isEqualToString:[TSAccountManager localNumber]])
+            continue;
+        DDLogInfo(@"%@ Sending install message to %@", self.logTag, message.recipientId);
+        [self enqueueMessage:message success:^{
+            DDLogInfo(@"%@ Successfully sent install message to %@", self.logTag, contact.recipientId);
+        } failure:^(NSError * _Nonnull error) {
+            DDLogWarn(@"%@ Failed to deliver install message with error: %@", self.logTag, error);
+        }];
+    }
 }
 
 @end

@@ -324,7 +324,8 @@ NS_ASSUME_NONNULL_BEGIN
         
         if (!groupThread) {
             // Unknown group.
-            if (dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeUpdate) {
+            if (dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeUpdate
+                || dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeRequestGroups) {
                 // Accept group updates for unknown groups.
             } else if (dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeDeliver) {
                 [self sendGroupInfoRequest:dataMessage.group.id envelope:envelope transaction:transaction];
@@ -956,6 +957,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         switch (dataMessage.group.type) {
+            case OWSSignalServiceProtosGroupContextTypeRequestGroups:
             case OWSSignalServiceProtosGroupContextTypeUpdate: {
                 // Ensures that the thread exists but doesn't update it.
                 TSGroupThread *newGroupThread =
