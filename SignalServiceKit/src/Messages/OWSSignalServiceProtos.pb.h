@@ -34,6 +34,8 @@
 @class OWSSignalServiceProtosGroupDetailsAvatar;
 @class OWSSignalServiceProtosGroupDetailsAvatarBuilder;
 @class OWSSignalServiceProtosGroupDetailsBuilder;
+@class OWSSignalServiceProtosInstallMessage;
+@class OWSSignalServiceProtosInstallMessageBuilder;
 @class OWSSignalServiceProtosNullMessage;
 @class OWSSignalServiceProtosNullMessageBuilder;
 @class OWSSignalServiceProtosPredefinedAnswers;
@@ -166,10 +168,20 @@ typedef NS_ENUM(SInt32, OWSSignalServiceProtosGroupContextType) {
   OWSSignalServiceProtosGroupContextTypeQuit = 3,
   OWSSignalServiceProtosGroupContextTypeRequestInfo = 4,
   OWSSignalServiceProtosGroupContextTypeKickOut = 50,
+  OWSSignalServiceProtosGroupContextTypeRequestGroups = 60,
 };
 
 BOOL OWSSignalServiceProtosGroupContextTypeIsValidValue(OWSSignalServiceProtosGroupContextType value);
 NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServiceProtosGroupContextType value);
+
+typedef NS_ENUM(SInt32, OWSSignalServiceProtosInstallMessageType) {
+  OWSSignalServiceProtosInstallMessageTypeUnknown = 0,
+  OWSSignalServiceProtosInstallMessageTypeGroupRequest = 1,
+  OWSSignalServiceProtosInstallMessageTypeGroupResponse = 2,
+};
+
+BOOL OWSSignalServiceProtosInstallMessageTypeIsValidValue(OWSSignalServiceProtosInstallMessageType value);
+NSString *NSStringFromOWSSignalServiceProtosInstallMessageType(OWSSignalServiceProtosInstallMessageType value);
 
 
 @interface OWSSignalServiceProtosOwssignalServiceProtosRoot : NSObject {
@@ -293,6 +305,7 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 #define Content_callMessage @"callMessage"
 #define Content_nullMessage @"nullMessage"
 #define Content_receiptMessage @"receiptMessage"
+#define Content_installMessage @"installMessage"
 @interface OWSSignalServiceProtosContent : PBGeneratedMessage<GeneratedMessageProtocol> {
 @private
   BOOL hasDataMessage_:1;
@@ -300,22 +313,26 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
   BOOL hasCallMessage_:1;
   BOOL hasNullMessage_:1;
   BOOL hasReceiptMessage_:1;
+  BOOL hasInstallMessage_:1;
   OWSSignalServiceProtosDataMessage* dataMessage;
   OWSSignalServiceProtosSyncMessage* syncMessage;
   OWSSignalServiceProtosCallMessage* callMessage;
   OWSSignalServiceProtosNullMessage* nullMessage;
   OWSSignalServiceProtosReceiptMessage* receiptMessage;
+  OWSSignalServiceProtosInstallMessage* installMessage;
 }
 - (BOOL) hasDataMessage;
 - (BOOL) hasSyncMessage;
 - (BOOL) hasCallMessage;
 - (BOOL) hasNullMessage;
 - (BOOL) hasReceiptMessage;
+- (BOOL) hasInstallMessage;
 @property (readonly, strong) OWSSignalServiceProtosDataMessage* dataMessage;
 @property (readonly, strong) OWSSignalServiceProtosSyncMessage* syncMessage;
 @property (readonly, strong) OWSSignalServiceProtosCallMessage* callMessage;
 @property (readonly, strong) OWSSignalServiceProtosNullMessage* nullMessage;
 @property (readonly, strong) OWSSignalServiceProtosReceiptMessage* receiptMessage;
+@property (readonly, strong) OWSSignalServiceProtosInstallMessage* installMessage;
 
 + (instancetype) defaultInstance;
 - (instancetype) defaultInstance;
@@ -386,6 +403,13 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 - (OWSSignalServiceProtosContentBuilder*) setReceiptMessageBuilder:(OWSSignalServiceProtosReceiptMessageBuilder*) builderForValue;
 - (OWSSignalServiceProtosContentBuilder*) mergeReceiptMessage:(OWSSignalServiceProtosReceiptMessage*) value;
 - (OWSSignalServiceProtosContentBuilder*) clearReceiptMessage;
+
+- (BOOL) hasInstallMessage;
+- (OWSSignalServiceProtosInstallMessage*) installMessage;
+- (OWSSignalServiceProtosContentBuilder*) setInstallMessage:(OWSSignalServiceProtosInstallMessage*) value;
+- (OWSSignalServiceProtosContentBuilder*) setInstallMessageBuilder:(OWSSignalServiceProtosInstallMessageBuilder*) builderForValue;
+- (OWSSignalServiceProtosContentBuilder*) mergeInstallMessage:(OWSSignalServiceProtosInstallMessage*) value;
+- (OWSSignalServiceProtosContentBuilder*) clearInstallMessage;
 @end
 
 #define CallMessage_offer @"offer"
@@ -2247,6 +2271,56 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
 - (BOOL) active;
 - (OWSSignalServiceProtosGroupDetailsBuilder*) setActive:(BOOL) value;
 - (OWSSignalServiceProtosGroupDetailsBuilder*) clearActive;
+@end
+
+#define InstallMessage_type @"type"
+@interface OWSSignalServiceProtosInstallMessage : PBGeneratedMessage<GeneratedMessageProtocol> {
+@private
+  BOOL hasType_:1;
+  OWSSignalServiceProtosInstallMessageType type;
+}
+- (BOOL) hasType;
+@property (readonly) OWSSignalServiceProtosInstallMessageType type;
+
++ (instancetype) defaultInstance;
+- (instancetype) defaultInstance;
+
+- (BOOL) isInitialized;
+- (void) writeToCodedOutputStream:(PBCodedOutputStream*) output;
+- (OWSSignalServiceProtosInstallMessageBuilder*) builder;
++ (OWSSignalServiceProtosInstallMessageBuilder*) builder;
++ (OWSSignalServiceProtosInstallMessageBuilder*) builderWithPrototype:(OWSSignalServiceProtosInstallMessage*) prototype;
+- (OWSSignalServiceProtosInstallMessageBuilder*) toBuilder;
+
++ (OWSSignalServiceProtosInstallMessage*) parseFromData:(NSData*) data;
++ (OWSSignalServiceProtosInstallMessage*) parseFromData:(NSData*) data extensionRegistry:(PBExtensionRegistry*) extensionRegistry;
++ (OWSSignalServiceProtosInstallMessage*) parseFromInputStream:(NSInputStream*) input;
++ (OWSSignalServiceProtosInstallMessage*) parseFromInputStream:(NSInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry;
++ (OWSSignalServiceProtosInstallMessage*) parseFromCodedInputStream:(PBCodedInputStream*) input;
++ (OWSSignalServiceProtosInstallMessage*) parseFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry;
+@end
+
+@interface OWSSignalServiceProtosInstallMessageBuilder : PBGeneratedMessageBuilder {
+@private
+  OWSSignalServiceProtosInstallMessage* resultInstallMessage;
+}
+
+- (OWSSignalServiceProtosInstallMessage*) defaultInstance;
+
+- (OWSSignalServiceProtosInstallMessageBuilder*) clear;
+- (OWSSignalServiceProtosInstallMessageBuilder*) clone;
+
+- (OWSSignalServiceProtosInstallMessage*) build;
+- (OWSSignalServiceProtosInstallMessage*) buildPartial;
+
+- (OWSSignalServiceProtosInstallMessageBuilder*) mergeFrom:(OWSSignalServiceProtosInstallMessage*) other;
+- (OWSSignalServiceProtosInstallMessageBuilder*) mergeFromCodedInputStream:(PBCodedInputStream*) input;
+- (OWSSignalServiceProtosInstallMessageBuilder*) mergeFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry;
+
+- (BOOL) hasType;
+- (OWSSignalServiceProtosInstallMessageType) type;
+- (OWSSignalServiceProtosInstallMessageBuilder*) setType:(OWSSignalServiceProtosInstallMessageType) value;
+- (OWSSignalServiceProtosInstallMessageBuilder*) clearType;
 @end
 
 
