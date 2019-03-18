@@ -279,6 +279,8 @@ NS_ASSUME_NONNULL_BEGIN
             DDLogInfo(@"%@ Received null message.", self.logTag);
         } else if (content.hasReceiptMessage) {
             [self handleIncomingEnvelope:envelope withReceiptMessage:content.receiptMessage transaction:transaction];
+        } else if (content.hasInstallMessage) {
+            [self handleIncomingEnvelope:envelope withInstallMessage:content.installMessage transaction:transaction];
         } else {
             DDLogWarn(@"%@ Ignoring envelope. Content with no known payload", self.logTag);
         }
@@ -445,6 +447,65 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<ProfileManagerProtocol>)profileManager
 {
     return [TextSecureKitEnv sharedEnv].profileManager;
+}
+
+- (void)handleIncomingEnvelope:(OWSSignalServiceProtosEnvelope *)envelope
+            withInstallMessage:(OWSSignalServiceProtosInstallMessage *)installMessage
+                   transaction:(YapDatabaseReadWriteTransaction *)transaction
+{
+    OWSAssert(envelope);
+    OWSAssert(installMessage);
+    OWSAssert(transaction);
+//    OWSAssert(installMessage.type == OWSSignalServiceProtosInstallMessageTypeGroupRequest)
+    
+    // TODO: find all groups that have envelope.source as a member
+    // TODO: send group update to all groups to force rejoin
+    
+    
+    
+//    OWSAssert(installMessage.group.type == OWSSignalServiceProtosGroupContextTypeRequestGroups);
+    
+//    NSData *groupId = installMessage.hasGroup ? dataMessage.group.id : nil;
+//    if (!groupId) {
+//        OWSFail(@"Group request request is missing group id.");
+//        return;
+//    }
+//
+//    DDLogWarn(
+//              @"%@ Received 'Request Group Info' message for group: %@ from: %@", self.logTag, groupId, envelope.source);
+//
+//    TSGroupThread *_Nullable gThread = [TSGroupThread threadWithGroupId:dataMessage.group.id transaction:transaction];
+//    if (!gThread) {
+//        DDLogWarn(@"%@ Unknown group: %@", self.logTag, groupId);
+//        return;
+//    }
+//
+//    // Ensure sender is in the group.
+//    if (![gThread.groupModel.groupMemberIds containsObject:envelope.source]) {
+//        DDLogWarn(@"%@ Ignoring 'Request Group Info' message for non-member of group. %@ not in %@",
+//                  self.logTag,
+//                  envelope.source,
+//                  gThread.groupModel.groupMemberIds);
+//        return;
+//    }
+//
+//    // Ensure we are in the group.
+//    OWSAssert([TSAccountManager isRegistered]);
+//    NSString *localNumber = [TSAccountManager localNumber];
+//    if (![gThread.groupModel.groupMemberIds containsObject:localNumber]) {
+//        DDLogWarn(@"%@ Ignoring 'Request Group Info' message for group we no longer belong to.", self.logTag);
+//        return;
+//    }
+//
+//    NSString *updateGroupInfo = [gThread.groupModel getInfoStringAboutUpdateTo:gThread.groupModel contactsManager:self.contactsManager];
+//    TSOutgoingMessage *message = [[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+//                                                                     inThread:gThread
+//                                                             groupMetaMessage:TSGroupMessageUpdate];
+//    [message updateWithCustomMessage:updateGroupInfo transaction:transaction];
+//    // Only send this group update to the requester.
+//    [message updateWithSingleGroupRecipient:envelope.source transaction:transaction];
+//
+//    [self sendGroupUpdateForThread:gThread message:message];
 }
 
 - (void)handleIncomingEnvelope:(OWSSignalServiceProtosEnvelope *)envelope
