@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
                                             inThread:thread
                                          messageBody:text
                                        attachmentIds:[NSMutableArray new]
-                                    expiresInSeconds:(configuration.isEnabled ? configuration.durationSeconds : 0)];
+                                    expiresInSeconds:(configuration.isEnabled ? configuration.durationSeconds : kDefaultExpirationTime)];
 
     [messageSender enqueueMessage:message success:successHandler failure:failureHandler];
 

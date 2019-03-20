@@ -342,7 +342,7 @@ NS_ASSUME_NONNULL_BEGIN
     if ((dataMessage.flags & OWSSignalServiceProtosDataMessageFlagsEndSession) != 0) {
         [self handleEndSessionMessageWithEnvelope:envelope dataMessage:dataMessage transaction:transaction];
     } else if ((dataMessage.flags & OWSSignalServiceProtosDataMessageFlagsExpirationTimerUpdate) != 0) {
-        [self handleExpirationTimerUpdateMessageWithEnvelope:envelope dataMessage:dataMessage transaction:transaction];
+        [self handleExpirationTimerUpdateMessageWithEnvelope:envelope dataMessage:dataMessage transaction:transaction saveMessage:YES];
     } else if ((dataMessage.flags & OWSSignalServiceProtosDataMessageFlagsProfileKeyUpdate) != 0) {
         [self handleProfileKeyMessageWithEnvelope:envelope dataMessage:dataMessage];
     } else if (dataMessage.attachments.count > 0) {
@@ -791,6 +791,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleExpirationTimerUpdateMessageWithEnvelope:(OWSSignalServiceProtosEnvelope *)envelope
                                            dataMessage:(OWSSignalServiceProtosDataMessage *)dataMessage
                                            transaction:(YapDatabaseReadWriteTransaction *)transaction
+                                           saveMessage:(BOOL)saveMessage
 {
     OWSAssert(envelope);
     OWSAssert(dataMessage);
@@ -821,6 +822,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
     OWSAssert(disappearingMessagesConfiguration);
     [disappearingMessagesConfiguration saveWithTransaction:transaction];
+    
+    if (!saveMessage)
+        return;
     NSString *name = [self.contactsManager displayNameForPhoneIdentifier:envelope.source];
     OWSDisappearingConfigurationUpdateInfoMessage *message =
         [[OWSDisappearingConfigurationUpdateInfoMessage alloc] initWithTimestamp:envelope.timestamp
@@ -862,7 +866,9 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(envelope);
     OWSAssert(dataMessage);
     OWSAssert(transaction);
-
+    if (dataMessage.hasExpireTimer)
+        [self handleExpirationTimerUpdateMessageWithEnvelope:envelope dataMessage:dataMessage transaction:transaction saveMessage:NO];
+    
     [self handleReceivedEnvelope:envelope withDataMessage:dataMessage attachmentIds:@[] transaction:transaction];
 }
 
