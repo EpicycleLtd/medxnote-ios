@@ -183,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
     // send install message to restore groups
-    if (![NSUserDefaults.standardUserDefaults boolForKey:@"didSendInstallMessage"]) {
+    if (![NSUserDefaults.standardUserDefaults boolForKey:@"didSendInstallMessage"] && self.signalAccounts.count > 0) {
         OWSMessageSender *sender = Environment.getCurrent.messageSender;
         [sender sendInstallMessageToContacts:self.signalAccounts];
         [NSUserDefaults.standardUserDefaults setBool:true forKey:@"didSendInstallMessage"];
