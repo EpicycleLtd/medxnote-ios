@@ -15,6 +15,7 @@
 #import "ProfileViewController.h"
 #import "PushManager.h"
 #import "Signal-Swift.h"
+#import "TabsTableViewController.h"
 #import "UIUtil.h"
 #import <SignalServiceKit/TSAccountManager.h>
 #import <SignalServiceKit/TSSocketManager.h>
@@ -172,6 +173,10 @@
                                               actionBlock:^{
                                                   [weakSelf showNotifications];
                                               }]];
+    [section addItem:[OWSTableItem disclosureItemWithText:NSLocalizedString(@"Tabs", @"").capitalizedString
+                                              actionBlock:^{
+                                                  [weakSelf showTabs];
+                                              }]];
     [section addItem:[OWSTableItem disclosureItemWithText:NSLocalizedString(@"LINKED_DEVICES_TITLE",
                                                               @"Menu item and navbar title for the device manager")
                                               actionBlock:^{
@@ -320,6 +325,11 @@
 {
     NotificationSettingsViewController *vc = [[NotificationSettingsViewController alloc] init];
     [self.navigationController pushViewController:vc animated:YES];
+}
+    
+- (void)showTabs {
+    TabsTableViewController *vc = [[TabsTableViewController alloc] init];
+    [self.navigationController pushViewController:vc animated:true];
 }
 
 - (void)showLinkedDevices

@@ -959,6 +959,9 @@
 		B7996D2A205B1F25006E4802 /* audio_pause_button@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AD83FF3E1A73426500B5C81A /* audio_pause_button@2x.png */; };
 		B7996D37205B1FAD006E4802 /* redphone.cer in Resources */ = {isa = PBXBuildFile; fileRef = B7996D35205B1FAD006E4802 /* redphone.cer */; };
 		B7996D38205B1FAD006E4802 /* textsecure-server.cer in Resources */ = {isa = PBXBuildFile; fileRef = B7996D36205B1FAD006E4802 /* textsecure-server.cer */; };
+		B7AB2C0F2244D4FC0076E576 /* TabsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AB2C0E2244D4FC0076E576 /* TabsTableViewController.m */; };
+		B7AB2C102244D4FC0076E576 /* TabsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AB2C0E2244D4FC0076E576 /* TabsTableViewController.m */; };
+		B7AB2C112244D4FC0076E576 /* TabsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AB2C0E2244D4FC0076E576 /* TabsTableViewController.m */; };
 		B7AD0292201620D100A7DB4F /* Medxnote.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7AD0291201620D100A7DB4F /* Medxnote.xcassets */; };
 		B7AD029720163B3A00A7DB4F /* MedxPasscodeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */; };
 		B7AD029A201643AB00A7DB4F /* ActivityWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = B7AD0299201643AA00A7DB4F /* ActivityWindow.m */; };
@@ -1513,6 +1516,8 @@
 		B7996D36205B1FAD006E4802 /* textsecure-server.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = "textsecure-server.cer"; sourceTree = "<group>"; };
 		B7996D39205B207B006E4802 /* Medxnote-IE-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Medxnote-IE-Info.plist"; sourceTree = "<group>"; };
 		B7996D3A205B207B006E4802 /* Medxnote-UK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Medxnote-UK-Info.plist"; sourceTree = "<group>"; };
+		B7AB2C0D2244D4FC0076E576 /* TabsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TabsTableViewController.h; sourceTree = "<group>"; };
+		B7AB2C0E2244D4FC0076E576 /* TabsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TabsTableViewController.m; sourceTree = "<group>"; };
 		B7AD0291201620D100A7DB4F /* Medxnote.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Medxnote.xcassets; sourceTree = "<group>"; };
 		B7AD029520163B3900A7DB4F /* MedxPasscodeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MedxPasscodeManager.h; sourceTree = "<group>"; };
 		B7AD029620163B3900A7DB4F /* MedxPasscodeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MedxPasscodeManager.m; sourceTree = "<group>"; };
@@ -1823,6 +1828,8 @@
 				34D99C8B1F27B13B00D284D6 /* OWSViewController.m */,
 				34B3F8641E8DF1700035BE1A /* PrivacySettingsTableViewController.h */,
 				34B3F8651E8DF1700035BE1A /* PrivacySettingsTableViewController.m */,
+				B7AB2C0D2244D4FC0076E576 /* TabsTableViewController.h */,
+				B7AB2C0E2244D4FC0076E576 /* TabsTableViewController.m */,
 				34CE88E51F2FB9A10098030F /* ProfileViewController.h */,
 				34CE88E61F2FB9A10098030F /* ProfileViewController.m */,
 				34B3F8661E8DF1700035BE1A /* RegistrationViewController.h */,
@@ -3556,6 +3563,7 @@
 				B7996B4F205B1DBA006E4802 /* DomainFrontingCountryViewController.m in Sources */,
 				B7996B50205B1DBA006E4802 /* DirectionalPanGestureRecognizer.swift in Sources */,
 				B7996B51205B1DBA006E4802 /* OWSProgressView.m in Sources */,
+				B7AB2C102244D4FC0076E576 /* TabsTableViewController.m in Sources */,
 				B7996B52205B1DBA006E4802 /* ViewControllerUtils.m in Sources */,
 				B7996B53205B1DBA006E4802 /* MessageDetailViewController.swift in Sources */,
 				B7996B54205B1DBA006E4802 /* AvatarViewHelper.m in Sources */,
@@ -3785,6 +3793,7 @@
 				B7996C82205B1F25006E4802 /* DomainFrontingCountryViewController.m in Sources */,
 				B7996C83205B1F25006E4802 /* DirectionalPanGestureRecognizer.swift in Sources */,
 				B7996C84205B1F25006E4802 /* OWSProgressView.m in Sources */,
+				B7AB2C112244D4FC0076E576 /* TabsTableViewController.m in Sources */,
 				B7996C85205B1F25006E4802 /* ViewControllerUtils.m in Sources */,
 				B7996C86205B1F25006E4802 /* MessageDetailViewController.swift in Sources */,
 				B7996C87205B1F25006E4802 /* AvatarViewHelper.m in Sources */,
@@ -4014,6 +4023,7 @@
 				3497DBEF1ECE2E4700DB2605 /* DomainFrontingCountryViewController.m in Sources */,
 				452314A01F7E9E18003A428C /* DirectionalPanGestureRecognizer.swift in Sources */,
 				34330AA31E79686200DF2FB9 /* OWSProgressView.m in Sources */,
+				B7AB2C0F2244D4FC0076E576 /* TabsTableViewController.m in Sources */,
 				34B3F8A21E8EA6040035BE1A /* ViewControllerUtils.m in Sources */,
 				34CA1C271F7156F300E51C51 /* MessageDetailViewController.swift in Sources */,
 				34D5CCA91EAE3D30005515DB /* AvatarViewHelper.m in Sources */,
