@@ -270,20 +270,8 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     // after mappings have been set up in `showInboxGrouping`
     [self tableViewSetUp];
 
-    NSMutableArray <NSString *> *segments = @[NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil),
-                                              NSLocalizedString(@"ARCHIVE_NAV_BAR_TITLE", nil)].mutableCopy;
-    // TODO: check if medxq should be added
-    [segments addObject:@"Queues"];
-    [segments addObject:@"Results"];
-    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:segments.copy];
-
-    [self.segmentedControl addTarget:self
-                              action:@selector(swappedSegmentedControl)
-                    forControlEvents:UIControlEventValueChanged];
-    UINavigationItem *navigationItem = self.navigationItem;
-    navigationItem.titleView = self.segmentedControl;
-    [self.segmentedControl setSelectedSegmentIndex:0];
-    navigationItem.leftBarButtonItem.accessibilityLabel
+    [self setupSegmentedControl];
+    self.navigationItem.leftBarButtonItem.accessibilityLabel
         = NSLocalizedString(@"SETTINGS_BUTTON_ACCESSIBILITY", @"Accessibility hint for the settings button");
 
     if ([self.traitCollection respondsToSelector:@selector(forceTouchCapability)]
@@ -310,6 +298,28 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
         self.searchUpdater.searchController.hidesNavigationBarDuringPresentation = false;
         self.tableView.tableHeaderView = self.searchUpdater.searchController.searchBar;
     }
+}
+    
+// Returns all possible tab values so we can handle different filtering based on these indexes instead of current tab selection
+- (NSArray <NSString *> *)allTabSegments {
+    return @[
+             NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil),
+             NSLocalizedString(@"ARCHIVE_NAV_BAR_TITLE", nil),
+             @"Queues",
+             @"Results",
+             ];
+}
+    
+- (NSArray <NSString *> *)currentTabSegments {
+    NSMutableArray <NSString *> *segments = @[
+                                              NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil),
+//                                              NSLocalizedString(@"ARCHIVE_NAV_BAR_TITLE", nil),
+                                              ].mutableCopy;
+    if ([NSUserDefaults.standardUserDefaults boolForKey:@"ShowMedxQueues"])
+        [segments addObject:@"Queues"];
+    if ([NSUserDefaults.standardUserDefaults boolForKey:@"ShowMedxResults"])
+        [segments addObject:@"Results"];
+    return segments.copy;
 }
 
 - (void)updateBarButtonItems
@@ -400,10 +410,26 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
         [self presentTopLevelModalViewController:navigationController animateDismissal:YES animatePresentation:YES];
     }];
 }
+    
+- (void)setupSegmentedControl {
+    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:self.currentTabSegments];
+    
+    [self.segmentedControl addTarget:self
+                              action:@selector(swappedSegmentedControl)
+                    forControlEvents:UIControlEventValueChanged];
+    UINavigationItem *navigationItem = self.navigationItem;
+    navigationItem.titleView = self.segmentedControl;
+    [self.segmentedControl setSelectedSegmentIndex:0];
+}
 
 - (void)swappedSegmentedControl
 {
-    switch (self.segmentedControl.selectedSegmentIndex) {
+    NSString *title = [self.segmentedControl titleForSegmentAtIndex:self.segmentedControl.selectedSegmentIndex];
+    NSUInteger index = [self.allTabSegments indexOfObject:title];
+    // this will happen if Inbox tab has an unread count appended
+    if (index == NSNotFound)
+        index = 0;
+    switch (index) {
         case 0:
             [self showInboxGrouping];
             break;
@@ -430,6 +456,13 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
                 [self updateReminderViews];
             });
         }];
+    }
+    
+    // Update tabs if tabs preference has changed
+    NSArray *tabSegments = self.currentTabSegments;
+    if (tabSegments.count != self.segmentedControl.numberOfSegments || tabSegments.lastObject != [self.segmentedControl titleForSegmentAtIndex:self.segmentedControl.numberOfSegments-1]) {
+        [self setupSegmentedControl];
+        [self swappedSegmentedControl];
     }
 
     [self updateInboxCountLabel];
