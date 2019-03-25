@@ -34,6 +34,7 @@
 
 NSString *const MedxQDatabaseViewExtensionName = @"medxqview";
 NSString *const MedxResultsDatabaseViewExtensionName = @"medxresultview";
+NSString *const MedxInboxDatabaseViewExtensionName = @"medxinboxview";
 
 typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState, kMedxResultState };
 
@@ -75,6 +76,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
 @property (nonatomic) TSThread *lastThread;
     
 @property (nonatomic) MedxInboxSearchUpdater *searchUpdater;
+@property (nonatomic) NSInteger inboxVersion;
 
 @end
 
@@ -461,6 +463,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     // Update tabs if tabs preference has changed
     NSArray *tabSegments = self.currentTabSegments;
     if (tabSegments.count != self.segmentedControl.numberOfSegments || tabSegments.lastObject != [self.segmentedControl titleForSegmentAtIndex:self.segmentedControl.numberOfSegments-1]) {
+        [self updateFiltering];
         [self setupSegmentedControl];
         [self swappedSegmentedControl];
     }
@@ -1075,7 +1078,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
             return MedxResultsDatabaseViewExtensionName;
             break;
         default:
-            return TSThreadDatabaseViewExtensionName;
+            return MedxInboxDatabaseViewExtensionName;
     }
 }
 
@@ -1094,7 +1097,33 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     [self updateReminderViews];
 }
 
+- (void)updateFiltering {
+    AssertIsOnMainThread();
+    
+    self.inboxVersion++;
+    [self.editingDbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction * _Nonnull transaction) {
+        [[transaction ext:MedxInboxDatabaseViewExtensionName] setFiltering:self.inboxFiltering versionTag:[NSString stringWithFormat:@"%ld",self.inboxVersion]];
+    }];
+}
+
 #pragma mark Database delegates
+
+- (YapDatabaseViewFiltering *)inboxFiltering {
+    YapDatabaseViewFiltering *inboxFiltering = [YapDatabaseViewFiltering withObjectBlock:^BOOL(YapDatabaseReadTransaction * _Nonnull transaction, NSString * _Nonnull group, NSString * _Nonnull collection, NSString * _Nonnull key, id  _Nonnull object) {
+        BOOL showQueues = [NSUserDefaults.standardUserDefaults boolForKey:@"ShowMedxQueues"];
+        BOOL showResults = [NSUserDefaults.standardUserDefaults boolForKey:@"ShowMedxResults"];
+        NSString *name = [(TSThread *)object name];
+        if (showQueues && showResults) {
+            return ![name hasPrefix:@"@"] && ![name hasPrefix:@"#"];
+        } else if (showQueues) {
+            return ![name hasPrefix:@"@"];
+        } else if (showResults) {
+            return ![name hasPrefix:@"#"];
+        }
+        return true;
+    }];
+    return inboxFiltering;
+}
 
 - (YapDatabaseConnection *)uiDatabaseConnection
 {
@@ -1103,6 +1132,9 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
         YapDatabase *database = TSStorageManager.sharedManager.database;
         _uiDatabaseConnection = [database newConnection];
         [_uiDatabaseConnection beginLongLivedReadTransaction];
+        
+        YapDatabaseFilteredView *inboxView = [[YapDatabaseFilteredView alloc] initWithParentViewName:TSThreadDatabaseViewExtensionName filtering:self.inboxFiltering versionTag:@"0"];
+        [_uiDatabaseConnection.database registerExtension:inboxView withName:MedxInboxDatabaseViewExtensionName];
         
         YapDatabaseViewFiltering *queueFiltering = [YapDatabaseViewFiltering withObjectBlock:^BOOL(YapDatabaseReadTransaction * _Nonnull transaction, NSString * _Nonnull group, NSString * _Nonnull collection, NSString * _Nonnull key, id  _Nonnull object) {
             return [[(TSThread *)object name] hasPrefix:@"@"];
