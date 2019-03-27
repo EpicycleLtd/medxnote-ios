@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)unreadMessagesCount;
 - (NSUInteger)unreadMessagesCountExcept:(TSThread *)thread;
 - (NSUInteger)unreadMessagesInThread:(TSThread *)thread;
+- (NSUInteger)unreadMessagesCountInExtension:(NSString *)extension;
 
 @end
 

@@ -415,7 +415,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     
 - (void)setupSegmentedControl {
     self.segmentedControl = [[UISegmentedControl alloc] initWithItems:self.currentTabSegments];
-    
+    self.segmentedControl.frame = CGRectMake(0, 0, 250, 32);
     [self.segmentedControl addTarget:self
                               action:@selector(swappedSegmentedControl)
                     forControlEvents:UIControlEventValueChanged];
@@ -426,8 +426,8 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
 
 - (void)swappedSegmentedControl
 {
-    NSString *title = [self.segmentedControl titleForSegmentAtIndex:self.segmentedControl.selectedSegmentIndex];
-    NSUInteger index = [self.allTabSegments indexOfObject:title];
+    NSString *defaultTitle = [self defaultTitleForSegmentAtIndex:self.segmentedControl.selectedSegmentIndex];
+    NSUInteger index = [self.allTabSegments indexOfObject:defaultTitle];
     // this will happen if Inbox tab has an unread count appended
     if (index == NSNotFound)
         index = 0;
@@ -462,7 +462,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     
     // Update tabs if tabs preference has changed
     NSArray *tabSegments = self.currentTabSegments;
-    if (tabSegments.count != self.segmentedControl.numberOfSegments || tabSegments.lastObject != [self.segmentedControl titleForSegmentAtIndex:self.segmentedControl.numberOfSegments-1]) {
+    if (tabSegments.count != self.segmentedControl.numberOfSegments || ![tabSegments.lastObject containsString:[self defaultTitleForSegmentAtIndex:self.segmentedControl.numberOfSegments-1]]) {
         [self updateFiltering];
         [self setupSegmentedControl];
         [self swappedSegmentedControl];
@@ -893,17 +893,40 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
 
 - (void)updateInboxCountLabel
 {
-    NSUInteger numberOfItems = [self.messagesManager unreadMessagesCount];
-    NSString *unreadString = NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil);
-
-    if (numberOfItems > 0) {
-        unreadString =
+    for (NSUInteger i = 0; i<self.currentTabSegments.count; i++) {
+        // TODO: extension for tab
+        NSString *extension = [self extensionForSegmentAtIndex:i];
+        NSUInteger numberOfItems = [self.messagesManager unreadMessagesCountInExtension:extension];
+        NSString *unreadString = [self defaultTitleForSegmentAtIndex:i];
+        NSLog(@"Setting %@ count to %ld", extension, numberOfItems);
+        if (numberOfItems > 0) {
+            unreadString =
             [unreadString stringByAppendingFormat:@" (%@)", [ViewControllerUtils formatInt:(int)numberOfItems]];
+        }
+        [_segmentedControl setTitle:unreadString forSegmentAtIndex:i];
     }
+//    [_segmentedControl.superview setNeedsLayout];
+//    [_segmentedControl reloadInputViews];
+}
 
-    [_segmentedControl setTitle:unreadString forSegmentAtIndex:0];
-    [_segmentedControl.superview setNeedsLayout];
-    [_segmentedControl reloadInputViews];
+- (NSString *)extensionForSegmentAtIndex:(NSUInteger)i {
+    NSString *segment = self.currentTabSegments[i];
+    if ([segment isEqualToString:@"Queues"]) {
+        return MedxQDatabaseViewExtensionName;
+    } else if ([segment isEqualToString:@"Results"]) {
+        return MedxResultsDatabaseViewExtensionName;
+    }
+    return MedxInboxDatabaseViewExtensionName;
+}
+
+- (NSString *)defaultTitleForSegmentAtIndex:(NSUInteger)i {
+    NSString *segment = self.currentTabSegments[i];
+    if ([segment isEqualToString:@"Queues"]) {
+        return @"Queues";
+    } else if ([segment isEqualToString:@"Results"]) {
+        return @"Results";
+    }
+    return NSLocalizedString(@"WHISPER_NAV_BAR_TITLE", nil);
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1142,6 +1165,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
         YapDatabaseFilteredView *queueView = [[YapDatabaseFilteredView alloc] initWithParentViewName:TSThreadDatabaseViewExtensionName filtering:queueFiltering versionTag:@"0"];
         [_uiDatabaseConnection.database registerExtension:queueView withName:MedxQDatabaseViewExtensionName];
         
+        // results
         YapDatabaseViewFiltering *resultFiltering = [YapDatabaseViewFiltering withObjectBlock:^BOOL(YapDatabaseReadTransaction * _Nonnull transaction, NSString * _Nonnull group, NSString * _Nonnull collection, NSString * _Nonnull key, id  _Nonnull object) {
             return [[(TSThread *)object name] hasPrefix:@"#"];
         }];

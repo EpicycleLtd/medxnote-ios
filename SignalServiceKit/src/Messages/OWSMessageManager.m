@@ -1193,6 +1193,24 @@ NS_ASSUME_NONNULL_BEGIN
     return numberOfItems;
 }
 
+- (NSUInteger)unreadMessagesCountInExtension:(NSString *)extension
+{
+    NSLog(@"Need unread count for %@", extension);
+    __block NSMutableArray <TSThread *> *threads = [NSMutableArray new];
+    [self.dbConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        [[transaction ext:extension] enumerateRowsInGroup:TSInboxGroup
+                                               usingBlock:^(NSString *collection, NSString *key, id object, id metadata, NSUInteger index, BOOL *stop) {
+                                                   [threads addObject:object];
+                                               }];
+    }];
+    NSUInteger numberOfItems = 0;
+    for (TSThread *thread in threads) {
+        numberOfItems += [self unreadMessagesInThread:thread];
+    }
+    
+    return numberOfItems;
+}
+
 - (NSUInteger)unreadMessagesCountExcept:(TSThread *)thread
 {
     __block NSUInteger numberOfItems;
