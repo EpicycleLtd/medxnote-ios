@@ -322,7 +322,9 @@ NSString *const kNotificationsManagerNewMesssageSoundName = @"NewMessage.aifc";
                     notification.userInfo = @{ Signal_Thread_UserInfo_Key : thread.uniqueId };
                     if ([thread isGroupThread]) {
                         notification.alertBody = [NSString
-                            stringWithFormat:@"%@ \"%@\"", NSLocalizedString(@"APN_MESSAGE_IN_GROUP", nil), groupName];
+//                            stringWithFormat:@"%@ \"%@\"", NSLocalizedString(@"APN_MESSAGE_IN_GROUP", nil), groupName];
+// group name can have sensitive information we will show just the user who sent the message to the group
+                            stringWithFormat:@"%@ %@", NSLocalizedString(@"APN_MESSAGE_FROM", nil), senderName];
                     } else {
                         notification.alertBody = [NSString
                             stringWithFormat:@"%@ %@", NSLocalizedString(@"APN_MESSAGE_FROM", nil), senderName];

@@ -857,6 +857,8 @@
 		B76B6A744964C73B63E91AF90E7AE897 /* YapDatabaseSearchResultsViewTransaction.h in Headers */ = {isa = PBXBuildFile; fileRef = 8FCFA356E7D3D16CC619E07C2A63FE40 /* YapDatabaseSearchResultsViewTransaction.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7BA543321462B368B701A1E57687FDE /* UIView+JSQMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E7511EA42F0FCD89F29049ECA272C3 /* UIView+JSQMessages.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7EC3A4040830D0FF6037B3E3B46101D /* YapDatabaseOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 42A486344FCEBC2E9F41C23E7FF796F7 /* YapDatabaseOptions.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
+		B7FC5FF6223EF8AA00B8BBEB /* OWSInstallMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = B7FC5FF4223EF8AA00B8BBEB /* OWSInstallMessage.h */; };
+		B7FC5FF7223EF8AA00B8BBEB /* OWSInstallMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = B7FC5FF5223EF8AA00B8BBEB /* OWSInstallMessage.m */; };
 		B81BD15E5EA29DDDBEE2A0101C189BC0 /* OWSSyncConfigurationMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 57E04E055C8826A33788816C1AAAFA3A /* OWSSyncConfigurationMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B81CC06EB26A29693CFE03CE2A9952FB /* TOCInternal_OnDeallocObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C4CF46FD3CF45CBD832CFAE49180538 /* TOCInternal_OnDeallocObject.m */; settings = {COMPILER_FLAGS = "-DOS_OBJECT_USE_OBJC=0"; }; };
 		B838E73685FFDBAFCEF358C78D040807 /* SRRandom.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CEDFEE2BB15221EB4B804A97CD239B /* SRRandom.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
@@ -2485,6 +2487,8 @@
 		B72EEADFEE344326267C199B5433352B /* libssl.a */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = archive.ar; name = libssl.a; path = lib/libssl.a; sourceTree = "<group>"; };
 		B7DBC58D4ABE7876A4CD1D7DE087239F /* YapDatabaseFullTextSearchTransaction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = YapDatabaseFullTextSearchTransaction.h; path = YapDatabase/Extensions/FullTextSearch/YapDatabaseFullTextSearchTransaction.h; sourceTree = "<group>"; };
 		B7E6F4C94969B58B55B85A03E1036217 /* TOCCancelToken+MoreConstructors.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "TOCCancelToken+MoreConstructors.m"; path = "src/TOCCancelToken+MoreConstructors.m"; sourceTree = "<group>"; };
+		B7FC5FF4223EF8AA00B8BBEB /* OWSInstallMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OWSInstallMessage.h; sourceTree = "<group>"; };
+		B7FC5FF5223EF8AA00B8BBEB /* OWSInstallMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OWSInstallMessage.m; sourceTree = "<group>"; };
 		B8130D3A5C3D2D697CDB34AE699BACD1 /* YapTouch.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = YapTouch.m; path = YapDatabase/Internal/YapTouch.m; sourceTree = "<group>"; };
 		B863ED351EC840E24006E2150F725C2A /* HKDFKit.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = HKDFKit.m; path = HKDFKit/HKDFKit/HKDFKit.m; sourceTree = "<group>"; };
 		B890D2BE01B7C779C3804EB3EEE9978F /* NSData+hexString.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "NSData+hexString.m"; sourceTree = "<group>"; };
@@ -3595,6 +3599,8 @@
 				2E633BCEABBCAC5837F2CA6A06CA948F /* OWSRecordTranscriptJob.m */,
 				B13FA3FCF61746B2092141791C9AD6FA /* OWSVerificationStateSyncMessage.h */,
 				F03192F23083473852A72D61D2A7B0C7 /* OWSVerificationStateSyncMessage.m */,
+				B7FC5FF4223EF8AA00B8BBEB /* OWSInstallMessage.h */,
+				B7FC5FF5223EF8AA00B8BBEB /* OWSInstallMessage.m */,
 			);
 			name = Devices;
 			path = SignalServiceKit/src/Devices;
@@ -5906,6 +5912,7 @@
 				2F535DE00A94ED02057CA3FE4ED2DADF /* OWSMessageReceiver.h in Headers */,
 				41416B03F49D6B9E7943751AC6F84A5A /* OWSMessageSender.h in Headers */,
 				7EA52CA114F5493D1DBC627770DB9AD4 /* OWSMessageServiceParams.h in Headers */,
+				B7FC5FF6223EF8AA00B8BBEB /* OWSInstallMessage.h in Headers */,
 				167FF152490ABD1E2FBACBD336792629 /* OWSNotifyRemoteOfUpdatedDisappearingConfigurationJob.h in Headers */,
 				FF8108659BFA8A8B191F046E306C7938 /* OWSOrphanedDataCleaner.h in Headers */,
 				421B3A2FA655FBDD04C0B7CD7965B0FD /* OWSOutgoingCallMessage.h in Headers */,
@@ -7201,6 +7208,7 @@
 				D10575EBE3CDBF4E974879ACA84CAF1D /* OWSSyncConfigurationMessage.m in Sources */,
 				619C94844875C4AFC24B3D4912962846 /* OWSSyncContactsMessage.m in Sources */,
 				E89FBF6C1EC91C2362056D95C65FAE9C /* OWSSyncGroupsMessage.m in Sources */,
+				B7FC5FF7223EF8AA00B8BBEB /* OWSInstallMessage.m in Sources */,
 				E4FA14E363945D49A4F4794819FE91FE /* OWSSyncGroupsRequestMessage.m in Sources */,
 				07819C0881D12331FA87DF7371833608 /* OWSTurnServerInfoRequest.m in Sources */,
 				9525625512B368B0120C6F05FE0BF3F5 /* OWSUnknownContactBlockOfferMessage.m in Sources */,

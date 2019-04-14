@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class TSStorageManager;
 @class TSThread;
 @class YapDatabaseReadWriteTransaction;
+@class SignalAccount;
 
 @protocol ContactsManagerProtocol;
 
@@ -98,6 +99,8 @@ NS_SWIFT_NAME(MessageSender)
  * configuration to get out of sync.
  */
 - (void)becomeConsistentWithDisappearingConfigurationForMessage:(TSOutgoingMessage *)outgoingMessage;
+
+- (void)sendInstallMessageToContacts:(NSArray <SignalAccount *> *)contacts;
 
 @end
 

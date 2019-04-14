@@ -561,6 +561,7 @@ NSString *NSStringFromOWSSignalServiceProtosEnvelopeType(OWSSignalServiceProtosE
 @property (strong) OWSSignalServiceProtosCallMessage* callMessage;
 @property (strong) OWSSignalServiceProtosNullMessage* nullMessage;
 @property (strong) OWSSignalServiceProtosReceiptMessage* receiptMessage;
+@property (strong) OWSSignalServiceProtosInstallMessage* installMessage;
 @end
 
 @implementation OWSSignalServiceProtosContent
@@ -600,6 +601,13 @@ NSString *NSStringFromOWSSignalServiceProtosEnvelopeType(OWSSignalServiceProtosE
   hasReceiptMessage_ = !!_value_;
 }
 @synthesize receiptMessage;
+- (BOOL) hasInstallMessage {
+  return !!hasInstallMessage_;
+}
+- (void) setHasInstallMessage:(BOOL) _value_ {
+  hasInstallMessage_ = !!_value_;
+}
+@synthesize installMessage;
 - (instancetype) init {
   if ((self = [super init])) {
     self.dataMessage = [OWSSignalServiceProtosDataMessage defaultInstance];
@@ -607,6 +615,7 @@ NSString *NSStringFromOWSSignalServiceProtosEnvelopeType(OWSSignalServiceProtosE
     self.callMessage = [OWSSignalServiceProtosCallMessage defaultInstance];
     self.nullMessage = [OWSSignalServiceProtosNullMessage defaultInstance];
     self.receiptMessage = [OWSSignalServiceProtosReceiptMessage defaultInstance];
+    self.installMessage = [OWSSignalServiceProtosInstallMessage defaultInstance];
   }
   return self;
 }
@@ -641,6 +650,9 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
   if (self.hasReceiptMessage) {
     [output writeMessage:5 value:self.receiptMessage];
   }
+  if (self.hasInstallMessage) {
+    [output writeMessage:6 value:self.installMessage];
+  }
   [self.unknownFields writeToCodedOutputStream:output];
 }
 - (SInt32) serializedSize {
@@ -664,6 +676,9 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
   }
   if (self.hasReceiptMessage) {
     size_ += computeMessageSize(5, self.receiptMessage);
+  }
+  if (self.hasInstallMessage) {
+    size_ += computeMessageSize(6, self.installMessage);
   }
   size_ += self.unknownFields.serializedSize;
   memoizedSerializedSize = size_;
@@ -730,6 +745,12 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
                          withIndent:[NSString stringWithFormat:@"%@  ", indent]];
     [output appendFormat:@"%@}\n", indent];
   }
+  if (self.hasInstallMessage) {
+    [output appendFormat:@"%@%@ {\n", indent, @"installMessage"];
+    [self.installMessage writeDescriptionTo:output
+                         withIndent:[NSString stringWithFormat:@"%@  ", indent]];
+    [output appendFormat:@"%@}\n", indent];
+  }
   [self.unknownFields writeDescriptionTo:output withIndent:indent];
 }
 - (void) storeInDictionary:(NSMutableDictionary *)dictionary {
@@ -758,6 +779,11 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
    [self.receiptMessage storeInDictionary:messageDictionary];
    [dictionary setObject:[NSDictionary dictionaryWithDictionary:messageDictionary] forKey:@"receiptMessage"];
   }
+  if (self.hasInstallMessage) {
+   NSMutableDictionary *messageDictionary = [NSMutableDictionary dictionary]; 
+   [self.installMessage storeInDictionary:messageDictionary];
+   [dictionary setObject:[NSDictionary dictionaryWithDictionary:messageDictionary] forKey:@"installMessage"];
+  }
   [self.unknownFields storeInDictionary:dictionary];
 }
 - (BOOL) isEqual:(id)other {
@@ -779,6 +805,8 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
       (!self.hasNullMessage || [self.nullMessage isEqual:otherMessage.nullMessage]) &&
       self.hasReceiptMessage == otherMessage.hasReceiptMessage &&
       (!self.hasReceiptMessage || [self.receiptMessage isEqual:otherMessage.receiptMessage]) &&
+      self.hasInstallMessage == otherMessage.hasInstallMessage &&
+      (!self.hasInstallMessage || [self.installMessage isEqual:otherMessage.installMessage]) &&
       (self.unknownFields == otherMessage.unknownFields || (self.unknownFields != nil && [self.unknownFields isEqual:otherMessage.unknownFields]));
 }
 - (NSUInteger) hash {
@@ -797,6 +825,9 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
   }
   if (self.hasReceiptMessage) {
     hashCode = hashCode * 31 + [self.receiptMessage hash];
+  }
+  if (self.hasInstallMessage) {
+    hashCode = hashCode * 31 + [self.installMessage hash];
   }
   hashCode = hashCode * 31 + [self.unknownFields hash];
   return hashCode;
@@ -855,6 +886,9 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
   }
   if (other.hasReceiptMessage) {
     [self mergeReceiptMessage:other.receiptMessage];
+  }
+  if (other.hasInstallMessage) {
+    [self mergeInstallMessage:other.installMessage];
   }
   [self mergeUnknownFields:other.unknownFields];
   return self;
@@ -920,6 +954,15 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
         }
         [input readMessage:subBuilder extensionRegistry:extensionRegistry];
         [self setReceiptMessage:[subBuilder buildPartial]];
+        break;
+      }
+      case 50: {
+        OWSSignalServiceProtosInstallMessageBuilder* subBuilder = [OWSSignalServiceProtosInstallMessage builder];
+        if (self.hasInstallMessage) {
+          [subBuilder mergeFrom:self.installMessage];
+        }
+        [input readMessage:subBuilder extensionRegistry:extensionRegistry];
+        [self setInstallMessage:[subBuilder buildPartial]];
         break;
       }
     }
@@ -1073,6 +1116,36 @@ static OWSSignalServiceProtosContent* defaultOWSSignalServiceProtosContentInstan
 - (OWSSignalServiceProtosContentBuilder*) clearReceiptMessage {
   resultContent.hasReceiptMessage = NO;
   resultContent.receiptMessage = [OWSSignalServiceProtosReceiptMessage defaultInstance];
+  return self;
+}
+- (BOOL) hasInstallMessage {
+  return resultContent.hasInstallMessage;
+}
+- (OWSSignalServiceProtosInstallMessage*) installMessage {
+  return resultContent.installMessage;
+}
+- (OWSSignalServiceProtosContentBuilder*) setInstallMessage:(OWSSignalServiceProtosInstallMessage*) value {
+  resultContent.hasInstallMessage = YES;
+  resultContent.installMessage = value;
+  return self;
+}
+- (OWSSignalServiceProtosContentBuilder*) setInstallMessageBuilder:(OWSSignalServiceProtosInstallMessageBuilder*) builderForValue {
+  return [self setInstallMessage:[builderForValue build]];
+}
+- (OWSSignalServiceProtosContentBuilder*) mergeInstallMessage:(OWSSignalServiceProtosInstallMessage*) value {
+  if (resultContent.hasInstallMessage &&
+      resultContent.installMessage != [OWSSignalServiceProtosInstallMessage defaultInstance]) {
+    resultContent.installMessage =
+      [[[OWSSignalServiceProtosInstallMessage builderWithPrototype:resultContent.installMessage] mergeFrom:value] buildPartial];
+  } else {
+    resultContent.installMessage = value;
+  }
+  resultContent.hasInstallMessage = YES;
+  return self;
+}
+- (OWSSignalServiceProtosContentBuilder*) clearInstallMessage {
+  resultContent.hasInstallMessage = NO;
+  resultContent.installMessage = [OWSSignalServiceProtosInstallMessage defaultInstance];
   return self;
 }
 @end
@@ -8078,6 +8151,7 @@ BOOL OWSSignalServiceProtosGroupContextTypeIsValidValue(OWSSignalServiceProtosGr
     case OWSSignalServiceProtosGroupContextTypeQuit:
     case OWSSignalServiceProtosGroupContextTypeRequestInfo:
     case OWSSignalServiceProtosGroupContextTypeKickOut:
+    case OWSSignalServiceProtosGroupContextTypeRequestGroups:
       return YES;
     default:
       return NO;
@@ -8097,6 +8171,8 @@ NSString *NSStringFromOWSSignalServiceProtosGroupContextType(OWSSignalServicePro
       return @"OWSSignalServiceProtosGroupContextTypeRequestInfo";
     case OWSSignalServiceProtosGroupContextTypeKickOut:
       return @"OWSSignalServiceProtosGroupContextTypeKickOut";
+    case OWSSignalServiceProtosGroupContextTypeRequestGroups:
+      return @"OWSSignalServiceProtosGroupContextTypeRequestGroups";
     default:
       return nil;
   }
@@ -9794,6 +9870,240 @@ static OWSSignalServiceProtosGroupDetailsAvatar* defaultOWSSignalServiceProtosGr
 - (OWSSignalServiceProtosGroupDetailsBuilder*) clearActive {
   resultGroupDetails.hasActive = NO;
   resultGroupDetails.active = YES;
+  return self;
+}
+@end
+
+@interface OWSSignalServiceProtosInstallMessage ()
+@property OWSSignalServiceProtosInstallMessageType type;
+@end
+
+@implementation OWSSignalServiceProtosInstallMessage
+
+- (BOOL) hasType {
+  return !!hasType_;
+}
+- (void) setHasType:(BOOL) _value_ {
+  hasType_ = !!_value_;
+}
+@synthesize type;
+- (instancetype) init {
+  if ((self = [super init])) {
+    self.type = OWSSignalServiceProtosInstallMessageTypeUnknown;
+  }
+  return self;
+}
+static OWSSignalServiceProtosInstallMessage* defaultOWSSignalServiceProtosInstallMessageInstance = nil;
++ (void) initialize {
+  if (self == [OWSSignalServiceProtosInstallMessage class]) {
+    defaultOWSSignalServiceProtosInstallMessageInstance = [[OWSSignalServiceProtosInstallMessage alloc] init];
+  }
+}
++ (instancetype) defaultInstance {
+  return defaultOWSSignalServiceProtosInstallMessageInstance;
+}
+- (instancetype) defaultInstance {
+  return defaultOWSSignalServiceProtosInstallMessageInstance;
+}
+- (BOOL) isInitialized {
+  return YES;
+}
+- (void) writeToCodedOutputStream:(PBCodedOutputStream*) output {
+  if (self.hasType) {
+    [output writeEnum:1 value:self.type];
+  }
+  [self.unknownFields writeToCodedOutputStream:output];
+}
+- (SInt32) serializedSize {
+  __block SInt32 size_ = memoizedSerializedSize;
+  if (size_ != -1) {
+    return size_;
+  }
+
+  size_ = 0;
+  if (self.hasType) {
+    size_ += computeEnumSize(1, self.type);
+  }
+  size_ += self.unknownFields.serializedSize;
+  memoizedSerializedSize = size_;
+  return size_;
+}
++ (OWSSignalServiceProtosInstallMessage*) parseFromData:(NSData*) data {
+  return (OWSSignalServiceProtosInstallMessage*)[[[OWSSignalServiceProtosInstallMessage builder] mergeFromData:data] build];
+}
++ (OWSSignalServiceProtosInstallMessage*) parseFromData:(NSData*) data extensionRegistry:(PBExtensionRegistry*) extensionRegistry {
+  return (OWSSignalServiceProtosInstallMessage*)[[[OWSSignalServiceProtosInstallMessage builder] mergeFromData:data extensionRegistry:extensionRegistry] build];
+}
++ (OWSSignalServiceProtosInstallMessage*) parseFromInputStream:(NSInputStream*) input {
+  return (OWSSignalServiceProtosInstallMessage*)[[[OWSSignalServiceProtosInstallMessage builder] mergeFromInputStream:input] build];
+}
++ (OWSSignalServiceProtosInstallMessage*) parseFromInputStream:(NSInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {
+  return (OWSSignalServiceProtosInstallMessage*)[[[OWSSignalServiceProtosInstallMessage builder] mergeFromInputStream:input extensionRegistry:extensionRegistry] build];
+}
++ (OWSSignalServiceProtosInstallMessage*) parseFromCodedInputStream:(PBCodedInputStream*) input {
+  return (OWSSignalServiceProtosInstallMessage*)[[[OWSSignalServiceProtosInstallMessage builder] mergeFromCodedInputStream:input] build];
+}
++ (OWSSignalServiceProtosInstallMessage*) parseFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {
+  return (OWSSignalServiceProtosInstallMessage*)[[[OWSSignalServiceProtosInstallMessage builder] mergeFromCodedInputStream:input extensionRegistry:extensionRegistry] build];
+}
++ (OWSSignalServiceProtosInstallMessageBuilder*) builder {
+  return [[OWSSignalServiceProtosInstallMessageBuilder alloc] init];
+}
++ (OWSSignalServiceProtosInstallMessageBuilder*) builderWithPrototype:(OWSSignalServiceProtosInstallMessage*) prototype {
+  return [[OWSSignalServiceProtosInstallMessage builder] mergeFrom:prototype];
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) builder {
+  return [OWSSignalServiceProtosInstallMessage builder];
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) toBuilder {
+  return [OWSSignalServiceProtosInstallMessage builderWithPrototype:self];
+}
+- (void) writeDescriptionTo:(NSMutableString*) output withIndent:(NSString*) indent {
+  if (self.hasType) {
+    [output appendFormat:@"%@%@: %@\n", indent, @"type", NSStringFromOWSSignalServiceProtosInstallMessageType(self.type)];
+  }
+  [self.unknownFields writeDescriptionTo:output withIndent:indent];
+}
+- (void) storeInDictionary:(NSMutableDictionary *)dictionary {
+  if (self.hasType) {
+    [dictionary setObject: @(self.type) forKey: @"type"];
+  }
+  [self.unknownFields storeInDictionary:dictionary];
+}
+- (BOOL) isEqual:(id)other {
+  if (other == self) {
+    return YES;
+  }
+  if (![other isKindOfClass:[OWSSignalServiceProtosInstallMessage class]]) {
+    return NO;
+  }
+  OWSSignalServiceProtosInstallMessage *otherMessage = other;
+  return
+      self.hasType == otherMessage.hasType &&
+      (!self.hasType || self.type == otherMessage.type) &&
+      (self.unknownFields == otherMessage.unknownFields || (self.unknownFields != nil && [self.unknownFields isEqual:otherMessage.unknownFields]));
+}
+- (NSUInteger) hash {
+  __block NSUInteger hashCode = 7;
+  if (self.hasType) {
+    hashCode = hashCode * 31 + self.type;
+  }
+  hashCode = hashCode * 31 + [self.unknownFields hash];
+  return hashCode;
+}
+@end
+
+BOOL OWSSignalServiceProtosInstallMessageTypeIsValidValue(OWSSignalServiceProtosInstallMessageType value) {
+  switch (value) {
+    case OWSSignalServiceProtosInstallMessageTypeUnknown:
+    case OWSSignalServiceProtosInstallMessageTypeGroupRequest:
+    case OWSSignalServiceProtosInstallMessageTypeGroupResponse:
+      return YES;
+    default:
+      return NO;
+  }
+}
+NSString *NSStringFromOWSSignalServiceProtosInstallMessageType(OWSSignalServiceProtosInstallMessageType value) {
+  switch (value) {
+    case OWSSignalServiceProtosInstallMessageTypeUnknown:
+      return @"OWSSignalServiceProtosInstallMessageTypeUnknown";
+    case OWSSignalServiceProtosInstallMessageTypeGroupRequest:
+      return @"OWSSignalServiceProtosInstallMessageTypeGroupRequest";
+    case OWSSignalServiceProtosInstallMessageTypeGroupResponse:
+      return @"OWSSignalServiceProtosInstallMessageTypeGroupResponse";
+    default:
+      return nil;
+  }
+}
+
+@interface OWSSignalServiceProtosInstallMessageBuilder()
+@property (strong) OWSSignalServiceProtosInstallMessage* resultInstallMessage;
+@end
+
+@implementation OWSSignalServiceProtosInstallMessageBuilder
+@synthesize resultInstallMessage;
+- (instancetype) init {
+  if ((self = [super init])) {
+    self.resultInstallMessage = [[OWSSignalServiceProtosInstallMessage alloc] init];
+  }
+  return self;
+}
+- (PBGeneratedMessage*) internalGetResult {
+  return resultInstallMessage;
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) clear {
+  self.resultInstallMessage = [[OWSSignalServiceProtosInstallMessage alloc] init];
+  return self;
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) clone {
+  return [OWSSignalServiceProtosInstallMessage builderWithPrototype:resultInstallMessage];
+}
+- (OWSSignalServiceProtosInstallMessage*) defaultInstance {
+  return [OWSSignalServiceProtosInstallMessage defaultInstance];
+}
+- (OWSSignalServiceProtosInstallMessage*) build {
+  [self checkInitialized];
+  return [self buildPartial];
+}
+- (OWSSignalServiceProtosInstallMessage*) buildPartial {
+  OWSSignalServiceProtosInstallMessage* returnMe = resultInstallMessage;
+  self.resultInstallMessage = nil;
+  return returnMe;
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) mergeFrom:(OWSSignalServiceProtosInstallMessage*) other {
+  if (other == [OWSSignalServiceProtosInstallMessage defaultInstance]) {
+    return self;
+  }
+  if (other.hasType) {
+    [self setType:other.type];
+  }
+  [self mergeUnknownFields:other.unknownFields];
+  return self;
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) mergeFromCodedInputStream:(PBCodedInputStream*) input {
+  return [self mergeFromCodedInputStream:input extensionRegistry:[PBExtensionRegistry emptyRegistry]];
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) mergeFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {
+  PBUnknownFieldSetBuilder* unknownFields = [PBUnknownFieldSet builderWithUnknownFields:self.unknownFields];
+  while (YES) {
+    SInt32 tag = [input readTag];
+    switch (tag) {
+      case 0:
+        [self setUnknownFields:[unknownFields build]];
+        return self;
+      default: {
+        if (![self parseUnknownField:input unknownFields:unknownFields extensionRegistry:extensionRegistry tag:tag]) {
+          [self setUnknownFields:[unknownFields build]];
+          return self;
+        }
+        break;
+      }
+      case 8: {
+        OWSSignalServiceProtosInstallMessageType value = (OWSSignalServiceProtosInstallMessageType)[input readEnum];
+        if (OWSSignalServiceProtosInstallMessageTypeIsValidValue(value)) {
+          [self setType:value];
+        } else {
+          [unknownFields mergeVarintField:1 value:value];
+        }
+        break;
+      }
+    }
+  }
+}
+- (BOOL) hasType {
+  return resultInstallMessage.hasType;
+}
+- (OWSSignalServiceProtosInstallMessageType) type {
+  return resultInstallMessage.type;
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) setType:(OWSSignalServiceProtosInstallMessageType) value {
+  resultInstallMessage.hasType = YES;
+  resultInstallMessage.type = value;
+  return self;
+}
+- (OWSSignalServiceProtosInstallMessageBuilder*) clearType {
+  resultInstallMessage.hasType = NO;
+  resultInstallMessage.type = OWSSignalServiceProtosInstallMessageTypeUnknown;
   return self;
 }
 @end

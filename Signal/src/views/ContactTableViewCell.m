@@ -119,8 +119,39 @@ const CGFloat kContactTableViewCellAvatarTextMargin = 12;
 
 - (void)configureWithSignalAccount:(SignalAccount *)signalAccount contactsManager:(OWSContactsManager *)contactsManager
 {
+    /* DUPLICATED CONTACTS UPDATE:
+     * Uncomment this if you don't want to handle duplicated contacts !
     [self configureWithRecipientId:signalAccount.recipientId
                    contactsManager:contactsManager];
+     * Remove the code below if you don't want to handle duplicated contacts !
+     */
+    self.recipientId = signalAccount.recipientId;
+    self.contactsManager = contactsManager;
+
+    self.nameLabel.attributedText = [[NSAttributedString alloc]
+                                     initWithString:signalAccount.contact.fullName
+                                     attributes:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(otherUsersProfileDidChange:)
+                                                 name:kNSNotificationName_OtherUsersProfileDidChange
+                                               object:nil];
+    [self updateProfileName];
+    [self updateAvatar];
+
+    if (self.accessoryMessage) {
+        UILabel *blockedLabel = [[UILabel alloc] init];
+        blockedLabel.textAlignment = NSTextAlignmentRight;
+        blockedLabel.text = self.accessoryMessage;
+        blockedLabel.font = [UIFont ows_mediumFontWithSize:13.f];
+        blockedLabel.textColor = [UIColor colorWithWhite:0.5f alpha:1.f];
+        [blockedLabel sizeToFit];
+
+        self.accessoryView = blockedLabel;
+    }
+
+    // Force layout, since imageView isn't being initally rendered on App Store optimized build.
+    [self layoutSubviews];
 }
 
 - (void)configureWithLDAPContact:(LDAPContact *)contact contactsManager:(OWSContactsManager *)contactsManager {

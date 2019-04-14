@@ -181,6 +181,14 @@ NS_ASSUME_NONNULL_BEGIN
         [self.delegate contactsViewHelperDidUpdateContacts];
         self.hasUpdatedContactsAtLeastOnce = YES;
     }
+    
+    // send install message to restore groups
+    if (![NSUserDefaults.standardUserDefaults boolForKey:@"didSendInstallMessage"] && self.signalAccounts.count > 0) {
+        OWSMessageSender *sender = Environment.getCurrent.messageSender;
+        [sender sendInstallMessageToContacts:self.signalAccounts];
+        [NSUserDefaults.standardUserDefaults setBool:true forKey:@"didSendInstallMessage"];
+        [NSUserDefaults.standardUserDefaults synchronize];
+    }
 }
 
 - (BOOL)doesSignalAccount:(SignalAccount *)signalAccount matchSearchTerm:(NSString *)searchTerm

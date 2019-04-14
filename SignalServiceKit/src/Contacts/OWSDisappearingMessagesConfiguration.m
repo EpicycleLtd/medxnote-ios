@@ -142,7 +142,8 @@ const uint32_t OWSDisappearingMessagesConfigurationDefaultExpirationDuration = k
               @(21600),
               @(43200),
               @(86400),
-              @(604800) ];
+              @(604800),
+              @(2419200) ];
 }
 
 - (NSUInteger)durationIndex

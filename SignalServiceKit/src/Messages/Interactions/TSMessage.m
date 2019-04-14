@@ -13,6 +13,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static const NSUInteger OWSMessageSchemaVersion = 3;
+const NSInteger kDefaultExpirationTime = 2592000; // in seconds 3600*24*30
 
 @interface TSMessage ()
 
@@ -184,7 +185,8 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
 
 - (BOOL)shouldStartExpireTimer:(YapDatabaseReadTransaction *)transaction
 {
-    return self.isExpiringMessage;
+    return true;
+//    return self.isExpiringMessage;
 }
 
 // TODO a downloaded media doesn't start counting until download is complete.
@@ -193,7 +195,8 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
     if (_expiresInSeconds > 0 && _expireStartedAt > 0) {
         _expiresAt = _expireStartedAt + _expiresInSeconds * 1000;
     } else {
-        _expiresAt = 0;
+        _expireStartedAt = [NSDate ows_millisecondTimeStamp];
+        _expiresAt = _expireStartedAt + kDefaultExpirationTime * 1000;
     }
 }
 
@@ -263,7 +266,8 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
 
 - (BOOL)isExpiringMessage
 {
-    return self.expiresInSeconds > 0;
+    return true;
+//    return self.expiresInSeconds > 0;
 }
 
 - (uint64_t)timestampForSorting
@@ -289,6 +293,10 @@ static const NSUInteger OWSMessageSchemaVersion = 3;
 
     [self applyChangeToSelfAndLatestCopy:transaction
                              changeBlock:^(TSMessage *message) {
+                                 if (_expiresAt == 0) {
+                                     [message setExpiresInSeconds:kDefaultExpirationTime];
+                                     [message updateExpiresAt];
+                                 }
                                  [message setExpireStartedAt:expireStartedAt];
                              }];
 }

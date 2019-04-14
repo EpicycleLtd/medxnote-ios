@@ -36,6 +36,7 @@ message Content {
   optional CallMessage    callMessage    = 3;
   optional NullMessage    nullMessage    = 4;
   optional ReceiptMessage receiptMessage = 5;
+  optional InstallMessage installMessage = 6;
 }
 
 message CallMessage {
@@ -203,6 +204,7 @@ message GroupContext {
     QUIT         = 3;
     REQUEST_INFO = 4;
     KICK_OUT     = 50;
+    REQUEST_GROUPS = 60;
   }
   optional bytes             id      = 1;
   optional Type              type    = 2;
@@ -237,4 +239,13 @@ message GroupDetails {
   repeated string members  = 3;
   optional Avatar avatar   = 4;
   optional bool   active   = 5 [default = true];
+}
+
+message InstallMessage {
+  enum Type {
+    UNKNOWN = 0;
+    GROUP_REQUEST = 1;
+    GROUP_RESPONSE = 2;
+  }
+  optional Type type = 1;
 }

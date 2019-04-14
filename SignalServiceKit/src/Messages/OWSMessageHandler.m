@@ -68,6 +68,8 @@ NSString *envelopeAddress(OWSSignalServiceProtosEnvelope *envelope)
         return [NSString stringWithFormat:@"<NullMessage: %@ />", content.nullMessage];
     } else if (content.hasReceiptMessage) {
         return [NSString stringWithFormat:@"<ReceiptMessage: %@ />", content.receiptMessage];
+    } else if (content.hasInstallMessage) {
+        return [NSString stringWithFormat:@"<InstallMessage: %@ />", content.installMessage];
     } else {
         // Don't fire an analytics event; if we ever add a new content type, we'd generate a ton of
         // analytics traffic.

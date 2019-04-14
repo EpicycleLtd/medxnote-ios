@@ -67,7 +67,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MedxCdnUrl</key>
-	<string>https://s3.amazonaws.com/medxtest1profiles/</string>
+	<string>https://cdn.ie.medx.im</string>
 	<key>MedxWebserverUrl</key>
 	<string>https://test1.textsecure.medx.im/</string>
 	<key>MedxWebsocketApi</key>

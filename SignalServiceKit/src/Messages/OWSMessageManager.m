@@ -279,6 +279,8 @@ NS_ASSUME_NONNULL_BEGIN
             DDLogInfo(@"%@ Received null message.", self.logTag);
         } else if (content.hasReceiptMessage) {
             [self handleIncomingEnvelope:envelope withReceiptMessage:content.receiptMessage transaction:transaction];
+        } else if (content.hasInstallMessage) {
+            [self handleIncomingEnvelope:envelope withInstallMessage:content.installMessage transaction:transaction];
         } else {
             DDLogWarn(@"%@ Ignoring envelope. Content with no known payload", self.logTag);
         }
@@ -324,7 +326,8 @@ NS_ASSUME_NONNULL_BEGIN
         
         if (!groupThread) {
             // Unknown group.
-            if (dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeUpdate) {
+            if (dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeUpdate
+                || dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeRequestGroups) {
                 // Accept group updates for unknown groups.
             } else if (dataMessage.group.type == OWSSignalServiceProtosGroupContextTypeDeliver) {
                 [self sendGroupInfoRequest:dataMessage.group.id envelope:envelope transaction:transaction];
@@ -339,7 +342,7 @@ NS_ASSUME_NONNULL_BEGIN
     if ((dataMessage.flags & OWSSignalServiceProtosDataMessageFlagsEndSession) != 0) {
         [self handleEndSessionMessageWithEnvelope:envelope dataMessage:dataMessage transaction:transaction];
     } else if ((dataMessage.flags & OWSSignalServiceProtosDataMessageFlagsExpirationTimerUpdate) != 0) {
-        [self handleExpirationTimerUpdateMessageWithEnvelope:envelope dataMessage:dataMessage transaction:transaction];
+        [self handleExpirationTimerUpdateMessageWithEnvelope:envelope dataMessage:dataMessage transaction:transaction saveMessage:YES];
     } else if ((dataMessage.flags & OWSSignalServiceProtosDataMessageFlagsProfileKeyUpdate) != 0) {
         [self handleProfileKeyMessageWithEnvelope:envelope dataMessage:dataMessage];
     } else if (dataMessage.attachments.count > 0) {
@@ -444,6 +447,29 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<ProfileManagerProtocol>)profileManager
 {
     return [TextSecureKitEnv sharedEnv].profileManager;
+}
+
+- (void)handleIncomingEnvelope:(OWSSignalServiceProtosEnvelope *)envelope
+            withInstallMessage:(OWSSignalServiceProtosInstallMessage *)installMessage
+                   transaction:(YapDatabaseReadWriteTransaction *)transaction
+{
+    OWSAssert(envelope);
+    OWSAssert(installMessage);
+    OWSAssert(transaction);
+//    OWSAssert(installMessage.type == OWSSignalServiceProtosInstallMessageTypeGroupRequest)
+    
+    NSArray<TSGroupThread *> *threads = [TSGroupThread groupThreadsWithRecipientId:envelope.source];
+    for (TSGroupThread *gThread in threads) {
+        NSString *updateGroupInfo = [gThread.groupModel getInfoStringAboutUpdateTo:gThread.groupModel contactsManager:self.contactsManager];
+        TSOutgoingMessage *message = [[TSOutgoingMessage alloc] initWithTimestamp:[NSDate ows_millisecondTimeStamp]
+                                                                         inThread:gThread
+                                                                 groupMetaMessage:TSGroupMessageUpdate];
+        [message updateWithCustomMessage:updateGroupInfo transaction:transaction];
+        // Only send this group update to the requester.
+        [message updateWithSingleGroupRecipient:envelope.source transaction:transaction];
+        
+        [self sendGroupUpdateForThread:gThread message:message];
+    }
 }
 
 - (void)handleIncomingEnvelope:(OWSSignalServiceProtosEnvelope *)envelope
@@ -765,6 +791,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleExpirationTimerUpdateMessageWithEnvelope:(OWSSignalServiceProtosEnvelope *)envelope
                                            dataMessage:(OWSSignalServiceProtosDataMessage *)dataMessage
                                            transaction:(YapDatabaseReadWriteTransaction *)transaction
+                                           saveMessage:(BOOL)saveMessage
 {
     OWSAssert(envelope);
     OWSAssert(dataMessage);
@@ -795,6 +822,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
     OWSAssert(disappearingMessagesConfiguration);
     [disappearingMessagesConfiguration saveWithTransaction:transaction];
+    
+    if (!saveMessage)
+        return;
     NSString *name = [self.contactsManager displayNameForPhoneIdentifier:envelope.source];
     OWSDisappearingConfigurationUpdateInfoMessage *message =
         [[OWSDisappearingConfigurationUpdateInfoMessage alloc] initWithTimestamp:envelope.timestamp
@@ -836,7 +866,9 @@ NS_ASSUME_NONNULL_BEGIN
     OWSAssert(envelope);
     OWSAssert(dataMessage);
     OWSAssert(transaction);
-
+    if (dataMessage.hasExpireTimer)
+        [self handleExpirationTimerUpdateMessageWithEnvelope:envelope dataMessage:dataMessage transaction:transaction saveMessage:NO];
+    
     [self handleReceivedEnvelope:envelope withDataMessage:dataMessage attachmentIds:@[] transaction:transaction];
 }
 
@@ -956,6 +988,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         switch (dataMessage.group.type) {
+            case OWSSignalServiceProtosGroupContextTypeRequestGroups:
             case OWSSignalServiceProtosGroupContextTypeUpdate: {
                 // Ensures that the thread exists but doesn't update it.
                 TSGroupThread *newGroupThread =
