@@ -42,6 +42,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
 
 @property (nonatomic) UITableView *tableView;
 @property (nonatomic) UILabel *emptyBoxLabel;
+@property (nonatomic) UIButton *footerButton;
 
 @property (nonatomic) YapDatabaseConnection *editingDbConnection;
 @property (nonatomic) YapDatabaseConnection *uiDatabaseConnection;
@@ -714,6 +715,28 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     return (NSInteger)[self.threadMappings numberOfItemsInSection:(NSUInteger)section];
 }
 
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    if (self.viewingThreadsIn == kArchiveState)
+        return nil;
+    if (!_footerButton) {
+        _footerButton = [[UIButton alloc] initWithFrame:CGRectZero];
+        [_footerButton setTitleColor:UIColor.blackColor forState:UIControlStateNormal];
+        _footerButton.titleLabel.font = [UIFont systemFontOfSize:14.0f weight:UIFontWeightSemibold];
+        if (_footerButton.allTargets.count == 0)
+            [_footerButton addTarget:self action:@selector(showArchiveGrouping) forControlEvents:UIControlEventTouchUpInside];
+    }
+    [self updateFooterText];
+    return _footerButton;
+}
+
+- (void)updateFooterText {
+    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        NSUInteger count = [[transaction ext:TSThreadDatabaseViewExtensionName] numberOfItemsInGroup:TSArchiveGroup];
+        NSString *countString = [NSString stringWithFormat:@"Archived conversations (%ld)", count];
+        [_footerButton setTitle:countString forState:UIControlStateNormal];
+    }];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     InboxTableViewCell *cell =
@@ -1070,6 +1093,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
 - (void)setViewingThreadsIn:(CellState)viewingThreadsIn
 {
     BOOL didChange = _viewingThreadsIn != viewingThreadsIn;
+    self.navigationItem.titleView.hidden = viewingThreadsIn == kArchiveState;
     _viewingThreadsIn = viewingThreadsIn;
 //    switch (viewingThreadsIn) {
 //        case kInboxState:
@@ -1081,6 +1105,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
 //    }
     if (didChange || !self.threadMappings) {
         [self updateMappings];
+        [self updateFooterText];
     } else {
         [self checkIfEmptyView];
         [self updateReminderViews];
