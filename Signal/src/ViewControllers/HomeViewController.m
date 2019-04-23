@@ -685,7 +685,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
 
 - (void)tableViewSetUp
 {
-    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+//    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
 }
 
 - (BOOL)shouldShowMissingContactsPermissionView
@@ -713,28 +713,6 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
         return self.searchUpdater.results.count;
     }
     return (NSInteger)[self.threadMappings numberOfItemsInSection:(NSUInteger)section];
-}
-
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
-    if (self.viewingThreadsIn == kArchiveState)
-        return nil;
-    if (!_footerButton) {
-        _footerButton = [[UIButton alloc] initWithFrame:CGRectZero];
-        [_footerButton setTitleColor:UIColor.blackColor forState:UIControlStateNormal];
-        _footerButton.titleLabel.font = [UIFont systemFontOfSize:14.0f weight:UIFontWeightSemibold];
-        if (_footerButton.allTargets.count == 0)
-            [_footerButton addTarget:self action:@selector(showArchiveGrouping) forControlEvents:UIControlEventTouchUpInside];
-    }
-    [self updateFooterText];
-    return _footerButton;
-}
-
-- (void)updateFooterText {
-    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
-        NSUInteger count = [[transaction ext:TSThreadDatabaseViewExtensionName] numberOfItemsInGroup:TSArchiveGroup];
-        NSString *countString = [NSString stringWithFormat:@"Archived conversations (%ld)", count];
-        [_footerButton setTitle:countString forState:UIControlStateNormal];
-    }];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -818,7 +796,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
                                          }];
 
     UITableViewRowAction *archiveAction;
-    if (self.viewingThreadsIn == kInboxState) {
+    if (self.viewingThreadsIn != kArchiveState) {
         archiveAction = [UITableViewRowAction
             rowActionWithStyle:UITableViewRowActionStyleNormal
                          title:NSLocalizedString(@"ARCHIVE_ACTION",
@@ -909,9 +887,11 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     [self.editingDbConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
         viewingThreadsIn == kInboxState ? [thread archiveThreadWithTransaction:transaction]
                                         : [thread unarchiveThreadWithTransaction:transaction];
-
     }];
     [self checkIfEmptyView];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self updateFooterText];
+    });
 }
 
 - (void)updateInboxCountLabel
@@ -1095,6 +1075,10 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     BOOL didChange = _viewingThreadsIn != viewingThreadsIn;
     self.navigationItem.titleView.hidden = viewingThreadsIn == kArchiveState;
     _viewingThreadsIn = viewingThreadsIn;
+    if (viewingThreadsIn == kArchiveState) {
+        self.tableView.tableFooterView = [UIView new];
+        self.footerButton = nil;
+    }
 //    switch (viewingThreadsIn) {
 //        case kInboxState:
 //            self.segmentedControl.selectedSegmentIndex = 0;
@@ -1105,11 +1089,28 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
 //    }
     if (didChange || !self.threadMappings) {
         [self updateMappings];
-        [self updateFooterText];
     } else {
         [self checkIfEmptyView];
         [self updateReminderViews];
     }
+    
+    if (!self.footerButton && viewingThreadsIn != kArchiveState) {
+        self.footerButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 60.0f)];
+        [self.footerButton setTitleColor:UIColor.blackColor forState:UIControlStateNormal];
+        self.footerButton.titleLabel.font = [UIFont systemFontOfSize:14.0f weight:UIFontWeightSemibold];
+        [self.footerButton addTarget:self action:@selector(showArchiveGrouping) forControlEvents:UIControlEventTouchUpInside];
+        self.tableView.tableFooterView = self.footerButton;
+    }
+    if (self.footerButton)
+        [self updateFooterText];
+}
+
+- (void)updateFooterText {
+    [self.uiDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction *transaction) {
+        NSUInteger count = [[transaction ext:TSThreadDatabaseViewExtensionName] numberOfItemsInGroup:TSArchiveGroup];
+        NSString *countString = [NSString stringWithFormat:@"Archived conversations (%ld)", count];
+        [_footerButton setTitle:countString forState:UIControlStateNormal];
+    }];
 }
 
 - (NSString *)currentGrouping
