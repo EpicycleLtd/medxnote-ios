@@ -1122,12 +1122,12 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState,
     switch (self.viewingThreadsIn) {
         case kMedxQState:
             return MedxQDatabaseViewExtensionName;
-            break;
         case kMedxResultState:
             return MedxResultsDatabaseViewExtensionName;
-            break;
-        default:
+        case kInboxState:
             return MedxInboxDatabaseViewExtensionName;
+        case kArchiveState:
+            return TSThreadDatabaseViewExtensionName;
     }
 }
 
