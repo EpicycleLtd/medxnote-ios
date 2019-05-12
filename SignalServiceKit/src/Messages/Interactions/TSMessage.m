@@ -185,8 +185,7 @@ const NSInteger kDefaultExpirationTime = 2592000; // in seconds 3600*24*30
 
 - (BOOL)shouldStartExpireTimer:(YapDatabaseReadTransaction *)transaction
 {
-    return true;
-//    return self.isExpiringMessage;
+    return self.isExpiringMessage;
 }
 
 // TODO a downloaded media doesn't start counting until download is complete.
@@ -266,8 +265,7 @@ const NSInteger kDefaultExpirationTime = 2592000; // in seconds 3600*24*30
 
 - (BOOL)isExpiringMessage
 {
-    return true;
-//    return self.expiresInSeconds > 0;
+    return self.expiresInSeconds > 0;
 }
 
 - (uint64_t)timestampForSorting
