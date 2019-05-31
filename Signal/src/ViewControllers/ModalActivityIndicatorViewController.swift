@@ -7,13 +7,13 @@ import MediaPlayer
 
 // A modal view that be used during blocking interactions (e.g. waiting on response from
 // service or on the completion of a long-running local operation).
-class ModalActivityIndicatorViewController: OWSViewController {
+@objc class ModalActivityIndicatorViewController: OWSViewController {
 
     let TAG = "[ModalActivityIndicatorViewController]"
 
     let canCancel: Bool
 
-    public var wasCancelled: Bool = false
+    @objc public var wasCancelled: Bool = false
 
     var activityIndicator: UIActivityIndicatorView?
 
@@ -33,7 +33,7 @@ class ModalActivityIndicatorViewController: OWSViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
-    public class func present(fromViewController: UIViewController,
+    @objc public class func present(fromViewController: UIViewController,
                               canCancel: Bool, backgroundBlock : @escaping (ModalActivityIndicatorViewController) -> Void) {
         AssertIsOnMainThread()
 
@@ -48,7 +48,7 @@ class ModalActivityIndicatorViewController: OWSViewController {
         }
     }
 
-    public func dismiss(completion : @escaping () -> Void) {
+    @objc public func dismiss(completion : @escaping () -> Void) {
         AssertIsOnMainThread()
 
         if !wasDimissed {
@@ -66,7 +66,7 @@ class ModalActivityIndicatorViewController: OWSViewController {
     override func loadView() {
         super.loadView()
 
-        self.view.backgroundColor = UIColor(colorLiteralRed: 0, green: 0, blue: 0, alpha: 0.25)
+        self.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25)
         self.view.isOpaque = false
 
         let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle:.whiteLarge)
@@ -130,7 +130,7 @@ class ModalActivityIndicatorViewController: OWSViewController {
         self.presentTimer = nil
     }
 
-    func presentTimerFired() {
+    @objc func presentTimerFired() {
         AssertIsOnMainThread()
 
         clearTimer()
@@ -141,7 +141,7 @@ class ModalActivityIndicatorViewController: OWSViewController {
         }
     }
 
-    func cancelPressed() {
+    @objc func cancelPressed() {
         AssertIsOnMainThread()
 
         wasCancelled = true

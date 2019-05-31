@@ -171,8 +171,6 @@
 		4539B5861F79348F007141FF /* PushRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4539B5851F79348F007141FF /* PushRegistrationManager.swift */; };
 		4539B5871F79348F007141FF /* PushRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4539B5851F79348F007141FF /* PushRegistrationManager.swift */; };
 		4542F0941EB9372700C7EE92 /* SystemContactsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542F0931EB9372700C7EE92 /* SystemContactsFetcher.swift */; };
-		4542F0961EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542F0951EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift */; };
-		4542F0971EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542F0951EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift */; };
 		45464DBC1DFA041F001D3FD6 /* DataChannelMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45464DBB1DFA041F001D3FD6 /* DataChannelMessage.swift */; };
 		454EBAB31F2BC08800ACE0BB /* OWSSwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D99C921F2937CC00D284D6 /* OWSSwiftUtils.swift */; };
 		454EBAB41F2BE14C00ACE0BB /* OWSAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D99C911F2937CC00D284D6 /* OWSAnalytics.swift */; };
@@ -362,6 +360,9 @@
 		B703C422209DFA820068C619 /* QRCodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C421209DFA820068C619 /* QRCodeViewController.m */; };
 		B703C423209DFA820068C619 /* QRCodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C421209DFA820068C619 /* QRCodeViewController.m */; };
 		B703C424209DFA820068C619 /* QRCodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B703C421209DFA820068C619 /* QRCodeViewController.m */; };
+		B71B55DA22A13AF8005329A4 /* Promise+retainUntilComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71B55D922A13AF8005329A4 /* Promise+retainUntilComplete.swift */; };
+		B71B55DB22A13AF8005329A4 /* Promise+retainUntilComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71B55D922A13AF8005329A4 /* Promise+retainUntilComplete.swift */; };
+		B71B55DC22A13AF8005329A4 /* Promise+retainUntilComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71B55D922A13AF8005329A4 /* Promise+retainUntilComplete.swift */; };
 		B724C4E8201D0F70004B5803 /* SearchResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B724C4E6201D0F6F004B5803 /* SearchResult.m */; };
 		B724C4EB201D0F9F004B5803 /* MedxInboxSearchUpdater.m in Sources */ = {isa = PBXBuildFile; fileRef = B724C4EA201D0F9F004B5803 /* MedxInboxSearchUpdater.m */; };
 		B7284CAE202A3DE1002581D0 /* PredefinedAnswers.m in Sources */ = {isa = PBXBuildFile; fileRef = B7284CAD202A3DE1002581D0 /* PredefinedAnswers.m */; };
@@ -422,7 +423,6 @@
 		B7996AF8205B1DBA006E4802 /* CountryCodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34B3F8411E8DF1700035BE1A /* CountryCodeViewController.m */; };
 		B7996AF9205B1DBA006E4802 /* ConversationViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0971F867BFC0066283D /* ConversationViewCell.m */; };
 		B7996AFA205B1DBA006E4802 /* NSAttributedString+OWS.m in Sources */ = {isa = PBXBuildFile; fileRef = 34CA1C241F706B5400E51C51 /* NSAttributedString+OWS.m */; };
-		B7996AFB205B1DBA006E4802 /* Promise+retainUntilComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542F0951EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift */; };
 		B7996AFC205B1DBA006E4802 /* OWS101ExistingUsersBlockOnIdentityChange.m in Sources */ = {isa = PBXBuildFile; fileRef = 4516E3FE1DD2193B00DC4206 /* OWS101ExistingUsersBlockOnIdentityChange.m */; };
 		B7996AFD205B1DBA006E4802 /* ExperienceUpgrade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4505C2BE1E648EA300CEBF41 /* ExperienceUpgrade.swift */; };
 		B7996AFE205B1DBA006E4802 /* AppUpdateNag.m in Sources */ = {isa = PBXBuildFile; fileRef = 34CCAF371F0C0599004084F4 /* AppUpdateNag.m */; };
@@ -708,7 +708,6 @@
 		B7996C2B205B1F25006E4802 /* CountryCodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34B3F8411E8DF1700035BE1A /* CountryCodeViewController.m */; };
 		B7996C2C205B1F25006E4802 /* ConversationViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 34D1F0971F867BFC0066283D /* ConversationViewCell.m */; };
 		B7996C2D205B1F25006E4802 /* NSAttributedString+OWS.m in Sources */ = {isa = PBXBuildFile; fileRef = 34CA1C241F706B5400E51C51 /* NSAttributedString+OWS.m */; };
-		B7996C2E205B1F25006E4802 /* Promise+retainUntilComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4542F0951EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift */; };
 		B7996C2F205B1F25006E4802 /* OWS101ExistingUsersBlockOnIdentityChange.m in Sources */ = {isa = PBXBuildFile; fileRef = 4516E3FE1DD2193B00DC4206 /* OWS101ExistingUsersBlockOnIdentityChange.m */; };
 		B7996C30205B1F25006E4802 /* ExperienceUpgrade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4505C2BE1E648EA300CEBF41 /* ExperienceUpgrade.swift */; };
 		B7996C31205B1F25006E4802 /* AppUpdateNag.m in Sources */ = {isa = PBXBuildFile; fileRef = 34CCAF371F0C0599004084F4 /* AppUpdateNag.m */; };
@@ -1260,7 +1259,6 @@
 		4539B5851F79348F007141FF /* PushRegistrationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushRegistrationManager.swift; sourceTree = "<group>"; };
 		453CC0361D08E1A60040EBA3 /* sn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sn; path = translations/sn.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4542F0931EB9372700C7EE92 /* SystemContactsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemContactsFetcher.swift; sourceTree = "<group>"; };
-		4542F0951EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Promise+retainUntilComplete.swift"; sourceTree = "<group>"; };
 		45464DBB1DFA041F001D3FD6 /* DataChannelMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataChannelMessage.swift; sourceTree = "<group>"; };
 		454B35071D08EED80026D658 /* mk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = mk; path = translations/mk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4556FA671F54AA9500AF40DD /* DebugUIProfile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugUIProfile.swift; sourceTree = "<group>"; };
@@ -1478,6 +1476,7 @@
 		B703C41C209DFA260068C619 /* QRCode.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = QRCode.storyboard; sourceTree = "<group>"; };
 		B703C420209DFA820068C619 /* QRCodeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QRCodeViewController.h; sourceTree = "<group>"; };
 		B703C421209DFA820068C619 /* QRCodeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QRCodeViewController.m; sourceTree = "<group>"; };
+		B71B55D922A13AF8005329A4 /* Promise+retainUntilComplete.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Promise+retainUntilComplete.swift"; sourceTree = "<group>"; };
 		B724C4E6201D0F6F004B5803 /* SearchResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchResult.m; sourceTree = "<group>"; };
 		B724C4E7201D0F70004B5803 /* SearchResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchResult.h; sourceTree = "<group>"; };
 		B724C4E9201D0F9F004B5803 /* MedxInboxSearchUpdater.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MedxInboxSearchUpdater.h; sourceTree = "<group>"; };
@@ -2206,6 +2205,7 @@
 		76EB04C818170B33006006FC /* util */ = {
 			isa = PBXGroup;
 			children = (
+				B71B55D922A13AF8005329A4 /* Promise+retainUntilComplete.swift */,
 				B7AD029E201645C700A7DB4F /* Passcode */,
 				B703C41B209DF5A40068C619 /* Jailbreak */,
 				B6DA6B051B8A2F9A00CA6F98 /* AppStoreRating.h */,
@@ -2237,7 +2237,6 @@
 				4579431C1E7C8CE9008ED0C0 /* Pastelog.h */,
 				4579431D1E7C8CE9008ED0C0 /* Pastelog.m */,
 				450DF2041E0D74AC003D14BE /* Platform.swift */,
-				4542F0951EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift */,
 				76EB04F518170B33006006FC /* StringUtil.h */,
 				76EB04F618170B33006006FC /* StringUtil.m */,
 				4521C3BF1F59F3BA00B4C582 /* TextFieldHelper.swift */,
@@ -3467,7 +3466,6 @@
 				B7996AF8205B1DBA006E4802 /* CountryCodeViewController.m in Sources */,
 				B7996AF9205B1DBA006E4802 /* ConversationViewCell.m in Sources */,
 				B7996AFA205B1DBA006E4802 /* NSAttributedString+OWS.m in Sources */,
-				B7996AFB205B1DBA006E4802 /* Promise+retainUntilComplete.swift in Sources */,
 				B7996AFC205B1DBA006E4802 /* OWS101ExistingUsersBlockOnIdentityChange.m in Sources */,
 				B7996AFD205B1DBA006E4802 /* ExperienceUpgrade.swift in Sources */,
 				B7996AFE205B1DBA006E4802 /* AppUpdateNag.m in Sources */,
@@ -3520,6 +3518,7 @@
 				B7996B2C205B1DBA006E4802 /* OWSContactsSearcher.m in Sources */,
 				B7996B2D205B1DBA006E4802 /* NotificationsManager.m in Sources */,
 				B7996B2E205B1DBA006E4802 /* ExperienceUpgradesPageViewController.swift in Sources */,
+				B71B55DB22A13AF8005329A4 /* Promise+retainUntilComplete.swift in Sources */,
 				B7996B2F205B1DBA006E4802 /* OWSAudioAttachmentPlayer.m in Sources */,
 				B7996B30205B1DBA006E4802 /* AttachmentPointerView.swift in Sources */,
 				B7996B31205B1DBA006E4802 /* OWSGroupAvatarBuilder.m in Sources */,
@@ -3696,7 +3695,6 @@
 				B7996C2B205B1F25006E4802 /* CountryCodeViewController.m in Sources */,
 				B7996C2C205B1F25006E4802 /* ConversationViewCell.m in Sources */,
 				B7996C2D205B1F25006E4802 /* NSAttributedString+OWS.m in Sources */,
-				B7996C2E205B1F25006E4802 /* Promise+retainUntilComplete.swift in Sources */,
 				B7996C2F205B1F25006E4802 /* OWS101ExistingUsersBlockOnIdentityChange.m in Sources */,
 				B7996C30205B1F25006E4802 /* ExperienceUpgrade.swift in Sources */,
 				B7996C31205B1F25006E4802 /* AppUpdateNag.m in Sources */,
@@ -3749,6 +3747,7 @@
 				B7996C5F205B1F25006E4802 /* OWSContactsSearcher.m in Sources */,
 				B7996C60205B1F25006E4802 /* NotificationsManager.m in Sources */,
 				B7996C61205B1F25006E4802 /* ExperienceUpgradesPageViewController.swift in Sources */,
+				B71B55DC22A13AF8005329A4 /* Promise+retainUntilComplete.swift in Sources */,
 				B7996C62205B1F25006E4802 /* OWSAudioAttachmentPlayer.m in Sources */,
 				B7996C63205B1F25006E4802 /* AttachmentPointerView.swift in Sources */,
 				B7996C64205B1F25006E4802 /* OWSGroupAvatarBuilder.m in Sources */,
@@ -3925,7 +3924,6 @@
 				34B3F8791E8DF1700035BE1A /* CountryCodeViewController.m in Sources */,
 				34D1F0A91F867BFC0066283D /* ConversationViewCell.m in Sources */,
 				34CA1C251F706B5400E51C51 /* NSAttributedString+OWS.m in Sources */,
-				4542F0961EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift in Sources */,
 				4516E3FF1DD2193B00DC4206 /* OWS101ExistingUsersBlockOnIdentityChange.m in Sources */,
 				4505C2BF1E648EA300CEBF41 /* ExperienceUpgrade.swift in Sources */,
 				34CCAF381F0C0599004084F4 /* AppUpdateNag.m in Sources */,
@@ -3978,6 +3976,7 @@
 				45843D1F1D2236B30013E85A /* OWSContactsSearcher.m in Sources */,
 				B6258B331C29E2E60014138E /* NotificationsManager.m in Sources */,
 				34B3F87B1E8DF1700035BE1A /* ExperienceUpgradesPageViewController.swift in Sources */,
+				B71B55DA22A13AF8005329A4 /* Promise+retainUntilComplete.swift in Sources */,
 				34533F181EA8D2070006114F /* OWSAudioAttachmentPlayer.m in Sources */,
 				452EA09E1EA7ABE00078744B /* AttachmentPointerView.swift in Sources */,
 				45666EC91D994C0D008FE134 /* OWSGroupAvatarBuilder.m in Sources */,
@@ -4161,7 +4160,6 @@
 				45FBC5D21DF8592E00E9B410 /* SignalCall.swift in Sources */,
 				451A13B21E13DED2000A50FD /* CallNotificationsAdapter.swift in Sources */,
 				454EBAB31F2BC08800ACE0BB /* OWSSwiftUtils.swift in Sources */,
-				4542F0971EBB9E9A00C7EE92 /* Promise+retainUntilComplete.swift in Sources */,
 				451DA3C91F1489BE008E2423 /* OWSAlerts.swift in Sources */,
 				45855F381D9498A40084F340 /* OWSContactAvatarBuilder.m in Sources */,
 				45DF5DF31DDB843F00C936C7 /* CompareSafetyNumbersActivity.swift in Sources */,

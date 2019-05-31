@@ -327,13 +327,13 @@ class SystemContactsFetcher: NSObject {
     var lastDelegateNotificationDate: Date?
     let contactStoreAdapter: ContactStoreAdapter
 
-    public weak var delegate: SystemContactsFetcherDelegate?
+    @objc public weak var delegate: SystemContactsFetcherDelegate?
 
     public var authorizationStatus: ContactStoreAuthorizationStatus {
         return contactStoreAdapter.authorizationStatus
     }
 
-    public var isAuthorized: Bool {
+    @objc public var isAuthorized: Bool {
         guard self.authorizationStatus != .notDetermined else {
             owsFail("should have called `requestOnce` before checking authorization status.")
             return false
@@ -342,14 +342,14 @@ class SystemContactsFetcher: NSObject {
         return self.authorizationStatus == .authorized
     }
 
-    private(set) var systemContactsHaveBeenRequestedAtLeastOnce = false
+    @objc private(set) var systemContactsHaveBeenRequestedAtLeastOnce = false
     private var hasSetupObservation = false
 
     override init() {
         self.contactStoreAdapter = ContactStoreAdapter()
     }
 
-    var supportsContactEditing: Bool {
+    @objc var supportsContactEditing: Bool {
         return self.contactStoreAdapter.supportsContactEditing
     }
 
@@ -373,7 +373,7 @@ class SystemContactsFetcher: NSObject {
      *
      * @param   completion  completion handler is called on main thread.
      */
-    public func requestOnce(completion completionParam: ((Error?) -> Void)?) {
+    @objc public func requestOnce(completion completionParam: ((Error?) -> Void)?) {
         AssertIsOnMainThread()
 
         // Ensure completion is invoked on main thread.
@@ -422,7 +422,7 @@ class SystemContactsFetcher: NSObject {
         }
     }
 
-    public func fetchOnceIfAlreadyAuthorized() {
+    @objc public func fetchOnceIfAlreadyAuthorized() {
         AssertIsOnMainThread()
         guard authorizationStatus == .authorized else {
             return
@@ -434,7 +434,7 @@ class SystemContactsFetcher: NSObject {
         updateContacts(completion: nil, isUserRequested: false)
     }
 
-    public func userRequestedRefresh(completion: @escaping (Error?) -> Void) {
+    @objc public func userRequestedRefresh(completion: @escaping (Error?) -> Void) {
         AssertIsOnMainThread()
         guard authorizationStatus == .authorized else {
             owsFail("should have already requested contact access")

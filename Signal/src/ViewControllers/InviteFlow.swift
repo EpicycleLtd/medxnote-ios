@@ -18,13 +18,13 @@ class InviteFlow: NSObject, MFMessageComposeViewControllerDelegate, MFMailCompos
     let installUrl = "https://signal.org/install/"
     let homepageUrl = "https://signal.org"
 
-    let actionSheetController: UIAlertController
+    @objc let actionSheetController: UIAlertController
     let presentingViewController: UIViewController
     let contactsManager: OWSContactsManager
 
     var channel: Channel?
 
-    required init(presentingViewController: UIViewController, contactsManager: OWSContactsManager) {
+    @objc required init(presentingViewController: UIViewController, contactsManager: OWSContactsManager) {
         self.presentingViewController = presentingViewController
         self.contactsManager = contactsManager
         actionSheetController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -144,13 +144,13 @@ class InviteFlow: NSObject, MFMessageComposeViewControllerDelegate, MFMailCompos
         }
     }
 
-    public func dismissAndSendSMSTo(phoneNumbers: [String]) {
+    @objc public func dismissAndSendSMSTo(phoneNumbers: [String]) {
         self.presentingViewController.dismiss(animated: true) {
             self.sendSMSTo(phoneNumbers: phoneNumbers)
         }
     }
 
-    public func sendSMSTo(phoneNumbers: [String]) {
+    @objc public func sendSMSTo(phoneNumbers: [String]) {
         if #available(iOS 10.0, *) {
             // iOS10 message compose view doesn't respect some system appearence attributes.
             // Specifically, the title is white, but the navbar is gray.

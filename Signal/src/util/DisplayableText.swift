@@ -152,20 +152,20 @@ extension String {
 
     static let TAG = "[DisplayableText]"
 
-    let fullText: String
-    let displayText: String
-    let isTextTruncated: Bool
-    let jumbomojiCount: UInt
+    @objc let fullText: String
+    @objc let displayText: String
+    @objc let isTextTruncated: Bool
+    @objc let jumbomojiCount: UInt
 
-    static let kMaxJumbomojiCount: UInt = 5
+    @objc static let kMaxJumbomojiCount: UInt = 5
     // This value is a bit arbitrary since we don't need to be 100% correct about 
     // rendering "Jumbomoji".  It allows us to place an upper bound on worst-case
     // performacne.
-    static let kMaxCharactersPerEmojiCount: UInt = 10
+    @objc static let kMaxCharactersPerEmojiCount: UInt = 10
 
     // MARK: Initializers
 
-    init(fullText: String, displayText: String, isTextTruncated: Bool) {
+    @objc init(fullText: String, displayText: String, isTextTruncated: Bool) {
         self.fullText = fullText
         self.displayText = displayText
         self.isTextTruncated = isTextTruncated

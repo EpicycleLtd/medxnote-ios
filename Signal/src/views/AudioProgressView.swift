@@ -22,13 +22,13 @@ import UIKit
         }
     }
 
-    var horizontalBarColor = UIColor.black {
+    @objc var horizontalBarColor = UIColor.black {
         didSet {
             updateContent()
         }
     }
 
-    var progressColor = UIColor.blue {
+    @objc var progressColor = UIColor.blue {
         didSet {
             updateContent()
         }
@@ -37,7 +37,7 @@ import UIKit
     private let horizontalBarLayer: CAShapeLayer
     private let progressLayer: CAShapeLayer
 
-    var progress: CGFloat = 0 {
+    @objc var progress: CGFloat = 0 {
         didSet {
             if oldValue != progress {
                 updateContent()

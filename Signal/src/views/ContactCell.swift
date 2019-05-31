@@ -38,7 +38,7 @@ class ContactCell: UITableViewCell {
         accessoryType = selected ? .checkmark : .none
     }
 
-    func didChangePreferredContentSize() {
+    @objc func didChangePreferredContentSize() {
         contactTextLabel.font = UIFont.preferredFont(forTextStyle: .body)
         contactDetailTextLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
     }
@@ -98,26 +98,31 @@ fileprivate extension CNContact {
      */
     func formattedFullName(font: UIFont) -> NSAttributedString? {
         let keyToHighlight = ContactSortOrder == .familyName ? CNContactFamilyNameKey : CNContactGivenNameKey
-
+        
         let boldDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold)
         let boldAttributes = [
-            NSFontAttributeName: UIFont(descriptor:boldDescriptor!, size: 0)
+            NSAttributedString.Key.font: UIFont(descriptor: boldDescriptor!, size: 0)
         ]
-
+        
         if let attributedName = CNContactFormatter.attributedString(from: self, style: .fullName, defaultAttributes: nil) {
             let highlightedName = attributedName.mutableCopy() as! NSMutableAttributedString
-            highlightedName.enumerateAttributes(in: NSMakeRange(0, highlightedName.length), options: [], using: { (attrs, range, _) in
-                if let property = attrs[CNContactPropertyAttribute] as? String, property == keyToHighlight {
+            highlightedName.enumerateAttributes(in: NSRange(location: 0, length: highlightedName.length), options: [], using: { (attrs, range, _) in
+                if let property = attrs[NSAttributedString.Key(rawValue: CNContactPropertyAttribute)] as? String, property == keyToHighlight {
                     highlightedName.addAttributes(boldAttributes, range: range)
                 }
             })
             return highlightedName
         }
 
-        if let emailAddress = (self.emailAddresses.first?.value as String?) {
-            return NSAttributedString(string: emailAddress, attributes: boldAttributes)
-        }
-
+        // Jan - added in new signal code, commenting out as it may crash when accessed without previously being fetched
+//        if let emailAddress = self.emailAddresses.first?.value {
+//            return NSAttributedString(string: emailAddress as String, attributes: boldAttributes)
+//        }
+//
+//        if let phoneNumber = self.phoneNumbers.first?.value.stringValue {
+//            return NSAttributedString(string: phoneNumber, attributes: boldAttributes)
+//        }
+        
         return nil
     }
 }

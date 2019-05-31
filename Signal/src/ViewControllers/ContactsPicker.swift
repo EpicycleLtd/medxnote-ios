@@ -87,7 +87,7 @@ open class ContactsPicker: OWSViewController, UITableViewDelegate, UITableViewDa
         NotificationCenter.default.addObserver(self, selector: #selector(self.didChangePreferredContentSize), name: NSNotification.Name.UIContentSizeCategoryDidChange, object: nil)
     }
 
-    func didChangePreferredContentSize() {
+    @objc func didChangePreferredContentSize() {
         self.tableView.reloadData()
     }
 
@@ -303,12 +303,12 @@ open class ContactsPicker: OWSViewController, UITableViewDelegate, UITableViewDa
 
     // MARK: - Button Actions
 
-    func onTouchCancelButton() {
+    @objc func onTouchCancelButton() {
         contactsPickerDelegate?.contactsPicker(self, didCancel: NSError(domain: "contactsPickerErrorDomain", code: 2, userInfo: [ NSLocalizedDescriptionKey: "User Canceled Selection"]))
         dismiss(animated: true, completion: nil)
     }
 
-    func onTouchDoneButton() {
+    @objc func onTouchDoneButton() {
         contactsPickerDelegate?.contactsPicker(self, didSelectMultipleContacts: selectedContacts)
         dismiss(animated: true, completion: nil)
     }

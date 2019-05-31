@@ -8,7 +8,7 @@ import Foundation
 @objc class AnySearcher: NSObject {
     private let searcher: Searcher<AnyObject>
 
-    public init(indexer: @escaping (AnyObject) -> String ) {
+    @objc public init(indexer: @escaping (AnyObject) -> String ) {
         searcher = Searcher(indexer: indexer)
         super.init()
     }

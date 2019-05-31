@@ -19,7 +19,7 @@ class WebRTCCallMessageHandler: NSObject, OWSCallMessageHandler {
 
     // MARK: Initializers
 
-    required init(accountManager: AccountManager, callService: CallService, messageSender: MessageSender) {
+    @objc required init(accountManager: AccountManager, callService: CallService, messageSender: MessageSender) {
         self.accountManager = accountManager
         self.callService = callService
         self.messageSender = messageSender

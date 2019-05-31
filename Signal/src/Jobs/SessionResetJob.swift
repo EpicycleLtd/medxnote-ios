@@ -62,7 +62,7 @@ class SessionResetJob: NSObject {
         }
     }
 
-    class func run(contactThread: TSContactThread, messageSender: MessageSender, storageManager: TSStorageManager) {
+    @objc class func run(contactThread: TSContactThread, messageSender: MessageSender, storageManager: TSStorageManager) {
         let job = self.init(recipientId: contactThread.contactIdentifier(),
                             thread: contactThread,
                             messageSender: messageSender,

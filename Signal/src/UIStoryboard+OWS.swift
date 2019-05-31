@@ -9,7 +9,7 @@ extension UIStoryboard {
         case main = "Main"
     }
 
-    class var main: UIStoryboard {
+    @objc class var main: UIStoryboard {
         return UIStoryboard(name: StoryboardName.main.rawValue, bundle: Bundle.main)
     }
 }

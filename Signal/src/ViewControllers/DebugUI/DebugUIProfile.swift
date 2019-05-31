@@ -39,7 +39,7 @@ class DebugUIProfile: DebugUIPage {
             },
             OWSTableItem(title: "Send Profile Key Message") {
                 let message = OWSProfileKeyMessage(timestamp: NSDate.ows_millisecondTimeStamp(), in: aThread)
-                self.messageSender.sendPromise(message: message).then {
+                self.messageSender.sendPromise(message: message).done {
                     Logger.info("Successfully sent profile key message to thread: \(String(describing: aThread))")
                     }.catch { _ in
                         owsFail("Failed to send profile key message to thread: \(String(describing: aThread))")

@@ -11,6 +11,7 @@ enum ExperienceUpgradeId: String {
     introducingReadReceipts = "004"
 }
 
+@objc
 class ExperienceUpgradeFinder: NSObject {
     public let TAG = "[ExperienceUpgradeFinder]"
 
@@ -53,16 +54,16 @@ class ExperienceUpgradeFinder: NSObject {
             // (UIDevice.current.supportsCallKit ? callKit : nil),
             //  introducingProfiles,
             introducingReadReceipts
-        ].flatMap { $0 }
+        ].compactMap { $0 }
     }
 
     // MARK: - Instance Methods
 
-    public func allUnseen(transaction: YapDatabaseReadTransaction) -> [ExperienceUpgrade] {
+    @objc public func allUnseen(transaction: YapDatabaseReadTransaction) -> [ExperienceUpgrade] {
         return allExperienceUpgrades.filter { ExperienceUpgrade.fetch(uniqueId: $0.uniqueId!, transaction: transaction) == nil }
     }
 
-    public func markAllAsSeen(transaction: YapDatabaseReadWriteTransaction) {
+    @objc public func markAllAsSeen(transaction: YapDatabaseReadWriteTransaction) {
         Logger.info("\(TAG) marking experience upgrades as seen")
         allExperienceUpgrades.forEach { $0.save(with: transaction) }
     }

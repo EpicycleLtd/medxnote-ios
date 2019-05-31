@@ -19,7 +19,7 @@ class CompareSafetyNumbersActivity: UIActivity {
     var mySafetyNumbers: String?
     let delegate: CompareSafetyNumbersActivityDelegate
 
-    required init(delegate: CompareSafetyNumbersActivityDelegate) {
+    @objc required init(delegate: CompareSafetyNumbersActivityDelegate) {
         self.delegate = delegate
         super.init()
     }

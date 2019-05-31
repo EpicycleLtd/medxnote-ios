@@ -17,7 +17,7 @@ class MessageFetcherJob: NSObject {
     private let messageReceiver: OWSMessageReceiver
     private let signalService: OWSSignalService
 
-    init(messageReceiver: OWSMessageReceiver, networkManager: TSNetworkManager, signalService: OWSSignalService) {
+    @objc init(messageReceiver: OWSMessageReceiver, networkManager: TSNetworkManager, signalService: OWSSignalService) {
         self.messageReceiver = messageReceiver
         self.networkManager = networkManager
         self.signalService = signalService
@@ -29,7 +29,7 @@ class MessageFetcherJob: NSObject {
         guard signalService.isCensorshipCircumventionActive else {
             Logger.debug("\(self.TAG) delegating message fetching to SocketManager since we're using normal transport.")
             TSSocketManager.requestSocketOpen()
-            return Promise(value: ())
+            return Promise.value(())
         }
 
         Logger.info("\(TAG) fetching messages via REST.")
@@ -46,7 +46,7 @@ class MessageFetcherJob: NSObject {
                 return self.run()
             } else {
                 // All finished
-                return Promise(value: ())
+                return Promise.value(())
             }
         }
 
@@ -56,7 +56,7 @@ class MessageFetcherJob: NSObject {
     }
 
     @objc func run() -> AnyPromise {
-        return AnyPromise(run())
+        return AnyPromise(run() as Promise)
     }
 
     // use in DEBUG or wherever you can't receive push notifications to poll for messages.
@@ -161,7 +161,7 @@ class MessageFetcherJob: NSObject {
     }
 
     private func fetchUndeliveredMessages() -> Promise<(envelopes: [OWSSignalServiceProtosEnvelope], more: Bool)> {
-        return Promise { fulfill, reject in
+        return Promise { resolver in
             let messagesRequest = OWSGetMessagesRequest()
 
             self.networkManager.makeRequest(
@@ -169,18 +169,18 @@ class MessageFetcherJob: NSObject {
                 success: { (_: URLSessionDataTask?, responseObject: Any?) -> Void in
                     guard let (envelopes, more) = self.parseMessagesResponse(responseObject: responseObject) else {
                         Logger.error("\(self.TAG) response object had unexpected content")
-                        return reject(OWSErrorMakeUnableToProcessServerResponseError())
+                        return resolver.reject(OWSErrorMakeUnableToProcessServerResponseError())
                     }
 
-                    fulfill((envelopes: envelopes, more: more))
+                    resolver.fulfill((envelopes: envelopes, more: more))
                 },
                 failure: { (_: URLSessionDataTask?, error: Error?) in
                     guard let error = error else {
                         Logger.error("\(self.TAG) error was surpringly nil. sheesh rough day.")
-                        return reject(OWSErrorMakeUnableToProcessServerResponseError())
+                        return resolver.reject(OWSErrorMakeUnableToProcessServerResponseError())
                     }
 
-                    reject(error)
+                    resolver.reject(error)
             })
         }
     }

@@ -125,31 +125,31 @@ extension CallUIAdaptee {
         return call
     }
 
-    internal func answerCall(localId: UUID) {
+    @objc internal func answerCall(localId: UUID) {
         AssertIsOnMainThread()
 
         adaptee.answerCall(localId: localId)
     }
 
-    internal func answerCall(_ call: SignalCall) {
+    @objc internal func answerCall(_ call: SignalCall) {
         AssertIsOnMainThread()
 
         adaptee.answerCall(call)
     }
 
-    internal func declineCall(localId: UUID) {
+    @objc internal func declineCall(localId: UUID) {
         AssertIsOnMainThread()
 
         adaptee.declineCall(localId: localId)
     }
 
-    internal func declineCall(_ call: SignalCall) {
+    @objc internal func declineCall(_ call: SignalCall) {
         AssertIsOnMainThread()
 
         adaptee.declineCall(call)
     }
 
-    internal func startAndShowOutgoingCall(recipientId: String) {
+    @objc internal func startAndShowOutgoingCall(recipientId: String) {
         AssertIsOnMainThread()
 
         adaptee.startAndShowOutgoingCall(recipientId: recipientId)

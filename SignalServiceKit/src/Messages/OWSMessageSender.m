@@ -1020,7 +1020,7 @@ NSString *const OWSMessageSenderRateLimitedException = @"RateLimitedException";
             // Account has secondary devices; proceed as usual.
         }
     } else {
-        OWSAssert(deviceMessages.count > 0);
+//        OWSAssert(deviceMessages.count > 0);
     }
 
     TSSubmitMessageRequest *request = [[TSSubmitMessageRequest alloc] initWithRecipient:recipient.uniqueId

@@ -729,7 +729,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState 
 {
     OWSAssert([NSThread isMainThread]);
     DDLogInfo(@"%@ beggining refreshing.", self.logTag);
-    [[Environment getCurrent].messageFetcherJob run].always(^{
+    [[Environment getCurrent].messageFetcherJob run].ensure(^{
         DDLogInfo(@"%@ ending refreshing.", self.logTag);
         [refreshControl endRefreshing];
     });

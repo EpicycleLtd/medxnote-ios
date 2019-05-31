@@ -4,6 +4,7 @@
 
 import Foundation
 
+@objc
 class AttachmentPointerView: UIView {
 
     let TAG = "[AttachmentPointerView]"
@@ -22,7 +23,7 @@ class AttachmentPointerView: UIView {
         }
     }
 
-    required init(attachmentPointer: TSAttachmentPointer, isIncoming: Bool) {
+    @objc required init(attachmentPointer: TSAttachmentPointer, isIncoming: Bool) {
         self.isIncoming = isIncoming
         self.attachmentPointer = attachmentPointer
 
@@ -50,7 +51,7 @@ class AttachmentPointerView: UIView {
         NotificationCenter.default.removeObserver(self)
     }
 
-    internal func attachmentDownloadProgress(_ notification: Notification) {
+    @objc internal func attachmentDownloadProgress(_ notification: Notification) {
         guard let attachmentId = attachmentPointer.uniqueId else {
             owsFail("Missing attachment id.")
             return

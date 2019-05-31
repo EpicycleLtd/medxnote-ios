@@ -102,7 +102,7 @@ private class IntroductingReadReceiptsExperienceUpgradeViewController: Experienc
         return button
     }
 
-    func didTapButton(sender: UIButton) {
+    @objc func didTapButton(sender: UIButton) {
         Logger.debug("\(TAG) in \(#function)")
 
         guard let buttonAction = self.buttonAction else {
@@ -232,7 +232,7 @@ private class IntroductingProfilesExperienceUpgradeViewController: ExperienceUpg
 
     // MARK: - Actions
 
-    func didTapButton(sender: UIButton) {
+    @objc func didTapButton(sender: UIButton) {
         Logger.debug("\(TAG) in \(#function)")
 
         // dismiss the modally presented view controller, then proceed.
@@ -271,7 +271,7 @@ private class CallKitExperienceUpgradeViewController: ExperienceUpgradeViewContr
 
     // MARK: - Actions
 
-    func didTapPrivacySettingsButton(sender: UIButton) {
+    @objc func didTapPrivacySettingsButton(sender: UIButton) {
         Logger.debug("\(TAG) in \(#function)")
 
         // dismiss the modally presented view controller, then proceed.
@@ -385,7 +385,7 @@ class ExperienceUpgradesPageViewController: OWSViewController, UIPageViewControl
 
     // MARK: - Initializers
 
-    required init(experienceUpgrades: [ExperienceUpgrade]) {
+    @objc required init(experienceUpgrades: [ExperienceUpgrade]) {
         self.experienceUpgrades = experienceUpgrades
 
         setPageControlAppearance()
@@ -553,12 +553,12 @@ class ExperienceUpgradesPageViewController: OWSViewController, UIPageViewControl
         allViewControllers.append(viewController)
     }
 
-    func didTapDismissButton(sender: UIButton) {
+    @objc func didTapDismissButton(sender: UIButton) {
         Logger.debug("\(TAG) in \(#function)")
         self.dismiss(animated: true)
     }
 
-    func handleDismissGesture(sender: AnyObject) {
+    @objc func handleDismissGesture(sender: AnyObject) {
         Logger.debug("\(TAG) in \(#function)")
         self.dismiss(animated: true)
     }

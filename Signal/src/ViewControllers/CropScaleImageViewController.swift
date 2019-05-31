@@ -106,7 +106,7 @@ class CropScaleImageViewController: OWSViewController {
         fatalError("\(#function) is unimplemented.")
     }
 
-    required init(srcImage: UIImage, successCompletion : @escaping (UIImage) -> Void) {
+    @objc required init(srcImage: UIImage, successCompletion : @escaping (UIImage) -> Void) {
         // normalized() can be slightly expensive but in practice this is fine.
         self.srcImage = srcImage.normalized()
         self.successCompletion = successCompletion
@@ -181,7 +181,7 @@ class CropScaleImageViewController: OWSViewController {
         self.view.addSubview(contentView)
         contentView.autoPinEdgesToSuperviewEdges()
 
-        let imageView = OWSLayerView(frame:CGRect.zero, layoutCallback: {[weak self] _ in
+        let imageView = OWSLayerView(frame:CGRect.zero, layoutCallback: {[weak self] in
             guard let strongSelf = self else { return }
             strongSelf.updateImageLayout()
         })
@@ -368,7 +368,7 @@ class CropScaleImageViewController: OWSViewController {
     var lastPinchLocation: CGPoint = CGPoint.zero
     var lastPinchScale: CGFloat = 1.0
 
-    func handlePinch(sender: UIPinchGestureRecognizer) {
+    @objc func handlePinch(sender: UIPinchGestureRecognizer) {
         switch (sender.state) {
         case .possible:
             break
@@ -425,7 +425,7 @@ class CropScaleImageViewController: OWSViewController {
 
     var srcTranslationAtPanStart: CGPoint = CGPoint.zero
 
-    func handlePan(sender: UIPanGestureRecognizer) {
+    @objc func handlePan(sender: UIPanGestureRecognizer) {
         switch (sender.state) {
         case .possible:
             break
@@ -498,11 +498,11 @@ class CropScaleImageViewController: OWSViewController {
 
     // MARK: - Event Handlers
 
-    func cancelPressed(sender: UIButton) {
+    @objc func cancelPressed(sender: UIButton) {
         dismiss(animated: true, completion:nil)
     }
 
-    func donePressed(sender: UIButton) {
+    @objc func donePressed(sender: UIButton) {
         let successCompletion = self.successCompletion
         dismiss(animated: true, completion: {
             guard let dstImage = self.generateDstImage() else {

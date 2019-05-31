@@ -42,6 +42,7 @@ import Foundation
 //
 // To resolve this ambiguity, we apply a "bias" towards success or
 // failure.
+@objc
 class MessageRecipientStatusUtils: NSObject {
     // MARK: Initializers
 
@@ -51,7 +52,7 @@ class MessageRecipientStatusUtils: NSObject {
 
     // This method is per-recipient and "biased towards success".
     // See comments above.
-    public class func recipientStatus(outgoingMessage: TSOutgoingMessage,
+    @objc public class func recipientStatus(outgoingMessage: TSOutgoingMessage,
                                       recipientId: String,
                                       referenceView: UIView) -> MessageRecipientStatus {
         let (messageRecipientStatus, _) = recipientStatusAndStatusMessage(outgoingMessage: outgoingMessage,
@@ -62,7 +63,7 @@ class MessageRecipientStatusUtils: NSObject {
 
     // This method is per-recipient and "biased towards success".
     // See comments above.
-    public class func statusMessage(outgoingMessage: TSOutgoingMessage,
+    @objc public class func statusMessage(outgoingMessage: TSOutgoingMessage,
                                       recipientId: String,
                                       referenceView: UIView) -> String {
         let (_, statusMessage) = recipientStatusAndStatusMessage(outgoingMessage: outgoingMessage,
@@ -131,7 +132,7 @@ class MessageRecipientStatusUtils: NSObject {
 
     // This method is per-message and "biased towards failure".
     // See comments above.
-    public class func statusMessage(outgoingMessage: TSOutgoingMessage,
+    @objc public class func statusMessage(outgoingMessage: TSOutgoingMessage,
                                     referenceView: UIView) -> String {
 
         switch outgoingMessage.messageState {
@@ -173,7 +174,7 @@ class MessageRecipientStatusUtils: NSObject {
 
     // This method is per-message and "biased towards failure".
     // See comments above.
-    public class func recipientStatus(outgoingMessage: TSOutgoingMessage) -> MessageRecipientStatus {
+    @objc public class func recipientStatus(outgoingMessage: TSOutgoingMessage) -> MessageRecipientStatus {
         switch outgoingMessage.messageState {
         case .unsent:
             return .failed

@@ -7,7 +7,7 @@ import Foundation
 @available(iOS 9.0, *)
 @objc
 public class VideoPlayerView: UIView {
-    var player: AVPlayer? {
+    @objc var player: AVPlayer? {
         get {
             return playerLayer.player
         }
@@ -16,7 +16,7 @@ public class VideoPlayerView: UIView {
         }
     }
 
-    var playerLayer: AVPlayerLayer {
+    @objc var playerLayer: AVPlayerLayer {
         return layer as! AVPlayerLayer
     }
 
@@ -60,7 +60,7 @@ public class PlayerProgressBar: UIView {
 
     private let kPreferredTimeScale: CMTimeScale = 100
 
-    public var player: AVPlayer? {
+    @objc public var player: AVPlayer? {
         didSet {
             guard let item = player?.currentItem else {
                 owsFail("No player item")
@@ -97,7 +97,7 @@ public class PlayerProgressBar: UIView {
 
         // Configure controls
 
-        let kLabelFont = UIFont.monospacedDigitSystemFont(ofSize: 12, weight: UIFontWeightRegular)
+        let kLabelFont = UIFont.monospacedDigitSystemFont(ofSize: 12, weight: UIFont.Weight.regular)
         positionLabel.font = kLabelFont
         remainingLabel.font = kLabelFont
 
