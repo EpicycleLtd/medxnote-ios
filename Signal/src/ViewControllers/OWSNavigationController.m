@@ -25,11 +25,13 @@
 {
     [super viewDidLoad];
 
-    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
-    [appearance configureWithOpaqueBackground];
-    appearance.backgroundColor = [UIColor ows_materialBlueColor];
-    self.navigationBar.standardAppearance = appearance;
-    self.navigationBar.scrollEdgeAppearance = appearance;
+    if (@available(iOS 13.0, *)) {
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.backgroundColor = [UIColor ows_materialBlueColor];
+        self.navigationBar.standardAppearance = appearance;
+        self.navigationBar.scrollEdgeAppearance = appearance;
+    }
     self.interactivePopGestureRecognizer.delegate = self;
 }
 
