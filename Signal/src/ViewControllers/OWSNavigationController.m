@@ -3,6 +3,7 @@
 //
 
 #import "OWSNavigationController.h"
+#import "UIColor+OWS.h"
 
 // We use a category to expose UINavigationController's private
 // UINavigationBarDelegate methods.
@@ -24,6 +25,11 @@
 {
     [super viewDidLoad];
 
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = [UIColor ows_materialBlueColor];
+    self.navigationBar.standardAppearance = appearance;
+    self.navigationBar.scrollEdgeAppearance = appearance;
     self.interactivePopGestureRecognizer.delegate = self;
 }
 
