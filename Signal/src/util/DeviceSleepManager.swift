@@ -34,7 +34,7 @@ import Foundation
 
         NotificationCenter.default.addObserver(self,
                                                selector:#selector(didEnterBackground),
-                                               name:NSNotification.Name.UIApplicationDidEnterBackground,
+                                               name:UIApplication.didEnterBackgroundNotification,
                                                object:nil)
     }
 

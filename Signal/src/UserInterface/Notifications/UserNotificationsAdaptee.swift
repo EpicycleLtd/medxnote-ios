@@ -121,7 +121,7 @@ class UserNotificationsAdaptee: NSObject, OWSCallNotificationsAdaptee, UNUserNot
         }}()
 
         content.body = notificationBody
-        content.sound = UNNotificationSound.default()
+        content.sound = UNNotificationSound.default
         content.categoryIdentifier = AppNotifications.category(.missedCall).identifier
 
         let request = UNNotificationRequest.init(identifier: call.localId.uuidString, content: content, trigger: nil)
@@ -147,7 +147,7 @@ class UserNotificationsAdaptee: NSObject, OWSCallNotificationsAdaptee, UNUserNot
             }}()
 
         content.body = notificationBody
-        content.sound = UNNotificationSound.default()
+        content.sound = UNNotificationSound.default
         content.categoryIdentifier = AppNotifications.category(.missedCallFromNoLongerVerifiedIdentity).identifier
 
         let request = UNNotificationRequest.init(identifier: call.localId.uuidString, content: content, trigger: nil)
@@ -173,7 +173,7 @@ class UserNotificationsAdaptee: NSObject, OWSCallNotificationsAdaptee, UNUserNot
             }}()
 
         content.body = notificationBody
-        content.sound = UNNotificationSound.default()
+        content.sound = UNNotificationSound.default
         content.categoryIdentifier = AppNotifications.category(.missedCall).identifier
 
         let request = UNNotificationRequest.init(identifier: call.localId.uuidString, content: content, trigger: nil)

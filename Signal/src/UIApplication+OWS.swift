@@ -41,7 +41,7 @@ extension UIApplication {
     }
 
     @objc func openSystemSettings() {
-        openURL(URL(string: UIApplicationOpenSettingsURLString)!)
+        openURL(URL(string: UIApplication.openSettingsURLString)!)
     }
 
 }

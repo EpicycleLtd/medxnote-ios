@@ -69,7 +69,7 @@ import MediaPlayer
         self.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25)
         self.view.isOpaque = false
 
-        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle:.whiteLarge)
+        let activityIndicator = UIActivityIndicatorView(style:.whiteLarge)
         self.activityIndicator = activityIndicator
         self.view.addSubview(activityIndicator)
         activityIndicator.autoCenterInSuperview()

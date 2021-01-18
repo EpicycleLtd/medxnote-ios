@@ -143,8 +143,8 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         let audioPlayButton = UIButton()
         self.audioPlayButton = audioPlayButton
         setAudioIconToPlay()
-        audioPlayButton.imageView?.layer.minificationFilter = kCAFilterTrilinear
-        audioPlayButton.imageView?.layer.magnificationFilter = kCAFilterTrilinear
+        audioPlayButton.imageView?.layer.minificationFilter = CALayerContentsFilter.trilinear
+        audioPlayButton.imageView?.layer.magnificationFilter = CALayerContentsFilter.trilinear
         audioPlayButton.addTarget(self, action: #selector(audioPlayButtonPressed), for: .touchUpInside)
         let buttonSize = createHeroViewSize()
         audioPlayButton.autoSetDimension(.width, toSize: buttonSize)
@@ -217,8 +217,8 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         }
 
         let imageView = UIImageView(image: image)
-        imageView.layer.minificationFilter = kCAFilterTrilinear
-        imageView.layer.magnificationFilter = kCAFilterTrilinear
+        imageView.layer.minificationFilter = CALayerContentsFilter.trilinear
+        imageView.layer.magnificationFilter = CALayerContentsFilter.trilinear
         let aspectRatio = image.size.width / image.size.height
         addSubviewWithScaleAspectFitLayout(view:imageView, aspectRatio:aspectRatio)
         contentView = imageView
@@ -238,8 +238,8 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         }
 
         let imageView = UIImageView(image: image)
-        imageView.layer.minificationFilter = kCAFilterTrilinear
-        imageView.layer.magnificationFilter = kCAFilterTrilinear
+        imageView.layer.minificationFilter = CALayerContentsFilter.trilinear
+        imageView.layer.magnificationFilter = CALayerContentsFilter.trilinear
         let aspectRatio = image.size.width / image.size.height
         addSubviewWithScaleAspectFitLayout(view:imageView, aspectRatio:aspectRatio)
         contentView = imageView
@@ -288,8 +288,8 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         let image = UIImage(named: imageName)
         assert(image != nil)
         let imageView = UIImageView(image: image)
-        imageView.layer.minificationFilter = kCAFilterTrilinear
-        imageView.layer.magnificationFilter = kCAFilterTrilinear
+        imageView.layer.minificationFilter = CALayerContentsFilter.trilinear
+        imageView.layer.magnificationFilter = CALayerContentsFilter.trilinear
         imageView.layer.shadowColor = UIColor.black.cgColor
         let shadowScaling = 5.0
         imageView.layer.shadowRadius = CGFloat(2.0 * shadowScaling)

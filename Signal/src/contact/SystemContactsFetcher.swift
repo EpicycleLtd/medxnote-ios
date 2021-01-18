@@ -56,7 +56,7 @@ class ContactsFrameworkContactStoreAdaptee: ContactStoreAdaptee {
         self.changeHandler = changeHandler
         self.lastSortOrder = CNContactsUserDefaults.shared().sortOrder
         NotificationCenter.default.addObserver(self, selector: #selector(runChangeHandler), name: .CNContactStoreDidChange, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: .UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
     @objc

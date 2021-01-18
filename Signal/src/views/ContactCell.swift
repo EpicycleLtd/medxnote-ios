@@ -21,12 +21,12 @@ class ContactCell: UITableViewCell {
         super.awakeFromNib()
 
         // Initialization code
-        selectionStyle = UITableViewCellSelectionStyle.none
+        selectionStyle = UITableViewCell.SelectionStyle.none
 
         contactContainerView.layer.masksToBounds = true
         contactContainerView.layer.cornerRadius = contactContainerView.frame.size.width/2
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.didChangePreferredContentSize), name: NSNotification.Name.UIContentSizeCategoryDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.didChangePreferredContentSize), name: UIContentSizeCategory.didChangeNotification, object: nil)
     }
 
     override func prepareForReuse() {
@@ -107,9 +107,9 @@ fileprivate extension CNContact {
         if let attributedName = CNContactFormatter.attributedString(from: self, style: .fullName, defaultAttributes: nil) {
             let highlightedName = attributedName.mutableCopy() as! NSMutableAttributedString
             highlightedName.enumerateAttributes(in: NSRange(location: 0, length: highlightedName.length), options: [], using: { (attrs, range, _) in
-                if let property = attrs[NSAttributedString.Key(rawValue: CNContactPropertyAttribute)] as? String, property == keyToHighlight {
-                    highlightedName.addAttributes(boldAttributes, range: range)
-                }
+            //    if let property = attrs[NSAttributedString.attributedSubstring.Key(rawValue: CNContactPropertyAttribute)] as? String, property == keyToHighlight {
+            //        highlightedName.addAttributes(boldAttributes, range: range)
+            //    }
             })
             return highlightedName
         }

@@ -212,7 +212,7 @@ class CropScaleImageViewController: OWSViewController {
             path.usesEvenOddFillRule = true
 
             layer.path = path.cgPath
-            layer.fillRule = kCAFillRuleEvenOdd
+            layer.fillRule = CAShapeLayerFillRule.evenOdd
             layer.fillColor = UIColor.black.cgColor
             layer.opacity = 0.7
         }

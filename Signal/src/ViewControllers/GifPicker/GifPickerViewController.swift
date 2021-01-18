@@ -125,7 +125,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
                                                object: nil)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didBecomeActive),
-                                               name: NSNotification.Name.UIApplicationDidBecomeActive,
+                                               name: UIApplication.didBecomeActiveNotification,
                                                object: nil)
     }
 
@@ -212,7 +212,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
         searchErrorView.isUserInteractionEnabled = true
         searchErrorView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(retryTapped)))
 
-        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        let activityIndicator = UIActivityIndicatorView(style: .gray)
         self.activityIndicator = activityIndicator
         self.view.addSubview(activityIndicator)
         activityIndicator.autoHCenterInSuperview()
@@ -345,7 +345,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
             path.append(UIBezierPath(rect: cellRect))
 
             layer.path = path.cgPath
-            layer.fillRule = kCAFillRuleEvenOdd
+            layer.fillRule = CAShapeLayerFillRule.evenOdd
             layer.fillColor = UIColor.black.cgColor
             layer.opacity = 0.7
         }

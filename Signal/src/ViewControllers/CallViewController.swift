@@ -109,7 +109,7 @@ class CallViewController: OWSViewController, CallObserver, CallServiceObserver {
                     }
 
                     // Don't use receiver when video is enabled. Only bluetooth or speaker
-                    return portDescription.portType != AVAudioSessionPortBuiltInMic
+                    return convertFromAVAudioSessionPort(portDescription.portType) != convertFromAVAudioSessionPort(AVAudioSession.Port.builtInMic)
                 }
             }
             return Set(appropriateForVideo)
@@ -144,7 +144,7 @@ class CallViewController: OWSViewController, CallObserver, CallServiceObserver {
     func observeNotifications() {
         NotificationCenter.default.addObserver(self,
                                                selector:#selector(didBecomeActive),
-                                               name:NSNotification.Name.UIApplicationDidBecomeActive,
+                                               name:UIApplication.didBecomeActiveNotification,
                                                object:nil)
 
         NotificationCenter.default.addObserver(forName: CallAudioServiceSessionChanged, object: nil, queue: nil) { [weak self] _ in
@@ -1058,4 +1058,9 @@ class CallViewController: OWSViewController, CallObserver, CallServiceObserver {
         updateLocalVideoTrack(localVideoTrack: localVideoTrack)
         updateRemoteVideoTrack(remoteVideoTrack: remoteVideoTrack)
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromAVAudioSessionPort(_ input: AVAudioSession.Port) -> String {
+	return input.rawValue
 }

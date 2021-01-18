@@ -38,7 +38,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.0.12</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -55,7 +55,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>3.0.12.0</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LOGS_EMAIL</key>
@@ -69,9 +69,9 @@
 	<key>MedxCdnUrl</key>
 	<string>https://cdn.ie.medx.im</string>
 	<key>MedxWebserverUrl</key>
-	<string>https://global2.textsecure.medx.im/</string>
+	<string>https://globalv4.textsecure.medx.im/</string>
 	<key>MedxWebsocketApi</key>
-	<string>wss://global2.textsecure.medx.im/v1/websocket/</string>
+	<string>wss://globalv4.textsecure.medx.im/v1/websocket/</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -168,6 +168,8 @@
 	</array>
 	<key>UISupportsDocumentBrowser</key>
 	<true/>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
