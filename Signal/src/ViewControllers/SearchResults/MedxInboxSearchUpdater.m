@@ -53,6 +53,9 @@
     self.searchController.dimsBackgroundDuringPresentation = false;
     UITextField *searchField = [self.searchController.searchBar valueForKey:@"searchField"];
     searchField.textColor = [UIColor whiteColor];
+    if (@available(iOS 13.0, *)) {
+        self.searchController.automaticallyShowsCancelButton = true;
+    }
 }
     
 - (BOOL)isSearching {
@@ -174,6 +177,11 @@
     [searchBar resignFirstResponder];
     [self.results removeAllObjects];
     [self.tableView reloadData];
+}
+
+- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar {
+    [searchBar setShowsCancelButton:YES animated:YES];
+    return YES;
 }
 
 @end
