@@ -296,8 +296,19 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState 
 
     [self updateBarButtonItems];
     [self setupSearch];
+    [self setupNavBar];
 }
     
+- (void)setupNavBar {
+    if(@available(iOS 13.0, *)){
+        UINavigationBarAppearance *navBarApp = [UINavigationBarAppearance new];
+        [navBarApp configureWithOpaqueBackground];
+        [navBarApp setBackgroundColor:[UIColor ows_materialBlueColor]];
+        [self.navigationController.navigationBar setStandardAppearance: navBarApp];
+        [self.navigationController.navigationBar setScrollEdgeAppearance: navBarApp];
+    }
+}
+
 - (void)setupSearch {
     self.searchUpdater = [[MedxInboxSearchUpdater alloc] initWithTableView:self.tableView
                                                               dbConnection:self.uiDatabaseConnection
