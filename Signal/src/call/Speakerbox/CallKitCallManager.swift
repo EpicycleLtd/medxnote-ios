@@ -18,7 +18,7 @@ final class CallKitCallManager: NSObject {
 
     let TAG = "[CallKitCallManager]"
     let callController = CXCallController()
-    static let kAnonymousCallHandlePrefix = "Signal:"
+    @objc static let kAnonymousCallHandlePrefix = "Signal:"
 
     // MARK: Actions
 

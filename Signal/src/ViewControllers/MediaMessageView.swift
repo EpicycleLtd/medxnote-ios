@@ -11,6 +11,7 @@ enum MediaMessageViewMode: UInt {
     case small
 }
 
+@objc
 class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
 
     let TAG = "[MediaMessageView]"
@@ -41,7 +42,7 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
     var audioProgressSeconds: CGFloat = 0
     var audioDurationSeconds: CGFloat = 0
 
-    var contentView: UIView?
+    @objc var contentView: UIView?
 
     // MARK: Initializers
 
@@ -50,11 +51,11 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         fatalError("\(#function) is unimplemented.")
     }
 
-    convenience init(attachment: SignalAttachment, mode: MediaMessageViewMode) {
+    @objc convenience init(attachment: SignalAttachment, mode: MediaMessageViewMode) {
         self.init(attachment: attachment, mode: mode, viewItem: nil, attachmentStream: nil)
     }
 
-    required init(attachment: SignalAttachment, mode: MediaMessageViewMode, viewItem: ConversationViewItem?, attachmentStream: TSAttachmentStream?) {
+    @objc required init(attachment: SignalAttachment, mode: MediaMessageViewMode, viewItem: ConversationViewItem?, attachmentStream: TSAttachmentStream?) {
         assert(!attachment.hasError)
         self.attachment = attachment
         self.mode = mode
@@ -71,11 +72,11 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
 
     // MARK: View Lifecycle
 
-    func viewWillAppear(_ animated: Bool) {
+    @objc func viewWillAppear(_ animated: Bool) {
         ViewControllerUtils.setAudioIgnoresHardwareMuteSwitch(true)
     }
 
-    func viewWillDisappear(_ animated: Bool) {
+    @objc func viewWillDisappear(_ animated: Bool) {
         ViewControllerUtils.setAudioIgnoresHardwareMuteSwitch(false)
     }
 
@@ -142,8 +143,8 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         let audioPlayButton = UIButton()
         self.audioPlayButton = audioPlayButton
         setAudioIconToPlay()
-        audioPlayButton.imageView?.layer.minificationFilter = kCAFilterTrilinear
-        audioPlayButton.imageView?.layer.magnificationFilter = kCAFilterTrilinear
+        audioPlayButton.imageView?.layer.minificationFilter = CALayerContentsFilter.trilinear
+        audioPlayButton.imageView?.layer.magnificationFilter = CALayerContentsFilter.trilinear
         audioPlayButton.addTarget(self, action: #selector(audioPlayButtonPressed), for: .touchUpInside)
         let buttonSize = createHeroViewSize()
         audioPlayButton.autoSetDimension(.width, toSize: buttonSize)
@@ -216,8 +217,8 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         }
 
         let imageView = UIImageView(image: image)
-        imageView.layer.minificationFilter = kCAFilterTrilinear
-        imageView.layer.magnificationFilter = kCAFilterTrilinear
+        imageView.layer.minificationFilter = CALayerContentsFilter.trilinear
+        imageView.layer.magnificationFilter = CALayerContentsFilter.trilinear
         let aspectRatio = image.size.width / image.size.height
         addSubviewWithScaleAspectFitLayout(view:imageView, aspectRatio:aspectRatio)
         contentView = imageView
@@ -237,8 +238,8 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         }
 
         let imageView = UIImageView(image: image)
-        imageView.layer.minificationFilter = kCAFilterTrilinear
-        imageView.layer.magnificationFilter = kCAFilterTrilinear
+        imageView.layer.minificationFilter = CALayerContentsFilter.trilinear
+        imageView.layer.magnificationFilter = CALayerContentsFilter.trilinear
         let aspectRatio = image.size.width / image.size.height
         addSubviewWithScaleAspectFitLayout(view:imageView, aspectRatio:aspectRatio)
         contentView = imageView
@@ -287,8 +288,8 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
         let image = UIImage(named: imageName)
         assert(image != nil)
         let imageView = UIImageView(image: image)
-        imageView.layer.minificationFilter = kCAFilterTrilinear
-        imageView.layer.magnificationFilter = kCAFilterTrilinear
+        imageView.layer.minificationFilter = CALayerContentsFilter.trilinear
+        imageView.layer.magnificationFilter = CALayerContentsFilter.trilinear
         imageView.layer.shadowColor = UIColor.black.cgColor
         let shadowScaling = 5.0
         imageView.layer.shadowRadius = CGFloat(2.0 * shadowScaling)
@@ -362,7 +363,7 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
 
     // MARK: - Event Handlers
 
-    func audioPlayButtonPressed(sender: UIButton) {
+    @objc func audioPlayButtonPressed(sender: UIButton) {
         audioPlayer?.togglePlayState()
     }
 
@@ -405,7 +406,7 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
 
     // MARK: - Full Screen Image
 
-    func imageTapped(sender: UIGestureRecognizer) {
+    @objc func imageTapped(sender: UIGestureRecognizer) {
         guard sender.state == .recognized else {
             return
         }
@@ -430,7 +431,7 @@ class MediaMessageView: UIView, OWSAudioAttachmentPlayerDelegate {
 
     // MARK: - Video Playback
 
-    func videoTapped(sender: UIGestureRecognizer) {
+    @objc func videoTapped(sender: UIGestureRecognizer) {
         guard sender.state == .recognized else {
             return
         }

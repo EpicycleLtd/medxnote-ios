@@ -26,14 +26,14 @@ class ImageCache: NSObject {
         self.backingCache = NSCache()
     }
 
-    func image(forKey key: AnyObject, diameter: CGFloat) -> UIImage? {
+    @objc func image(forKey key: AnyObject, diameter: CGFloat) -> UIImage? {
         guard let record = backingCache.object(forKey: key) else {
             return nil
         }
         return record.variations[diameter]
     }
 
-    func setImage(_ image: UIImage, forKey key: AnyObject, diameter: CGFloat) {
+    @objc func setImage(_ image: UIImage, forKey key: AnyObject, diameter: CGFloat) {
         if let existingRecord = backingCache.object(forKey: key) {
             existingRecord.variations[diameter] = image
             backingCache.setObject(existingRecord, forKey: key)
@@ -43,11 +43,11 @@ class ImageCache: NSObject {
         }
     }
 
-    func removeAllImages() {
+    @objc func removeAllImages() {
         backingCache.removeAllObjects()
     }
 
-    func removeAllImages(forKey key: AnyObject) {
+    @objc func removeAllImages(forKey key: AnyObject) {
         backingCache.removeObject(forKey: key)
     }
 }

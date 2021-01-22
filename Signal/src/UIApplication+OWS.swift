@@ -10,7 +10,7 @@ extension UIApplication {
         return findFrontmostViewController(ignoringAlerts:true)
     }
 
-    var frontmostViewController: UIViewController? {
+    @objc var frontmostViewController: UIViewController? {
         return findFrontmostViewController(ignoringAlerts:false)
     }
 
@@ -40,8 +40,8 @@ extension UIApplication {
         return viewController
     }
 
-    func openSystemSettings() {
-        openURL(URL(string: UIApplicationOpenSettingsURLString)!)
+    @objc func openSystemSettings() {
+        openURL(URL(string: UIApplication.openSettingsURLString)!)
     }
 
 }

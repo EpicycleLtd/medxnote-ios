@@ -214,7 +214,7 @@ class GifPickerCell: UICollectionViewCell {
         self.backgroundColor = nil
 
         if self.isCellSelected {
-            let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+            let activityIndicator = UIActivityIndicatorView(style: .gray)
             self.activityIndicator = activityIndicator
             addSubview(activityIndicator)
             activityIndicator.autoCenterInSuperview()
@@ -242,7 +242,7 @@ class GifPickerCell: UICollectionViewCell {
             return Promise(error: GiphyError.assertionError(description: "renditionForSending was unexpectedly nil"))
         }
 
-        let (promise, fulfill, reject) = Promise<GiphyAsset>.pending()
+        let (promise, resolver) = Promise<GiphyAsset>.pending()
 
         // We don't retain a handle on the asset request, since there will only ever
         // be one selected asset, and we never want to cancel it.
@@ -250,13 +250,13 @@ class GifPickerCell: UICollectionViewCell {
             .sharedInstance.requestAsset(rendition: renditionForSending,
                                                         priority: .high,
                                                         success: { _, asset in
-                                                            fulfill(asset)
+                                                            resolver.fulfill(asset)
         },
                                                         failure: { _ in
                                                             // TODO GiphyDownloader API should pass through a useful failing error
                                                             // so we can pass it through here
                                                             Logger.error("\(self.TAG) request failed")
-                                                            reject(GiphyError.fetchFailure)
+                                                            resolver.reject(GiphyError.fetchFailure)
         })
 
         return promise

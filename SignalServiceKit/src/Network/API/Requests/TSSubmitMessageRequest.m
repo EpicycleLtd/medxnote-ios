@@ -16,8 +16,10 @@
                         messages:(NSArray *)messages
                            relay:(NSString *)relay
                        timeStamp:(uint64_t)timeStamp {
+    BOOL hasContent = true;
+    NSString *urlString = [NSString stringWithFormat:@"%@%@?content=%@", textSecureMessagesAPI, contactRegisteredID, hasContent ? @"true" : @"false"];
     self =
-        [super initWithURL:[NSURL URLWithString:[textSecureMessagesAPI stringByAppendingString:contactRegisteredID]]];
+        [super initWithURL:[NSURL URLWithString:urlString]];
 
     NSMutableDictionary *allMessages =
         [@{ @"messages" : messages,

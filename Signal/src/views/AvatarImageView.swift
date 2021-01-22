@@ -27,8 +27,8 @@ class AvatarImageView: UIImageView {
     }
 
     func configureView() {
-        self.layer.minificationFilter = kCAFilterTrilinear
-        self.layer.magnificationFilter = kCAFilterTrilinear
+        self.layer.minificationFilter = CALayerContentsFilter.trilinear
+        self.layer.magnificationFilter = CALayerContentsFilter.trilinear
         self.layer.borderWidth = 0.5
         self.layer.masksToBounds = true
         self.contentMode = .scaleToFill

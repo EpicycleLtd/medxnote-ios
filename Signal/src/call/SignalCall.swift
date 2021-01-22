@@ -40,7 +40,7 @@ protocol CallObserver: class {
     let TAG = "[SignalCall]"
 
     var observers = [Weak<CallObserver>]()
-    let remotePhoneNumber: String
+    @objc let remotePhoneNumber: String
 
     // Signal Service identifier for this Call. Used to coordinate the call across remote clients.
     let signalingId: UInt64
@@ -48,7 +48,7 @@ protocol CallObserver: class {
     let direction: CallDirection
 
     // Distinguishes between calls locally, e.g. in CallKit
-    let localId: UUID
+    @objc let localId: UUID
 
     let thread: TSContactThread
 

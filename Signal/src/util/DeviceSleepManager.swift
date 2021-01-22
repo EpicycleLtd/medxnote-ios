@@ -18,7 +18,7 @@ import Foundation
 
     let TAG = "[DeviceSleepManager]"
 
-    static let sharedInstance = DeviceSleepManager()
+    @objc static let sharedInstance = DeviceSleepManager()
 
     private class SleepBlock {
         weak var blockObject: NSObject?
@@ -34,7 +34,7 @@ import Foundation
 
         NotificationCenter.default.addObserver(self,
                                                selector:#selector(didEnterBackground),
-                                               name:NSNotification.Name.UIApplicationDidEnterBackground,
+                                               name:UIApplication.didEnterBackgroundNotification,
                                                object:nil)
     }
 
@@ -42,13 +42,13 @@ import Foundation
         NotificationCenter.default.removeObserver(self)
     }
 
-    func didEnterBackground() {
+    @objc func didEnterBackground() {
         AssertIsOnMainThread()
 
         ensureSleepBlocking()
     }
 
-    public func addBlock(blockObject: NSObject) {
+    @objc public func addBlock(blockObject: NSObject) {
         AssertIsOnMainThread()
 
         blocks.append(SleepBlock(blockObject: blockObject))
@@ -56,7 +56,7 @@ import Foundation
         ensureSleepBlocking()
     }
 
-    public func removeBlock(blockObject: NSObject) {
+    @objc public func removeBlock(blockObject: NSObject) {
         AssertIsOnMainThread()
 
         blocks = blocks.filter {

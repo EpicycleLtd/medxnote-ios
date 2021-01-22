@@ -50,7 +50,7 @@ class DebugUICalling: DebugUIPage {
                 let hangupMessage = OWSCallHangupMessage(callId: kFakeCallId)
                 let callMessage = OWSOutgoingCallMessage(thread: thread, hangupMessage: hangupMessage)
 
-                self.messageSender.sendPromise(message: callMessage).then {
+                self.messageSender.sendPromise(message: callMessage).done {
                     Logger.debug("\(self.TAG) Successfully sent hangup call message to \(thread.contactIdentifier())")
                 }.catch { error in
                     Logger.error("\(self.TAG) failed to send hangup call message to \(thread.contactIdentifier()) with error: \(error)")
@@ -61,7 +61,7 @@ class DebugUICalling: DebugUIPage {
                 let busyMessage = OWSCallBusyMessage(callId: kFakeCallId)
                 let callMessage = OWSOutgoingCallMessage(thread: thread, busyMessage: busyMessage)
 
-                self.messageSender.sendPromise(message: callMessage).then {
+                self.messageSender.sendPromise(message: callMessage).done {
                     Logger.debug("\(self.TAG) Successfully sent busy call message to \(thread.contactIdentifier())")
                 }.catch { error in
                     Logger.error("\(self.TAG) failed to send busy call message to \(thread.contactIdentifier()) with error: \(error)")

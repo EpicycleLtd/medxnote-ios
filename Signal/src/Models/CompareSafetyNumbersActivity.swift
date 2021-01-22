@@ -19,19 +19,19 @@ class CompareSafetyNumbersActivity: UIActivity {
     var mySafetyNumbers: String?
     let delegate: CompareSafetyNumbersActivityDelegate
 
-    required init(delegate: CompareSafetyNumbersActivityDelegate) {
+    @objc required init(delegate: CompareSafetyNumbersActivityDelegate) {
         self.delegate = delegate
         super.init()
     }
 
     // MARK: UIActivity
 
-    override class var activityCategory: UIActivityCategory {
+    override class var activityCategory: UIActivity.Category {
         get { return .action }
     }
 
-    override var activityType: UIActivityType? {
-        get { return UIActivityType(rawValue: CompareSafetyNumbersActivityType) }
+    override var activityType: UIActivity.ActivityType? {
+        get { return UIActivity.ActivityType(rawValue: CompareSafetyNumbersActivityType) }
     }
 
     override var activityTitle: String? {

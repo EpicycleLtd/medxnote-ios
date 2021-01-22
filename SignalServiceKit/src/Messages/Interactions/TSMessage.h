@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface TSMessage : TSInteraction
 
-extern NSInteger const kDefaultExpirationTime;
+extern uint64_t const kDefaultExpirationTime;
 
 @property (nonatomic, readonly) NSMutableArray<NSString *> *attachmentIds;
 @property (nonatomic, readonly, nullable) NSString *body;

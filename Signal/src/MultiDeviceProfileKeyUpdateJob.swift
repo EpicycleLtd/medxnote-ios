@@ -27,7 +27,7 @@ import PromiseKit
         self.profileManager = profileManager
     }
 
-    class func run(profileKey: OWSAES256Key, identityManager: OWSIdentityManager, messageSender: MessageSender, profileManager: OWSProfileManager) {
+    @objc class func run(profileKey: OWSAES256Key, identityManager: OWSIdentityManager, messageSender: MessageSender, profileManager: OWSProfileManager) {
         return self.init(profileKey: profileKey, identityManager: identityManager, messageSender: messageSender, profileManager: profileManager).run()
     }
 
@@ -52,7 +52,7 @@ import PromiseKit
             },
             failure: { error in
                 Logger.error("\(self.TAG) in \(#function) failed with error: \(error) retrying in \(retryDelay)s.")
-                after(interval: retryDelay).then {
+                after(seconds: retryDelay).done {
                     self.run(retryDelay: retryDelay * 2)
                 }.retainUntilComplete()
             })

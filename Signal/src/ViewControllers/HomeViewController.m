@@ -296,8 +296,33 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState 
 
     [self updateBarButtonItems];
     [self setupSearch];
+    [self setupNavBar];
+    [self setupSegmentedControl];
 }
     
+- (void)setupSegmentedControl {
+    if(@available(iOS 13.0, *)){
+        self.segmentedControl.layer.borderWidth = 0.5;
+        self.segmentedControl.layer.borderColor = [[UIColor whiteColor] CGColor];
+        NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [UIColor whiteColor], NSForegroundColorAttributeName,
+                                    nil];
+        [self.segmentedControl setTitleTextAttributes:attributes forState:UIControlStateNormal];
+        NSDictionary *highlightedAttributes = [NSDictionary dictionaryWithObject:[UIColor ows_materialBlueColor] forKey:NSForegroundColorAttributeName];
+        [self.segmentedControl setTitleTextAttributes:highlightedAttributes forState:UIControlStateSelected];
+    }
+}
+
+- (void)setupNavBar {
+    if(@available(iOS 13.0, *)){
+        UINavigationBarAppearance *navBarApp = [UINavigationBarAppearance new];
+        [navBarApp configureWithOpaqueBackground];
+        [navBarApp setBackgroundColor:[UIColor ows_materialBlueColor]];
+        [self.navigationController.navigationBar setStandardAppearance: navBarApp];
+        [self.navigationController.navigationBar setScrollEdgeAppearance: navBarApp];
+    }
+}
+
 - (void)setupSearch {
     self.searchUpdater = [[MedxInboxSearchUpdater alloc] initWithTableView:self.tableView
                                                               dbConnection:self.uiDatabaseConnection
@@ -307,6 +332,11 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState 
     } else {
         self.searchUpdater.searchController.hidesNavigationBarDuringPresentation = false;
         self.tableView.tableHeaderView = self.searchUpdater.searchController.searchBar;
+    }
+    
+    if (@available(iOS 13.0, *)) {
+        self.searchUpdater.searchController.searchBar.barStyle = UIBarStyleDefault;
+        [self.searchUpdater.searchController.searchBar.searchTextField setBackgroundColor:[UIColor colorWithRGBHex:0x057013]];
     }
 }
 
@@ -729,7 +759,7 @@ typedef NS_ENUM(NSInteger, CellState) { kArchiveState, kInboxState, kMedxQState 
 {
     OWSAssert([NSThread isMainThread]);
     DDLogInfo(@"%@ beggining refreshing.", self.logTag);
-    [[Environment getCurrent].messageFetcherJob run].always(^{
+    [[Environment getCurrent].messageFetcherJob run].ensure(^{
         DDLogInfo(@"%@ ending refreshing.", self.logTag);
         [refreshControl endRefreshing];
     });

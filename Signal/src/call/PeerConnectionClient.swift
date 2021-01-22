@@ -303,13 +303,13 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     public func createOffer() -> Promise<HardenedRTCSessionDescription> {
         AssertIsOnMainThread()
 
-        return Promise { fulfill, reject in
+        return Promise { resolver in
             AssertIsOnMainThread()
 
             PeerConnectionClient.signalingQueue.async {
                 guard self.peerConnection != nil else {
                     Logger.debug("\(self.TAG) \(#function) Ignoring obsolete event in terminated client")
-                    reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
+                    resolver.reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
                     return
                 }
 
@@ -317,22 +317,22 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
                     PeerConnectionClient.signalingQueue.async {
                         guard self.peerConnection != nil else {
                             Logger.debug("\(self.TAG) \(#function) Ignoring obsolete event in terminated client")
-                            reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
+                            resolver.reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
                             return
                         }
                         guard error == nil else {
-                            reject(error!)
+                            resolver.reject(error!)
                             return
                         }
 
                         guard let sessionDescription = sdp else {
                             Logger.error("\(self.TAG) No session description was obtained, even though there was no error reported.")
                             let error = OWSErrorMakeUnableToProcessServerResponseError()
-                            reject(error)
+                            resolver.reject(error)
                             return
                         }
 
-                        fulfill(HardenedRTCSessionDescription(rtcSessionDescription: sessionDescription))
+                        resolver.fulfill(HardenedRTCSessionDescription(rtcSessionDescription: sessionDescription))
                     }
                 })
             }
@@ -350,21 +350,21 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     public func setLocalSessionDescription(_ sessionDescription: HardenedRTCSessionDescription) -> Promise<Void> {
         AssertIsOnMainThread()
 
-        return Promise { fulfill, reject in
+        return Promise { resolver in
             PeerConnectionClient.signalingQueue.async {
                 guard self.peerConnection != nil else {
                     Logger.debug("\(self.TAG) \(#function) Ignoring obsolete event in terminated client")
-                    reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
+                    resolver.reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
                     return
                 }
                 Logger.verbose("\(self.TAG) setting local session description: \(sessionDescription)")
                 self.peerConnection.setLocalDescription(sessionDescription.rtcSessionDescription,
                                                         completionHandler: { error in
                                                             guard error == nil else {
-                                                                reject(error!)
+                                                                resolver.reject(error!)
                                                                 return
                                                             }
-                                                            fulfill()
+                                                            resolver.fulfill(())
                 })
             }
         }
@@ -382,21 +382,21 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     public func setRemoteSessionDescription(_ sessionDescription: RTCSessionDescription) -> Promise<Void> {
         AssertIsOnMainThread()
 
-        return Promise { fulfill, reject in
+        return Promise { resolver in
             PeerConnectionClient.signalingQueue.async {
                 guard self.peerConnection != nil else {
                     Logger.debug("\(self.TAG) \(#function) Ignoring obsolete event in terminated client")
-                    reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
+                    resolver.reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
                     return
                 }
                 Logger.verbose("\(self.TAG) setting remote description: \(sessionDescription)")
                 self.peerConnection.setRemoteDescription(sessionDescription,
                                                          completionHandler: { error in
                                                             guard error == nil else {
-                                                                reject(error!)
+                                                                resolver.reject(error!)
                                                                 return
                                                             }
-                                                            fulfill()
+                                                            resolver.fulfill(())
                 })
             }
         }
@@ -405,12 +405,12 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     private func negotiateAnswerSessionDescription(constraints: RTCMediaConstraints) -> Promise<HardenedRTCSessionDescription> {
         assertOnSignalingQueue()
 
-        return Promise { fulfill, reject in
+        return Promise { resolver in
             assertOnSignalingQueue()
 
             guard self.peerConnection != nil else {
                 Logger.debug("\(self.TAG) \(#function) Ignoring obsolete event in terminated client")
-                reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
+                resolver.reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
                 return
             }
 
@@ -420,28 +420,28 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
                 PeerConnectionClient.signalingQueue.async {
                     guard self.peerConnection != nil else {
                         Logger.debug("\(self.TAG) \(#function) Ignoring obsolete event in terminated client")
-                        reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
+                        resolver.reject(NSError(domain:"Obsolete client", code:0, userInfo:nil))
                         return
                     }
                     guard error == nil else {
-                        reject(error!)
+                        resolver.reject(error!)
                         return
                     }
 
                     guard let sessionDescription = sdp else {
                         Logger.error("\(self.TAG) unexpected empty session description, even though no error was reported.")
                         let error = OWSErrorMakeUnableToProcessServerResponseError()
-                        reject(error)
+                        resolver.reject(error)
                         return
                     }
 
                     let hardenedSessionDescription = HardenedRTCSessionDescription(rtcSessionDescription: sessionDescription)
 
                     self.setLocalSessionDescriptionInternal(hardenedSessionDescription)
-                        .then(on: PeerConnectionClient.signalingQueue) {
-                            fulfill(hardenedSessionDescription)
+                        .done(on: PeerConnectionClient.signalingQueue) {
+                            resolver.fulfill(hardenedSessionDescription)
                         }.catch { error in
-                            reject(error)
+                            resolver.reject(error)
                     }
                 }
             })

@@ -75,7 +75,7 @@ open class ContactsPicker: OWSViewController, UITableViewDelegate, UITableViewDa
 
         // Auto size cells for dynamic type
         tableView.estimatedRowHeight = 60.0
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
 
         tableView.allowsMultipleSelection = multiSelectEnabled
 
@@ -84,10 +84,10 @@ open class ContactsPicker: OWSViewController, UITableViewDelegate, UITableViewDa
         reloadContacts()
         updateSearchResults(searchText: "")
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.didChangePreferredContentSize), name: NSNotification.Name.UIContentSizeCategoryDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.didChangePreferredContentSize), name: UIContentSizeCategory.didChangeNotification, object: nil)
     }
 
-    func didChangePreferredContentSize() {
+    @objc func didChangePreferredContentSize() {
         self.tableView.reloadData()
     }
 
@@ -148,7 +148,7 @@ open class ContactsPicker: OWSViewController, UITableViewDelegate, UITableViewDa
                 let title = NSLocalizedString("INVITE_FLOW_REQUIRES_CONTACT_ACCESS_TITLE", comment: "Alert title when contacts disabled while trying to invite contacts to signal")
                 let body = NSLocalizedString("INVITE_FLOW_REQUIRES_CONTACT_ACCESS_BODY", comment: "Alert body when contacts disabled while trying to invite contacts to signal")
 
-                let alert = UIAlertController(title: title, message: body, preferredStyle: UIAlertControllerStyle.alert)
+                let alert = UIAlertController(title: title, message: body, preferredStyle: UIAlertController.Style.alert)
 
                 let dismissText = CommonStrings.cancelButton
 
@@ -303,12 +303,12 @@ open class ContactsPicker: OWSViewController, UITableViewDelegate, UITableViewDa
 
     // MARK: - Button Actions
 
-    func onTouchCancelButton() {
+    @objc func onTouchCancelButton() {
         contactsPickerDelegate?.contactsPicker(self, didCancel: NSError(domain: "contactsPickerErrorDomain", code: 2, userInfo: [ NSLocalizedDescriptionKey: "User Canceled Selection"]))
         dismiss(animated: true, completion: nil)
     }
 
-    func onTouchDoneButton() {
+    @objc func onTouchDoneButton() {
         contactsPickerDelegate?.contactsPicker(self, didSelectMultipleContacts: selectedContacts)
         dismiss(animated: true, completion: nil)
     }

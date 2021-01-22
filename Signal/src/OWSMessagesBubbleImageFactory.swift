@@ -35,7 +35,7 @@ class OWSMessagesBubbleImageFactory: NSObject {
         return outgoing(color: color)
     }
 
-    public func bubble(message: TSMessage) -> JSQMessagesBubbleImage {
+    @objc public func bubble(message: TSMessage) -> JSQMessagesBubbleImage {
         if message is TSIncomingMessage {
             return self.incoming
         } else if let outgoingMessage = message as? TSOutgoingMessage {

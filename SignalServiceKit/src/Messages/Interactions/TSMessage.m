@@ -13,7 +13,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static const NSUInteger OWSMessageSchemaVersion = 3;
-const NSInteger kDefaultExpirationTime = 2592000; // in seconds 3600*24*30
+const uint64_t kDefaultExpirationTime = 2592000; // in seconds 3600*24*30
 
 @interface TSMessage ()
 

@@ -13,7 +13,7 @@ import Foundation
     let contactsManager: OWSContactsManager
     let contactsUpdater: ContactsUpdater
 
-    init(contactsManager: OWSContactsManager, contactsUpdater: ContactsUpdater) {
+    @objc init(contactsManager: OWSContactsManager, contactsUpdater: ContactsUpdater) {
         self.contactsManager = contactsManager
         self.contactsUpdater = contactsUpdater
 
@@ -23,7 +23,7 @@ import Foundation
     /**
      * |handle| is a user formatted phone number, e.g. from a system contacts entry
      */
-    public func initiateCall(handle: String) -> Bool {
+    @objc public func initiateCall(handle: String) -> Bool {
         Logger.info("\(TAG) in \(#function) with handle: \(handle)")
 
         guard let recipientId = PhoneNumber(fromE164: handle)?.toE164() else {
@@ -37,7 +37,7 @@ import Foundation
     /**
      * |recipientId| is a e164 formatted phone number.
      */
-    public func initiateCall(recipientId: String) -> Bool {
+    @objc public func initiateCall(recipientId: String) -> Bool {
         // Rather than an init-assigned dependency property, we access `callUIAdapter` via Environment
         // because it can change after app launch due to user settings
         guard let callUIAdapter = Environment.getCurrent().callUIAdapter else {

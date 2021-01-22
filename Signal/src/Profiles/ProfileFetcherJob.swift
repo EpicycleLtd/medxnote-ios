@@ -18,11 +18,11 @@ class ProfileFetcherJob: NSObject {
 
     let ignoreThrottling: Bool
 
-    public class func run(thread: TSThread, networkManager: TSNetworkManager) {
+    @objc public class func run(thread: TSThread, networkManager: TSNetworkManager) {
         ProfileFetcherJob(networkManager: networkManager).run(recipientIds: thread.recipientIdentifiers)
     }
 
-    public class func run(recipientId: String, networkManager: TSNetworkManager, ignoreThrottling: Bool) {
+    @objc public class func run(recipientId: String, networkManager: TSNetworkManager, ignoreThrottling: Bool) {
         ProfileFetcherJob(networkManager: networkManager, ignoreThrottling:ignoreThrottling).run(recipientIds: [recipientId])
     }
 
@@ -48,7 +48,7 @@ class ProfileFetcherJob: NSObject {
     }
 
     public func updateProfile(recipientId: String, remainingRetries: Int = 3) {
-        self.getProfile(recipientId: recipientId).then { profile in
+        self.getProfile(recipientId: recipientId).map { profile in
             self.updateProfile(signalServiceProfile: profile)
         }.catch { error in
             switch error {
@@ -87,25 +87,25 @@ class ProfileFetcherJob: NSObject {
 
         let request = OWSGetProfileRequest(recipientId: recipientId)
 
-        let (promise, fulfill, reject) = Promise<SignalServiceProfile>.pending()
+        let (promise, resolver) = Promise<SignalServiceProfile>.pending()
 
         self.networkManager.makeRequest(
             request,
             success: { (_: URLSessionDataTask?, responseObject: Any?) -> Void in
                 do {
                     let profile = try SignalServiceProfile(recipientId: recipientId, rawResponse: responseObject)
-                    fulfill(profile)
+                    resolver.fulfill(profile)
                 } catch {
-                    reject(error)
+                    resolver.reject(error)
                 }
         },
             failure: { (_: URLSessionDataTask?, error: Error?) in
 
                 if let error = error {
-                    reject(error)
+                    resolver.reject(error)
                 }
 
-                reject(ProfileFetcherJobError.unknownNetworkError)
+                resolver.reject(ProfileFetcherJobError.unknownNetworkError)
         })
 
         return promise

@@ -4,6 +4,7 @@
 
 import Foundation
 
+@objc
 class ReminderView: UIView {
 
     let TAG = "[ReminderView]"
@@ -13,9 +14,9 @@ class ReminderView: UIView {
         Logger.debug("[ReminderView] tapped.")
     }
 
-    var tapAction: () -> Void
+    @objc var tapAction: () -> Void
 
-    var text: String? {
+    @objc var text: String? {
         get {
             return label.text
         }
@@ -41,7 +42,7 @@ class ReminderView: UIView {
         setupSubviews()
     }
 
-    convenience init(text: String, tapAction: @escaping () -> Void) {
+    @objc convenience init(text: String, tapAction: @escaping () -> Void) {
         self.init(frame: .zero)
         self.text = text
         self.tapAction = tapAction
@@ -83,7 +84,7 @@ class ReminderView: UIView {
         iconView.autoSetDimension(.width, toSize: 13)
     }
 
-    func handleTap(gestureRecognizer: UIGestureRecognizer) {
+    @objc func handleTap(gestureRecognizer: UIGestureRecognizer) {
         tapAction()
     }
 }

@@ -11,8 +11,8 @@ public extension MessageSender {
      * Wrap message sending in a Promise for easier callback chaining.
      */
     public func sendPromise(message: TSOutgoingMessage) -> Promise<Void> {
-        let promise: Promise<Void> = Promise { fulfill, reject in
-            self.enqueue(message, success: fulfill, failure: reject)
+        let promise: Promise<Void> = Promise { resolver in
+            self.enqueue(message, success: resolver.fulfill, failure: resolver.reject)
         }
 
         // Ensure sends complete before they're GC'd.

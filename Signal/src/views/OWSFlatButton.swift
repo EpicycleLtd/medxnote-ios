@@ -41,7 +41,7 @@ import Foundation
         button.autoPinToSuperviewEdges()
     }
 
-    public class func button(title: String,
+    @objc public class func button(title: String,
                              font: UIFont,
                              titleColor: UIColor,
                              backgroundColor: UIColor,
@@ -60,7 +60,7 @@ import Foundation
         return button
     }
 
-    public class func button(title: String,
+    @objc public class func button(title: String,
                              titleColor: UIColor,
                              backgroundColor: UIColor,
                              width: CGFloat,
@@ -77,7 +77,7 @@ import Foundation
                                     selector:selector)
     }
 
-    public class func button(title: String,
+    @objc public class func button(title: String,
                              font: UIFont,
                              titleColor: UIColor,
                              backgroundColor: UIColor,
@@ -93,7 +93,7 @@ import Foundation
         return button
     }
 
-    public class func fontForHeight(_ height: CGFloat) -> UIFont {
+    @objc public class func fontForHeight(_ height: CGFloat) -> UIFont {
         // Cap the "button height" at 40pt or button text can look
         // excessively large.
         let fontPointSize = round(min(40, height) * 0.45)
@@ -109,18 +109,18 @@ import Foundation
         button.titleLabel!.font = font
     }
 
-    public func setBackgroundColors(upColor: UIColor,
+    @objc public func setBackgroundColors(upColor: UIColor,
                                     downColor: UIColor ) {
         button.setBackgroundImage(UIImage(color:upColor), for: .normal)
         button.setBackgroundImage(UIImage(color:downColor), for: .highlighted)
     }
 
-    public func setBackgroundColors(upColor: UIColor ) {
+    @objc public func setBackgroundColors(upColor: UIColor ) {
         setBackgroundColors(upColor: upColor,
                             downColor: upColor.withAlphaComponent(0.7) )
     }
 
-    public func setSize(width: CGFloat, height: CGFloat) {
+    @objc public func setSize(width: CGFloat, height: CGFloat) {
         button.autoSetDimension(.width, toSize:width)
         button.autoSetDimension(.height, toSize:height)
     }
@@ -132,7 +132,7 @@ import Foundation
         button.clipsToBounds = true
     }
 
-    public func setEnabled(_ isEnabled: Bool) {
+    @objc public func setEnabled(_ isEnabled: Bool) {
         button.isEnabled = isEnabled
     }
 
@@ -149,7 +149,7 @@ import Foundation
         self.pressedBlock = pressedBlock
     }
 
-    internal func buttonPressed() {
+    @objc internal func buttonPressed() {
         pressedBlock?()
     }
 }

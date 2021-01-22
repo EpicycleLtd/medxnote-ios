@@ -9,7 +9,7 @@ import UIKit
 
     // Used to implement the UITextFieldDelegate method: `textField:shouldChangeCharactersInRange:replacementString`
     // Takes advantage of Swift's superior unicode handling to append partial pasted text without splitting multi-byte characters.
-    class func textField(_ textField: UITextField, shouldChangeCharactersInRange editingRange: NSRange, replacementString: String, byteLimit: UInt) -> Bool {
+    @objc class func textField(_ textField: UITextField, shouldChangeCharactersInRange editingRange: NSRange, replacementString: String, byteLimit: UInt) -> Bool {
 
         let byteLength = { (string: String) -> UInt in
             return UInt(string.utf8.count)

@@ -27,7 +27,7 @@ class NonCallKitCallUIAdaptee: CallUIAdaptee {
 
         let call = SignalCall.outgoingCall(localId: UUID(), remotePhoneNumber: handle)
 
-        self.callService.handleOutgoingCall(call).then {
+        self.callService.handleOutgoingCall(call).done {
             Logger.debug("\(self.TAG) handleOutgoingCall succeeded")
         }.catch { error in
             Logger.error("\(self.TAG) handleOutgoingCall failed with error: \(error)")

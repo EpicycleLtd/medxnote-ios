@@ -79,21 +79,21 @@ class SignalAttachment: NSObject {
 
     // MARK: Properties
 
-    let dataSource: DataSource
+    @objc let dataSource: DataSource
 
-    public var data: Data {
+    @objc public var data: Data {
         return dataSource.data()
     }
-    public var dataLength: UInt {
+    @objc public var dataLength: UInt {
         return dataSource.dataLength()
     }
-    public var dataUrl: URL? {
+    @objc public var dataUrl: URL? {
         return dataSource.dataUrl()
     }
-    public var sourceFilename: String? {
+    @objc public var sourceFilename: String? {
         return dataSource.sourceFilename
     }
-    public var isValidImage: Bool {
+    @objc public var isValidImage: Bool {
         return dataSource.isValidImage()
     }
 
@@ -117,7 +117,7 @@ class SignalAttachment: NSObject {
     private var cachedImage: UIImage?
     private var cachedVideoPreview: UIImage?
 
-    private(set) public var isVoiceMessage = false
+    @objc private(set) public var isVoiceMessage = false
 
     // MARK: Constants
 
@@ -144,11 +144,11 @@ class SignalAttachment: NSObject {
 
     // MARK: Methods
 
-    var hasError: Bool {
+    @objc var hasError: Bool {
         return error != nil
     }
 
-    var errorName: String? {
+    @objc var errorName: String? {
         guard let error = error else {
             // This method should only be called if there is an error.
             owsFail("Missing error")
@@ -158,7 +158,7 @@ class SignalAttachment: NSObject {
         return "\(error)"
     }
 
-    var localizedErrorDescription: String? {
+    @objc var localizedErrorDescription: String? {
         guard let error = self.error else {
             // This method should only be called if there is an error.
             owsFail("Missing error")
@@ -168,11 +168,11 @@ class SignalAttachment: NSObject {
         return "\(error.errorDescription)"
     }
 
-    class var missingDataErrorMessage: String {
+    @objc class var missingDataErrorMessage: String {
         return SignalAttachmentError.missingData.errorDescription
     }
 
-    public func image() -> UIImage? {
+    @objc public func image() -> UIImage? {
         if let cachedImage = cachedImage {
             return cachedImage
         }
@@ -183,7 +183,7 @@ class SignalAttachment: NSObject {
         return image
     }
 
-    public func videoPreview() -> UIImage? {
+    @objc public func videoPreview() -> UIImage? {
         if let cachedVideoPreview = cachedVideoPreview {
             return cachedVideoPreview
         }
@@ -196,7 +196,7 @@ class SignalAttachment: NSObject {
             let asset = AVURLAsset(url:mediaUrl)
             let generator = AVAssetImageGenerator(asset: asset)
             generator.appliesPreferredTrackTransform = true
-            let cgImage = try generator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil)
+            let cgImage = try generator.copyCGImage(at: CMTimeMake(value: 0, timescale: 1), actualTime: nil)
             let image = UIImage(cgImage: cgImage)
 
             cachedVideoPreview = image
@@ -210,7 +210,7 @@ class SignalAttachment: NSObject {
 
     // Returns the MIME type for this attachment or nil if no MIME type
     // can be identified.
-    var mimeType: String {
+    @objc var mimeType: String {
         if isVoiceMessage {
             // Legacy iOS clients don't handle "audio/mp4" files correctly;
             // they are written to disk as .mp4 instead of .m4a which breaks
@@ -247,7 +247,7 @@ class SignalAttachment: NSObject {
 
     // Use the filename if known. If not, e.g. if the attachment was copy/pasted, we'll generate a filename
     // like: "signal-2017-04-24-095918.zip"
-    var filenameOrDefault: String {
+    @objc var filenameOrDefault: String {
         if let filename = sourceFilename {
             return filename
         } else {
@@ -331,27 +331,27 @@ class SignalAttachment: NSObject {
         return audioUTISet.union(videoUTISet).union(animatedImageUTISet).union(inputImageUTISet)
     }
 
-    public var isImage: Bool {
+    @objc public var isImage: Bool {
         return SignalAttachment.outputImageUTISet.contains(dataUTI)
     }
 
-    public var isAnimatedImage: Bool {
+    @objc public var isAnimatedImage: Bool {
         return SignalAttachment.animatedImageUTISet.contains(dataUTI)
     }
 
-    public var isVideo: Bool {
+    @objc public var isVideo: Bool {
         return SignalAttachment.videoUTISet.contains(dataUTI)
     }
 
-    public var isAudio: Bool {
+    @objc public var isAudio: Bool {
         return SignalAttachment.audioUTISet.contains(dataUTI)
     }
 
-    public class func pasteboardHasPossibleAttachment() -> Bool {
+    @objc public class func pasteboardHasPossibleAttachment() -> Bool {
         return UIPasteboard.general.numberOfItems > 0
     }
 
-    public class func pasteboardHasText() -> Bool {
+    @objc public class func pasteboardHasText() -> Bool {
         if UIPasteboard.general.numberOfItems < 1 {
             return false
         }
@@ -399,7 +399,7 @@ class SignalAttachment: NSObject {
     //
     // NOTE: The attachment returned by this method may not be valid.
     //       Check the attachment's error property.
-    public class func attachmentFromPasteboard() -> SignalAttachment? {
+    @objc public class func attachmentFromPasteboard() -> SignalAttachment? {
         guard UIPasteboard.general.numberOfItems >= 1 else {
             return nil
         }
@@ -574,7 +574,7 @@ class SignalAttachment: NSObject {
     //
     // NOTE: The attachment returned by this method may nil or not be valid.
     //       Check the attachment's error property.
-    public class func imageAttachment(image: UIImage?, dataUTI: String, filename: String?) -> SignalAttachment {
+    @objc public class func imageAttachment(image: UIImage?, dataUTI: String, filename: String?) -> SignalAttachment {
         assert(dataUTI.characters.count > 0)
 
         guard let image = image else {
@@ -607,8 +607,7 @@ class SignalAttachment: NSObject {
                 image.size.height > maxSize {
                 dstImage = imageScaled(image, toMaxSize: maxSize)
             }
-            guard let jpgImageData = UIImageJPEGRepresentation(dstImage,
-                                                               jpegCompressionQuality(imageUploadQuality:imageUploadQuality)) else {
+            guard let jpgImageData = dstImage.jpegData(compressionQuality: jpegCompressionQuality(imageUploadQuality:imageUploadQuality)) else {
                                                                 attachment.error = .couldNotConvertToJpeg
                                                                 return attachment
             }
@@ -742,7 +741,7 @@ class SignalAttachment: NSObject {
 
     // MARK: Voice Messages
 
-    public class func voiceMessageAttachment(dataSource: DataSource?, dataUTI: String) -> SignalAttachment {
+    @objc public class func voiceMessageAttachment(dataSource: DataSource?, dataUTI: String) -> SignalAttachment {
         let attachment = audioAttachment(dataSource : dataSource, dataUTI : dataUTI)
         attachment.isVoiceMessage = true
         return attachment
@@ -754,7 +753,7 @@ class SignalAttachment: NSObject {
     //
     // NOTE: The attachment returned by this method may not be valid.
     //       Check the attachment's error property.
-    public class func attachment(dataSource: DataSource?, dataUTI: String) -> SignalAttachment {
+    @objc public class func attachment(dataSource: DataSource?, dataUTI: String) -> SignalAttachment {
         if inputImageUTISet.contains(dataUTI) {
             return imageAttachment(dataSource : dataSource, dataUTI : dataUTI)
         } else if videoUTISet.contains(dataUTI) {

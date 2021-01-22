@@ -12,7 +12,7 @@ class OWS106EnsureProfileComplete: OWSDatabaseMigration {
     private static var sharedCompleteRegistrationFixerJob: CompleteRegistrationFixerJob?
 
     // increment a similar constant for each migration.
-    class func migrationId() -> String {
+    @objc class func migrationId() -> String {
         return "106"
     }
 
@@ -62,7 +62,7 @@ class OWS106EnsureProfileComplete: OWSDatabaseMigration {
                 }
 
                 var isCompleted = false
-                strongSelf.ensureProfileComplete().then { _ -> Void in
+                strongSelf.ensureProfileComplete().done {
                     guard isCompleted == false else {
                         Logger.info("Already saved. Skipping redundant call.")
                         return
@@ -83,20 +83,20 @@ class OWS106EnsureProfileComplete: OWSDatabaseMigration {
         func ensureProfileComplete() -> Promise<Void> {
             guard let localRecipientId = TSAccountManager.localNumber() else {
                 // local app doesn't think we're registered, so nothing to worry about.
-                return Promise(value: ())
+                return Promise.value(())
             }
 
-            let (promise, fulfill, reject) = Promise<Void>.pending()
+            let (promise, resolver) = Promise<Void>.pending()
 
             guard let networkManager = Environment.getCurrent().networkManager else {
                 owsFail("\(TAG) network manager was unexpectedly not set")
                 return Promise(error: OWSErrorMakeAssertionError())
             }
 
-            ProfileFetcherJob(networkManager: networkManager).getProfile(recipientId: localRecipientId).then { _ -> Void in
+            ProfileFetcherJob(networkManager: networkManager).getProfile(recipientId: localRecipientId).map { _ -> Void in
                 Logger.info("\(self.TAG) verified recipient profile is in good shape: \(localRecipientId)")
 
-                fulfill()
+                resolver.fulfill(())
             }.catch { error in
                 switch error {
                 case SignalServiceProfile.ValidationError.invalidIdentityKey(let description):
@@ -105,13 +105,13 @@ class OWS106EnsureProfileComplete: OWSDatabaseMigration {
                     TSPreKeyManager.registerPreKeys(with: .signedAndOneTime,
                                                     success: {
                                                         Logger.info("\(self.TAG) successfully uploaded pre-keys. Profile should be fixed.")
-                                                        fulfill()
+                                                        resolver.fulfill(())
                     },
                                                     failure: { _ in
-                                                        reject(OWSErrorWithCodeDescription(.signalServiceFailure, "\(self.TAG) Unknown error in \(#function)"))
+                                                        resolver.reject(OWSErrorWithCodeDescription(.signalServiceFailure, "\(self.TAG) Unknown error in \(#function)"))
                     })
                 default:
-                    reject(error)
+                    resolver.reject(error)
                 }
             }.retainUntilComplete()
 

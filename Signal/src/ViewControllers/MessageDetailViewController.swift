@@ -10,6 +10,7 @@ enum MessageMetadataViewMode: UInt {
     case focusOnMetadata
 }
 
+@objc
 class MessageDetailViewController: OWSViewController, UIScrollViewDelegate {
 
     static let TAG = "[MessageDetailViewController]"
@@ -53,7 +54,7 @@ class MessageDetailViewController: OWSViewController, UIScrollViewDelegate {
         fatalError("\(#function) is unimplemented.")
     }
 
-    required init(viewItem: ConversationViewItem, message: TSMessage, mode: MessageMetadataViewMode) {
+    @objc required init(viewItem: ConversationViewItem, message: TSMessage, mode: MessageMetadataViewMode) {
         self.contactsManager = Environment.getCurrent().contactsManager
         self.viewItem = viewItem
         self.message = message
@@ -519,7 +520,7 @@ class MessageDetailViewController: OWSViewController, UIScrollViewDelegate {
 
     // MARK: - Actions
 
-    func shareButtonPressed() {
+    @objc func shareButtonPressed() {
         if let messageBody = messageBody {
             UIPasteboard.general.string = messageBody
             return
@@ -574,7 +575,7 @@ class MessageDetailViewController: OWSViewController, UIScrollViewDelegate {
         }
     }
 
-    internal func yapDatabaseModified(notification: NSNotification) {
+    @objc internal func yapDatabaseModified(notification: NSNotification) {
         AssertIsOnMainThread()
 
         let notifications = self.databaseConnection.beginLongLivedReadTransaction()

@@ -48,13 +48,13 @@ public enum PushRegistrationError: Error {
     public func requestPushTokens() -> Promise<(pushToken: String, voipToken: String)> {
         Logger.info("\(self.TAG) in \(#function)")
 
-        return self.registerUserNotificationSettings().then {
+        return self.registerUserNotificationSettings().then { () -> Promise<(pushToken: String, voipToken: String)> in
             guard !Platform.isSimulator else {
                 throw PushRegistrationError.pushNotSupported(description:"Push not supported on simulators")
             }
 
             return self.registerForVanillaPushToken().then { vanillaPushToken in
-                self.registerForVoipPushToken().then { voipPushToken in
+                self.registerForVoipPushToken().map { voipPushToken in
                     (pushToken: vanillaPushToken, voipToken: voipPushToken)
                 }
             }
@@ -102,13 +102,13 @@ public enum PushRegistrationError: Error {
 
     // MARK: PKPushRegistryDelegate - voIP Push Token
 
-    public func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, forType type: PKPushType) {
+    public func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType) {
         Logger.info("\(self.TAG) in \(#function)")
         assert(type == .voIP)
         self.pushManager.application(UIApplication.shared, didReceiveRemoteNotification: payload.dictionaryPayload)
     }
 
-    public func pushRegistry(_ registry: PKPushRegistry, didUpdate credentials: PKPushCredentials, forType type: PKPushType) {
+    public func pushRegistry(_ registry: PKPushRegistry, didUpdate credentials: PKPushCredentials, for type: PKPushType) {
         Logger.info("\(self.TAG) in \(#function)")
         assert(type == .voIP)
         assert(credentials.type == .voIP)
@@ -120,7 +120,7 @@ public enum PushRegistrationError: Error {
         fulfillVoipTokenPromise(credentials.token)
     }
 
-    public func pushRegistry(_ registry: PKPushRegistry, didInvalidatePushTokenForType type: PKPushType) {
+    public func pushRegistry(_ registry: PKPushRegistry, didInvalidatePushTokenFor type: PKPushType) {
         // It's not clear when this would happen. We've never previously handled it, but we should at
         // least start learning if it happens.
         owsFail("\(TAG) in \(#function)")
@@ -140,9 +140,11 @@ public enum PushRegistrationError: Error {
             return promise
         }
 
-        let (promise, fulfill, _) = Promise<Void>.pending()
+        let (promise, resolver) = Promise<Void>.pending()
         self.userNotificationSettingsPromise = promise
-        self.fulfillUserNotificationSettingsPromise = fulfill
+        self.fulfillUserNotificationSettingsPromise = {
+            resolver.fulfill(())
+        }
 
         Logger.info("\(TAG) registering user notification settings")
 
@@ -184,18 +186,18 @@ public enum PushRegistrationError: Error {
             let promise = vanillaTokenPromise!
             assert(promise.isPending)
             Logger.info("\(TAG) alreay pending promise for vanilla push token")
-            return promise.then { $0.hexEncodedString }
+            return promise.map { $0.hexEncodedString }
         }
 
         // No pending vanilla token yet. Create a new promise
-        let (promise, fulfill, reject) = Promise<Data>.pending()
+        let (promise, resolver) = Promise<Data>.pending()
         self.vanillaTokenPromise = promise
-        self.fulfillVanillaTokenPromise = fulfill
-        self.rejectVanillaTokenPromise = reject
+        self.fulfillVanillaTokenPromise = resolver.fulfill
+        self.rejectVanillaTokenPromise = resolver.reject
         UIApplication.shared.registerForRemoteNotifications()
 
         let kTimeout: TimeInterval = 10
-        let timeout: Promise<Data> = after(seconds: kTimeout).then { throw PushRegistrationError.timeout }
+        let timeout: Promise<Data> = after(seconds: kTimeout).map { throw PushRegistrationError.timeout }
         let promiseWithTimeout: Promise<Data> = race(promise, timeout)
 
         return promiseWithTimeout.recover { error -> Promise<Data> in
@@ -214,7 +216,7 @@ public enum PushRegistrationError: Error {
             default:
                 throw error
             }
-        }.then { (pushTokenData: Data) -> String in
+        }.map { (pushTokenData: Data) -> String in
             if self.isSusceptibleToFailedPushRegistration {
                 // Sentinal in case this bug is fixed.
                 owsFail("Device was unexpectedly able to complete push registration even though it was susceptible to failure.")
@@ -222,7 +224,7 @@ public enum PushRegistrationError: Error {
 
             Logger.info("\(self.TAG) successfully registered for vanilla push notifications")
             return pushTokenData.hexEncodedString
-        }.always {
+        }.ensure {
             self.vanillaTokenPromise = nil
         }
     }
@@ -234,13 +236,13 @@ public enum PushRegistrationError: Error {
         guard self.voipTokenPromise == nil else {
             let promise = self.voipTokenPromise!
             assert(promise.isPending)
-            return promise.then { $0.hexEncodedString }
+            return promise.map { $0.hexEncodedString }
         }
 
         // No pending voip token yet. Create a new promise
-        let (promise, fulfill, reject) = Promise<Data>.pending()
+        let (promise, resolver) = Promise<Data>.pending()
         self.voipTokenPromise = promise
-        self.fulfillVoipTokenPromise = fulfill
+        self.fulfillVoipTokenPromise = resolver.fulfill
 
         if self.voipRegistry == nil {
             // We don't create the voip registry in init, because it immediately requests the voip token,
@@ -253,8 +255,8 @@ public enum PushRegistrationError: Error {
 
         guard let voipRegistry = self.voipRegistry else {
             owsFail("\(TAG) failed to initialize voipRegistry in \(#function)")
-            reject(PushRegistrationError.assertionError(description: "\(TAG) failed to initialize voipRegistry in \(#function)"))
-            return promise.then { _ in
+            resolver.reject(PushRegistrationError.assertionError(description: "\(TAG) failed to initialize voipRegistry in \(#function)"))
+            return promise.map { _ in
                 // coerce expected type of returned promise - we don't really care about the value,
                 // since this promise has been rejected. In practice this shouldn't happen
                 String()
@@ -263,15 +265,15 @@ public enum PushRegistrationError: Error {
 
         // If we've already completed registering for a voip token, resolve it immediately,
         // rather than waiting for the delegate method to be called.
-        if let voipTokenData = voipRegistry.pushToken(forType: .voIP) {
+        if let voipTokenData = voipRegistry.pushToken(for: .voIP) {
             Logger.info("\(self.TAG) using pre-registered voIP token")
-            fulfill(voipTokenData)
+            resolver.fulfill(voipTokenData)
         }
 
-        return promise.then { (voipTokenData: Data) -> String in
+        return promise.map { (voipTokenData: Data) -> String in
             Logger.info("\(self.TAG) successfully registered for voip push notifications")
             return voipTokenData.hexEncodedString
-        }.always {
+        }.ensure {
             self.voipTokenPromise = nil
         }
     }

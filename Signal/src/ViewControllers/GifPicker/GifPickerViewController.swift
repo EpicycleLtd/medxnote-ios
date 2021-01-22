@@ -9,6 +9,7 @@ protocol GifPickerViewControllerDelegate: class {
     func gifPickerDidSelect(attachment: SignalAttachment)
 }
 
+@objc
 class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, GifPickerLayoutDelegate {
 
     static let TAG = "[GifPickerViewController]"
@@ -30,7 +31,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
 
     var lastQuery: String = ""
 
-    public weak var delegate: GifPickerViewControllerDelegate?
+    @objc public weak var delegate: GifPickerViewControllerDelegate?
 
     let thread: TSThread
     let messageSender: MessageSender
@@ -57,7 +58,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
         fatalError("\(#function) is unimplemented.")
     }
 
-    required init(thread: TSThread, messageSender: MessageSender) {
+    @objc required init(thread: TSThread, messageSender: MessageSender) {
         self.thread = thread
         self.messageSender = messageSender
 
@@ -76,7 +77,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
         progressiveSearchTimer?.invalidate()
     }
 
-    func didBecomeActive() {
+    @objc func didBecomeActive() {
         AssertIsOnMainThread()
 
         Logger.info("\(self.TAG) \(#function)")
@@ -85,7 +86,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
         ensureCellState()
     }
 
-    func reachabilityChanged() {
+    @objc func reachabilityChanged() {
         AssertIsOnMainThread()
 
         Logger.info("\(self.TAG) \(#function)")
@@ -124,7 +125,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
                                                object: nil)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didBecomeActive),
-                                               name: NSNotification.Name.UIApplicationDidBecomeActive,
+                                               name: UIApplication.didBecomeActiveNotification,
                                                object: nil)
     }
 
@@ -211,7 +212,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
         searchErrorView.isUserInteractionEnabled = true
         searchErrorView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(retryTapped)))
 
-        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        let activityIndicator = UIActivityIndicatorView(style: .gray)
         self.activityIndicator = activityIndicator
         self.view.addSubview(activityIndicator)
         activityIndicator.autoHCenterInSuperview()
@@ -344,7 +345,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
             path.append(UIBezierPath(rect: cellRect))
 
             layer.path = path.cgPath
-            layer.fillRule = kCAFillRuleEvenOdd
+            layer.fillRule = CAShapeLayerFillRule.evenOdd
             layer.fillColor = UIColor.black.cgColor
             layer.opacity = 0.7
         }
@@ -358,7 +359,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
 
     public func getFileForCell(_ cell: GifPickerCell) {
         GiphyDownloader.sharedInstance.cancelAllRequests()
-        cell.requestRenditionForSending().then { [weak self] (asset: GiphyAsset) -> Void in
+        cell.requestRenditionForSending().done { [weak self] (asset: GiphyAsset) in
             guard let strongSelf = self else {
                 Logger.info("\(GifPickerViewController.TAG) ignoring send, since VC was dismissed before fetching finished.")
                 return
@@ -414,7 +415,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
 
     // MARK: - Event Handlers
 
-    func donePressed(sender: UIButton) {
+    @objc func donePressed(sender: UIButton) {
         dismiss(animated: true, completion: nil)
     }
 
@@ -503,7 +504,7 @@ class GifPickerViewController: OWSViewController, UISearchBarDelegate, UICollect
 
     // MARK: - Event Handlers
 
-    func retryTapped(sender: UIGestureRecognizer) {
+    @objc func retryTapped(sender: UIGestureRecognizer) {
         guard sender.state == .recognized else {
             return
         }

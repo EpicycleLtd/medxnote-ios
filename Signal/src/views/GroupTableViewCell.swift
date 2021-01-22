@@ -50,7 +50,7 @@ import UIKit
         fatalError("init(coder:) has not been implemented")
     }
 
-    public func configure(thread: TSGroupThread, contactsManager: OWSContactsManager) {
+    @objc public func configure(thread: TSGroupThread, contactsManager: OWSContactsManager) {
         if let groupName = thread.groupModel.groupName, !groupName.isEmpty {
             self.nameLabel.text = groupName
         } else {

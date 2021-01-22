@@ -8,7 +8,7 @@ import Foundation
     let TAG = "[OWSAlerts]"
 
     /// Cleanup and present alert for no permissions
-    public class func showNoMicrophonePermissionAlert() {
+    @objc public class func showNoMicrophonePermissionAlert() {
         let alertTitle = NSLocalizedString("CALL_AUDIO_PERMISSION_TITLE", comment:"Alert title when calling and permissions for microphone are missing")
         let alertMessage = NSLocalizedString("CALL_AUDIO_PERMISSION_MESSAGE", comment:"Alert message when calling and permissions for microphone are missing")
         let alertController = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
@@ -22,15 +22,15 @@ import Foundation
         UIApplication.shared.frontmostViewController?.present(alertController, animated: true, completion: nil)
     }
 
-    public class func showAlert(withTitle title: String) {
+    @objc public class func showAlert(withTitle title: String) {
         self.showAlert(withTitle: title, message: nil, buttonTitle: nil)
     }
 
-    public class func showAlert(withTitle title: String, message: String) {
+    @objc public class func showAlert(withTitle title: String, message: String) {
         self.showAlert(withTitle: title, message: message, buttonTitle: nil)
     }
 
-    public class func showAlert(withTitle title: String, message: String? = nil, buttonTitle: String? = nil) {
+    @objc public class func showAlert(withTitle title: String, message: String? = nil, buttonTitle: String? = nil) {
         assert(title.characters.count > 0)
 
         let actionTitle = buttonTitle ?? NSLocalizedString("OK", comment: "")
@@ -40,7 +40,7 @@ import Foundation
         UIApplication.shared.frontmostViewController?.present(alert, animated: true, completion: nil)
     }
 
-    public class func showConfirmationAlert(withTitle title: String, message: String? = nil, proceedTitle: String? = nil, proceedAction: @escaping (UIAlertAction) -> Void) {
+    @objc public class func showConfirmationAlert(withTitle title: String, message: String? = nil, proceedTitle: String? = nil, proceedAction: @escaping (UIAlertAction) -> Void) {
         assert(title.characters.count > 0)
 
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -52,7 +52,7 @@ import Foundation
         UIApplication.shared.frontmostViewController?.present(alert, animated: true, completion: nil)
     }
 
-    public class var cancelAction: UIAlertAction {
+    @objc public class var cancelAction: UIAlertAction {
         let action = UIAlertAction(title: CommonStrings.cancelButton, style: .cancel) { _ in
             Logger.debug("Cancel item")
             // Do nothing.

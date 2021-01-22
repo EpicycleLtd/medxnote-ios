@@ -29,7 +29,7 @@ struct AudioSource: Hashable {
 
     init(portDescription: AVAudioSessionPortDescription) {
 
-        let isBuiltInEarPiece = portDescription.portType == AVAudioSessionPortBuiltInMic
+        let isBuiltInEarPiece = convertFromAVAudioSessionPort(portDescription.portType) == convertFromAVAudioSessionPort(AVAudioSession.Port.builtInMic)
 
         // portDescription.portName works well for BT linked devices, but if we are using
         // the built in mic, we have "iPhone Microphone" which is a little awkward.
@@ -187,8 +187,8 @@ struct AudioSource: Hashable {
         AssertIsOnMainThread()
 
         guard let call = call else {
-            setAudioSession(category: AVAudioSessionCategoryPlayback,
-                            mode: AVAudioSessionModeDefault)
+            setAudioSession(category: convertFromAVAudioSessionCategory(AVAudioSession.Category.playback),
+                            mode: convertFromAVAudioSessionMode(AVAudioSession.Mode.default))
             return
         }
 
@@ -198,12 +198,12 @@ struct AudioSource: Hashable {
         // to setPreferredInput to call.audioSource.portDescription in this case,
         // but in practice I'm seeing the call revert to the bluetooth headset.
         // Presumably something else (in WebRTC?) is touching our shared AudioSession. - mjk
-        let options: AVAudioSessionCategoryOptions = call.audioSource?.isBuiltInEarPiece == true ? [] : [.allowBluetooth]
+        let options: AVAudioSession.CategoryOptions = call.audioSource?.isBuiltInEarPiece == true ? [] : [.allowBluetooth]
 
         if call.state == .localRinging {
             // SoloAmbient plays through speaker, but respects silent switch
-            setAudioSession(category: AVAudioSessionCategorySoloAmbient,
-                            mode: AVAudioSessionModeDefault)
+            setAudioSession(category: convertFromAVAudioSessionCategory(AVAudioSession.Category.soloAmbient),
+                            mode: convertFromAVAudioSessionMode(AVAudioSession.Mode.default))
         } else if call.state == .connected, call.hasLocalVideo {
             // Because ModeVideoChat affects gain, we don't want to apply it until the call is connected.
             // otherwise sounds like ringing will be extra loud for video vs. speakerphone
@@ -212,16 +212,16 @@ struct AudioSource: Hashable {
             // side effect of setting options: .allowBluetooth, when I remove the (seemingly unnecessary)
             // option, and inspect AVAudioSession.sharedInstance.categoryOptions == 0. And availableInputs
             // does not include my linked bluetooth device
-            setAudioSession(category: AVAudioSessionCategoryPlayAndRecord,
-                            mode: AVAudioSessionModeVideoChat,
+            setAudioSession(category: convertFromAVAudioSessionCategory(AVAudioSession.Category.playAndRecord),
+                            mode: convertFromAVAudioSessionMode(AVAudioSession.Mode.videoChat),
                             options: options)
         } else {
             // Apple Docs say that setting mode to AVAudioSessionModeVoiceChat has the
             // side effect of setting options: .allowBluetooth, when I remove the (seemingly unnecessary)
             // option, and inspect AVAudioSession.sharedInstance.categoryOptions == 0. And availableInputs
             // does not include my linked bluetooth device
-            setAudioSession(category: AVAudioSessionCategoryPlayAndRecord,
-                            mode: AVAudioSessionModeVoiceChat,
+            setAudioSession(category: convertFromAVAudioSessionCategory(AVAudioSession.Category.playAndRecord),
+                            mode: convertFromAVAudioSessionMode(AVAudioSession.Mode.voiceChat),
                             options: options)
         }
 
@@ -361,7 +361,7 @@ struct AudioSource: Hashable {
         AssertIsOnMainThread()
 
         // Stop solo audio, revert to default.
-        setAudioSession(category: AVAudioSessionCategoryAmbient)
+        setAudioSession(category: convertFromAVAudioSessionCategory(AVAudioSession.Category.ambient))
     }
 
     // MARK: Playing Sounds
@@ -420,7 +420,7 @@ struct AudioSource: Hashable {
         // Since a call notification is more urgent than a message notifaction, we
         // vibrate twice, like a pulse, to differentiate from a normal notification vibration.
         vibrate()
-        DispatchQueue.default.asyncAfter(deadline: DispatchTime.now() + pulseDuration) {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + pulseDuration) {
             self.vibrate()
         }
     }
@@ -476,7 +476,7 @@ struct AudioSource: Hashable {
 
     private func setAudioSession(category: String,
                                  mode: String? = nil,
-                                 options: AVAudioSessionCategoryOptions = AVAudioSessionCategoryOptions(rawValue: 0)) {
+                                 options: AVAudioSession.CategoryOptions = AVAudioSession.CategoryOptions(rawValue: 0)) {
 
         AssertIsOnMainThread()
 
@@ -484,8 +484,8 @@ struct AudioSource: Hashable {
         var audioSessionChanged = false
         do {
             if #available(iOS 10.0, *), let mode = mode {
-                let oldCategory = session.category
-                let oldMode = session.mode
+                let oldCategory = convertFromAVAudioSessionCategory(session.category)
+                let oldMode = convertFromAVAudioSessionMode(session.mode)
                 let oldOptions = session.categoryOptions
 
                 guard oldCategory != category || oldMode != mode || oldOptions != options else {
@@ -503,13 +503,13 @@ struct AudioSource: Hashable {
                 if oldOptions != options {
                     Logger.debug("\(self.TAG) audio session changed options: \(oldOptions) -> \(options) ")
                 }
-                try session.setCategory(category, mode: mode, options: options)
+                try session.setCategory(convertToAVAudioSessionCategory(category), mode: AVAudioSession.Mode(rawValue: mode), options: options)
 
             } else {
-                let oldCategory = session.category
+                let oldCategory = convertFromAVAudioSessionCategory(session.category)
                 let oldOptions = session.categoryOptions
 
-                guard session.category != category || session.categoryOptions != options else {
+                guard convertFromAVAudioSessionCategory(session.category) != category || session.categoryOptions != options else {
                     return
                 }
 
@@ -521,7 +521,7 @@ struct AudioSource: Hashable {
                 if oldOptions != options {
                     Logger.debug("\(self.TAG) audio session changed options: \(oldOptions) -> \(options) ")
                 }
-                try session.setCategory(category, with: options)
+                //try session.setCategory(AVAudioSession.Category(rawValue: category), mode: options)
 
             }
         } catch {
@@ -535,4 +535,24 @@ struct AudioSource: Hashable {
             NotificationCenter.default.post(name:CallAudioServiceSessionChanged, object: nil)
         }
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromAVAudioSessionPort(_ input: AVAudioSession.Port) -> String {
+	return input.rawValue
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromAVAudioSessionCategory(_ input: AVAudioSession.Category) -> String {
+	return input.rawValue
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromAVAudioSessionMode(_ input: AVAudioSession.Mode) -> String {
+	return input.rawValue
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToAVAudioSessionCategory(_ input: String) -> AVAudioSession.Category {
+	return AVAudioSession.Category(rawValue: input)
 }

@@ -4,6 +4,7 @@
 
 import Foundation
 
+@objc 
 class SafetyNumberConfirmationAlert: NSObject {
 
     let TAG = "[SafetyNumberConfirmationAlert]"
@@ -16,11 +17,11 @@ class SafetyNumberConfirmationAlert: NSObject {
         self.storageManager = TSStorageManager.shared()
     }
 
-    public class func presentAlertIfNecessary(recipientId: String, confirmationText: String, contactsManager: OWSContactsManager, completion: @escaping (Bool) -> Void) -> Bool {
+    @objc public class func presentAlertIfNecessary(recipientId: String, confirmationText: String, contactsManager: OWSContactsManager, completion: @escaping (Bool) -> Void) -> Bool {
         return self.presentAlertIfNecessary(recipientIds: [recipientId], confirmationText: confirmationText, contactsManager: contactsManager, completion: completion)
     }
 
-    public class func presentAlertIfNecessary(recipientIds: [String], confirmationText: String, contactsManager: OWSContactsManager, completion: @escaping (Bool) -> Void) -> Bool {
+    @objc public class func presentAlertIfNecessary(recipientIds: [String], confirmationText: String, contactsManager: OWSContactsManager, completion: @escaping (Bool) -> Void) -> Bool {
         return SafetyNumberConfirmationAlert(contactsManager: contactsManager).presentIfNecessary(recipientIds: recipientIds,
                                                                                                   confirmationText: confirmationText,
                                                                                                   completion: completion)
@@ -89,7 +90,7 @@ class SafetyNumberConfirmationAlert: NSObject {
     }
 
     private func untrustedIdentityForSending(recipientIds: [String]) -> OWSRecipientIdentity? {
-        return recipientIds.flatMap {
+        return recipientIds.compactMap {
             OWSIdentityManager.shared().untrustedIdentityForSending(toRecipientId: $0)
         }.first
     }

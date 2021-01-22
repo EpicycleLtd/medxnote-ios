@@ -9,6 +9,7 @@ import PromiseKit
  * Signal is actually two services - textSecure for messages and red phone (for calls). 
  * AccountManager delegates to both.
  */
+@objc
 class AccountManager: NSObject {
     let TAG = "[AccountManager]"
 
@@ -21,7 +22,7 @@ class AccountManager: NSObject {
         return PushManager.shared()
     }
 
-    required init(textSecureAccountManager: TSAccountManager, preferences: OWSPreferences) {
+    @objc required init(textSecureAccountManager: TSAccountManager, preferences: OWSPreferences) {
         self.networkManager = textSecureAccountManager.networkManager
         self.textSecureAccountManager = textSecureAccountManager
         self.preferences = preferences
@@ -30,7 +31,7 @@ class AccountManager: NSObject {
     // MARK: registration
 
     @objc func register(verificationCode: String) -> AnyPromise {
-        return AnyPromise(register(verificationCode: verificationCode))
+        return AnyPromise(register(verificationCode: verificationCode) as Promise<Void>)
     }
 
     func register(verificationCode: String) -> Promise<Void> {
@@ -57,7 +58,7 @@ class AccountManager: NSObject {
             default:
                 throw error
             }
-        }.then {
+        }.done {
             self.completeRegistration()
         }
 
@@ -67,10 +68,10 @@ class AccountManager: NSObject {
     }
 
     private func registerForTextSecure(verificationCode: String) -> Promise<Void> {
-        return Promise { fulfill, reject in
+        return Promise { resolver in
             self.textSecureAccountManager.verifyAccount(withCode:verificationCode,
-                                                        success:fulfill,
-                                                        failure:reject)
+                                                        success:resolver.fulfill,
+                                                        failure:resolver.reject)
         }
     }
 
@@ -89,40 +90,40 @@ class AccountManager: NSObject {
     // MARK: Message Delivery
 
     func updatePushTokens(pushToken: String, voipToken: String) -> Promise<Void> {
-        return Promise { fulfill, reject in
+        return Promise { resolver in
             self.textSecureAccountManager.registerForPushNotifications(pushToken:pushToken,
                                                                        voipToken:voipToken,
-                                                                       success:fulfill,
-                                                                       failure:reject)
+                                                                       success:resolver.fulfill,
+                                                                       failure:resolver.reject)
         }
     }
 
     func registerForManualMessageFetching() -> Promise<Void> {
-        return Promise { fulfill, reject in
-            self.textSecureAccountManager.registerForManualMessageFetching(success:fulfill, failure:reject)
+        return Promise { resolver in
+            self.textSecureAccountManager.registerForManualMessageFetching(success:resolver.fulfill, failure:resolver.reject)
         }
     }
 
     // MARK: Turn Server
 
     func getTurnServerInfo() -> Promise<TurnServerInfo> {
-        return Promise { fulfill, reject in
+        return Promise { resolver in
             self.networkManager.makeRequest(TurnServerInfoRequest(),
                                             success: { (_: URLSessionDataTask, responseObject: Any?) in
                                                 guard responseObject != nil else {
-                                                    return reject(OWSErrorMakeUnableToProcessServerResponseError())
+                                                    return resolver.reject(OWSErrorMakeUnableToProcessServerResponseError())
                                                 }
 
                                                 if let responseDictionary = responseObject as? [String: AnyObject] {
                                                     if let turnServerInfo = TurnServerInfo(attributes:responseDictionary) {
-                                                        return fulfill(turnServerInfo)
+                                                        return resolver.fulfill(turnServerInfo)
                                                     }
                                                     Logger.error("\(self.TAG) unexpected server response:\(responseDictionary)")
                                                 }
-                                                return reject(OWSErrorMakeUnableToProcessServerResponseError())
+                                                return resolver.reject(OWSErrorMakeUnableToProcessServerResponseError())
             },
                                             failure: { (_: URLSessionDataTask, error: Error) in
-                                                    return reject(error)
+                                                    return resolver.reject(error)
             })
         }
     }
